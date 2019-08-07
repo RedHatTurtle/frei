@@ -1,4 +1,4 @@
-module Controll {
+module Control {
   proc main() {
     // Read inputa data
     //indat;
