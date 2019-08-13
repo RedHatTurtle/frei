@@ -1,6 +1,7 @@
-# FREE
-*Flux Reconstruction Experimental Edition*
-*by RedHatTurtle (Fábio Mallaco Moreira)*
+# FREI
+**Flux Reconstruction Educational Implementation**
+
+_by **RedHatTurtle** (Fábio Mallaco Moreira)_
 
 ## Intro
 This is my first attempt at writing a functional Chapel code. The code is based on a computational project from ITA's
@@ -11,6 +12,6 @@ H.T. Huyhn from NASA Glenn.
 ## Compiling and running instructions
 
 ```
-chpl -o frade --main-module "Control" frade.chpl
-./frade --inputFile=inputExample.toml
+chpl -o frei --main-module "Control" frei.chpl
+./frei --inputFile=inputExample.toml
 ```
