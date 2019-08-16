@@ -3,6 +3,8 @@
 
 _by **RedHatTurtle** (Fábio Mallaco Moreira)_
 
+_Licensed under the GNU Affero General Public License v3.0_
+
 ## Intro
 This is my first attempt at writing a functional Chapel code. The code is based on a computational project from ITA's
 graduate class CC-299 on High-Resolution methods for CFD. The code attempts to simulate a 1D shock-tube experiemnt with
