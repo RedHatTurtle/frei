@@ -4,12 +4,13 @@ module Control {
 
   proc main() {
     use Input;
+    use Dimensional;
 
     // Read inputa data
     indat(inputFile);
 
     // Process input data
-    //nonDimensionalization;
+    dim2nondim;
 
     // Initialize the problem
     //allocateVariable;
