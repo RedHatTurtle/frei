@@ -156,3 +156,57 @@ module Input {
     writeln();
   }
 }
+
+module Mesh {
+  var nBoundaries : int(8);
+  var nFaces : int(64);
+  var nCells : int(64);
+
+  var allFaces : range = 1..nFaces;
+  var allCells : range = 1..nCells;
+
+  //////////////////////////////////////////////////////////////////////////////
+
+  record bFace_ {
+    var cell : int(64);
+    var bcType : int(8);
+    var cell_face : int(8); // 1 for left, 2 for right.
+    var fp : int(64);
+  }
+
+  var bFace : [1..nBoundaries] bFace_;
+
+  //////////////////////////////////////////////////////////////////////////////
+
+  record face_cell_ {
+    var cell : int(64);
+    var cell_face : int(8);
+    var fp : int(64);
+  }
+
+  record face_ {
+    var x : real(64);
+    var left  : face_cell_;
+    var right : face_cell_;
+  }
+
+  var face : [1..nFaces] face_;
+
+  //////////////////////////////////////////////////////////////////////////////
+
+  record cell_face_ {
+    var idx  : int(64);
+    var side : int(8);
+    var fp   : int(8);
+  }
+
+  record cell_ {
+    var begSP : int(64);
+    var endSP : int(64);
+    var face  : [1..2] cell_face_;
+  }
+
+  var cell : [1..nCells] cell_;
+
+  //////////////////////////////////////////////////////////////////////////////
+}
