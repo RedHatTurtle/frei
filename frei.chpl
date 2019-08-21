@@ -206,10 +206,60 @@ module Input {
     var tomlData = parseToml(tomlFile);
 
     writeln();
-    writeln("Printing input file used:");
+    writeln("################################################################################");
+    writeln("###   Printing input file used                                               ###");
+    writeln("################################################################################");
     writeln(tomlData);
-    writeln("End of input file.");
+    writeln("################################################################################");
+    writeln("###   End of input file                                                      ###");
+    writeln("################################################################################");
     writeln();
+
+    try {
+      eqset = tomlData["parPhysics"]["eqset"].i : int(8);
+      initialConditions  = tomlData["parPhysics"]["initialConditions"].i : int(8);
+      boundaryConditions = tomlData["parPhysics"]["boundaryConditions"].i : int(8);
+
+      fGamma = tomlData["parFluid"]["fGamma"].re : real(64);
+      fR     = tomlData["parFluid"]["fR"].re : real(64);
+
+      xMin          = tomlData["parMesh"]["xMin"].re : real(64);
+      xMax          = tomlData["parMesh"]["xMax"].re : real(64);
+      nCells        = tomlData["parMesh"]["nCells"].i : int(64);
+      meshingScheme = tomlData["parMesh"]["meshingScheme"].i : int(8);
+
+      spatialScheme     = tomlData["parSpatial"]["spatialScheme"].i : int(8);
+      dissipationScheme = tomlData["parSpatial"]["dissipationScheme"].i : int(8);
+
+      iOrder = tomlData["parFR"]["iOrder"].i : int(8);
+      distSP = tomlData["parFR"]["distSP"].i : int(8);
+      distSP = tomlData["parFR"]["frScheme"].i : int(8);
+
+      timeStep = tomlData["parTime"]["timeScheme"].i : int(8);
+      timeStep = tomlData["parTime"]["timeStep"].re  : real(64);
+
+      ioIter  = tomlData["parOutput"]["ioIter"].i : int(64);
+      maxIter = tomlData["parOutput"]["maxIter"].i : int(64);
+      ioTime  = tomlData["parOutput"]["ioTime"].re : real(64);
+      maxTime = tomlData["parOutput"]["maxTime"].re : real(64);
+
+      rhoRef  = tomlData["parRef"]["rhoRef"].re : real(64);
+      pRef    = tomlData["parRef"]["pRef"].re : real(64);
+
+      rhoLow  = tomlData["parInit"]["rhoLow"].re : real(64);
+      pLow    = tomlData["parInit"]["pLow"].re : real(64);
+      rhoHigh = tomlData["parInit"]["rhoHigh"].re : real(64);
+      pHigh   = tomlData["parInit"]["pHigh"].re : real(64);
+    } catch {
+      write("Error reading input file.");
+    }
+    writeln();
+    writeln("################################################################################");
+    writeln("###   Finished reading input file                                            ###");
+    writeln("################################################################################");
+    writeln();
+
+    nPoints = nCells + 1;
   }
 }
 
