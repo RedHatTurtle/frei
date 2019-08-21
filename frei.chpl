@@ -13,18 +13,18 @@ module Control {
     dim2nondim;
 
     // Initialize the problem
-    //allocateVariable;
-    //initMesh;
-    //initSollution;
+    //allocate_variables;
+    //init_mesh;
+    //init_solution;
 
     // Output the initial state
-    //outputInit;
+    //output_init;
 
     // Start the solver itrations
     //solver;
 
     // Output the final state
-    //outputFinal;
+    //output_final;
   }
 }
 
