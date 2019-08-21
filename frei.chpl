@@ -263,6 +263,10 @@ module Input {
   }
 }
 
+module SpatialMethods {}
+module TemporalMethods {}
+module Output {}
+
 module Mesh {
   var nBoundaries : int(8);
   var nFaces : int(64);
