@@ -133,6 +133,62 @@ module Parameters {
 }
 
 module Input {
+  use Parameters;
+
+  //parPhysics
+  var eqset              : int(8) = eqEuler;
+  var initialConditions  : int(8) = icShockTube;
+  var boundaryConditions : int(8) = bcDirichlet;
+
+  //parFluid
+  var fGamma : real(64) = 1.4;           // Set the ratio of heat coefficients cp/cv
+  var fR     : real(64) = 287.0;         // Set the gas constant
+
+  //parMesh
+  var xMin          : real(64) = -1.0;
+  var xMax          : real(64) =  1.0;
+  var nCells        : int(64) = 1000;
+  var meshingScheme : int(8) = meshUniform;        // How to divide the domain into cells
+
+  //parSpatial
+  var spatialScheme     : int(8) = spatialBeamWarming;
+  var dissipationScheme : int(8) = dissNone;    // Type of numerical dissipation added
+
+  //parFR
+  var iOrder : int(8) = 3;               // Solution polynomial interpolation order
+  var distSP : int(8) = ptsLegendre;     // Distribution of SPs for SD method
+  var frScheme : int(8) = fr_gDG;
+
+  //parTime
+  var timeScheme : int(8) = timeRK_Classic;
+  var timeStep   : real(64) = 1e-4;
+
+  //parOutput
+  var ioIter  : int(64) = 0;             // Number of iterations between output dumps
+  var maxIter : int(64) = 0;             // Maximum number of iterations
+  var ioTime  : real(64) =-0.01;         // Time interval between output dumps
+  var maxTime : real(64) = 1.00;         // Maximum time to simulate
+
+  //parRef
+  var rhoRef  : real(64) = 1.0;          // Reference density for non-dimensionalization
+  var pRef    : real(64) = 1.0;          // Reference pressure for non-dimensionalization
+
+  //parInit
+  var rhoLow  : real(64) = 1.0;          // Density on the LOW pressure side of the shock tube
+  var pLow    : real(64) = 1.0;          // Pressure on the LOW pressure side of the shock tube
+  var rhoHigh : real(64) = 5.0;          // Density on the HIGH pressure side of the shock tube
+  var pHigh   : real(64) = 5.0;          // Pressure on the HIGH pressure side of the shock tube
+
+  //////////////////////////////////////////////////////////////////////////////
+
+  // Derived data
+  var nEqs    : int(8) = 1;
+  var nDOF    : int(8) = 1;
+  var nGhosts : int(8) = 1;
+  var nPoints : int(64) = nCells+1;
+
+  //////////////////////////////////////////////////////////////////////////////
+
   proc indat(fileName : string) {
     use TOML;
 
