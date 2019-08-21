@@ -191,6 +191,7 @@ module Input {
 
   proc indat(fileName : string) {
     use TOML;
+    use Mesh;
 
     var tomlFile : file;
     try {
@@ -260,6 +261,16 @@ module Input {
     writeln();
 
     nPoints = nCells + 1;
+
+    select eqset {
+      when eqConvection   do nEqs=1;
+      when eqInvBurgers   do nEqs=1;
+      when eqDiffusion    do nEqs=1;
+      when eqLinBurgers   do nEqs=1;
+      when eqVisBurgers   do nEqs=1;
+      when eqEuler        do nEqs=3;
+      when eqNavierStokes do nEqs=3;
+    }
   }
 }
 
