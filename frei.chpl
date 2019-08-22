@@ -295,7 +295,35 @@ module Dimensional {
   }
 }
 
-module SpatialMethods {}
+module SpatialMethods {
+  proc residue {
+    // Interpolate solution from SPs to FPs
+
+    // Calculate solution at BCs
+
+  //if (diffusive flux) then {
+      // Calculate discontinuous solution gradient
+
+      // Calculate common solution gradient at faces
+  //}
+
+    // Calculate solution gradient at BCs
+
+    // Calculate discontinuous flux divergent
+      // Calculate fluxes at SPs, inviscid and viscous
+      // Transform fluxes to the computational domain
+      // Calculate the divergence of the discontinuous flux
+      // Interpolate discontinuous flux to FPs and project it in the face normal direction
+
+    //
+      // Calculate common fluxes
+      // Calculate flux jump at interface (common flux minus local discontinuous flux)
+      // Add corrections due to flux jump to residuals of the SPs
+
+    // Return residue to RK and let it do it's shit
+  }
+}
+
 module TemporalMethods {}
 module Output {}
 
