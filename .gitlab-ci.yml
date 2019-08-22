@@ -1,0 +1,42 @@
+default:
+  image: "chapel/chapel:latest"
+#  image: "chapel/chapel:1.19.0"
+#  image: "chapel/chapel:1.18.0"
+
+stages:
+  - build_single_locale
+  - test_single_locale
+  - build_multi_locale
+  - test_multi_locale
+
+#before_script:
+#  - ls
+
+################################################################################
+
+compile:
+  stage: build_single_locale
+  script:
+    - chpl -o frei --main-module Control frei.chpl
+
+multi_locale_compile:
+  image: "chapel/chapel-gasnet:latest"
+  stage: build_multi_locale
+  image: "chapel/chapel-gasnet"
+  script:
+    - chpl -o frei --main-module Control frei.chpl
+
+################################################################################
+
+run_example:
+  stage: test_single_locale
+  script:
+    - ./frei --inputFile=inputExample.toml
+
+multi_locale_run_example:
+  image: "chapel/chapel-gasnet:latest"
+  stage: test_multi_locale
+  script:
+    - ./frei_real -nl 1 --inputFile=inputExample.toml
+    
+################################################################################
