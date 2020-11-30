@@ -1,7 +1,5 @@
 default:
   image: "chapel/chapel:latest"
-#  image: "chapel/chapel:1.19.0"
-#  image: "chapel/chapel:1.18.0"
 
 stages:
   - build_single_locale
@@ -38,5 +36,5 @@ multi_locale_run_example:
   stage: test_multi_locale
   script:
     - ./frei_real -nl 1 --inputFile=inputExample.toml
-    
+
 ################################################################################
