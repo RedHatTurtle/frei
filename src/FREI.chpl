@@ -1,4 +1,6 @@
-module frei_1d {
+/* Documentation for FREI */
+module FREI
+{
   //Runtime constants
   config const inputFile : string = "input.toml";
 

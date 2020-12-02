@@ -1,5 +1,8 @@
-frei
-frei_real
+target/
+
+FREI
+FREI_real
+Mason.lock
 
 *_tests
 

@@ -1,0 +1,10 @@
+
+[brick]
+name = "FREI"
+version = "0.1.0"
+chplVersion = "1.23.0"
+license = "AGPLv3"
+
+[dependencies]
+
+
