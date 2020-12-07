@@ -46,7 +46,6 @@ Indentation must be done with spaces, not tabs, and at an increment of 2 per lev
 
 ### Avoid unnecessary blocks {}
 When issuing a single command after a loop or conditional expression use `do` instead of single line blocks.
-Also, when opening a block don't waste a whole line just for the '{', empty lines are meant to imply separation.
 
 ### Use descriptive naming
 
@@ -54,14 +53,24 @@ Give as descriptive a name as possible, within reason. Abbreviations that would 
 relevant domain knowledge are OK.
 
 ### Naming conventions
+
+Files are named after the modules they contain but start with small caps for easier autocomplete on the terminal
+
 ```
-Modules    - Start_With_Capital_Letters_And_Separated_With_Underscores
-Procedures - all_small_caps_with_underscores
-Classes    - StartWithCapitalLettersAndEndInUnderscore_
-Records    - StartWithCapitalLettersAndEndInUnderscore_
-Parameters - 
+Modules    - CapitalizationAndCamelCase
+Procedures - all_small_caps_and_underscores
+Classes    - all_small_caps_underscores_and_c
+Types      - all_small_caps_underscores_and_t
+Records    - all_small_caps_underscores_and_r
+Parameters - ALL_CAPS_AND_UNDERSCORE
 Constants  - ALL_CAPS_AND_UNDERSCORE
-Variables  - camelCaseStartingWithSmallCaps
+Variables  - smallCapsAndCamelCase
+```
+
+```
+(...) - For passing arguments and defining variable type size
+[...] - For array dimensions and literals
+{...} - For domain literals and code blocks
 ```
 
 Default to camelCase.
