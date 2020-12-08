@@ -8,51 +8,51 @@ prototype module Mesh
   class node_c
   {
     // Geometric properties
-    var xyz : real(32);
+    var xyz : real;
   }
 
   class edge_c
   {
     // Geometric properties
-    var geom_order : uint(8);
-    var nodes : [2] uint(32);
+    var geom_order : int;
+    var nodes : [2] int;
   }
 
   class face_c
   {
     // Geometric properties
-    var geom_type : uint(8);
-    var geom_order : uint(8);
-    var nodes : [elem_nodes(geom_type)] uint(32);
-    var edges : [elem_edges(geom_type)] uint(32);
+    var geom_type : int;
+    var geom_order : int;
+    var nodes : [elem_nodes(geom_type)] int;
+    var edges : [elem_edges(geom_type)] int;
 
     // Numerical properties
-    var sol_order : uint(8);
-    var first_fp : uint(32);
-    var num_fp : uint(16);
+    var sol_order : int;
+    var first_fp : int;
+    var num_fp : int;
   }
 
   class cell_c
   {
     // Geometric properties
-    var geom_type : uint(8);
-    var geom_order : uint(8);
-    var nodes : [elem_nodes(geom_type)] uint(32);
-    var edges : [elem_edges(geom_type)] uint(32);
-    var faces : [elem_faces(geom_type)] uint(32);
+    var geom_type : int;
+    var geom_order : int;
+    var nodes : [elem_nodes(geom_type)] int;
+    var edges : [elem_edges(geom_type)] int;
+    var faces : [elem_faces(geom_type)] int;
 
     // Numerical properties
-    var sol_order : uint(8);
-    var first_sp : uint(32);
-    var num_sp : uint(16);
+    var sol_order : int;
+    var first_sp : int;
+    var num_sp : int;
   }
 
   class mesh_1d_c
   {
-    var nDims : uint(8) = 1;
-    var nNodes : uint(32);
-    var nFaces : uint(32);
-    var nCells : uint(32);
+    var nDims : int = 1;
+    var nNodes : int;
+    var nFaces : int;
+    var nCells : int;
 
     var nodeList : [nNodes] node_c;
     var faceList : [nFaces] face_c;
@@ -61,10 +61,10 @@ prototype module Mesh
 
   class mesh_2d_c
   {
-    var nDims : uint(8) = 2;
-    var nNodes : uint(32);
-    var nFaces : uint(32);
-    var nCells : uint(32);
+    var nDims : int = 2;
+    var nNodes : int;
+    var nFaces : int;
+    var nCells : int;
 
     var nodeList : [nNodes] node_c;
     var faceList : [nFaces] face_c;
@@ -73,11 +73,11 @@ prototype module Mesh
 
   class mesh_3d_c
   {
-    var nDims : uint(8) = 3;
-    var nNodes : uint(32);
-    var nEdges : uint(32);
-    var nFaces : uint(32);
-    var nCells : uint(32);
+    var nDims : int = 3;
+    var nNodes : int;
+    var nEdges : int;
+    var nFaces : int;
+    var nCells : int;
 
     var nodeList : [nNodes] node_c;
     var edgeList : [nEdges] edge_c;
@@ -85,7 +85,7 @@ prototype module Mesh
     var cellList : [nCells] cell_c;
   }
 
-  private proc elem_nodes(in elem_type : uint[8]) : uint[8]
+  private proc elem_nodes(in elem_type : int) : int
   {
     select elem_type {
       when 0 do return 1; // Vertex
@@ -99,7 +99,7 @@ prototype module Mesh
     }
   }
 
-  private proc elem_edges(in elem_type : uint[8]) : uint[8]
+  private proc elem_edges(in elem_type : int) : int
   {
     select elem_type {
       when 0 do return  0; // Vertex
@@ -113,7 +113,7 @@ prototype module Mesh
     }
   }
 
-  private proc elem_faces(in elem_type : uint[8]) : uint[8]
+  private proc elem_faces(in elem_type : int) : int
   {
     select elem_type {
       when 0 do return 0; // Vertex

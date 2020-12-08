@@ -14,7 +14,7 @@ prototype module Output
 
   proc timeOutput(curTime)
   {
-    real(rdp), intent(in) :: curTime
+    real, intent(in) :: curTime
     character(len=20) :: stringTime, dirName
 
     ! Define the string format to write the current time on the file/dir name string

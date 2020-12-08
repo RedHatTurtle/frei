@@ -3,14 +3,14 @@ prototype module Polynomials
   use Random;
   use UnitTest;
 
-  proc eval_jacobi_poly (in  n: int(64) , in  alpha: real(64), in beta: real(64), in x: real(64),
-                         out y: real(64), out dy: real(64), out d2y: real(64))
+  proc eval_jacobi_poly (in  n: int , in  alpha: real, in beta: real, in x: real,
+                         out y: real, out dy: real, out d2y: real)
   {
 
-    var yp, dyp, d2yp : real(64);
-    var ym, dym, d2ym : real(64);
-    var ab, di : real(64);
-    var c0, c1, c2, c3, c4 : real(64);
+    var yp, dyp, d2yp : real;
+    var ym, dym, d2ym : real;
+    var ab, di : real;
+    var c0, c1, c2, c3, c4 : real;
 
     // Initialize 0-th order Jacobi polynomial y=1
     y   = 1.0;
@@ -36,7 +36,7 @@ prototype module Polynomials
 
       // Iterate through the recurrence relation
       for i in 2..n do {
-        di = i : real(64);
+        di = i : real;
         c0 = 2.0*di + ab;
         c1 = 2.0 * di * (di+ab) * (c0-2.0);
         c2 = (c0-1.0) * (c0-2.0) * c0;
@@ -58,17 +58,17 @@ prototype module Polynomials
     }
   }
 
-  proc normalized_jacobi_poly(in n : int(64), in alpha : real(64), in beta : real(64), in x : real(64)) : real(64)
+  proc normalized_jacobi_poly(in n : int, in alpha : real, in beta : real, in x : real) : real
   {
 //    //.. Local Scalars ..
-//    var i : int(64);
-//    var ab, ab1, ab2, ab3, amb, a1, b1 : real(64);
-//    var gamma0, gamma1 : real(64);
-//    var aold, anew, bnew, h1, ri : real(64);
-//    var sqrt_numer, sqrt_denom : real(64);
+//    var i : int;
+//    var ab, ab1, ab2, ab3, amb, a1, b1 : real;
+//    var gamma0, gamma1 : real;
+//    var aold, anew, bnew, h1, ri : real;
+//    var sqrt_numer, sqrt_denom : real;
 //
 //    //.. Local Arrays ..
-//    var pl : [1..n+1] real(64);
+//    var pl : [1..n+1] real;
 //
 //    ab = alpha + beta;
 //    amb = alpha - beta;
@@ -107,14 +107,14 @@ prototype module Polynomials
 //    }
   } // normalized_jacobi_poly
 
-  proc eval_legendre_poly (in n:int(64), in x:real(64),
-                           out y:real(64), out dy:real(64), out d2y:real(64))
+  proc eval_legendre_poly (in n:int, in x:real,
+                           out y:real, out dy:real, out d2y:real)
   {
     eval_jacobi_poly(n, 0, 0, x, y, dy, d2y);
   }
 
-  proc eval_radau_poly (in n:int(64), in x:real(64),
-                           out y:real(64), out dy:real(64), out d2y:real(64))
+  proc eval_radau_poly (in n:int, in x:real,
+                           out y:real, out dy:real, out d2y:real)
   {
     var y_n, dy_n, d2y_n : real;
     var y_p, dy_p, d2y_p : real;
@@ -127,15 +127,15 @@ prototype module Polynomials
     d2y = 0.5*( d2y_n -d2y_p ) * (-1)**n;
   }
 
-  proc grad_normalized_jacobi_poly(n : int(64), alpha : real(64), beta : real(64), x : real(64)) : real(64)
+  proc grad_normalized_jacobi_poly(n : int, alpha : real, beta : real, x : real) : real
   {
 //    //.. Local Scalars ..
-//    var rn, a1, b1, ab1 : real(64);
+//    var rn, a1, b1, ab1 : real;
 //
 //    if (n == 0) {
 //      return 0.0;
 //    } else {
-//      rn  = n : real(64);
+//      rn  = n : real;
 //      a1  = alpha + 1.0;
 //      b1  = beta  + 1.0;
 //      ab1 = alpha + b1;
@@ -144,16 +144,16 @@ prototype module Polynomials
 //    }
   }
 
-  proc nodes_jacobi_gauss(in n : int(64), in alpha : real(64), in beta : real(64),
-                          out xi : [1..n] real(64), out dxi : [1..n] real(64))
+  proc nodes_jacobi_gauss(in n : int, in alpha : real, in beta : real,
+                          out xi : [1..n] real, out dxi : [1..n] real)
   {
 //    //.. Local Scalars ..
-//    var i, it : int(64);
-//    var konst,ri,x,y,dy,d2y : real(64);
+//    var i, it : int;
+//    var konst,ri,x,y,dy,d2y : real;
 //
 //    //.. Local Constants ..
-//    param eps17 : real(64) = 1.0e-17;
-//    param pi    : real(64) = 3.14159265358979323846;
+//    param eps17 : real = 1.0e-17;
+//    param pi    : real = 3.14159265358979323846;
 //
 //    if (n > 0) {
 //      xi(1)  = (beta - alpha) / (alpha + beta + 2.0);
@@ -190,16 +190,16 @@ prototype module Polynomials
 //    }
   }
 
-  proc nodes_legendre_gauss(in n : int(64),
-                            out xi : [1..n] real(64), out dxi : [1..n] real(64))
+  proc nodes_legendre_gauss(in n : int,
+                            out xi : [1..n] real, out dxi : [1..n] real)
   {
 //    //.. Formal Arguments ..
 //    int,                      intent(in)  :: n;
-//    real(64), dimension(1:n), intent(out) :: xi;
-//    real(64), dimension(1:n), intent(out) :: dxi;
+//    real, dimension(1:n), intent(out) :: xi;
+//    real, dimension(1:n), intent(out) :: dxi;
 //
 //    //.. Local Scalars ..
-//    real(64) :: alpha,beta;
+//    real :: alpha,beta;
 //
 //    nodes_jacobi_gauss(n,0.0,0.0,xi,dxi);
   }
@@ -208,15 +208,15 @@ prototype module Polynomials
   {
 //    //.. Formal Arguments ..
 //    int     ,                   intent(in)  :: n;
-//    real(64), dimension(1:n+1), intent(out) :: xi;
-//    real(64), dimension(1:n+1), intent(out) :: vn;
+//    real, dimension(1:n+1), intent(out) :: xi;
+//    real, dimension(1:n+1), intent(out) :: vn;
 //
 //    //.. Local Scalars ..
 //    int      :: i, it, n2;
-//    real(64) :: sn, x, y, dy, d2y;
+//    real :: sn, x, y, dy, d2y;
 //
 //    //.. Local Constants ..
-//    real(64), parameter :: pi   = 3.14159265358979323846;
+//    real, parameter :: pi   = 3.14159265358979323846;
 //
 //    if (n == 0) {
 //      xi(1) = 0.0;
@@ -269,9 +269,9 @@ prototype module Polynomials
 //
 //    //.. Formal Arguments ..
 //    int     ,                 intent(in)  :: n;
-//    real(64), dimension(1:n), intent(in)  :: xi;
-//    real(64), dimension(1:n), intent(in)  :: dy;
-//    real(64), dimension(1:n), intent(out) :: weights;
+//    real, dimension(1:n), intent(in)  :: xi;
+//    real, dimension(1:n), intent(in)  :: dy;
+//    real, dimension(1:n), intent(out) :: weights;
 //
 //    //.. Local Scalars ..
 //    int :: i;
@@ -282,8 +282,8 @@ prototype module Polynomials
 //      weights(i) = 2.0 / ((1.0 - xi(i)*xi(i)) * dy(i) * dy(i));
   }
 
-  proc weights_legendre_gauss_lobatto(in n : int, in vn : real(64),
-                                      out weights : real(64))
+  proc weights_legendre_gauss_lobatto(in n : int, in vn : real,
+                                      out weights : real)
   {
 //    //**********************************************************************
 //    //   COMPUTES THE WEIGHTS RELATIVE TO THE LEGENDRE GAUSS-LOBATTO FORMULA
@@ -295,23 +295,23 @@ prototype module Polynomials
 //
 //    //.. Formal Arguments ..
 //    int     ,                   intent(in)  :: n;
-//    real(64), dimension(1:n+1), intent(in)  :: vn;
-//    real(64), dimension(1:n+1), intent(out) :: weights;
+//    real, dimension(1:n+1), intent(in)  :: vn;
+//    real, dimension(1:n+1), intent(out) :: weights;
 //
 //    //.. Local Scalars ..
 //    int      :: i;
-//    real(64) :: c;
+//    real :: c;
 //
 //    c = 2.0;
 //    if (n > 0) then
-//      c = c / (n*n+1) : real(64);
+//      c = c / (n*n+1) : real;
 //
 //    for i in 1..n+1 do
 //      weights(i) = c / (vn(i)*vn(i));
   } // weights_legendre_gauss_lobatto
 
-  proc weights_dgbook_jacobi_gauss_lobatto(in n : int, in alpha : real(64), in beta : real(64), in xi : real(64),
-                                           out weights : real(64))
+  proc weights_dgbook_jacobi_gauss_lobatto(in n : int, in alpha : real, in beta : real, in xi : real,
+                                           out weights : real)
   {
 //    //********************************************************************
 //    //   COMPUTES THE WEIGHTS RELATIVE TO THE JACOBI GAUSS-LOBATTO FORMULA
@@ -324,16 +324,16 @@ prototype module Polynomials
 //
 //    //.. Formal Arguments ..
 //    int,                        intent(in)  :: n;
-//    real(64),                   intent(in)  :: alpha;
-//    real(64),                   intent(in)  :: beta;
-//    real(64), dimension(1:n+1), intent(in)  :: xi;
-//    real(64), dimension(1:n+1), intent(out) :: weights;
+//    real,                   intent(in)  :: alpha;
+//    real,                   intent(in)  :: beta;
+//    real, dimension(1:n+1), intent(in)  :: xi;
+//    real, dimension(1:n+1), intent(out) :: weights;
 //
 //    //.. Local Scalars ..
 //    int  :: i;
-//    real(64) :: a1, a2, b1, b2, ab, ab1, ab2;
-//    real(64) :: c, c1, c2, c3, ri, rn, su;
-//    real(64) :: y, z, dy, d2y, scl;
+//    real :: a1, a2, b1, b2, ab, ab1, ab2;
+//    real :: c, c1, c2, c3, ri, rn, su;
+//    real :: y, z, dy, d2y, scl;
 //
 //    weights(:) = 0.0;
 //
@@ -355,7 +355,7 @@ prototype module Polynomials
 //      c3 = 0.5 * c * a1 * b1;
 //
 //      for i in 2..n-1 {
-//        ri = i-1 : real(64);;
+//        ri = i-1 : real;;
 //        c1 = c1*(ri+a1)*ri / ((ri+ab2)*(ri+b2));
 //        c2 = c2*(ri+b1)*ri / ((ri+ab2)*(ri+a2));
 //        c3 = c3*(ri+a1)*(ri+b1) / ((ri+2.0)*(ri+ab1));
@@ -389,18 +389,18 @@ prototype module Polynomials
 //
 //    //.. Formal Arguments ..
 //    int     , intent(in) :: n; // ORDER OF LEGENDRE GAUSS POLYNOMIAL
-//    real(64), intent(in) :: a; // REAL VALUE TO DISTINGUISH
+//    real, intent(in) :: a; // REAL VALUE TO DISTINGUISH
 //
 //    //.. Function Result ..
-//    real(64), dimension(1:n+1,1:n+1) :: return_value; // DERIVATIVE MATRIX
+//    real, dimension(1:n+1,1:n+1) :: return_value; // DERIVATIVE MATRIX
 //
 //    //.. Local Scalars ..
 //    int  :: i,j,np;
-//    real(64) :: vi,zi,vj,zj;
+//    real :: vi,zi,vj,zj;
 //
 //    //.. Local Arrays ..
-//    real(64), dimension(1:n+1) :: cs; // VECTOR OF THE 0.0ES
-//    real(64), dimension(1:n+1) :: dz; // LEGENDRE DERIVATIVES AT THE 0.0ES
+//    real, dimension(1:n+1) :: cs; // VECTOR OF THE 0.0ES
+//    real, dimension(1:n+1) :: dz; // LEGENDRE DERIVATIVES AT THE 0.0ES
 //
 //    np = n + 1;
 //
@@ -438,18 +438,18 @@ prototype module Polynomials
 //
 //    //.. Formal Arguments ..
 //    int,  intent(in) :: n; // ORDER OF LEGENDRE GAUSS-LOBATTO POLYNOMIAL
-//    real(64), intent(in) :: a; // REAL VALUE TO DISTINGUISH BETWEEN DP AND QP VERSIONS
+//    real, intent(in) :: a; // REAL VALUE TO DISTINGUISH BETWEEN DP AND QP VERSIONS
 //
 //    //.. Function Result ..
-//    real(64), dimension(1:n+1,1:n+1) :: return_value; // DERIVATIVE MATRIX
+//    real, dimension(1:n+1,1:n+1) :: return_value; // DERIVATIVE MATRIX
 //
 //    //.. Local Scalars ..
 //    int  :: i,j,np;
-//    real(64) :: ei,ej,vi,vj,dn,c;
+//    real :: ei,ej,vi,vj,dn,c;
 //
 //    //.. Local Arrays ..
-//    real(64), dimension(1:n+1) :: et; // VECTOR OF THE NODES
-//    real(64), dimension(1:n+1) :: vn; // VALUES OF THE LEGENDRE POLYNOMIAL AT THE NODES
+//    real, dimension(1:n+1) :: et; // VECTOR OF THE NODES
+//    real, dimension(1:n+1) :: vn; // VALUES OF THE LEGENDRE POLYNOMIAL AT THE NODES
 //
 //    np = n + 1;
 //

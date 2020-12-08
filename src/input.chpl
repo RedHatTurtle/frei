@@ -3,56 +3,56 @@ prototype module Input
   use Parameters;
 
   //parPhysics
-  var eqset              : int(8) = eqEuler;
-  var initialConditions  : int(8) = icShockTube;
-  var boundaryConditions : int(8) = bcDirichlet;
+  var eqset              : int = eqEuler;
+  var initialConditions  : int = icShockTube;
+  var boundaryConditions : int = bcDirichlet;
 
   //parFluid
-  var fGamma : real(64) = 1.4;           // Set the ratio of heat coefficients cp/cv
-  var fR     : real(64) = 287.0;         // Set the gas constant
+  var fGamma : real = 1.4;           // Set the ratio of heat coefficients cp/cv
+  var fR     : real = 287.0;         // Set the gas constant
 
   //parMesh
-  var xMin          : real(64) = -1.0;
-  var xMax          : real(64) =  1.0;
-  var nCells        : int(64) = 1000;
-  var meshingScheme : int(8) = meshUniform;        // How to divide the domain into cells
+  var xMin          : real = -1.0;
+  var xMax          : real =  1.0;
+  var nCells        : int = 1000;
+  var meshingScheme : int = meshUniform;        // How to divide the domain into cells
 
   //parSpatial
-  var spatialScheme     : int(8) = spatialBeamWarming;
-  var dissipationScheme : int(8) = dissNone;    // Type of numerical dissipation added
+  var spatialScheme     : int = spatialBeamWarming;
+  var dissipationScheme : int = dissNone;    // Type of numerical dissipation added
 
   //parFR
-  var iOrder : int(8) = 3;               // Solution polynomial interpolation order
-  var distSP : int(8) = ptsLegendre;     // Distribution of SPs for SD method
-  var frScheme : int(8) = fr_gDG;
+  var iOrder : int = 3;               // Solution polynomial interpolation order
+  var distSP : int = ptsLegendre;     // Distribution of SPs for SD method
+  var frScheme : int = fr_gDG;
 
   //parTime
-  var timeScheme : int(8) = timeRK_Classic;
-  var timeStep   : real(64) = 1e-4;
+  var timeScheme : int = timeRK_Classic;
+  var timeStep   : real = 1e-4;
 
   //parOutput
-  var ioIter  : int(64) = 0;             // Number of iterations between output dumps
-  var maxIter : int(64) = 0;             // Maximum number of iterations
-  var ioTime  : real(64) =-0.01;         // Time interval between output dumps
-  var maxTime : real(64) = 1.00;         // Maximum time to simulate
+  var ioIter  : int = 0;             // Number of iterations between output dumps
+  var maxIter : int = 0;             // Maximum number of iterations
+  var ioTime  : real =-0.01;         // Time interval between output dumps
+  var maxTime : real = 1.00;         // Maximum time to simulate
 
   //parRef
-  var rhoRef  : real(64) = 1.0;          // Reference density for non-dimensionalization
-  var pRef    : real(64) = 1.0;          // Reference pressure for non-dimensionalization
+  var rhoRef  : real = 1.0;          // Reference density for non-dimensionalization
+  var pRef    : real = 1.0;          // Reference pressure for non-dimensionalization
 
   //parInit
-  var rhoLow  : real(64) = 1.0;          // Density on the LOW pressure side of the shock tube
-  var pLow    : real(64) = 1.0;          // Pressure on the LOW pressure side of the shock tube
-  var rhoHigh : real(64) = 5.0;          // Density on the HIGH pressure side of the shock tube
-  var pHigh   : real(64) = 5.0;          // Pressure on the HIGH pressure side of the shock tube
+  var rhoLow  : real = 1.0;          // Density on the LOW pressure side of the shock tube
+  var pLow    : real = 1.0;          // Pressure on the LOW pressure side of the shock tube
+  var rhoHigh : real = 5.0;          // Density on the HIGH pressure side of the shock tube
+  var pHigh   : real = 5.0;          // Pressure on the HIGH pressure side of the shock tube
 
   //////////////////////////////////////////////////////////////////////////////
 
   // Derived data
-  var nEqs    : int(8) = 1;
-  var nDOF    : int(8) = 1;
-  var nGhosts : int(8) = 1;
-  var nPoints : int(64) = nCells+1;
+  var nEqs    : int = 1;
+  var nDOF    : int = 1;
+  var nGhosts : int = 1;
+  var nPoints : int = nCells+1;
 
   //////////////////////////////////////////////////////////////////////////////
 
@@ -85,40 +85,40 @@ prototype module Input
     writeln();
 
     try {
-      eqset = tomlData["parPhysics"]["eqset"].i : int(8);
-      initialConditions  = tomlData["parPhysics"]["initialConditions"].i : int(8);
-      boundaryConditions = tomlData["parPhysics"]["boundaryConditions"].i : int(8);
+      eqset = tomlData["parPhysics"]["eqset"].i : int;
+      initialConditions  = tomlData["parPhysics"]["initialConditions"].i : int;
+      boundaryConditions = tomlData["parPhysics"]["boundaryConditions"].i : int;
 
-      fGamma = tomlData["parFluid"]["fGamma"].re : real(64);
-      fR     = tomlData["parFluid"]["fR"].re : real(64);
+      fGamma = tomlData["parFluid"]["fGamma"].re : real;
+      fR     = tomlData["parFluid"]["fR"].re : real;
 
-      xMin          = tomlData["parMesh"]["xMin"].re : real(64);
-      xMax          = tomlData["parMesh"]["xMax"].re : real(64);
-      nCells        = tomlData["parMesh"]["nCells"].i : int(64);
-      meshingScheme = tomlData["parMesh"]["meshingScheme"].i : int(8);
+      xMin          = tomlData["parMesh"]["xMin"].re : real;
+      xMax          = tomlData["parMesh"]["xMax"].re : real;
+      nCells        = tomlData["parMesh"]["nCells"].i : int;
+      meshingScheme = tomlData["parMesh"]["meshingScheme"].i : int;
 
-      spatialScheme     = tomlData["parSpatial"]["spatialScheme"].i : int(8);
-      dissipationScheme = tomlData["parSpatial"]["dissipationScheme"].i : int(8);
+      spatialScheme     = tomlData["parSpatial"]["spatialScheme"].i : int;
+      dissipationScheme = tomlData["parSpatial"]["dissipationScheme"].i : int;
 
-      iOrder = tomlData["parFR"]["iOrder"].i : int(8);
-      distSP = tomlData["parFR"]["distSP"].i : int(8);
-      distSP = tomlData["parFR"]["frScheme"].i : int(8);
+      iOrder = tomlData["parFR"]["iOrder"].i : int;
+      distSP = tomlData["parFR"]["distSP"].i : int;
+      distSP = tomlData["parFR"]["frScheme"].i : int;
 
-      timeStep = tomlData["parTime"]["timeScheme"].i : int(8);
-      timeStep = tomlData["parTime"]["timeStep"].re  : real(64);
+      timeStep = tomlData["parTime"]["timeScheme"].i : int;
+      timeStep = tomlData["parTime"]["timeStep"].re  : real;
 
-      ioIter  = tomlData["parOutput"]["ioIter"].i : int(64);
-      maxIter = tomlData["parOutput"]["maxIter"].i : int(64);
-      ioTime  = tomlData["parOutput"]["ioTime"].re : real(64);
-      maxTime = tomlData["parOutput"]["maxTime"].re : real(64);
+      ioIter  = tomlData["parOutput"]["ioIter"].i : int;
+      maxIter = tomlData["parOutput"]["maxIter"].i : int;
+      ioTime  = tomlData["parOutput"]["ioTime"].re : real;
+      maxTime = tomlData["parOutput"]["maxTime"].re : real;
 
-      rhoRef  = tomlData["parRef"]["rhoRef"].re : real(64);
-      pRef    = tomlData["parRef"]["pRef"].re : real(64);
+      rhoRef  = tomlData["parRef"]["rhoRef"].re : real;
+      pRef    = tomlData["parRef"]["pRef"].re : real;
 
-      rhoLow  = tomlData["parInit"]["rhoLow"].re : real(64);
-      pLow    = tomlData["parInit"]["pLow"].re : real(64);
-      rhoHigh = tomlData["parInit"]["rhoHigh"].re : real(64);
-      pHigh   = tomlData["parInit"]["pHigh"].re : real(64);
+      rhoLow  = tomlData["parInit"]["rhoLow"].re : real;
+      pLow    = tomlData["parInit"]["pLow"].re : real;
+      rhoHigh = tomlData["parInit"]["rhoHigh"].re : real;
+      pHigh   = tomlData["parInit"]["pHigh"].re : real;
     } catch {
       write("Error reading input file.");
     }
