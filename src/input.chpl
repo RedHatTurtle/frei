@@ -1,9 +1,12 @@
 prototype module Input
 {
+  use Random;
+  use UnitTest;
   use Parameters;
 
   //parPhysics
-  var eqset              : int = eqEuler;
+  var nDims              : int = 1;
+  var eqSet              : int = eqEuler;
   var initialConditions  : int = icShockTube;
   var boundaryConditions : int = bcDirichlet;
 
@@ -12,6 +15,7 @@ prototype module Input
   var fR     : real = 287.0;         // Set the gas constant
 
   //parMesh
+  var meshGen       : bool = false;
   var xMin          : real = -1.0;
   var xMax          : real =  1.0;
   var nCells        : int = 1000;
@@ -78,14 +82,18 @@ prototype module Input
     writeln("################################################################################");
     writeln("###   Printing input file used                                               ###");
     writeln("################################################################################");
+    writeln();
+
     writeln(tomlData);
+
+    writeln();
     writeln("################################################################################");
     writeln("###   End of input file                                                      ###");
     writeln("################################################################################");
     writeln();
 
     try {
-      eqset = tomlData["parPhysics"]["eqset"].i : int;
+      eqSet = tomlData["parPhysics"]["eqSet"].i : int;
       initialConditions  = tomlData["parPhysics"]["initialConditions"].i : int;
       boundaryConditions = tomlData["parPhysics"]["boundaryConditions"].i : int;
 
@@ -122,6 +130,7 @@ prototype module Input
     } catch {
       write("Error reading input file.");
     }
+
     writeln();
     writeln("################################################################################");
     writeln("###   Finished reading input file                                            ###");
@@ -130,7 +139,7 @@ prototype module Input
 
     nPoints = nCells + 1;
 
-    select eqset {
+    select eqSet {
       when eqConvection   do nEqs=1;
       when eqInvBurgers   do nEqs=1;
       when eqDiffusion    do nEqs=1;
