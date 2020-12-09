@@ -102,20 +102,20 @@ prototype module Parameters
   prototype module Gmesh
   {
 
-    // Geometric element types
-    //param GMESH_PNT     : int = 1;
-    //param GMESH_LIN     : int = 2;
-    //param GMESH_TRI     : int = 3;
-    //param GMESH_QUA     : int = 4;
-    //param GMESH_TET     : int = 5;
-    //param GMESH_PYR     : int = 6;
-    //param GMESH_PRI     : int = 7;
-    //param GMESH_HEX     : int = 8;
-    //param GMESH_POLYG   : int = 9;
-    //param GMESH_POLYH   : int = 10;
-    //param GMESH_XFEM    : int = 11;
-    //param GMESH_MINI    : int = 12;
-    //param GMESH_TRIH    : int = 13;
+    // Gmesh element topologies
+    //param GMESH_TOPO_PNT     : int = 1;
+    //param GMESH_TOPO_LIN     : int = 2;
+    //param GMESH_TOPO_TRI     : int = 3;
+    //param GMESH_TOPO_QUA     : int = 4;
+    //param GMESH_TOPO_TET     : int = 5;
+    //param GMESH_TOPO_PYR     : int = 6;
+    //param GMESH_TOPO_PRI     : int = 7;
+    //param GMESH_TOPO_HEX     : int = 8;
+    //param GMESH_TOPO_POLYG   : int = 9;
+    //param GMESH_TOPO_POLYH   : int = 10;
+    //param GMESH_TOPO_XFEM    : int = 11;
+    //param GMESH_TOPO_MINI    : int = 12;
+    //param GMESH_TOPO_TRIH    : int = 13;
 
     // Gmesh Element Types
     //
@@ -128,6 +128,8 @@ prototype module Parameters
     //          |   Pyramid     |   PYRA_5  |   PYRA_13  PYRA_14  |   PYRA_21  PYRA_29  PYRA_30  |   PYRA_P4_29 PYRA_50  PYRA_55
     //          |   Pentahedron |   PENTA_6 |   PENTA_15 PENTA_18 |   PENTA_24 PENTA_38 PENTA_40 |   PENTA_33   PENTA_66 PENTA_75
     //          |   Hexahedron  |   HEXA_8  |   HEXA_20  HEXA_27  |   HEXA_32  HEXA_56  HEXA_64  |   HEXA_44    HEXA_98  HEXA_125
+
+    param GMESH_PNT      : int = 15;
 
     //     Line:                 Line3:          Line4:
     //

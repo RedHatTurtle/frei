@@ -29,7 +29,7 @@ prototype module Gmesh
 
     var nodes    : [1..nNodes, 1..3] real;
     var elements : [1..nElements] gmesh_element_r;
-    var families : [1..nFamilies] gmesh_family_r;
+    var families : [0..nFamilies-1] gmesh_family_r;
 
     proc random1D(xMin: real, xMax: real)
     {
@@ -40,7 +40,7 @@ prototype module Gmesh
       var seed : int = 47;
       var randStreamSeeded = new RandomStream(real, seed);
       var x = this.nodes[..,1];
-      var elem : [1..this.nElements, 1..2] int;
+      var cells : [1..this.nElements-2, 1..2] int;
       var nodePermutation : [1..this.nNodes] int;
       var elemPermutation : [1..this.nElements] int;
 
@@ -56,37 +56,53 @@ prototype module Gmesh
       permutation(elemPermutation, seed);
 
       // Fill element list with no overlapping elements oriented from left to right
-      for i in 1..this.nElements {
-        elem[i,1] = i;
-        elem[i,2] = i+1;
+      for i in 1..this.nElements-2 {
+        cells[i,1] = i;
+        cells[i,2] = i+1;
       }
 
+      // Commit values to object
+
       // Set the boundary and internal families
+      this.families[0].nDim = 1;
+      this.families[0].name = "flow";
       this.families[1].nDim = 0;
       this.families[1].name = "left";
       this.families[2].nDim = 0;
       this.families[2].name = "right";
-      this.families[3].nDim = 1;
-      this.families[3].name = "flow";
 
-      // Commit values to object
+      // Fill node list in randomized order
       for i in 1..this.nNodes do
         this.nodes[nodePermutation[i],1] = x[i];
 
-      for i in 1..this.nElements {
+      // Fill element list with the internal elements in random order
+      for i in 2..this.nElements-1 {
         this.elements[elemPermutation[i]].elemType = GMESH_LIN_2;
         this.elements[elemPermutation[i]].setNodes;
-        this.elements[elemPermutation[i]].nodes[1] = nodePermutation[elem[i,1]];
-        this.elements[elemPermutation[i]].nodes[2] = nodePermutation[elem[i,2]];
+        this.elements[elemPermutation[i]].tags[1] = 0;
+        this.elements[elemPermutation[i]].nodes[1] = nodePermutation[cells[i-1,1]];
+        this.elements[elemPermutation[i]].nodes[2] = nodePermutation[cells[i-1,2]];
       }
+
+      // Add left boundary point to elements list
+      this.elements[elemPermutation[1]].elemType = GMESH_PNT;
+      this.elements[elemPermutation[1]].setNodes;
+      this.elements[elemPermutation[1]].tags[1] = 1;
+      this.elements[elemPermutation[1]].nodes[1] = nodePermutation[1];
+
+      // Add right boundary point to elements list
+      this.elements[elemPermutation[this.nElements]].elemType = GMESH_PNT;
+      this.elements[elemPermutation[this.nElements]].setNodes;
+      this.elements[elemPermutation[this.nElements]].tags[1] = 2;
+      this.elements[elemPermutation[this.nElements]].nodes[1] = nodePermutation[this.nNodes];
     }
   }
 
   record gmesh_element_r
   {
     var elemType : int;
-    var nTags : int;
-    var tags : [1..nTags] int;
+    var nTags : int = 1;
+    var tags : [1..1] int;
 
     var nodeDomain : domain(rank=1, idxType=int);
     var nodes : [nodeDomain] int;
@@ -96,6 +112,7 @@ prototype module Gmesh
       use Parameters.Gmesh;
 
       select this.elemType {
+        when GMESH_PNT    do this.nodeDomain = {1..1};
         when GMESH_LIN_2  do this.nodeDomain = {1..2};
         when GMESH_LIN_3  do this.nodeDomain = {1..3};
         when GMESH_LIN_4  do this.nodeDomain = {1..4};
@@ -121,7 +138,7 @@ prototype module Gmesh
   {
     use Random;
 
-    var mesh1 = new gmesh_c(nNodes=7, nElements=6, nFamilies=3);
+    var mesh1 = new gmesh_c(nNodes=7, nElements=8, nFamilies=3);
     mesh1.random1D(-1,2);
 
     writeln("Test 1: Random 1D mesh:");
