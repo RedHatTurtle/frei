@@ -25,15 +25,15 @@ chpl -o frei --main-module "Control" frei.chpl
 ## Coding Standards
 These coding rules are meant to avoid bugs and passively improve code quality.
 
-### Declare variables at the beginning of the block they are used
+### Declare variables at the beginning of the code block they are used
 
 ### Whenever possible use explicit typing
 
 ### Always define argument intents
 
-### Remember to initialize variables that shouldn't default
-Chapel default boolean variables to false, numbers to 0 and strings to empty. Remember to initialize variables at declaration when
-these are not appropriate defaults.
+### Remember to initialize variables that shouldn't start with the type's default value
+Chapel default boolean variables to false, numbers to 0 and strings to empty. Remember to initialize variables at
+declaration when these are not appropriate defaults.
 
 
 
@@ -49,8 +49,8 @@ When issuing a single command after a loop or conditional expression use `do` in
 
 ### Use descriptive naming
 
-Give as descriptive a name as possible, within reason. Abbreviations that would be familiar to someone outside your project with
-relevant domain knowledge are OK.
+Give as descriptive a name as possible, within reason. Abbreviations that would be familiar to someone outside your
+project with relevant domain knowledge are OK.
 
 ### Naming conventions
 
@@ -74,10 +74,12 @@ Variables  - smallCapsAndCamelCase
 ```
 
 Default to camelCase.
-People's names are **always** capitalized.
+People's names are **always** Capitalized.
 Acronyms are **always** ALL CAPS.
 
-### Keep lines under 120 characters
+### Limit code lines to 132 columns
+
+### Limit comment/text lines to 120 characters
 
 ### Comments
 -Avoid using `\* comment *\` unless writing really long comments.
