@@ -3,6 +3,66 @@ prototype module Interpolation
   use Random;
   use UnitTest;
 
+  class interpolation_coefficients_c
+  {
+    var coefs_d : domain(2); // {nFPs, nSPs}
+    var coefs: [coefs_d] real;
+  }
+
+  // Define type for the interpolation structure. Add "?" to allow default initialization to nil.
+  type interpolation_coefficients_t = unmanaged interpolation_coefficients_c?;
+
+  // Perhaps it might be useful in the future to have a sparse domain with the cell topologies present in the mesh
+  //var interpolation_d : sparse domain(2);
+
+  var interpolation_d : domain(2); // {elemType, interpOrder}
+
+  var sp2fpInterp : [interpolation_d] interpolation_coefficients_t;
+
+  proc init_interpolation()
+  {
+    use Parameters.Mesh;
+    use Polynomials;
+
+    // Allocate interpolation coefficients structure
+    var elemTopos : range = 2..2;
+    var interpOrders : range = 1..9;
+    interpolation_d = {elemTopos, interpOrders};
+
+    for (elemTopo, interpOrder) in sp2fpInterp.domain
+    {
+      select elemTopo
+      {
+        when TOPO_LINE
+        {
+          var spCnt : range = 1..interpOrder;
+          var fpCnt : range = 1..2;
+
+          // Need to build an appropriate way to query the point location for each element.
+          // Initially assume the whole mesh uses the same base distribution specified in input file.
+          // Even more initially assume the whole mesh uses has SPs on Legendre roots. xD
+          var spLoc : [spCnt] real = nodes_legendre_gauss(interpOrder);
+          var fpLoc : [fpCnt] real = [-0.5, 0.5];
+
+          sp2fpInterp[elemTopo, interpOrder] = new interpolation_coefficients_t({fpCnt, spCnt})!;
+
+          for fp in fpCnt do
+            sp2fpInterp[elemTopo, interpOrder]!.coefs[{fp..fp,spCnt}] =
+                  reshape(eval_LagrangePoly1D_array(fpLoc[fp], spLoc), {fp..fp, spCnt});
+        }
+        when TOPO_TRI {}
+        when TOPO_QUAD {}
+        when TOPO_TETRA {}
+        when TOPO_PYRA {}
+        when TOPO_PRISM {}
+        when TOPO_HEXA {}
+        otherwise do writeln("Unsupported mesh element found at interpolation initialization.");
+      }
+    }
+
+    // Calculate all relevant coefficients
+  }
+
   proc eval_LagrangePoly1D( in k : int, in x : real, in xi : [] real ) : real
   {
     // Get the value of the 1D Lagrange polynomial at point x
@@ -135,6 +195,7 @@ prototype module Interpolation
   proc main()
   {
     use Testing;
+    use Polynomials;
 
     var seed : int = 47;
     var randStream = new RandomStream(real);
@@ -151,6 +212,8 @@ prototype module Interpolation
     writeln();
 
     // Get Chebyshev roots to use as interpolation nodes
+    node = nodes_legendre_gauss(10);
+    writeln("Interpolation nodes: ", node);
     for i in 0..9 do
       node[i] = -cos( half_pi * (2*i+1)/10 )/2;
     writeln("Interpolation nodes: ", node);
@@ -188,6 +251,15 @@ prototype module Interpolation
       writeln();
     }
 
+    writeln();
+    writeln("Interpolation initialized structure for FR:");
+    writeln();
+
+    init_interpolation();
+    writeln(sp2fpInterp);
+    writeln();
+
+    //writeln( "y_%i (%6.3dr): %7.4dr   Interpolation: %7.4dr   Error: %11.3er   Relative: %11.3er".format(i, x[j], y_x[j], interpolation, error(y_x(j), interpolation), relative_error(y_x(j), interpolation)) );
     writeln();
   }
 }
