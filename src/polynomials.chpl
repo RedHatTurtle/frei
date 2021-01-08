@@ -147,61 +147,61 @@ prototype module Polynomials
   proc nodes_jacobi_gauss(in n : int, in alpha : real, in beta : real,
                           out xi : [1..n] real, out dxi : [1..n] real)
   {
-//    //.. Local Scalars ..
-//    var i, it : int;
-//    var konst,ri,x,y,dy,d2y : real;
-//
-//    //.. Local Constants ..
-//    param eps17 : real = 1.0e-17;
-//    param pi    : real = 3.14159265358979323846;
-//
-//    if (n > 0) {
-//      xi(1)  = (beta - alpha) / (alpha + beta + 2.0);
-//      dxi(1) = 0.5*(alpha + beta) + 1.0;
-//    }
-//
-//    if (n > 1) {
-//
-//      konst = 0.5*pi / (2.0*real(n,kind=lp) + alpha + beta + 1.0);
-//
-//      for i in 1..n {
-//
-//        ri = real(i,kind=lp);
-//        x  = -cos( konst * (4.0*ri + alpha + beta - 1.0) );
-//
-//        for it in 1..8 {
-//          eval_jacobi_poly(n,alpha,beta,x,y,dy,d2y);
-//          if (abs(y) <= eps17) then
-//            exit;
-//          x = x - y/dy;
-//        }
-//
-//        if (abs(x) <= eps17) then
-//          x = 0.0;
-//
-//        xi(i)  = x;
-//        dxi(i) = dy;
-//      }
-//
-//      for i in 1..n/2 {
-//        xi (n-i+1) = -xi (i);
-//       //dxi(n-i+1) = -dxi(i);
-//      }
-//    }
+    use Parameters.Constants;
+
+    //.. Local Scalars ..
+    var i, it : int;
+    var konst, x, y, dy, d2y : real;
+
+    if (n > 0)
+    {
+      xi(1)  = (beta - alpha) / (alpha + beta + 2.0);
+      dxi(1) = 0.5*(alpha + beta) + 1.0;
+    }
+
+    if (n > 1)
+    {
+      konst = 0.5*PI / (2.0*n + alpha + beta + 1.0);
+
+      for i in 1..n
+      {
+        x  = -cos( konst * (4.0*i + alpha + beta - 1.0) );
+
+        for it in 1..16
+        {
+          eval_jacobi_poly(n, alpha, beta, x, y, dy, d2y);
+
+          if (abs(y) <= EPS16) then
+            break;
+
+          x = x - y/dy;
+        }
+
+        if (abs(x) <= EPS17) then
+          x = 0.0;
+
+        xi(i)  = x;
+        dxi(i) = dy;
+      }
+
+      for i in 1..n/2 {
+        xi (n-i+1) = -xi (i);
+       //dxi(n-i+1) = -dxi(i);
+      }
+    }
   }
 
-  proc nodes_legendre_gauss(in n : int,
+  proc nodes_legendre_gauss(in  n  : int,
                             out xi : [1..n] real, out dxi : [1..n] real)
   {
-//    //.. Formal Arguments ..
-//    int,                      intent(in)  :: n;
-//    real, dimension(1:n), intent(out) :: xi;
-//    real, dimension(1:n), intent(out) :: dxi;
-//
-//    //.. Local Scalars ..
-//    real :: alpha,beta;
-//
-//    nodes_jacobi_gauss(n,0.0,0.0,xi,dxi);
+    nodes_jacobi_gauss(n, 0, 0, xi, dxi);
+  }
+
+  proc nodes_legendre_gauss(in  n  : int) : [1..n] real
+  {
+    var xi, dxi : [1..n] real;
+    nodes_jacobi_gauss(n, 0, 0, xi, dxi);
+    return xi;
   }
 
   proc nodes_legendre_gauss_lobatto(n,xi,vn)
@@ -243,7 +243,7 @@ prototype module Polynomials
 //      for i in 1..n2 {
 //        x = cos( pi * real(i,kind=lp) / real(n,kind=lp) )
 //
-//        for it in 1..8 {
+//        for it in 1..16 {
 //          eval_legendre_poly(n,x,y,dy,d2y)
 //          x = x - dy/d2y
 //        }
@@ -488,12 +488,51 @@ prototype module Polynomials
     var a, b : real;
     var x, y, dy, ddy : real;
 
-    for i in 9..9 by 10 {
-      a = -0.5;
-      b = -0.5;
-      x = 1.0/11.0;
-      eval_jacobi_poly(i, a, b, x, y, dy, ddy);
-      writeln( "n=%3i a=%5.2dr b=%5.2dr   x=%5.2dt   y=%22.18er dy=%22.18er ddy=%22.18er".format(i, a, b, x, y, dy, ddy) );
+    a = -0.5;
+    b = -0.5;
+
+    for order in 1..9 by 1 {
+      writeln( "Jacobi: n=%3i a=%5.2dr b=%5.2dr".format(order, a, b));
+      for i in 0..order+2 by 1 {
+        x = (i/(order+2):real)*2-1;
+        eval_jacobi_poly(order, a, b, x, y, dy, ddy);
+        writeln( "x=%7.4dr   y=%24.20dr   dy=%25.20dr   ddy=%26.20dr".format(x, y, dy, ddy) );
+      }
+      writeln();
+
+      writeln( "Legendre: n=%3i".format(order));
+      for i in 0..order+2 by 1 {
+        x = (i/(order+2):real)*2-1;
+        eval_legendre_poly(order, x, y, dy, ddy);
+        writeln( "x=%7.4dr   y=%24.20dr   dy=%25.20dr   ddy=%26.20dr".format(x, y, dy, ddy) );
+      }
+      writeln();
+
+      writeln( "Radau: n=%3i".format(order));
+      for i in 0..order+2 by 1 {
+        x = (i/(order+2):real)*2-1;
+        eval_radau_poly(order, x, y, dy, ddy);
+        writeln( "x=%7.4dr   y=%24.20dr   dy=%25.20dr   ddy=%26.20dr".format(x, y, dy, ddy) );
+      }
+      writeln();
+
+      var xi, dxi : [1..order] real;
+      nodes_jacobi_gauss(order, a, b, xi, dxi);
+      writeln("Jacobi-Gauss Nodes: xi=[", xi, "]");
+      writeln("    dxi=[", dxi, "]" );
+      writeln();
+      nodes_legendre_gauss(order, xi, dxi);
+      writeln("Legendre-Gauss Nodes: xi=[", xi, "]");
+      writeln("    dxi=[", dxi, "]" );
+      writeln();
+      //nodes_legendre_gauss_lobatto(order, a, b, xi, dxi);
+      //writeln("Legendre-Gauss-Lobatto Nodes: xi=[", xi, "]");
+      //writeln("    dxi=[", dxi, "]" );
+      //writeln();
+
+      writeln();
+      writeln();
+      writeln();
     }
   }
 
