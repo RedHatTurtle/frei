@@ -1,9 +1,81 @@
 prototype module Correction
 {
+  // In GFR there is correction structure initialization procedure that then calls individual procedures for each cell
+  //    geometry. Ex: CorrectionMatrix_Edge, CorrectionMatrix_Quad, CorrectionMatrix_Tri.
+  //    The edge procedure selects the correction function depending on the input file and the other procedures are
+  //    based on the values returned by this one. Ex: Using tensor product of the edge correction function to build the
+  //    quadrilateral and hexahedral correction functions.
+  //
+  // The GFR structure for storing these correction function value has the following format:
+  //    correct(cell_geom,cell_order)%mat(sp_id,fp_id)
+
   use Random;
   use UnitTest;
 
-  // In GFR the CorrectionMatrix_Edge procedure returns the value of the selected
+  class flux_correction_c
+  {
+    var correction_d : domain(2); // {nFPs, nSPs}
+    var correction : [correction_d] real;
+  }
+
+  // Define type for the flux correction structure. Add "?" to allow default initialization to nil.
+  type flux_correction_t = unmanaged flux_correction_c?;
+
+  // Perhaps it might be useful in the future to have a sparse domain with the cell topologies present in the mesh
+  //var flux_correction_d : sparse domain(2);
+
+  var flux_correction_d : domain(2); // {elemType, interpOrder}
+
+  var flux_correction : [flux_correction_d] flux_correction_t;
+
+  proc init_correction()
+  {
+    use Parameters.Mesh;
+    use Polynomials;
+
+    // Allocate flux correction structure
+    var elemTopos : range = 2..2;
+    var solOrders : range = 1..9;
+    flux_correction_d = {elemTopos, solOrders};
+
+    for (elemTopo, solOrder) in flux_correction.domain
+    {
+      select elemTopo
+      {
+        when TOPO_LINE
+        {
+          var spCnt : range = 1..solOrder;
+          var fpCnt : range = 1..2;
+
+          // Need to build an appropriate way to query the point location for each element.
+          // Initially assume the whole mesh uses the same base distribution specified in input file.
+          // Even more initially assume the whole mesh uses has SPs on Legendre roots. xD
+          var spLoc : [spCnt] real = nodes_legendre_gauss(solOrder);
+          var fpLoc : [fpCnt] real = [-0.5, 0.5];
+
+          flux_correction[elemTopo, solOrder] = new flux_correction_t({fpCnt, spCnt})!;
+
+          for (fp,sp) in {fpCnt,spCnt} do
+            select frScheme
+            {
+                when FR_DG do
+                  flux_correction[elemTopo, solOrder]!.correction[fp,sp] = correction_dg(solOrder, spLoc[sp]);
+                when FR_GA do
+                  flux_correction[elemTopo, solOrder]!.correction[fp,sp] = correction_ga(solOrder, spLoc[sp]);
+                when FR_G2 do
+                  flux_correction[elemTopo, solOrder]!.correction[fp,sp] = correction_g2(solOrder, spLoc[sp]);
+            }
+        }
+        when TOPO_TRI {}
+        when TOPO_QUAD {}
+        when TOPO_TETRA {}
+        when TOPO_PYRA {}
+        when TOPO_PRISM {}
+        when TOPO_HEXA {}
+        otherwise do writeln("Unsupported mesh element found at flux correction initialization.");
+      }
+    }
+  }
 
   proc correction_dg (in n : int, in x : real) : real
   {
@@ -65,5 +137,13 @@ prototype module Correction
       }
       writeln();
     }
+
+    writeln();
+    writeln("Flux correction initialized structure for FR:");
+    writeln();
+
+    init_correction();
+    writeln(flux_correction);
+    writeln();
   }
 }
