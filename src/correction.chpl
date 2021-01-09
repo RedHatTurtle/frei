@@ -18,6 +18,22 @@ prototype module Correction
     return y;
   }
 
+  proc correction_ga (in n : int, in x : real) : real
+  {
+    // g_ga(n,x) defined by roots and normalized with g_ga(-1)=1
+
+    use Polynomials;
+
+    var xi, tmp : [1..n] real;
+    var y_norm, y_x : real;
+    var y, dy, ddy : real;
+
+    eval_legendre_poly(n-1, x, y, dy, ddy);
+    y = ((-1)**n)*y*(x-1)/2;
+
+    return y;
+  }
+
   proc correction_g2 (in n : int, in x : real) : real
   {
     // g_2(n,x) = \frac{n-1}{2n-1}*R_{R,n} + \frac{n}{2n-1}*R_{R,n-1}
@@ -33,21 +49,19 @@ prototype module Correction
     return y_n*( (n-1):real/(2*n-1):real ) + y_p*( n:real/(2*n-1):real );
   }
 
-  proc correction_ga (in n : int, in x : real) : real
-  {
-    // 
-  }
-
   proc main()
   {
     use Testing;
+    use Polynomials;
 
-    var x : real;
-
-    for i in 0..9 {
-      for j in 0..i {
-        x = j:real/i:real - 0.5;
-        writeln( "n: %2i,   x = %7.4dr,   g_dg = %8.5dr,   g_2 = %8.5dr".format(i, x, correction_dg(i, x), correction_g2(i, x)) );
+    for i in 1..9{
+      var x : [0..i+1] real;
+      x[0] = -1;
+      x[i+1] = 1;
+      x[1..i] = nodes_legendre_gauss(i);
+      for j in 0..i+1 {
+        writeln( "n: %2i,   x = %7.4dr,   g_dg = %8.5dr,   g_ga = %8.5dr,   g_2 = %8.5dr"
+            .format(i, x[j], correction_dg(i, x[j]), correction_ga(i, x[j]), correction_g2(i, x[j])) );
       }
       writeln();
     }
