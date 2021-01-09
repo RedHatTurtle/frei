@@ -6,9 +6,9 @@ prototype module Input
 
   //parPhysics
   var nDims              : int = 1;
-  var eqSet              : int = eqEuler;
-  var initialConditions  : int = icShockTube;
-  var boundaryConditions : int = bcDirichlet;
+  var eqSet              : int = EQ_EULER;
+  var initialConditions  : int = IC_SHOCKTUBE;
+  var boundaryConditions : int = BC_DIRICHLET;
 
   //parFluid
   var fGamma : real = 1.4;           // Set the ratio of heat coefficients cp/cv
@@ -19,19 +19,19 @@ prototype module Input
   var xMin          : real = -1.0;
   var xMax          : real =  1.0;
   var nCells        : int = 1000;
-  var meshingScheme : int = meshUniform;        // How to divide the domain into cells
+  var meshingScheme : int = MESH_UNIFORM;        // How to divide the domain into cells
 
   //parSpatial
-  var spatialScheme     : int = spatialBeamWarming;
-  var dissipationScheme : int = dissNone;    // Type of numerical dissipation added
+  var spatialScheme     : int = SPATIAL_BEAMWARMING;
+  var dissipationScheme : int = DISS_NONE;    // Type of numerical dissipation added
 
   //parFR
-  var iOrder : int = 3;               // Solution polynomial interpolation order
-  var distSP : int = ptsLegendre;     // Distribution of SPs for SD method
-  var frScheme : int = fr_gDG;
+  var iOrder : int = 3;                // Solution polynomial interpolation order
+  var distSP : int = PTS_LEGENDRE;     // Distribution of SPs for SD method
+  var frScheme : int = FR_DG;
 
   //parTime
-  var timeScheme : int = timeRK_Classic;
+  var timeScheme : int = TIME_RK_CLASSIC;
   var timeStep   : real = 1e-4;
 
   //parOutput

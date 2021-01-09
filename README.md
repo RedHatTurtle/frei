@@ -58,13 +58,14 @@ Files are named after the modules they contain but start with small caps for eas
 
 ```
 Modules    - CapitalizationAndCamelCase
+Parameters - ALL_CAPS_AND_UNDERSCORE
+Constants  - ALL_CAPS_AND_UNDERSCORE
+Variables  - smallCapsAndCamelCase
+Domains    - sameNameAsArrayAnd_d
 Procedures - all_small_caps_and_underscores
 Classes    - all_small_caps_underscores_and_c
 Types      - all_small_caps_underscores_and_t
 Records    - all_small_caps_underscores_and_r
-Parameters - ALL_CAPS_AND_UNDERSCORE
-Constants  - ALL_CAPS_AND_UNDERSCORE
-Variables  - smallCapsAndCamelCase
 ```
 
 ```
@@ -87,3 +88,4 @@ Acronyms are **always** ALL CAPS.
 -In imperative sections add comment only lines before the code referenced.
 
 ### Use double quotes "" for strings
+
