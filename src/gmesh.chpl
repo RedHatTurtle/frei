@@ -14,12 +14,12 @@ prototype module Gmesh
   // - 3D Internal generated CGNS  (Frei 4.x)
   // - 3D Internal generated Gmesh (Frei 4.x)
   //
-  // It would probably be better to have a separate module for each IO standard (CGNS, Gmesh, Plot3D, etc). At the moment shit's
-  // just pilled up here for compactness since most of it is just general concepts and sketches.
+  // It would probably be better to have a separate module for each IO standard (CGNS, Gmesh, Plot3D, etc). At the
+  //    moment shit's just pilled up here for compactness since most of it is just general concepts and sketches.
   //
-  // The idea behind having a separate class for each IO format it to isolate the conversion from the solver mesh format to the IO
-  //    format from the reading and writing of the IO files. It might waste to much memory for just code organization's sake and
-  //    should be reviewed in the future. 
+  // The idea behind having a separate class for each IO format it to isolate the conversion from the solver mesh format
+  //    to the IO format from the reading and writing of the IO files. It might waste to much memory for just code
+  //    organization's sake and should be reviewed in the future.
 
   class gmesh_c
   {

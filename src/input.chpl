@@ -3,6 +3,7 @@ prototype module Input
   use Random;
   use UnitTest;
   use Parameters;
+  use Config;
 
   //parPhysics
   var nDims              : int = 1;
