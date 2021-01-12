@@ -1,0 +1,72 @@
+$MeshFormat
+    version-number file-type data-size
+$EndMeshFormat
+$PhysicalNames
+    number-of-names
+    physical-dimension physical-tag "physical-name"
+    …
+$EndPhysicalNames
+$Nodes
+    number-of-nodes
+    node-number x-coord y-coord z-coord
+    …
+$EndNodes
+$Elements
+    number-of-elements
+        elm-number elm-type number-of-tags < tag > … node-number-list
+        …
+$EndElements
+$Periodic
+    number-of-periodic-entities
+    dimension entity-tag master-entity-tag
+    number-of-nodes
+    node-number master-node-number
+    …
+$EndPeriodic
+$NodeData
+    number-of-string-tags
+    < "string-tag" >
+    …
+    number-of-real-tags
+    < real-tag >
+    …
+    number-of-integer-tags
+    < integer-tag >
+    …
+    node-number value …
+    …
+$EndNodeData
+$ElementData
+    number-of-string-tags
+    < "string-tag" >
+    …
+    number-of-real-tags
+    < real-tag >
+    …
+    number-of-integer-tags
+    < integer-tag >
+    …
+    elm-number value …
+    …
+$EndElementData
+$ElementNodeData
+    number-of-string-tags
+    < "string-tag" >
+    …
+    number-of-real-tags
+    < real-tag >
+    …
+    number-of-integer-tags
+    < integer-tag >
+    …
+    elm-number number-of-nodes-per-element value …
+    …
+$EndElementNodeData
+$InterpolationScheme
+    "name"
+    number-of-element-topologies
+    elm-topology
+    number-of-interpolation-matrices
+    num-rows num-columns value …
+    …
+$EndInterpolationScheme
