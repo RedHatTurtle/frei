@@ -84,7 +84,7 @@ prototype module Interpolation
     // except at xi(k) where the function is equal to 1.
 
     var return_value : real = 1;
-    var factors : domain(int) = xi.domain;
+    var factors : domain(1) = xi.domain;
 
     for i in (factors - k) do
       return_value *= (x-xi[i]) / (xi[k]-xi[i]);
