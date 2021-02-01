@@ -1,16 +1,19 @@
 #!/bin/bash
 
 # Build all tests and save log
-chpl -o polynomials_tests --main-module Polynomials polynomials.chpl testing.chpl parameters.chpl |
+chpl -o polynomials_tests --main-module Polynomials src/polynomials.chpl src/testing.chpl src/parameters.chpl |
     tee polynomials_build_test.log
-chpl -o correction_tests --main-module Correction correction.chpl polynomials.chpl testing.chpl parameters.chpl |
+echo
+chpl -o correction_tests --main-module Correction src/correction.chpl src/polynomials.chpl src/testing.chpl src/parameters.chpl |
     tee correction_build_test.log
-chpl -o interpolation_tests --main-module Interpolation interpolation.chpl polynomials.chpl parameters.chpl testing.chpl |
+echo
+chpl -o interpolation_tests --main-module Interpolation src/interpolation.chpl src/polynomials.chpl src/parameters.chpl src/testing.chpl |
     tee interpolation_build_test.log
-
-chpl -o gmesh_tests --main-module Gmesh gmesh.chpl parameters.chpl |
+echo
+chpl -o gmesh_tests --main-module Gmesh src/gmesh.chpl src/parameters.chpl |
     tee gmesh_build_test.log
-chpl -o mesh_tests --main-module Mesh mesh.chpl testing.chpl |
+echo
+chpl -o mesh_tests --main-module Mesh src/mesh.chpl src/gmesh.chpl src/testing.chpl src/parameters.chpl |
     tee mesh_build_test.log
 
 # Run tests and output to file
