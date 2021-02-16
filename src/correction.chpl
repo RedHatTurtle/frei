@@ -30,6 +30,7 @@ prototype module Correction
 
   proc init_correction()
   {
+    use Input;
     use Parameters.Input;
     use Parameters.Mesh;
     use Polynomials;
