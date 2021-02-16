@@ -23,7 +23,7 @@ chpl -o frei --main-module "Control" frei.chpl
 
 
 ## Coding Standards
-These coding rules are meant to avoid bugs and passively improve code quality.
+These coding rules are meant to avoid bugs and passively improve code quality and readability.
 
 ### Declare variables at the beginning of the code block they are used
 
@@ -48,12 +48,10 @@ Indentation must be done with spaces, not tabs, and at an increment of 2 per lev
 When issuing a single command after a loop or conditional expression use `do` instead of single line blocks.
 
 ### Use descriptive naming
-
 Give as descriptive a name as possible, within reason. Abbreviations that would be familiar to someone outside your
 project with relevant domain knowledge are OK.
 
 ### Naming conventions
-
 Files are named after the modules they contain but start with small caps for easier autocomplete on the terminal
 
 ```

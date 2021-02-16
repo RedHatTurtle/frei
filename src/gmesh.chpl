@@ -55,7 +55,7 @@ prototype module Gmesh
       permutation(nodePermutation, RANDOM_SEED);
       permutation(elemPermutation, RANDOM_SEED);
 
-      // Fill element list with no overlapping elements oriented from left to right
+      // Fill element list with non overlapping elements oriented from left to right
       for i in 1..this.nElements-2 {
         cells[i,1] = i;
         cells[i,2] = i+1;
