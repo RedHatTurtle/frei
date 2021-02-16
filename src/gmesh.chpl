@@ -104,26 +104,26 @@ prototype module Gmesh
     var nTags : int = 1;
     var tags : [1..1] int;
 
-    var nodeDomain : domain(rank=1, idxType=int);
-    var nodes : [nodeDomain] int;
+    var nodes_d : domain(rank=1, idxType=int);
+    var nodes : [nodes_d] int;
 
     proc setNodes
     {
       use Parameters.Gmesh;
 
       select this.elemType {
-        when GMESH_PNT    do this.nodeDomain = {1..1};
-        when GMESH_LIN_2  do this.nodeDomain = {1..2};
-        when GMESH_LIN_3  do this.nodeDomain = {1..3};
-        when GMESH_LIN_4  do this.nodeDomain = {1..4};
-        when GMESH_TRI_3  do this.nodeDomain = {1..3};
-        when GMESH_TRI_6  do this.nodeDomain = {1..6};
-        when GMESH_TRI_9  do this.nodeDomain = {1..9};
-        when GMESH_TRI_10 do this.nodeDomain = {1..10};
-        when GMESH_QUA_4  do this.nodeDomain = {1..4};
-        when GMESH_QUA_9  do this.nodeDomain = {1..9};
-        when GMESH_QUA_8  do this.nodeDomain = {1..8};
-        when GMESH_QUA_16 do this.nodeDomain = {1..16};
+        when GMESH_PNT_1  do this.nodes_d = {1..1};
+        when GMESH_LIN_2  do this.nodes_d = {1..2};
+        when GMESH_LIN_3  do this.nodes_d = {1..3};
+        when GMESH_LIN_4  do this.nodes_d = {1..4};
+        when GMESH_TRI_3  do this.nodes_d = {1..3};
+        when GMESH_TRI_6  do this.nodes_d = {1..6};
+        when GMESH_TRI_9  do this.nodes_d = {1..9};
+        when GMESH_TRI_10 do this.nodes_d = {1..10};
+        when GMESH_QUA_4  do this.nodes_d = {1..4};
+        when GMESH_QUA_9  do this.nodes_d = {1..9};
+        when GMESH_QUA_8  do this.nodes_d = {1..8};
+        when GMESH_QUA_16 do this.nodes_d = {1..16};
       }
     }
   }
