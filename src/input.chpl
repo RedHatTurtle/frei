@@ -2,7 +2,7 @@ prototype module Input
 {
   use Random;
   use UnitTest;
-  use Parameters;
+  use Parameters.Input;
   use Config;
 
   //parPhysics
@@ -143,13 +143,13 @@ prototype module Input
     nPoints = nCells + 1;
 
     select eqSet {
-      when eqConvection   do nEqs=1;
-      when eqInvBurgers   do nEqs=1;
-      when eqDiffusion    do nEqs=1;
-      when eqLinBurgers   do nEqs=1;
-      when eqVisBurgers   do nEqs=1;
-      when eqEuler        do nEqs=3;
-      when eqNavierStokes do nEqs=3;
+      when EQ_CONVECTION   do nEqs=1;
+      when EQ_INVBURGERS   do nEqs=1;
+      when EQ_DIFFUSION    do nEqs=1;
+      when EQ_LINBURGERS   do nEqs=1;
+      when EQ_VISBURGERS   do nEqs=1;
+      when EQ_EULER        do nEqs=3;
+      when EQ_NAVIERSTOKES do nEqs=3;
     }
   }
 }

@@ -1,5 +1,10 @@
 prototype module Parameters
 {
+  prototype module Tests
+  {
+    param RANDOM_SEED : int = 47;
+  }
+
   prototype module Input
   {
     // Equation Sets
@@ -107,33 +112,138 @@ prototype module Parameters
 
   prototype module Mesh
   {
-    param TOPO_POINT : int = 1; // Point
-    param TOPO_LINE  : int = 2; // Line
-    param TOPO_TRI   : int = 3; // Triangle
-    param TOPO_QUAD  : int = 4; // Quadrangle
-    param TOPO_TETRA : int = 5; // Tetrahedron
-    param TOPO_PYRA  : int = 6; // Pyramid
-    param TOPO_PRISM : int = 7; // Prism
-    param TOPO_HEXA  : int = 8; // Hexahedron
+    param TOPO_NODE : int = 1; // Point
+    param TOPO_LINE : int = 2; // Line
+    param TOPO_TRIA : int = 3; // Triangle
+    param TOPO_QUAD : int = 4; // Quadrangle
+    param TOPO_TETR : int = 5; // Tetrahedron
+    param TOPO_PYRA : int = 6; // Pyramid
+    param TOPO_PRIS : int = 7; // Prism
+    param TOPO_HEXA : int = 8; // Hexahedron
+
+    param TYPE_NODE     : int = 10;
+    param TYPE_LINE_2   : int = 21;
+    param TYPE_LINE_3   : int = 22;
+    param TYPE_LINE_4   : int = 23;
+    param TYPE_LINE_5   : int = 24;
+    param TYPE_TRIA_3   : int = 31;
+    param TYPE_TRIA_6   : int = 32;
+    param TYPE_TRIA_10  : int = 33;
+    param TYPE_TRIA_15  : int = 34;
+    param TYPE_QUAD_4   : int = 41;
+    param TYPE_QUAD_9   : int = 42;
+    param TYPE_QUAD_16  : int = 43;
+    param TYPE_QUAD_25  : int = 44;
+    param TYPE_TETR_4   : int = 51;
+    param TYPE_TETR_10  : int = 52;
+    param TYPE_TETR_20  : int = 53;
+    param TYPE_TETR_35  : int = 54;
+    param TYPE_PYRA_5   : int = 61;
+    param TYPE_PYRA_14  : int = 62;
+    param TYPE_PYRA_30  : int = 63;
+    param TYPE_PYRA_55  : int = 64;
+    param TYPE_PRIS_6   : int = 71;
+    param TYPE_PRIS_18  : int = 72;
+    param TYPE_PRIS_40  : int = 73;
+    param TYPE_PRIS_75  : int = 74;
+    param TYPE_HEXA_8   : int = 81;
+    param TYPE_HEXA_27  : int = 82;
+    param TYPE_HEXA_64  : int = 83;
+    param TYPE_HEXA_125 : int = 84;
+  }
+
+  prototype module CGNS
+  {
+    // CGNS Element Types   -   https://cgns.github.io/CGNS_docs_current/sids/conv.html
+    //
+    //Dimension | Shape         | Linear    | Quadratic           | Cubic                        | Quartic
+    //---------------------------------------------------------------------------------------------------------------------------
+    //  0-D     |   Point       |   NODE    |   NODE              |   NODE                       |   NODE
+    //  1-D     |   Line        |   BAR_2   |   BAR_3             |   BAR_4                      |   BAR_5
+    //  2-D     |   Triangle    |   TRI_3   |   TRI_6             |   TRI_9    TRI_10            |   TRI_12     TRI_15
+    //          |   Quadrangle  |   QUAD_4  |   QUAD_8   QUAD_9   |   QUAD_12  QUAD_16           |   QUAD_P4_16 QUAD_25
+    //  3-D     |   Tetrahedron |   TETRA_4 |   TETRA_10          |   TETRA_16 TETRA_20          |   TETRA_22   TETRA_34 TETRA_35
+    //          |   Pyramid     |   PYRA_5  |   PYRA_13  PYRA_14  |   PYRA_21  PYRA_29  PYRA_30  |   PYRA_P4_29 PYRA_50  PYRA_55
+    //          |   Pentahedron |   PENTA_6 |   PENTA_15 PENTA_18 |   PENTA_24 PENTA_38 PENTA_40 |   PENTA_33   PENTA_66 PENTA_75
+    //          |   Hexahedron  |   HEXA_8  |   HEXA_20  HEXA_27  |   HEXA_32  HEXA_56  HEXA_64  |   HEXA_44    HEXA_98  HEXA_125
+    param CGNS_NODE       : int;
+
+    param CGNS_BAR_2      : int;
+    param CGNS_BAR_3      : int;
+    param CGNS_BAR_4      : int;
+    param CGNS_BAR_5      : int;
+
+    param CGNS_TRI_3      : int;
+    param CGNS_TRI_6      : int;
+    param CGNS_TRI_9      : int;
+    param CGNS_TRI_10     : int;
+    param CGNS_TRI_12     : int;
+    param CGNS_TRI_15     : int;
+
+    param CGNS_QUAD_4     : int;
+    param CGNS_QUAD_8     : int;
+    param CGNS_QUAD_9     : int;
+    param CGNS_QUAD_12    : int;
+    param CGNS_QUAD_16    : int;
+    param CGNS_QUAD_P4_16 : int;
+    param CGNS_QUAD_25    : int;
+
+    param CGNS_TETRA_4    : int;
+    param CGNS_TETRA_10   : int;
+    param CGNS_TETRA_16   : int;
+    param CGNS_TETRA_20   : int;
+    param CGNS_TETRA_22   : int;
+    param CGNS_TETRA_34   : int;
+    param CGNS_TETRA_35   : int;
+
+    param CGNS_PYRA_5     : int;
+    param CGNS_PYRA_13    : int;
+    param CGNS_PYRA_14    : int;
+    param CGNS_PYRA_21    : int;
+    param CGNS_PYRA_29    : int;
+    param CGNS_PYRA_30    : int;
+    param CGNS_PYRA_P4_29 : int;
+    param CGNS_PYRA_50    : int;
+    param CGNS_PYRA_55    : int;
+
+    param CGNS_PENTA_6    : int;
+    param CGNS_PENTA_15   : int;
+    param CGNS_PENTA_18   : int;
+    param CGNS_PENTA_24   : int;
+    param CGNS_PENTA_38   : int;
+    param CGNS_PENTA_40   : int;
+    param CGNS_PENTA_33   : int;
+    param CGNS_PENTA_66   : int;
+    param CGNS_PENTA_75   : int;
+
+    param CGNS_HEXA_8     : int;
+    param CGNS_HEXA_20    : int;
+    param CGNS_HEXA_27    : int;
+    param CGNS_HEXA_32    : int;
+    param CGNS_HEXA_56    : int;
+    param CGNS_HEXA_64    : int;
+    param CGNS_HEXA_44    : int;
+    param CGNS_HEXA_98    : int;
+    param CGNS_HEXA_125   : int;
   }
 
   prototype module Gmesh
   {
 
     // Gmesh element topologies
-    //param GMESH_TOPO_PNT     : int = 1;
-    //param GMESH_TOPO_LIN     : int = 2;
-    //param GMESH_TOPO_TRI     : int = 3;
-    //param GMESH_TOPO_QUA     : int = 4;
-    //param GMESH_TOPO_TET     : int = 5;
-    //param GMESH_TOPO_PYR     : int = 6;
-    //param GMESH_TOPO_PRI     : int = 7;
-    //param GMESH_TOPO_HEX     : int = 8;
-    //param GMESH_TOPO_POLYG   : int = 9;
-    //param GMESH_TOPO_POLYH   : int = 10;
-    //param GMESH_TOPO_XFEM    : int = 11;
-    //param GMESH_TOPO_MINI    : int = 12;
-    //param GMESH_TOPO_TRIH    : int = 13;
+    param GMESH_PNT     : int = 1;
+    param GMESH_LIN     : int = 2;
+    param GMESH_TRI     : int = 3;
+    param GMESH_QUA     : int = 4;
+    param GMESH_TET     : int = 5;
+    param GMESH_PYR     : int = 6;
+    param GMESH_PRI     : int = 7;
+    param GMESH_HEX     : int = 8;
+    param GMESH_POLYG   : int = 9;
+    param GMESH_POLYH   : int = 10;
+    param GMESH_XFEM    : int = 11;
+    param GMESH_MINI    : int = 12;
+    param GMESH_TRIH    : int = 13;
 
     // Gmesh Element Types
     //
@@ -147,7 +257,7 @@ prototype module Parameters
     //          |   Pentahedron |   PENTA_6 |   PENTA_15 PENTA_18 |   PENTA_24 PENTA_38 PENTA_40 |   PENTA_33   PENTA_66 PENTA_75
     //          |   Hexahedron  |   HEXA_8  |   HEXA_20  HEXA_27  |   HEXA_32  HEXA_56  HEXA_64  |   HEXA_44    HEXA_98  HEXA_125
 
-    param GMESH_PNT      : int = 15;
+    param GMESH_PNT_1    : int = 15;
 
     //     Line:                 Line3:          Line4:
     //
@@ -397,80 +507,5 @@ prototype module Parameters
     param GMESH_HEX_80   : int = 103;
     param GMESH_HEX_92   : int = 104;
     param GMESH_HEX_104  : int = 105;
-  }
-
-  prototype module CGNS
-  {
-    // CGNS Element Types   -   https://cgns.github.io/CGNS_docs_current/sids/conv.html
-    //
-    //Dimension | Shape         | Linear    | Quadratic           | Cubic                        | Quartic
-    //---------------------------------------------------------------------------------------------------------------------------
-    //  0-D     |   Point       |   NODE    |   NODE              |   NODE                       |   NODE
-    //  1-D     |   Line        |   BAR_2   |   BAR_3             |   BAR_4                      |   BAR_5
-    //  2-D     |   Triangle    |   TRI_3   |   TRI_6             |   TRI_9    TRI_10            |   TRI_12     TRI_15
-    //          |   Quadrangle  |   QUAD_4  |   QUAD_8   QUAD_9   |   QUAD_12  QUAD_16           |   QUAD_P4_16 QUAD_25
-    //  3-D     |   Tetrahedron |   TETRA_4 |   TETRA_10          |   TETRA_16 TETRA_20          |   TETRA_22   TETRA_34 TETRA_35
-    //          |   Pyramid     |   PYRA_5  |   PYRA_13  PYRA_14  |   PYRA_21  PYRA_29  PYRA_30  |   PYRA_P4_29 PYRA_50  PYRA_55
-    //          |   Pentahedron |   PENTA_6 |   PENTA_15 PENTA_18 |   PENTA_24 PENTA_38 PENTA_40 |   PENTA_33   PENTA_66 PENTA_75
-    //          |   Hexahedron  |   HEXA_8  |   HEXA_20  HEXA_27  |   HEXA_32  HEXA_56  HEXA_64  |   HEXA_44    HEXA_98  HEXA_125
-    param CGNS_NODE       : int;
-
-    param CGNS_BAR_2      : int;
-    param CGNS_BAR_3      : int;
-    param CGNS_BAR_4      : int;
-    param CGNS_BAR_5      : int;
-
-    param CGNS_TRI_3      : int;
-    param CGNS_TRI_6      : int;
-    param CGNS_TRI_9      : int;
-    param CGNS_TRI_10     : int;
-    param CGNS_TRI_12     : int;
-    param CGNS_TRI_15     : int;
-
-    param CGNS_QUAD_4     : int;
-    param CGNS_QUAD_8     : int;
-    param CGNS_QUAD_9     : int;
-    param CGNS_QUAD_12    : int;
-    param CGNS_QUAD_16    : int;
-    param CGNS_QUAD_P4_16 : int;
-    param CGNS_QUAD_25    : int;
-
-    param CGNS_TETRA_4    : int;
-    param CGNS_TETRA_10   : int;
-    param CGNS_TETRA_16   : int;
-    param CGNS_TETRA_20   : int;
-    param CGNS_TETRA_22   : int;
-    param CGNS_TETRA_34   : int;
-    param CGNS_TETRA_35   : int;
-
-    param CGNS_PYRA_5     : int;
-    param CGNS_PYRA_13    : int;
-    param CGNS_PYRA_14    : int;
-    param CGNS_PYRA_21    : int;
-    param CGNS_PYRA_29    : int;
-    param CGNS_PYRA_30    : int;
-    param CGNS_PYRA_P4_29 : int;
-    param CGNS_PYRA_50    : int;
-    param CGNS_PYRA_55    : int;
-
-    param CGNS_PENTA_6    : int;
-    param CGNS_PENTA_15   : int;
-    param CGNS_PENTA_18   : int;
-    param CGNS_PENTA_24   : int;
-    param CGNS_PENTA_38   : int;
-    param CGNS_PENTA_40   : int;
-    param CGNS_PENTA_33   : int;
-    param CGNS_PENTA_66   : int;
-    param CGNS_PENTA_75   : int;
-
-    param CGNS_HEXA_8     : int;
-    param CGNS_HEXA_20    : int;
-    param CGNS_HEXA_27    : int;
-    param CGNS_HEXA_32    : int;
-    param CGNS_HEXA_56    : int;
-    param CGNS_HEXA_64    : int;
-    param CGNS_HEXA_44    : int;
-    param CGNS_HEXA_98    : int;
-    param CGNS_HEXA_125   : int;
   }
 }

@@ -50,11 +50,11 @@ prototype module Interpolation
             sp2fpInterp[elemTopo, interpOrder]!.coefs[{fp..fp,spCnt}] =
                   reshape(eval_LagrangePoly1D_array(fpLoc[fp], spLoc), {fp..fp, spCnt});
         }
-        when TOPO_TRI {}
+        when TOPO_TRIA {}
         when TOPO_QUAD {}
-        when TOPO_TETRA {}
+        when TOPO_TETR {}
         when TOPO_PYRA {}
-        when TOPO_PRISM {}
+        when TOPO_PRIS {}
         when TOPO_HEXA {}
         otherwise do writeln("Unsupported mesh element found at interpolation initialization.");
       }
@@ -196,11 +196,11 @@ prototype module Interpolation
   {
     use IO;
     use Testing;
+    use Parameters.Tests;
     use Polynomials;
 
-    var seed : int = 47;
     var randStream = new RandomStream(real);
-    var randStreamSeeded = new RandomStream(real, seed);
+    var randStreamSeeded = new RandomStream(real, RANDOM_SEED);
 
     var node : [0..9] real;
     var x : [0..9] real;

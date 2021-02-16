@@ -34,11 +34,11 @@ prototype module Gmesh
     proc random1D(xMin: real, xMax: real)
     {
       use Random;
+      use Parameters.Tests;
       use Parameters.Gmesh;
       import Sort.sort;
 
-      var seed : int = 47;
-      var randStreamSeeded = new RandomStream(real, seed);
+      var randStreamSeeded = new RandomStream(real, RANDOM_SEED);
       var x = this.nodes[..,1];
       var cells : [1..this.nElements-2, 1..2] int;
       var nodePermutation : [1..this.nNodes] int;
@@ -52,8 +52,8 @@ prototype module Gmesh
 
       // Sort nodes to build elements and generate a random permutation
       sort(x);
-      permutation(nodePermutation, seed);
-      permutation(elemPermutation, seed);
+      permutation(nodePermutation, RANDOM_SEED);
+      permutation(elemPermutation, RANDOM_SEED);
 
       // Fill element list with no overlapping elements oriented from left to right
       for i in 1..this.nElements-2 {
@@ -85,13 +85,13 @@ prototype module Gmesh
       }
 
       // Add left boundary point to elements list
-      this.elements[elemPermutation[1]].elemType = GMESH_PNT;
+      this.elements[elemPermutation[1]].elemType = GMESH_PNT_1;
       this.elements[elemPermutation[1]].setNodes;
       this.elements[elemPermutation[1]].tags[1] = 1;
       this.elements[elemPermutation[1]].nodes[1] = nodePermutation[1];
 
       // Add right boundary point to elements list
-      this.elements[elemPermutation[this.nElements]].elemType = GMESH_PNT;
+      this.elements[elemPermutation[this.nElements]].elemType = GMESH_PNT_1;
       this.elements[elemPermutation[this.nElements]].setNodes;
       this.elements[elemPermutation[this.nElements]].tags[1] = 2;
       this.elements[elemPermutation[this.nElements]].nodes[1] = nodePermutation[this.nNodes];

@@ -30,6 +30,7 @@ prototype module Correction
 
   proc init_correction()
   {
+    use Parameters.Input;
     use Parameters.Mesh;
     use Polynomials;
 
@@ -66,11 +67,11 @@ prototype module Correction
                   flux_correction[elemTopo, solOrder]!.correction[fp,sp] = correction_g2(solOrder, spLoc[sp]);
             }
         }
-        when TOPO_TRI {}
+        when TOPO_TRIA {}
         when TOPO_QUAD {}
-        when TOPO_TETRA {}
+        when TOPO_TETR {}
         when TOPO_PYRA {}
-        when TOPO_PRISM {}
+        when TOPO_PRIS {}
         when TOPO_HEXA {}
         otherwise do writeln("Unsupported mesh element found at flux correction initialization.");
       }
