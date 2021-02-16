@@ -63,6 +63,8 @@ prototype module Input
 
   proc indat(fileName : string)
   {
+    use IO;
+    use SysError;
     use TOML;
     use Mesh;
 

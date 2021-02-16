@@ -123,6 +123,7 @@ prototype module Correction
 
   proc main()
   {
+    use IO;
     use Testing;
     use Polynomials;
 

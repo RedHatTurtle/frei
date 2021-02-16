@@ -483,6 +483,7 @@ prototype module Polynomials
 
   proc main()
   {
+    use IO.FormattedIO;
     use Testing;
 
     var a, b : real;

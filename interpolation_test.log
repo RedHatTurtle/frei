@@ -1,1 +1,144 @@
-./build_tests.sh: line 22: ./interpolation_tests: No such file or directory
+
+Interpolation nodes: -0.973907 -0.865063 -0.67941 -0.433395 -0.148874 0.148874 0.433395 0.67941 0.865063 0.973907
+Interpolation nodes: -0.493844 -0.445503 -0.353553 -0.226995 -0.0782172 0.0782172 0.226995 0.353553 0.445503 0.493844
+
+Interpolation Targets   = -0.5 -0.425778 0.267023 0.0838767 -0.179198 -0.140698 -0.228213 0.0056984 0.390739 0.5
+Polynomial Coefficients = 0.0739927 -0.752085 -0.730481 0.900552 0.702839 -0.942075 -0.676507 0.887395 -0.775639 -0.00827178
+
+Interpolation Basis
+For x_0 = -0.50000 : 1.27062 -0.41653 0.241421 -0.163185 0.117085 -0.0854081 0.0612801 -0.0414214 0.0240079 -0.00787017
+For x_1 = -0.42578 : -0.0829215 0.830409 0.353235 -0.161721 0.102531 -0.0707064 0.0492474 -0.0327362 0.0187998 -0.00613745
+For x_2 =  0.26702 : 0.00818753 -0.0253732 0.0453753 -0.0718236 0.113927 -0.208321 0.886436 0.325422 -0.101295 0.027465
+For x_3 =  0.08388 : -0.0015496 0.00490778 -0.00925085 0.0164023 -0.0348705 0.998738 0.0356279 -0.0150054 0.00718442 -0.00218368
+For x_4 = -0.17920 : -0.0215245 0.0738059 -0.175579 0.807058 0.423451 -0.166115 0.0949666 -0.0574623 0.0314628 -0.0100627
+For x_5 = -0.14070 : -0.0212295 0.0713816 -0.159207 0.494819 0.757591 -0.216225 0.116133 -0.0685645 0.0371161 -0.011815
+For x_6 = -0.22821 : 0.000805637 -0.0028582 0.00771757 1.00057 -0.00900793 0.00440933 -0.00267766 0.00166273 -0.000921838 0.000296378
+For x_7 =  0.00570 : 0.0155562 -0.0499827 0.0977753 -0.190213 0.584683 0.67657 -0.200009 0.100979 -0.0512779 0.0159194
+For x_8 =  0.39074 : -0.0079447 0.0243893 -0.0426801 0.0647982 -0.0946175 0.141979 -0.244456 0.854275 0.372418 -0.0681608
+For x_9 =  0.50000 : -0.00787017 0.0240079 -0.0414214 0.0612801 -0.0854081 0.117085 -0.163185 0.241421 -0.41653 1.27062
+
+y_0 (-0.500):  0.0740   Interpolation:  0.0740   Error:  -2.776e-17   Relative:  -3.751e-16
+y_0 (-0.426):  0.0740   Interpolation:  0.0740   Error:   2.776e-17   Relative:   3.751e-16
+y_0 ( 0.267):  0.0740   Interpolation:  0.0740   Error:  -1.388e-17   Relative:  -1.876e-16
+y_0 ( 0.084):  0.0740   Interpolation:  0.0740   Error:   2.776e-17   Relative:   3.751e-16
+y_0 (-0.179):  0.0740   Interpolation:  0.0740   Error:  -1.388e-17   Relative:  -1.876e-16
+y_0 (-0.141):  0.0740   Interpolation:  0.0740   Error:   1.388e-17   Relative:   1.876e-16
+y_0 (-0.228):  0.0740   Interpolation:  0.0740   Error:  -1.388e-17   Relative:  -1.876e-16
+y_0 ( 0.006):  0.0740   Interpolation:  0.0740   Error:  -2.776e-17   Relative:  -3.751e-16
+y_0 ( 0.391):  0.0740   Interpolation:  0.0740   Error:   4.163e-17   Relative:   5.627e-16
+y_0 ( 0.500):  0.0740   Interpolation:  0.0740   Error:  -6.939e-17   Relative:  -9.378e-16
+
+y_1 (-0.500):  0.4500   Interpolation:  0.4500   Error:  -1.110e-16   Relative:  -2.467e-16
+y_1 (-0.426):  0.3942   Interpolation:  0.3942   Error:   1.110e-16   Relative:   2.816e-16
+y_1 ( 0.267): -0.1268   Interpolation: -0.1268   Error:  -2.776e-17   Relative:   2.188e-16
+y_1 ( 0.084):  0.0109   Interpolation:  0.0109   Error:   8.674e-18   Relative:   7.950e-16
+y_1 (-0.179):  0.2088   Interpolation:  0.2088   Error:  -1.110e-16   Relative:  -5.318e-16
+y_1 (-0.141):  0.1798   Interpolation:  0.1798   Error:   0.000e+00   Relative:   0.000e+00
+y_1 (-0.228):  0.2456   Interpolation:  0.2456   Error:  -1.110e-16   Relative:  -4.520e-16
+y_1 ( 0.006):  0.0697   Interpolation:  0.0697   Error:   1.388e-17   Relative:   1.991e-16
+y_1 ( 0.391): -0.2199   Interpolation: -0.2199   Error:  -2.776e-17   Relative:   1.262e-16
+y_1 ( 0.500): -0.3020   Interpolation: -0.3020   Error:   2.776e-16   Relative:  -9.189e-16
+
+y_2 (-0.500):  0.2674   Interpolation:  0.2674   Error:  -5.551e-17   Relative:  -2.076e-16
+y_2 (-0.426):  0.2618   Interpolation:  0.2618   Error:   5.551e-17   Relative:   2.120e-16
+y_2 ( 0.267): -0.1789   Interpolation: -0.1789   Error:  -2.776e-17   Relative:   1.551e-16
+y_2 ( 0.084):  0.0058   Interpolation:  0.0058   Error:   6.939e-18   Relative:   1.202e-15
+y_2 (-0.179):  0.1853   Interpolation:  0.1853   Error:  -5.551e-17   Relative:  -2.996e-16
+y_2 (-0.141):  0.1653   Interpolation:  0.1653   Error:   0.000e+00   Relative:   0.000e+00
+y_2 (-0.228):  0.2076   Interpolation:  0.2076   Error:  -1.110e-16   Relative:  -5.348e-16
+y_2 ( 0.006):  0.0697   Interpolation:  0.0697   Error:   2.776e-17   Relative:   3.983e-16
+y_2 ( 0.391): -0.3314   Interpolation: -0.3314   Error:  -1.110e-16   Relative:   3.350e-16
+y_2 ( 0.500): -0.4847   Interpolation: -0.4847   Error:   4.996e-16   Relative:  -1.031e-15
+
+y_3 (-0.500):  0.1548   Interpolation:  0.1548   Error:  -8.327e-17   Relative:  -5.377e-16
+y_3 (-0.426):  0.1923   Interpolation:  0.1923   Error:   5.551e-17   Relative:   2.887e-16
+y_3 ( 0.267): -0.1618   Interpolation: -0.1618   Error:   0.000e+00   Relative:  -0.000e+00
+y_3 ( 0.084):  0.0063   Interpolation:  0.0063   Error:   6.939e-18   Relative:   1.101e-15
+y_3 (-0.179):  0.1801   Interpolation:  0.1801   Error:  -1.110e-16   Relative:  -6.164e-16
+y_3 (-0.141):  0.1628   Interpolation:  0.1628   Error:   0.000e+00   Relative:   0.000e+00
+y_3 (-0.228):  0.1969   Interpolation:  0.1969   Error:  -8.327e-17   Relative:  -4.229e-16
+y_3 ( 0.006):  0.0697   Interpolation:  0.0697   Error:   1.388e-17   Relative:   1.992e-16
+y_3 ( 0.391): -0.2777   Interpolation: -0.2777   Error:  -1.110e-16   Relative:   3.998e-16
+y_3 ( 0.500): -0.3721   Interpolation: -0.3721   Error:   3.331e-16   Relative:  -8.951e-16
+
+y_4 (-0.500):  0.1988   Interpolation:  0.1988   Error:  -8.327e-17   Relative:  -4.189e-16
+y_4 (-0.426):  0.2154   Interpolation:  0.2154   Error:   2.776e-17   Relative:   1.289e-16
+y_4 ( 0.267): -0.1582   Interpolation: -0.1582   Error:   0.000e+00   Relative:  -0.000e+00
+y_4 ( 0.084):  0.0063   Interpolation:  0.0063   Error:   5.204e-18   Relative:   8.212e-16
+y_4 (-0.179):  0.1809   Interpolation:  0.1809   Error:  -5.551e-17   Relative:  -3.069e-16
+y_4 (-0.141):  0.1631   Interpolation:  0.1631   Error:   0.000e+00   Relative:   0.000e+00
+y_4 (-0.228):  0.1988   Interpolation:  0.1988   Error:  -1.110e-16   Relative:  -5.585e-16
+y_4 ( 0.006):  0.0697   Interpolation:  0.0697   Error:   2.776e-17   Relative:   3.983e-16
+y_4 ( 0.391): -0.2613   Interpolation: -0.2613   Error:  -5.551e-17   Relative:   2.124e-16
+y_4 ( 0.500): -0.3282   Interpolation: -0.3282   Error:   3.331e-16   Relative:  -1.015e-15
+
+y_5 (-0.500):  0.2282   Interpolation:  0.2282   Error:  -5.551e-17   Relative:  -2.432e-16
+y_5 (-0.426):  0.2286   Interpolation:  0.2286   Error:   5.551e-17   Relative:   2.429e-16
+y_5 ( 0.267): -0.1595   Interpolation: -0.1595   Error:  -2.776e-17   Relative:   1.740e-16
+y_5 ( 0.084):  0.0063   Interpolation:  0.0063   Error:   5.204e-18   Relative:   8.217e-16
+y_5 (-0.179):  0.1810   Interpolation:  0.1810   Error:  -8.327e-17   Relative:  -4.600e-16
+y_5 (-0.141):  0.1632   Interpolation:  0.1632   Error:  -2.776e-17   Relative:  -1.701e-16
+y_5 (-0.228):  0.1994   Interpolation:  0.1994   Error:  -5.551e-17   Relative:  -2.784e-16
+y_5 ( 0.006):  0.0697   Interpolation:  0.0697   Error:   1.388e-17   Relative:   1.992e-16
+y_5 ( 0.391): -0.2699   Interpolation: -0.2699   Error:  -1.110e-16   Relative:   4.114e-16
+y_5 ( 0.500): -0.3576   Interpolation: -0.3576   Error:   3.331e-16   Relative:  -9.314e-16
+
+y_6 (-0.500):  0.2176   Interpolation:  0.2176   Error:  -5.551e-17   Relative:  -2.551e-16
+y_6 (-0.426):  0.2245   Interpolation:  0.2245   Error:   5.551e-17   Relative:   2.472e-16
+y_6 ( 0.267): -0.1597   Interpolation: -0.1597   Error:  -2.776e-17   Relative:   1.738e-16
+y_6 ( 0.084):  0.0063   Interpolation:  0.0063   Error:   5.204e-18   Relative:   8.217e-16
+y_6 (-0.179):  0.1810   Interpolation:  0.1810   Error:  -5.551e-17   Relative:  -3.067e-16
+y_6 (-0.141):  0.1632   Interpolation:  0.1632   Error:   2.776e-17   Relative:   1.701e-16
+y_6 (-0.228):  0.1993   Interpolation:  0.1993   Error:  -1.388e-16   Relative:  -6.964e-16
+y_6 ( 0.006):  0.0697   Interpolation:  0.0697   Error:   1.388e-17   Relative:   1.992e-16
+y_6 ( 0.391): -0.2723   Interpolation: -0.2723   Error:  -5.551e-17   Relative:   2.039e-16
+y_6 ( 0.500): -0.3682   Interpolation: -0.3682   Error:   3.886e-16   Relative:  -1.055e-15
+
+y_7 (-0.500):  0.2107   Interpolation:  0.2107   Error:  -8.327e-17   Relative:  -3.952e-16
+y_7 (-0.426):  0.2223   Interpolation:  0.2223   Error:   8.327e-17   Relative:   3.746e-16
+y_7 ( 0.267): -0.1596   Interpolation: -0.1596   Error:  -2.776e-17   Relative:   1.739e-16
+y_7 ( 0.084):  0.0063   Interpolation:  0.0063   Error:   4.337e-18   Relative:   6.848e-16
+y_7 (-0.179):  0.1810   Interpolation:  0.1810   Error:  -5.551e-17   Relative:  -3.067e-16
+y_7 (-0.141):  0.1632   Interpolation:  0.1632   Error:   2.776e-17   Relative:   1.701e-16
+y_7 (-0.228):  0.1992   Interpolation:  0.1992   Error:  -5.551e-17   Relative:  -2.786e-16
+y_7 ( 0.006):  0.0697   Interpolation:  0.0697   Error:   4.163e-17   Relative:   5.975e-16
+y_7 ( 0.391): -0.2711   Interpolation: -0.2711   Error:  -5.551e-17   Relative:   2.048e-16
+y_7 ( 0.500): -0.3613   Interpolation: -0.3613   Error:   3.331e-16   Relative:  -9.220e-16
+
+y_8 (-0.500):  0.2077   Interpolation:  0.2077   Error:   2.776e-17   Relative:   1.336e-16
+y_8 (-0.426):  0.2214   Interpolation:  0.2214   Error:   5.551e-17   Relative:   2.507e-16
+y_8 ( 0.267): -0.1597   Interpolation: -0.1597   Error:   0.000e+00   Relative:  -0.000e+00
+y_8 ( 0.084):  0.0063   Interpolation:  0.0063   Error:   5.204e-18   Relative:   8.217e-16
+y_8 (-0.179):  0.1810   Interpolation:  0.1810   Error:  -5.551e-17   Relative:  -3.067e-16
+y_8 (-0.141):  0.1632   Interpolation:  0.1632   Error:   5.551e-17   Relative:   3.402e-16
+y_8 (-0.228):  0.1992   Interpolation:  0.1992   Error:  -1.110e-16   Relative:  -5.572e-16
+y_8 ( 0.006):  0.0697   Interpolation:  0.0697   Error:   5.551e-17   Relative:   7.966e-16
+y_8 ( 0.391): -0.2715   Interpolation: -0.2715   Error:  -5.551e-17   Relative:   2.045e-16
+y_8 ( 0.500): -0.3643   Interpolation: -0.3643   Error:   3.331e-16   Relative:  -9.143e-16
+
+y_9 (-0.500):  0.2077   Interpolation:  0.2077   Error:  -5.551e-17   Relative:  -2.673e-16
+y_9 (-0.426):  0.2214   Interpolation:  0.2214   Error:   5.551e-17   Relative:   2.507e-16
+y_9 ( 0.267): -0.1597   Interpolation: -0.1597   Error:   0.000e+00   Relative:  -0.000e+00
+y_9 ( 0.084):  0.0063   Interpolation:  0.0063   Error:   5.204e-18   Relative:   8.217e-16
+y_9 (-0.179):  0.1810   Interpolation:  0.1810   Error:  -2.776e-17   Relative:  -1.533e-16
+y_9 (-0.141):  0.1632   Interpolation:  0.1632   Error:   2.776e-17   Relative:   1.701e-16
+y_9 (-0.228):  0.1992   Interpolation:  0.1992   Error:  -1.388e-16   Relative:  -6.965e-16
+y_9 ( 0.006):  0.0697   Interpolation:  0.0697   Error:   5.551e-17   Relative:   7.966e-16
+y_9 ( 0.391): -0.2715   Interpolation: -0.2715   Error:   0.000e+00   Relative:  -0.000e+00
+y_9 ( 0.500): -0.3643   Interpolation: -0.3643   Error:   3.886e-16   Relative:  -1.067e-15
+
+
+Interpolation initialized structure for FR:
+
+{coefs_d = {1..2, 1..1}, coefs = 1.0
+1.0} {coefs_d = {1..2, 1..2}, coefs = 0.933013 0.0669873
+0.0669873 0.933013} {coefs_d = {1..2, 1..3}, coefs = 0.531082 0.583333 -0.114415
+-0.114415 0.583333 0.531082} {coefs_d = {1..2, 1..4}, coefs = 0.169702 0.970074 -0.184802 0.0450254
+0.0450254 -0.184802 0.970074 0.169702} {coefs_d = {1..2, 1..5}, coefs = -0.0321952 0.962726 0.0958333 -0.0356634 0.00929971
+0.00929971 -0.0356634 0.0958333 0.962726 -0.0321952} {coefs_d = {1..2, 1..6}, coefs = -0.0790266 0.638867 0.580888 -0.205563 0.0886932 -0.0238585
+-0.0238585 0.0886932 -0.205563 0.580888 0.638867 -0.0790266} {coefs_d = {1..2, 1..7}, coefs = -0.0398174 0.231803 0.946416 -0.204018 0.0983719 -0.0450956 0.0123402
+0.0123402 -0.0450956 0.0983719 -0.204018 0.946416 0.231803 -0.0398174} {coefs_d = {1..2, 1..8}, coefs = 0.0100421 -0.0500278 0.971799 0.097378 -0.0451052 0.0241946 -0.0114459 0.00316531
+0.00316531 -0.0114459 0.0241946 -0.0451052 0.097378 0.971799 -0.0500278 0.0100421} {coefs_d = {1..2, 1..9}, coefs = 0.0288771 -0.131466 0.673693 0.569855 -0.217721 0.121504 -0.0686002 0.0330656 -0.00920818
+-0.00920818 0.0330656 -0.0686002 0.121504 -0.217721 0.569855 0.673693 -0.131466 0.0288771}
+
+

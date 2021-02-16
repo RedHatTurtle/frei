@@ -194,6 +194,7 @@ prototype module Interpolation
 
   proc main()
   {
+    use IO;
     use Testing;
     use Polynomials;
 
