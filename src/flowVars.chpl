@@ -34,4 +34,46 @@ prototype module Solution {
     var cellSPidx : [cellSPidx_d] int;  // Index of the first SP and number of SPs of a cell
     var faceFPidx : [faceFPidx_d] int;  // Index of the first FP and number of FPs of a face
   }
+
+  proc n_cell_sps(in elemTopo : int, in solOrder) : int
+  {
+    select elemTopo
+    {
+      when TOPO_LINE do return (solOrder+1);
+      when TOPO_TRIA do return (solOrder+1)*(solOrder+2)/2;
+      when TOPO_QUAD do return (solOrder+1)**2;
+      when TOPO_TETR do return (solOrder+1)*(solOrder+2)*(solOrder+3)/6;
+      when TOPO_PYRA do return (solOrder+1)*(solOrder+2)*(2*solOrder+1)/6;
+      when TOPO_PRIS do return (solOrder+1)*(solOrder+1)*(solOrder+2)/2;
+      when TOPO_HEXA do return (solOrder+1)**3;
+      otherwise return -1;
+    }
+  }
+
+  proc n_cell_fps(in elemTopo : int, in solOrder) : int
+  {
+    select elemTopo
+    {
+      when TOPO_LINE do return 2;
+      when TOPO_TRIA do return 3*(solOrder+1);
+      when TOPO_QUAD do return 4*(solOrder+1);
+      when TOPO_TETR do return 4*(solOrder+1)*(solOrder+2)/2;
+      when TOPO_PYRA do return 4*(solOrder+1)*(solOrder+2)/2 +1*(solOrder+1)**2;
+      when TOPO_PRIS do return 2*(solOrder+1)*(solOrder+2)/2 +3*(solOrder+1)**2;
+      when TOPO_HEXA do return 6*(solOrder+1)**2;
+      otherwise return -1;
+    }
+  }
+
+  proc n_face_fps(in elemTopo : int, in solOrder) : int
+  {
+    select elemTopo
+    {
+      when TOPO_NODE do return 1;
+      when TOPO_LINE do return (solOrder+1);
+      when TOPO_TRIA do return (solOrder+1)*(solOrder+2)/2;
+      when TOPO_QUAD do return (solOrder+1)**2;
+      otherwise return -1;
+    }
+  }
 }
