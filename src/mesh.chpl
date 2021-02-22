@@ -393,36 +393,6 @@ prototype module Mesh
     }
   }
 
-  class flux_reconstruction_c
-  {
-    var nDims : int;
-    var nVars : int;
-
-    // Domains
-    var xyzSP_d : domain(2);    // {nSPs, nDims}
-    var xyzFP_d : domain(2);    // {nSPs, nDims}
-
-    var solSP_d : domain(2);    // {nSPs, nVars}
-    var solFP_d : domain(3);    // {nFPs, nVars}
-    var flxFP_d : domain(2);    // {nFPs, nVars}
-
-    //var dSolSP_d : domain(2);   // {1..nSPs, nVars, nVars}
-    //var dSolFP_d : domain(4);   // {1..2, 1..nFPs, nVars, nVars}
-
-    // FR solver variables
-    var xyzSP : [xyzSP_d] real;
-    var xyzFP : [xyzFP_d] real;
-
-    var solOldSP : [solSP_d] real;                  // Backup of the solution at the beginning of residue calculation
-    var    solSP : [solSP_d] real;                  // Conserved variables at SPs
-    var    solFP : [solFP_d] real;                  // Conserved variables at FPs (0-Left / 1-right)
-    var    flxFP : [flxFP_d] real;                  // Unique convective flux at FPs
-    var    resSP : [solSP_d] real;        // conserved variables residual
-
-    //var   dSolSP : [dSolSP_d] real;     //
-    //var   dSolFP : [dSolFP_d] real;     // Conserved variables gradient at left/right FPs
-  }
-
   private proc elem_type_gmsh2mesh(in elemTypeGmsh : int) : int
   {
     use Parameters.Gmesh;
