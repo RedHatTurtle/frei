@@ -20,6 +20,11 @@ prototype module Mesh
 
     // Arrays
     var nodes : [1..2] int;
+
+    proc elemTopo() : int
+    {
+      return elem_topology(this.elemType);
+    }
   }
 
   record face_r
@@ -35,6 +40,11 @@ prototype module Mesh
     var nodes : [nodes_d] int;
     //var edges : [edges_d] int;
     var cells : [1..2] int;
+
+    proc elemTopo() : int
+    {
+      return elem_topology(this.elemType);
+    }
   }
 
   record cell_r
@@ -53,6 +63,11 @@ prototype module Mesh
     var faces : [faces_d] int;
 
     var family : int;
+
+    proc elemTopo() : int
+    {
+      return elem_topology(this.elemType);
+    }
   }
 
   record boco_r
@@ -70,6 +85,11 @@ prototype module Mesh
     var face : int;
 
     var family : int;
+
+    proc elemTopo() : int
+    {
+      return elem_topology(this.elemType);
+    }
   }
 
   record faml_r
@@ -84,7 +104,7 @@ prototype module Mesh
 
   class mesh_c
   {
-    var nDims : int;
+    const nDims : int;
     var nNodes : int;
     var nEdges : int;
     var nFaces : int;
