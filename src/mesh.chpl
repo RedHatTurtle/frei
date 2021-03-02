@@ -391,6 +391,74 @@ prototype module Mesh
         }
       }
     }
+
+    proc cell_count()
+    {
+      use Parameters.Mesh;
+      var cell_count_d : domain(rank=2, idxType=int) = {1..1,1..2};
+      var cell_count : [cell_count_d] int = 0;
+      var topo : int;
+
+      // Initialize list with the first element
+      cell_count[1,1] = elem_topology(this.cellList[1].elemType);
+
+      // Go over cell list and count the number of elements of each topology
+      for cell in this.cellList
+      {
+        topo = elem_topology(cell.elemType);
+
+        // Search the count array for this topology
+        for i in cell_count_d.dim(0)
+        {
+          if cell_count[i,1] == topo then
+            // If there is a line for this topology then just add 1 do the count
+            cell_count[i,2] += 1;
+          else if i == cell_count_d.dim(0).high
+          {
+            // If not and this is the end of the array then add a new line and start counting
+            cell_count_d = {1..cell_count_d.dim(0).high+1, cell_count_d.dim(1)};
+            cell_count[i+1,1] = topo;
+            cell_count[i+1,2] = 1;
+          }
+        }
+      }
+
+      return cell_count;
+    }
+
+    proc face_count()
+    {
+      use Parameters.Mesh;
+      var face_count_d : domain(rank=2, idxType=int) = {1..1,1..2};
+      var face_count : [face_count_d] int = 0;
+      var topo : int;
+
+      // Initialize list with the first element
+      face_count[1,1] = elem_topology(this.faceList[1].elemType);
+
+      // Go over face list and count the number of elements of each topology
+      for face in this.faceList
+      {
+        topo = elem_topology(face.elemType);
+
+        // Search the count array for this topology
+        for i in face_count_d.dim(0)
+        {
+          if face_count[i,1] == topo then
+            // If there is a line for this topology then just add 1 do the count
+            face_count[i,2] += 1;
+          else if i == face_count_d.dim(0).high
+          {
+            // If not and this is the end of the array then add a new line and start counting
+            face_count_d = {1..face_count_d.dim(0).high+1, face_count_d.dim(1)};
+            face_count[i+1,1] = topo;
+            face_count[i+1,2] = 1;
+          }
+        }
+      }
+
+      return face_count;
+    }
   }
 
   private proc elem_type_gmsh2mesh(in elemTypeGmsh : int) : int
@@ -540,6 +608,13 @@ prototype module Mesh
 
     writeln("Test 2: Random 1D mesh - Gmesh => Native:");
     writeln(test_mesh);
+    writeln();
+
+    writeln("Test 3: Cell and Face counts by topology:");
+    writeln("Cell counts:");
+    writeln(test_mesh.cell_count());
+    writeln("Face counts:");
+    writeln(test_mesh.face_count());
     writeln();
   }
 }
