@@ -144,6 +144,39 @@ prototype module Polynomials
 //    }
   }
 
+  proc nodes_uniform(in n : int) : [1..n] real
+  {
+    var xi : [1..n] real;
+
+    for i in 1..n do
+      xi[i] = 2*(i/(n+1):real)-1;
+
+    return xi;
+  }
+
+  proc nodes_uniform(in   n : int,
+                     out xi : [1..n] real)
+  {
+     xi = nodes_uniform(n);
+  }
+
+  proc nodes_uniform_lobatto(in n : int) : [1..n] real
+  {
+    var xi : [1..n] real;
+
+    xi[1] = -1;
+    xi[n] =  1;
+    xi[2..n-1] = nodes_uniform(n-2);
+
+    return xi;
+  }
+
+  proc nodes_uniform_lobatto(in   n : int,
+                             out xi : [1..n] real)
+  {
+    xi = nodes_uniform_lobatto(n);
+  }
+
   proc nodes_jacobi_gauss(in n : int, in alpha : real, in beta : real,
                           out xi : [1..n] real, out dxi : [1..n] real)
   {
@@ -518,6 +551,12 @@ prototype module Polynomials
       writeln();
 
       var xi, dxi : [1..order] real;
+      nodes_uniform(order, xi);
+      writeln("Uniformly spaced Nodes: xi=[", xi, "]");
+      writeln();
+      nodes_uniform_lobatto(order, xi);
+      writeln("Uniformly spaced Nodes with edges: xi=[", xi, "]");
+      writeln();
       nodes_jacobi_gauss(order, a, b, xi, dxi);
       writeln("Jacobi-Gauss Nodes: xi=[", xi, "]");
       writeln("    dxi=[", dxi, "]" );
