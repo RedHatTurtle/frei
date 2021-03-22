@@ -112,6 +112,7 @@ prototype module Parameters
 
   prototype module Mesh
   {
+    // Mesh element topologies
     param TOPO_NODE : int = 1; // Point
     param TOPO_LINE : int = 2; // Line
     param TOPO_TRIA : int = 3; // Triangle
@@ -121,6 +122,7 @@ prototype module Parameters
     param TOPO_PRIS : int = 7; // Prism
     param TOPO_HEXA : int = 8; // Hexahedron
 
+    // Mesh element types
     param TYPE_NODE     : int = 10;
     param TYPE_LINE_2   : int = 21;
     param TYPE_LINE_3   : int = 22;

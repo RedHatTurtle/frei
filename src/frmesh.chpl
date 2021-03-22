@@ -1,4 +1,4 @@
-prototype module FlowVars {
+prototype module FRMesh {
   use Input;
   use Mesh;
 
