@@ -27,7 +27,7 @@ chpl -o mesh_tests --main-module Mesh src/mesh.chpl src/gmesh.chpl src/testing.c
 echo "done"
 echo
 echo "Building FlowVars Tests:"
-chpl -o flowvars_tests --main-module FlowVars src/flowVars.chpl src/mesh.chpl src/gmesh.chpl src/testing.chpl src/config.chpl src/input.chpl src/parameters.chpl |
+chpl -o flowvars_tests --main-module FlowVars src/flowVars.chpl src/polynomials.chpl src/mesh.chpl src/gmesh.chpl src/testing.chpl src/config.chpl src/input.chpl src/parameters.chpl |
     tee flowvars_build_test.log
 echo "done"
 echo
