@@ -1,7 +1,7 @@
 # FREI
 **Flux Reconstruction Educational Implementation**
 
-_by **RedHatTurtle** (Fábio Mallaco Moreira)_
+_by **Fábio Malacco Moreira** (RedHatTurtle)_
 
 _Licensed under the GNU Affero General Public License v3.0_
 
