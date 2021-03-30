@@ -96,40 +96,40 @@ prototype module Input
     writeln();
 
     try {
-      eqSet = tomlData["parPhysics"]["eqSet"].i : int;
-      initialConditions  = tomlData["parPhysics"]["initialConditions"].i : int;
-      boundaryConditions = tomlData["parPhysics"]["boundaryConditions"].i : int;
+      eqSet = tomlData["parPhysics"]!["eqSet"]!.i : int;
+      initialConditions  = tomlData["parPhysics"]!["initialConditions"]!.i : int;
+      boundaryConditions = tomlData["parPhysics"]!["boundaryConditions"]!.i : int;
 
-      fGamma = tomlData["parFluid"]["fGamma"].re : real;
-      fR     = tomlData["parFluid"]["fR"].re : real;
+      fGamma = tomlData["parFluid"]!["fGamma"]!.re : real;
+      fR     = tomlData["parFluid"]!["fR"]!.re : real;
 
-      xMin          = tomlData["parMesh"]["xMin"].re : real;
-      xMax          = tomlData["parMesh"]["xMax"].re : real;
-      nCells        = tomlData["parMesh"]["nCells"].i : int;
-      meshingScheme = tomlData["parMesh"]["meshingScheme"].i : int;
+      xMin          = tomlData["parMesh"]!["xMin"]!.re : real;
+      xMax          = tomlData["parMesh"]!["xMax"]!.re : real;
+      nCells        = tomlData["parMesh"]!["nCells"]!.i : int;
+      meshingScheme = tomlData["parMesh"]!["meshingScheme"]!.i : int;
 
-      spatialScheme     = tomlData["parSpatial"]["spatialScheme"].i : int;
-      dissipationScheme = tomlData["parSpatial"]["dissipationScheme"].i : int;
+      spatialScheme     = tomlData["parSpatial"]!["spatialScheme"]!.i : int;
+      dissipationScheme = tomlData["parSpatial"]!["dissipationScheme"]!.i : int;
 
-      iOrder = tomlData["parFR"]["iOrder"].i : int;
-      distSP = tomlData["parFR"]["distSP"].i : int;
-      distSP = tomlData["parFR"]["frScheme"].i : int;
+      iOrder = tomlData["parFR"]!["iOrder"]!.i : int;
+      distSP = tomlData["parFR"]!["distSP"]!.i : int;
+      distSP = tomlData["parFR"]!["frScheme"]!.i : int;
 
-      timeStep = tomlData["parTime"]["timeScheme"].i : int;
-      timeStep = tomlData["parTime"]["timeStep"].re  : real;
+      timeStep = tomlData["parTime"]!["timeScheme"]!.i : int;
+      timeStep = tomlData["parTime"]!["timeStep"]!.re  : real;
 
-      ioIter  = tomlData["parOutput"]["ioIter"].i : int;
-      maxIter = tomlData["parOutput"]["maxIter"].i : int;
-      ioTime  = tomlData["parOutput"]["ioTime"].re : real;
-      maxTime = tomlData["parOutput"]["maxTime"].re : real;
+      ioIter  = tomlData["parOutput"]!["ioIter"]!.i : int;
+      maxIter = tomlData["parOutput"]!["maxIter"]!.i : int;
+      ioTime  = tomlData["parOutput"]!["ioTime"]!.re : real;
+      maxTime = tomlData["parOutput"]!["maxTime"]!.re : real;
 
-      rhoRef  = tomlData["parRef"]["rhoRef"].re : real;
-      pRef    = tomlData["parRef"]["pRef"].re : real;
+      rhoRef  = tomlData["parRef"]!["rhoRef"]!.re : real;
+      pRef    = tomlData["parRef"]!["pRef"]!.re : real;
 
-      rhoLow  = tomlData["parInit"]["rhoLow"].re : real;
-      pLow    = tomlData["parInit"]["pLow"].re : real;
-      rhoHigh = tomlData["parInit"]["rhoHigh"].re : real;
-      pHigh   = tomlData["parInit"]["pHigh"].re : real;
+      rhoLow  = tomlData["parInit"]!["rhoLow"]!.re : real;
+      pLow    = tomlData["parInit"]!["pLow"]!.re : real;
+      rhoHigh = tomlData["parInit"]!["rhoHigh"]!.re : real;
+      pHigh   = tomlData["parInit"]!["pHigh"]!.re : real;
     } catch {
       write("Error reading input file.");
     }
