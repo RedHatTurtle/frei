@@ -6,24 +6,24 @@ module FREI
 
   proc main() {
     use Input;
-    use Dimensional;
-    use Spatial_Methods;
+    use Config;
 
-    // Read inputa data
+    // Read input data
     indat(inputFile);
 
-    // Process input data
-    dim2nondim;
+    // Process input data into config
+    configure_solver();
 
     // Initialize the problem
     //allocate_variables;
     //init_mesh;
+    //dim2nondim;
     //init_solution;
 
     // Output the initial state
     //output_init;
 
-    // Start the solver itrations
+    // Start the solver iterations
     //solver;
 
     // Output the final state
