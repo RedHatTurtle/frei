@@ -1,0 +1,44 @@
+[parPhysics]
+  eqSet              = 6   # 1-Convection, 2-Inviscid Burgers, 3-Diffusion, 4-Linear Burgers, 5-Burgers, 6-Euler, 7-Navier-Stokes
+  initialConditions  = 1   # Shock tube
+  boundaryConditions = 0   # Dirichlet
+
+[parFluid]
+  fGamma = 1.4             # Set the ratio of heat coefficients cp/cv
+  fR     = 287.0           # Set the gas constant
+
+[parMesh]
+  xMin          = -1.0
+  xMax          =  1.0
+  nCells        = 1000
+  meshingScheme = 1        # How to divide the mesh into cells: 1-Uniform, 2-Sinusoidal, 3-Random
+
+[parSpatial]
+  spatialScheme     = 1    # List of project schemes follower by SD and CPR
+  dissipationScheme = 2    # Order of the artificial dissipation to be added
+
+[parFR]
+  iOrder   = 1             # Solution polynomial interpolation order
+  distSP   = 0             # Distribution of SPs for FR method
+  frScheme = 1             # FR correction function to use
+
+[parTime]
+  timeScheme = 1           # Time integration scheme
+  timeStep   = 0.0001      # Size of the time step
+
+[parOutput]
+  ioIter  = 0              # Number of iterations between output dumps
+  maxIter = 0              # Maximum number of iterations
+  ioTime  = 0.00           # Time interval between output dumps
+  maxTime = 1.00           # Maximum time to simulate
+
+[parRef]
+  rhoRef  = 10.0           # Density on the LOW pressure side of the shock tube
+  pRef    = 10.0           # Pressure on the LOW pressure side of the shock tube
+
+[parInit]
+  rhoLow  = 1.0            # Density on the LOW pressure side of the shock tube
+  pLow    = 1.0            # Pressure on the LOW pressure side of the shock tube
+  rhoHigh = 10.0           # Density on the HIGH pressure side of the shock tube
+  pHigh   = 10.0           # Pressure on the HIGH pressure side of the shock tube
+  dummy   = 0
