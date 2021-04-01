@@ -23,6 +23,7 @@ prototype module Parameters
     param IC_SQUARE          : int = 14;    // Square Wave
     param IC_MIXEDWAVE       : int = 15;    // Mixed Wave
     param IC_SHOCKTUBE       : int = 61;    // Shock Tube
+    param IC_1D_NOZZLE       : int = 62;    // Quasi 1D Nozzle
 
     // Boundary Conditions
     param BC_PERIODIC  : int = 1;    // Periodic
