@@ -4,37 +4,109 @@ default:
 stages:
   - build_single_locale
   - test_single_locale
-  - build_multi_locale
-  - test_multi_locale
+#  - build_multi_locale
+#  - test_multi_locale
 
-#before_script:
-#  - ls
+before_script:
+  - echo "Starting CI script"
 
 ################################################################################
 
-compile:
+compile_dbg:
   stage: build_single_locale
+  artifacts:
+    untracked: true
   script:
-    - chpl -o frei --main-module Control frei.chpl
+    - echo "Building single locale debug version of FREI."
+    - chpl -o frei_dbg --main-module "FREI" src/FREI.chpl
+                                            src/input.chpl
+                                            src/config.chpl
+                                            src/polynomials.chpl
+                                            src/correction.chpl
+                                            src/interpolation.chpl
+                                            src/mesh.chpl
+                                            src/gmesh.chpl
+                                            src/testing.chpl
+                                            src/parameters.chpl
 
-multi_locale_compile:
-  image: "chapel/chapel-gasnet:latest"
-  stage: build_multi_locale
-  image: "chapel/chapel-gasnet"
-  script:
-    - chpl -o frei --main-module Control frei.chpl
+# compile_opt:
+#   stage: build_single_locale
+#   artifacts:
+#     untracked: true
+#   script:
+#     - echo "Building single locale release version of FREI."
+#     - chpl -o frei_opt --main-module "FREI" src/FREI.chpl
+#                                             src/input.chpl
+#                                             src/config.chpl
+#                                             src/polynomials.chpl
+#                                             src/correction.chpl
+#                                             src/interpolation.chpl
+#                                             src/mesh.chpl
+#                                             src/gmesh.chpl
+#                                             src/testing.chpl
+#                                             src/parameters.chpl
+
+# compile_dbg_multi_locale:
+#   stage: build_multi_locale
+#   image: "chapel/chapel-gasnet:latest"
+#   script:
+#     - chpl -o frei_dbg_multi_locale --main-module "FREI" src/FREI.chpl          \
+#                                                          src/input.chpl         \
+#                                                          src/config.chpl        \
+#                                                          src/polynomials.chpl   \
+#                                                          src/correction.chpl    \
+#                                                          src/interpolation.chpl \
+#                                                          src/mesh.chpl          \
+#                                                          src/gmesh.chpl         \
+#                                                          src/testing.chpl       \
+#                                                          src/parameters.chpl
+# 
+# compile_opt_multi_locale:
+#   stage: build_multi_locale
+#   image: "chapel/chapel-gasnet:latest"
+#   script:
+#     - chpl -o frei_opt_multi_locale --main-module "FREI" src/FREI.chpl          \
+#                                                          src/input.chpl         \
+#                                                          src/config.chpl        \
+#                                                          src/polynomials.chpl   \
+#                                                          src/correction.chpl    \
+#                                                          src/interpolation.chpl \
+#                                                          src/mesh.chpl          \
+#                                                          src/gmesh.chpl         \
+#                                                          src/testing.chpl       \
+#                                                          src/parameters.chpl
 
 ################################################################################
 
-run_example:
+run_1d_test_dbg:
   stage: test_single_locale
+  needs: [compile_dbg]
   script:
-    - ./frei --inputFile=inputExample.toml
+    - ls
+    - ./frei_dbg --inputFile=test-cases/inputTest.toml
 
-multi_locale_run_example:
-  image: "chapel/chapel-gasnet:latest"
-  stage: test_multi_locale
-  script:
-    - ./frei_real -nl 1 --inputFile=inputExample.toml
+# run_1d_test_opt:
+#   stage: test_single_locale
+#   needs: [compile_opt]
+#   script:
+#     - ls
+#     - ./frei_opt --inputFile=test-cases/inputTest.toml
+
+# run_1d_test_dbg_multi_locale:
+#   stage: test_multi_locale
+#   image: "chapel/chapel-gasnet:latest"
+#   needs: [compile_dbg_multi_locale]
+#   script:
+#     - ./frei_dbg_multi_locale_real nl 1 --inputFile=test-cases/inputTest.toml
+#     - ./frei_dbg_multi_locale_real nl 2 --inputFile=test-cases/inputTest.toml
+# 
+# run_1d_test_opt_multi_locale:
+#   stage: test_multi_locale
+#   image: "chapel/chapel-gasnet:latest"
+#   needs: [compile_opt_multi_locale]
+#   script:
+#     - ./frei_opt_multi_locale_real nl 1 --inputFile=test-cases/inputTest.toml
+#     - ./frei_opt_multi_locale_real nl 2 --inputFile=test-cases/inputTest.toml
 
 ################################################################################
+
