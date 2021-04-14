@@ -89,7 +89,7 @@ prototype module FRMesh {
 
     proc set_points_locations()
     {
-      use Parameters.Mesh;
+      use Parameters.ParamMesh;
       use Polynomials;
       use LinearAlgebra;
 
@@ -247,7 +247,7 @@ prototype module FRMesh {
 
   proc n_cell_sps(in elemTopo : int, in solOrder) : int
   {
-    use Parameters.Mesh;
+    use Parameters.ParamMesh;
 
     select elemTopo
     {
@@ -264,7 +264,7 @@ prototype module FRMesh {
 
   proc n_cell_fps(in elemTopo : int, in solOrder) : int
   {
-    use Parameters.Mesh;
+    use Parameters.ParamMesh;
 
     select elemTopo
     {
@@ -281,7 +281,7 @@ prototype module FRMesh {
 
   proc n_face_fps(in elemTopo : int, in solOrder) : int
   {
-    use Parameters.Mesh;
+    use Parameters.ParamMesh;
 
     select elemTopo
     {

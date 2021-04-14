@@ -180,7 +180,7 @@ prototype module Polynomials
   proc nodes_jacobi_gauss(in n : int, in alpha : real, in beta : real,
                           out xi : [1..n] real, out dxi : [1..n] real)
   {
-    use Parameters.Constants;
+    use Parameters.ParamConstants;
 
     //.. Local Scalars ..
     var i, it : int;

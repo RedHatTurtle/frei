@@ -21,7 +21,7 @@ prototype module Interpolation
 
   proc init_interpolation()
   {
-    use Parameters.Mesh;
+    use Parameters.ParamMesh;
     use Polynomials;
 
     // Allocate interpolation coefficients structure
@@ -196,7 +196,7 @@ prototype module Interpolation
   {
     use IO;
     use Testing;
-    use Parameters.Tests;
+    use Parameters.ParamTest;
     use Polynomials;
 
     var randStream = new RandomStream(real);

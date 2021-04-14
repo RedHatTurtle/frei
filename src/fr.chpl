@@ -1,6 +1,6 @@
 prototype module FR
 {
-  use Parameters.Input;
+  use Parameters.ParamInput;
 
   const fGamma : real = 1.4;
 
@@ -130,7 +130,7 @@ prototype module FR
   proc main()
   {
     use IO;
-    use Parameters.Input;
+    use Parameters.ParamInput;
 
     const nNodes = 21;
     var xyz : [1..nNodes, 1..3] real;

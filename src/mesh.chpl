@@ -204,8 +204,8 @@ prototype module Mesh
 
     proc face_list_builder()
     {
-      use Parameters.Mesh;
-      use Parameters.Gmesh;
+      use Parameters.ParamMesh;
+      use Parameters.ParamGmesh;
 
       // Build face list
       var faceNodes : [1..6] 4*int;
@@ -414,7 +414,7 @@ prototype module Mesh
 
     proc cell_count()
     {
-      use Parameters.Mesh;
+      use Parameters.ParamMesh;
       var cell_count_d : domain(rank=2, idxType=int) = {1..1,1..2};
       var cell_count : [cell_count_d] int = 0;
       var topo : int;
@@ -448,7 +448,7 @@ prototype module Mesh
 
     proc face_count()
     {
-      use Parameters.Mesh;
+      use Parameters.ParamMesh;
       var face_count_d : domain(rank=2, idxType=int) = {1..1,1..2};
       var face_count : [face_count_d] int = 0;
       var topo : int;
@@ -483,8 +483,8 @@ prototype module Mesh
 
   private proc elem_type_gmsh2mesh(in elemTypeGmsh : int) : int
   {
-    use Parameters.Gmesh;
-    use Parameters.Mesh;
+    use Parameters.ParamGmesh;
+    use Parameters.ParamMesh;
 
     select elemTypeGmsh {
       when GMESH_PNT_1 do return TYPE_NODE;
@@ -501,7 +501,7 @@ prototype module Mesh
 
   private proc elem_dimension(in elemTopo : int) : int
   {
-    use Parameters.Mesh;
+    use Parameters.ParamMesh;
 
     select elemTopo {
       when TOPO_NODE do return 0;
@@ -518,7 +518,7 @@ prototype module Mesh
 
   private proc elem_topology(in elemType : int) : int
   {
-    use Parameters.Mesh;
+    use Parameters.ParamMesh;
 
     select elemType {
       when TYPE_NODE   do return TOPO_NODE;
@@ -535,7 +535,7 @@ prototype module Mesh
 
   private proc elem_vertices(in elemTopo : int) : int
   {
-    use Parameters.Mesh;
+    use Parameters.ParamMesh;
 
     select elemTopo {
       when TOPO_NODE do return 1; // Vertex
@@ -552,7 +552,7 @@ prototype module Mesh
 
   private proc elem_nodes(in elemTopo : int) : int
   {
-    use Parameters.Mesh;
+    use Parameters.ParamMesh;
 
     select elemTopo {
       when TOPO_NODE do return 1; // Vertex
@@ -569,7 +569,7 @@ prototype module Mesh
 
   private proc elem_edges(in elemTopo : int) : int
   {
-    use Parameters.Mesh;
+    use Parameters.ParamMesh;
 
     select elemTopo {
       when TOPO_NODE do return  0; // Vertex
@@ -586,7 +586,7 @@ prototype module Mesh
 
   private proc elem_faces(in elemTopo : int) : int
   {
-    use Parameters.Mesh;
+    use Parameters.ParamMesh;
 
     select elemTopo {
       when TOPO_NODE do return 0; // Vertex

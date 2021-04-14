@@ -1,11 +1,11 @@
 prototype module Parameters
 {
-  prototype module Tests
+  prototype module ParamTest
   {
     param RANDOM_SEED : int = 47;
   }
 
-  prototype module Input
+  prototype module ParamInput
   {
     // Equation Sets
     param EQ_CONVECTION   : int = 1;    // Convection Eq            du/dt + c*(du/dx) = 0
@@ -99,7 +99,7 @@ prototype module Parameters
     param FR_G3  : int = 5;
   }
 
-  prototype module Constants
+  prototype module ParamConstants
   {
     param PI : real = 3.1415926535897932384626433832795028841971;
 
@@ -111,7 +111,7 @@ prototype module Parameters
     param EPS17 : real = 1.0e-17;
   }
 
-  prototype module Mesh
+  prototype module ParamMesh
   {
     // Mesh element topologies
     param TOPO_NODE : int = 1; // Point
@@ -155,7 +155,7 @@ prototype module Parameters
     param TYPE_HEXA_125 : int = 84;
   }
 
-  prototype module CGNS
+  prototype module ParamCGNS
   {
     // CGNS Element Types   -   https://cgns.github.io/CGNS_docs_current/sids/conv.html
     //
@@ -230,7 +230,7 @@ prototype module Parameters
     param CGNS_HEXA_125   : int;
   }
 
-  prototype module Gmesh
+  prototype module ParamGmesh
   {
 
     // Gmesh element topologies

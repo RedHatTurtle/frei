@@ -34,8 +34,8 @@ prototype module Gmesh
     proc random1D(xMin: real, xMax: real)
     {
       use Random;
-      use Parameters.Tests;
-      use Parameters.Gmesh;
+      use Parameters.ParamTest;
+      use Parameters.ParamGmesh;
       import Sort.sort;
 
       var randStreamSeeded = new RandomStream(real, RANDOM_SEED);
@@ -111,8 +111,8 @@ prototype module Gmesh
     proc random1D(xMin: real, xMax: real)
     {
       use Random;
-      use Parameters.Tests;
-      use Parameters.Gmesh;
+      use Parameters.ParamTest;
+      use Parameters.ParamGmesh;
       import Sort.sort;
 
       var randStreamSeeded = new RandomStream(real, RANDOM_SEED);
@@ -186,7 +186,7 @@ prototype module Gmesh
 
     proc setNodes
     {
-      use Parameters.Gmesh;
+      use Parameters.ParamGmesh;
 
       select this.elemType {
         when GMESH_PNT_1  do this.nodes_d = {1..1};

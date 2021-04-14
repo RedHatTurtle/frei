@@ -2,7 +2,7 @@ prototype module Input
 {
   use Random;
   use UnitTest;
-  use Parameters.Input;
+  use Parameters.ParamInput;
   use Config;
 
   //parPhysics
