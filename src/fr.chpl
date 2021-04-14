@@ -4,25 +4,34 @@ prototype module FR
 
   const fGamma : real = 1.4;
 
-  proc initial_conditions(IC : int, xyz : real, sol : real)
+  proc initial_condition(IC : int, const ref xyz : [] real) : [xyz.domain] real
   {
+    var sol : [xyz.domain] real;
     select IC
     {
       when IC_SHOCKTUBE
       {
-        for i in xyz.dom(0)
+        var xMin : real = 0.0;
+        var xMax : real = 1.0;
+
+        var rhoHi : real = 2.0;
+        var eHi   : real = 2.0;
+        var rhoLo : real = 1.0;
+        var eLo   : real = 1.0;
+
+        for i in xyz.domain.dim(0)
         {
-          if xyz[i,1] < 0.4 then
+          if xyz[i,1] < 0.5*(xMin+xMax) then
           {
-            sol[i,1] = 1.0;
-            sol[i,2] = 1.0;
-            sol[i,3] = 1.0;
+            sol[i,1] = rhoHi;
+            sol[i,2] = 0.0;
+            sol[i,3] = eHi;
           }
           else
           {
-            sol[i,1] = 1.0;
-            sol[i,2] = 1.0;
-            sol[i,3] = 1.0;
+            sol[i,1] = rhoLo;
+            sol[i,2] = 0.0;
+            sol[i,3] = eLo;
           }
         }
       }
@@ -31,16 +40,16 @@ prototype module FR
         const xT : real = 0.4;
         const aE : real = 0.4;
         const aT : real = 0.2;
-        var areaCrit : real = nozzle_area(xT); // Smooth transonic flow = Throat Area
+        var areaCrit : real = nozzle_ratio(xT); // Smooth transonic flow = Throat Area
 
-        for i in xyz.dom(0)
+        for i in xyz.domain.dim(0)
         {
           const rho0 = 1;
           const p0 = 1;
           const t0 = 1;
 
           var area = nozzle_ratio(xyz[i,1]);
-          var mach = nozzle_mach(area);
+          var mach = nozzle_mach_sub(area);
 
           var aux = 1 + (fGamma-1.0)*mach**2/2;
 
@@ -57,6 +66,8 @@ prototype module FR
       }
       otherwise {}
     }
+
+    return sol;
   }
 
   proc nozzle_ratio(in x : real) : real
@@ -119,20 +130,35 @@ prototype module FR
   proc main()
   {
     use IO;
+    use Parameters.Input;
 
-    const iMax = 20;
-    var x : real;
+    const nNodes = 21;
+    var xyz : [1..nNodes, 1..3] real;
+    var sol : [1..nNodes, 1..3] real;
 
-    writeln("1D Nozzle Flow");
-    writeln("Point #, X-Coord, Area Ratio,    Mach");
-    for i in 0..iMax
+    writeln("1D Meshes");
+
+    for i in xyz.domain.dim(0)
     {
-      x = i/iMax:real;
-
-      if (x < 0.4) then
-        writeln("%7i, %7.4dr, %10.4dr, %7.4dr".format( i, x, nozzle_ratio(x), nozzle_mach_sub(nozzle_ratio(x)) ));
-      else
-        writeln("%7i, %7.4dr, %10.4dr, %7.4dr".format( i, x, nozzle_ratio(x), nozzle_mach_sup(nozzle_ratio(x)) ));
+      xyz[i, 1] = (i-1.0)/(nNodes-1.0);
+      xyz[i, 2] = 0.0;
+      xyz[i, 3] = 0.0;
     }
+
+    writeln();
+    writeln("1D Shock Tube");
+    sol = initial_condition(IC_SHOCKTUBE, xyz);
+    writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3]");
+    for i in xyz.domain.dim(0) do
+      writeln("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er".format(i, xyz[i, 1], xyz[i, 2], xyz[i, 3],
+                                                                                    sol[i, 1], sol[i, 2], sol[i, 3]));
+
+    writeln();
+    writeln("1D Nozzle Flow");
+    sol = initial_condition(IC_1D_NOZZLE, xyz);
+    writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3]");
+    for i in xyz.domain.dim(0) do
+      writeln("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er".format(i, xyz[i, 1], xyz[i, 2], xyz[i, 3],
+                                                                                    sol[i, 1], sol[i, 2], sol[i, 3]));
   }
 }

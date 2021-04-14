@@ -31,6 +31,11 @@ chpl -o frmesh_tests --main-module FRMesh src/frmesh.chpl src/polynomials.chpl s
     tee frmesh_build_test.log
 echo "done"
 echo
+echo "Building FR Tests:"
+chpl -o fr_tests --main-module FR src/fr.chpl src/parameters.chpl |
+    tee fr_build_test.log
+echo "done"
+echo
 
 echo "Running Tests"
 # Run tests and output to file
@@ -41,4 +46,6 @@ echo "Running Tests"
 ./gmesh_tests         &> gmesh_test.log
 ./mesh_tests          &> mesh_test.log
 ./frmesh_tests        &> frmesh_test.log
+
+./fr_tests            &> fr_test.log
 echo "Done"
