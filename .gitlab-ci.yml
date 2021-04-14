@@ -19,15 +19,17 @@ compile_dbg:
   script:
     - echo "Building single locale debug version of FREI."
     - chpl -o frei_dbg --main-module "FREI" src/FREI.chpl
-                                            src/input.chpl
-                                            src/config.chpl
-                                            src/polynomials.chpl
-                                            src/correction.chpl
-                                            src/interpolation.chpl
+                                            src/fr.chpl
+                                            src/frmesh.chpl
                                             src/mesh.chpl
                                             src/gmesh.chpl
-                                            src/testing.chpl
+                                            src/correction.chpl
+                                            src/interpolation.chpl
+                                            src/polynomials.chpl
+                                            src/config.chpl
+                                            src/input.chpl
                                             src/parameters.chpl
+                                            src/testing.chpl
 
 # compile_opt:
 #   stage: build_single_locale

@@ -66,7 +66,6 @@ prototype module Input
     use IO;
     use SysError;
     use TOML;
-    use Mesh;
 
     var tomlFile : file;
     try {
