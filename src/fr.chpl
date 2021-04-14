@@ -4,9 +4,9 @@ prototype module FR
 
   const fGamma : real = 1.4;
 
-  proc initial_condition(IC : int, const ref xyz : [] real) : [xyz.domain] real
+  proc initial_condition(IC : int, const ref xyz : [] real) : [] real
   {
-    var sol : [xyz.domain] real;
+    var sol : [xyz.domain.dim(0), 1..3] real;
     select IC
     {
       when IC_SHOCKTUBE
