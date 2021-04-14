@@ -96,6 +96,9 @@ prototype module Gmesh
       this.elements[elemPermutation[this.nElements]].tags[1] = 3; // Family
       this.elements[elemPermutation[this.nElements]].nodes[1] = nodePermutation[this.nNodes];
     }
+
+    proc read_gmesh_file() {}
+    proc write_gmesh_file() {}
   }
 
   class gmesh4_c
@@ -173,6 +176,9 @@ prototype module Gmesh
       this.elements[elemPermutation[this.nElements]].tags[1] = 3; // Family
       this.elements[elemPermutation[this.nElements]].nodes[1] = nodePermutation[this.nNodes];
     }
+
+    proc read_gmesh_file() {}
+    proc write_gmesh_file() {}
   }
 
   record gmesh_element_r
