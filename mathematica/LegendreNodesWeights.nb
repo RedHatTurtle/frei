@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[    151421,       3238]
+NotebookDataLength[    151422,       3238]
 NotebookOptionsPosition[    148875,       3185]
-NotebookOutlinePosition[    149209,       3200]
-CellTagsIndexPosition[    149166,       3197]
+NotebookOutlinePosition[    149210,       3200]
+CellTagsIndexPosition[    149167,       3197]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -3183,8 +3183,8 @@ Cell[BoxData["\<\"DlegendreWeights.txt\"\>"], "Output",
 7c81e1e6ee84"]
 }, Open  ]]
 },
-WindowSize->{1280, 1352},
-WindowMargins->{{Automatic, 0}, {0, Automatic}},
+WindowSize->{1280, 139},
+WindowMargins->{{Automatic, 0}, {531, Automatic}},
 FrontEndVersion->"12.0 for Linux x86 (64-bit) (April 8, 2019)",
 StyleDefinitions->"Default.nb"
 ]
@@ -3243,6 +3243,4 @@ Cell[148702, 3179, 157, 3, 70, "Output",ExpressionUUID->"9d3e05e0-d3f3-4b37-babc
 }
 ]
 *)
-
-(* End of internal cache information *)
 
