@@ -1,44 +1,64 @@
 prototype module Output
 {
-  proc iterOutput(nIter)
+  import FRMesh.fr_mesh_c;
+
+  proc iterOutput(nIter : int, fr_mesh : fr_mesh_c)
   {
-    integer(isp), intent(in) :: nIter
-    character(len=20) :: stringIter, dirName
+    use Path;
 
-    write(stringIter,'(i)') nIter
-    dirName  = 'iter' // trim(adjustL(stringIter))
+    var stringIter : string = nIter:string;
+    var outputDir  : string = curDir;
 
-    call execute_command_line('mkdir -p '//trim(dirName) )
-    call stdOut(dirName)
+    // Create directory for this iteration output
+
+    // Write all selected output files
+    output_gnuplot(outputDir, stringIter, fr_mesh.xyzSP, fr_mesh.solSP);
+
+    // Delete old output directories if necessary
   }
 
-  proc timeOutput(curTime)
+//  proc timeOutput(in curTime : real)
+//  {
+//    var stringTime : string;
+//    var dirName : string;
+//
+//    // Define the string format to write the current time on the file/dir name string
+//    // Build string with the file/directory name
+//    write(stringTime,'(f0.4)') curTime;
+//    dirName = 'time'+trim(stringTime);
+//
+//    call execute_command_line('mkdir -p '+trim(dirName) );
+//    call stdOut(dirName);
+//  }
+
+  proc output_gnuplot(outputDir : string, fileSulfix : string, xyz : [] real, vars : [] real)
   {
-    real, intent(in) :: curTime
-    character(len=20) :: stringTime, dirName
+    use FileSystem;
+    use IO;
+    use Path;
 
-    ! Define the string format to write the current time on the file/dir name string
-    ! Build string with the file/directory name
-    write(stringTime,'(f0.4)') curTime
-    dirName = 'time' // trim(stringTime)
+    const GNUPlotIOStyle = new iostyle(min_width_columns=15, showpointzero=0, showplus=1, precision=6, realfmt=2);
+    param fileRoot : string = "sol_gnuplt";
+    param fileExt  : string = ".dat";
+    param nameSep  : string = "_";
 
-    call execute_command_line('mkdir -p '//trim(dirName) )
-    call stdOut(dirName)
-  }
+    var fileName   : string = fileRoot + nameSep + fileSulfix + fileExt;
+    var outputFile : file;
 
-  proc output_solution_gnuplot_1d(in dirName : string)
-  {
-    fileName : string;
+    try {
+      outputFile = open(outputDir + pathSep + fileName , iomode.cw, style=GNUPlotIOStyle);
+    } catch {
+      stdout.writeln("Unknown Error opening output file.");
+      stderr.writeln("Unknown Error opening output file.");
+    }
 
-    fileName = trim(dirName) // '/stdOut.out'
-    stdOutfile = 101; open( unit=stdOutFile, file=trim(fileName), status='replace' )
+    var outputChan = outputFile.writer();
 
-    for cell in 0..nCells
-      for dof in 0..nSPs
-        write(stdOutFile,'(i7,i3,7(es12.3E3))') cID, dofID, mesh%cellList(cID)%DOF(dofID)%x, mesh%cellList(cID)%DOF(dofID)%u(:), mesh%cellList(cID)%DOF(dofID)%p(), mesh%cellList(cID)%DOF(dofID)%T(), mesh%cellList(cID)%DOF(dofID)%u(2)/mesh%cellList(cID)%DOF(dofID)%u(1)
-      enddo
-    enddo
+    for dof in xyz.domain.dim(0) do
+      outputChan.writeln(dof, xyz[dof,..], vars[dof,..]);
 
-    close( stdOutFile )
+    outputChan.close();
+    outputFile.close();
   }
 }
+

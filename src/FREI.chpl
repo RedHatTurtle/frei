@@ -8,10 +8,13 @@ module FREI
     use Parameters.ParamInput;
     use Config;
     use Input;
+    use Output;
     use Gmesh;
     use Mesh;
     use FRMesh;
     use FR;
+
+    var iteration : int = 0;
 
     // 1. Read input data
     indat(inputFile);
@@ -37,16 +40,26 @@ module FREI
     fr_mesh.solSP = initial_condition(IC_SHOCKTUBE, fr_mesh.xyzSP);
 
     // Save restart file
+
     // Output initial state
-    //fr_mesh.output_gnuplot();
+    iterOutput(iteration, fr_mesh);
 
     // Solve flow
-      // Iterate Solver (single or multiple time steps
-      // Print solver status
-      // Output solution state
+    for iteration in 0..maxIter
+    {
+      // Iterate Solver (single or multiple time steps)
+
+      // Print solver status / log
+
       // Save restart file
+
+      // Output solution state
+      iterOutput(0, fr_mesh);
+
       // Check input changes
+    }
 
     // Output the final solution
+    iterOutput(iteration, fr_mesh);
   }
 }

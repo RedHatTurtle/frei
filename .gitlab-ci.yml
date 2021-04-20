@@ -20,6 +20,7 @@ compile_dbg:
     - echo "Building single locale debug version of FREI."
     - chpl -o frei_dbg --main-module "FREI" src/FREI.chpl
                                             src/fr.chpl
+                                            src/output.chpl
                                             src/frmesh.chpl
                                             src/mesh.chpl
                                             src/gmesh.chpl
@@ -62,7 +63,7 @@ compile_dbg:
 #                                                          src/gmesh.chpl         \
 #                                                          src/testing.chpl       \
 #                                                          src/parameters.chpl
-# 
+#
 # compile_opt_multi_locale:
 #   stage: build_multi_locale
 #   image: "chapel/chapel-gasnet:latest"

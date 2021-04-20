@@ -42,6 +42,7 @@ fi
 
 chpl -o frei --main-module "FREI" src/FREI.chpl          \
                                   src/fr.chpl            \
+                                  src/output.chpl        \
                                   src/frmesh.chpl        \
                                   src/mesh.chpl          \
                                   src/gmesh.chpl         \
