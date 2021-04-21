@@ -87,3 +87,7 @@ Acronyms are **always** ALL CAPS.
 
 ### Use double quotes "" for strings
 
+
+## References
+
+Input files are written in [TOML](https://toml.io/en/)

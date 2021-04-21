@@ -50,6 +50,10 @@ module FREI
     for iteration in 0..maxIter
     {
       // Iterate Solver (single or multiple time steps)
+        // Interpolate solution to FPs
+        // Calculate numerical flux
+        // Calculate internal correction
+        // Calculate interface correction
 
       // Print solver status / log
 
