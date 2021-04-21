@@ -1,7 +1,17 @@
 target/
 
+frei
 FREI
+frei_real
 FREI_real
+frei_dbg
+FREI_dbg
+frei_dbg_real
+FREI_dbg_real
+frei_opt
+FREI_opt
+frei_opt_real
+FREI_opt_real
 Mason.lock
 
 *_tests
