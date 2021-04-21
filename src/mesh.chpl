@@ -113,8 +113,10 @@ prototype module Mesh
     var nFamls : int;
 
     // Lists of types of elements in this mesh
-    //var cellTopos : Set.set; // Gmesh element topology/shape. Ex: point, line, triangle, hexahedron
-    //var cellTypes : Set.set; // CGNS element type, element topology + high-order spec. Ex: tetrahedron with 4 or 10 nodes
+    var faceTopos : set(int); // Gmesh element topology/shape. Ex: point, line, triangle, hexahedron
+    var faceTypes : set(int); // CGNS element type, element topology + high-order spec. Ex: tetrahedron with 4 or 10 nodes
+    var cellTopos : set(int); // Gmesh element topology/shape. Ex: point, line, triangle, hexahedron
+    var cellTypes : set(int); // CGNS element type, element topology + high-order spec. Ex: tetrahedron with 4 or 10 nodes
 
     // Array sizing domains
     var nodeList_d : domain(rank=1, idxType=int);
@@ -200,6 +202,9 @@ prototype module Mesh
 
       // Build the face list for Riemann solver iteration
       this.face_list_builder();
+
+      // Build the sets of cell and face element types and topologies present in this mesh
+      this.elem_set_builder();
     }
 
     proc face_list_builder()
@@ -409,6 +414,21 @@ prototype module Mesh
             faceMap[faceNodes[face]] = this.nFaces;
           }
         }
+      }
+    }
+
+    proc elem_set_builder()
+    {
+      for cell in this.cellList
+      {
+        cellTypes.add(cell.elemType);
+        cellTopos.add(cell.elemTopo());
+      }
+
+      for face in this.faceList
+      {
+        faceTypes.add(face.elemType);
+        faceTopos.add(face.elemTopo());
       }
     }
 
