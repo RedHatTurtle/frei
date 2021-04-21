@@ -27,8 +27,10 @@ prototype module Input
   var dissipationScheme : int = DISS_NONE;    // Type of numerical dissipation added
 
   //parFR
-  var iOrder : int = 3;                // Solution polynomial interpolation order
-  var distSP : int = PTS_LEGENDRE;     // Distribution of SPs for SD method
+  var iOrder   : int = 3;                // Solution polynomial interpolation order
+  var minOrder : int = 3;                // Minimum interpolation order to calculate coefficients
+  var maxOrder : int = 3;                // Maximum interpolation order to calculate coefficients
+  var distSP   : int = PTS_LEGENDRE;     // Distribution of SPs for SD method
   var frScheme : int = FR_DG;
 
   //parTime
@@ -111,6 +113,8 @@ prototype module Input
       dissipationScheme = tomlData["parSpatial"]!["dissipationScheme"]!.i : int;
 
       iOrder = tomlData["parFR"]!["iOrder"]!.i : int;
+      minOrder = tomlData["parFR"]!["minOrder"]!.i : int;
+      maxOrder = tomlData["parFR"]!["maxOrder"]!.i : int;
       distSP = tomlData["parFR"]!["distSP"]!.i : int;
       distSP = tomlData["parFR"]!["frScheme"]!.i : int;
 

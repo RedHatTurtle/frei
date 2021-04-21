@@ -18,7 +18,9 @@
   dissipationScheme = 2    # Order of the artificial dissipation to be added
 
 [parFR]
-  iOrder   = 1             # Solution polynomial interpolation order
+  iOrder   = 3             # Solution polynomial interpolation order
+  minOrder = 2             # Minimum interpolation order to calculate coefficients
+  maxOrder = 4             # Maximum interpolation order to calculate coefficients
   distSP   = 0             # Distribution of SPs for FR method
   frScheme = 1             # FR correction function to use
 

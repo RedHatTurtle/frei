@@ -8,6 +8,7 @@ module FREI
     use Parameters.ParamInput;
     use Config;
     use Input;
+    use Interpolation;
     use Output;
     use Gmesh;
     use Mesh;
@@ -27,6 +28,7 @@ module FREI
     gmesh2.random1D(-1,1);
 
     // 4. Initialize the solver, pre calculate stuff
+    init_interpolation(minOrder,maxOrder);
 
     // 5. Convert input mesh to solver mesh
     var fr_mesh = new unmanaged fr_mesh_c(nDims=1, nVars=3);

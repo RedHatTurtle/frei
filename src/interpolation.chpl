@@ -19,14 +19,14 @@ prototype module Interpolation
 
   var sp2fpInterp : [interpolation_d] interpolation_coefficients_t;
 
-  proc init_interpolation()
+  proc init_interpolation(minOrder : int, maxOrder : int)
   {
     use Parameters.ParamMesh;
     use Polynomials;
 
     // Allocate interpolation coefficients structure
-    var elemTopos : range = 2..2;
-    var interpOrders : range = 1..9;
+    var elemTopos : range = 2..2;    // Hard coded for line elements only
+    var interpOrders : range = minOrder..maxOrder;
     interpolation_d = {elemTopos, interpOrders};
 
     for (elemTopo, interpOrder) in sp2fpInterp.domain
@@ -40,7 +40,7 @@ prototype module Interpolation
 
           // Need to build an appropriate way to query the point location for each element.
           // Initially assume the whole mesh uses the same base distribution specified in input file.
-          // Even more initially assume the whole mesh uses has SPs on Legendre roots. xD
+          // Even more initially assume the whole mesh has SPs on Legendre roots. xD
           var spLoc : [spCnt] real = nodes_legendre_gauss(interpOrder);
           var fpLoc : [fpCnt] real = [-0.5, 0.5];
 
@@ -256,7 +256,7 @@ prototype module Interpolation
     writeln("Interpolation initialized structure for FR:");
     writeln();
 
-    init_interpolation();
+    init_interpolation(1,9);
     writeln(sp2fpInterp);
     writeln();
 

@@ -18,7 +18,9 @@
   dissipationScheme = 2
 
 [parFR]
-  iOrder   = 1
+  iOrder   = 3
+  minOrder = 2
+  maxOrder = 4
   distSP   = 0
   frScheme = 1
 
