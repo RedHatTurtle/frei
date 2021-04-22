@@ -27,14 +27,14 @@ module FREI
     var gmesh2 = new unmanaged gmesh2_c(nNodes=7, nElements=8, nFamilies=3);
     gmesh2.random1D(-1,1);
 
-    // 4. Initialize the solver, pre calculate stuff
-    init_interpolation(minOrder,maxOrder);
-
     // 5. Convert input mesh to solver mesh
     var fr_mesh = new unmanaged fr_mesh_c(nDims=1, nVars=3);
     fr_mesh.import_gmesh2(gmesh2);
     fr_mesh.allocate_vars();
     fr_mesh.set_points_locations();
+
+    // 4. Initialize the solver, pre calculate stuff
+    init_sp2fpInterp(minOrder, maxOrder, fr_mesh.cellTopos);
 
     // Save mesh file in internal format
 

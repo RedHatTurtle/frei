@@ -2,6 +2,7 @@ prototype module Interpolation
 {
   use Random;
   use UnitTest;
+  use Set;
 
   class interpolation_coefficients_c
   {
@@ -13,25 +14,24 @@ prototype module Interpolation
   type interpolation_coefficients_t = unmanaged interpolation_coefficients_c?;
 
   // Perhaps it might be useful in the future to have a sparse domain with the cell topologies present in the mesh
-  //var interpolation_d : sparse domain(2);
+  var sp2fpInterp_d : domain(2*int);
+  //var sp2fpInterp_d : domain(2); // {elemType, interpOrder}
 
-  var interpolation_d : domain(2); // {elemType, interpOrder}
+  var sp2fpInterp : [sp2fpInterp_d] interpolation_coefficients_t;
 
-  var sp2fpInterp : [interpolation_d] interpolation_coefficients_t;
-
-  proc init_interpolation(minOrder : int, maxOrder : int)
+  proc init_sp2fpInterp(minOrder : int, maxOrder : int, cellTopos : set(int))
   {
     use Parameters.ParamMesh;
     use Polynomials;
 
-    // Allocate interpolation coefficients structure
-    var elemTopos : range = 2..2;    // Hard coded for line elements only
-    var interpOrders : range = minOrder..maxOrder;
-    interpolation_d = {elemTopos, interpOrders};
+    // Add all combination of cell topology and interpolation order to the domain
+    for cellTopo in cellTopos do
+      for interpOrder in minOrder..maxOrder do
+        sp2fpInterp_d.add((cellTopo, interpOrder));
 
-    for (elemTopo, interpOrder) in sp2fpInterp.domain
+    for (cellTopo, interpOrder) in sp2fpInterp.domain
     {
-      select elemTopo
+      select cellTopo
       {
         when TOPO_LINE
         {
@@ -44,10 +44,10 @@ prototype module Interpolation
           var spLoc : [spCnt] real = nodes_legendre_gauss(interpOrder);
           var fpLoc : [fpCnt] real = [-0.5, 0.5];
 
-          sp2fpInterp[elemTopo, interpOrder] = new interpolation_coefficients_t({fpCnt, spCnt})!;
+          sp2fpInterp[(cellTopo, interpOrder)] = new interpolation_coefficients_t({fpCnt, spCnt})!;
 
           for fp in fpCnt do
-            sp2fpInterp[elemTopo, interpOrder]!.coefs[{fp..fp,spCnt}] =
+            sp2fpInterp[(cellTopo, interpOrder)]!.coefs[{fp..fp,spCnt}] =
                   reshape(eval_LagrangePoly1D_array(fpLoc[fp], spLoc), {fp..fp, spCnt});
         }
         when TOPO_TRIA {}
@@ -209,6 +209,7 @@ prototype module Interpolation
     var coef : [0..9] real;
     var basis : [0..9, 0..9] real;
     var interpolation : real;
+    var cellTopos : set(int);
 
     writeln();
 
@@ -217,7 +218,7 @@ prototype module Interpolation
     writeln("Interpolation nodes: ", node);
     for i in 0..9 do
       node[i] = -cos( half_pi * (2*i+1)/10 )/2;
-    writeln("Interpolation nodes: ", node);
+    writeln("Normalized interpolation nodes: ", node);
     writeln();
 
     // Get random interpolation targets [-0.5,0.5] and random polynomials
@@ -256,7 +257,9 @@ prototype module Interpolation
     writeln("Interpolation initialized structure for FR:");
     writeln();
 
-    init_interpolation(1,9);
+    cellTopos.add(2);
+
+    init_sp2fpInterp(1,9,cellTopos);
     writeln(sp2fpInterp);
     writeln();
 
