@@ -1,6 +1,11 @@
 #!/bin/bash
 
 # Build all tests and save log
+echo "Building Flux Tests:"
+chpl -o flux_tests --main-module Flux src/flux.chpl src/input.chpl src/parameters.chpl |
+    tee flux_build_test.log
+echo "done"
+echo
 echo "Building Polynomials Tests:"
 chpl -o polynomials_tests --main-module Polynomials src/polynomials.chpl src/testing.chpl src/parameters.chpl |
     tee polynomials_build_test.log
@@ -39,6 +44,8 @@ echo
 
 echo "Running Tests"
 # Run tests and output to file
+./flux_tests          &> flux_tests.log
+
 ./polynomials_tests   &> polynomials_test.log
 ./correction_tests    &> correction_test.log
 ./interpolation_tests &> interpolation_test.log

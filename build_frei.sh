@@ -8,6 +8,7 @@
 #                                      src/frmesh.chpl        \
 #                                      src/mesh.chpl          \
 #                                      src/gmesh.chpl         \
+#                                      src/flux.chpl          \
 #                                      src/correction.chpl    \
 #                                      src/interpolation.chpl \
 #                                      src/polynomials.chpl   \
@@ -27,6 +28,7 @@
 #                                      src/frmesh.chpl        \
 #                                      src/mesh.chpl          \
 #                                      src/gmesh.chpl         \
+#                                      src/flux.chpl          \
 #                                      src/correction.chpl    \
 #                                      src/interpolation.chpl \
 #                                      src/polynomials.chpl   \
@@ -46,6 +48,7 @@ chpl -o frei --main-module "FREI" src/FREI.chpl          \
                                   src/frmesh.chpl        \
                                   src/mesh.chpl          \
                                   src/gmesh.chpl         \
+                                  src/flux.chpl          \
                                   src/correction.chpl    \
                                   src/interpolation.chpl \
                                   src/polynomials.chpl   \

@@ -87,6 +87,18 @@ Acronyms are **always** ALL CAPS.
 
 ### Use double quotes "" for strings
 
+## Common Abbreviations
+
+sol, cons, cv : Conserved variables
+flx  : Flux vector
+prim, pv : Primitive variables
+
+eq : Equation;
+idx : Index
+
+invs : Inviscid
+visc : Viscous
+
 
 ## References
 
