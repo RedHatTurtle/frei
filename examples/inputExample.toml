@@ -4,8 +4,10 @@
   boundaryConditions = 0   # Dirichlet
 
 [parFluid]
-  fGamma = 1.4             # Set the ratio of heat coefficients cp/cv
-  fR     = 287.0           # Set the gas constant
+  fGamma =    1.4          # Set the ratio of heat coefficients cp/cv
+  fCp    = 1004.5          # Set the heat coefficients at constant pressure Cp
+  fCv    =  717.5          # Set the heat coefficients at constant volume Cv
+  fR     =  287.0          # Set the gas constant
 
 [parMesh]
   xMin          = -1.0

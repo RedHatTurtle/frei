@@ -1,12 +1,22 @@
-Conserverd variables:
+Conserverd variables, Density (kg/m³), XYZ Momentum components (kg*m/s*m³), Energy (J/m³):
 1D: 1.225 250.116 2.78846e+05
 2D: 1.225 249.964 8.72893 2.78846e+05
 3D: 1.225 249.964 8.72893 0.0 2.78846e+05
 
-Primitive Variables:
+Primitive Variables, Density (kg/m³), XYZ Velocity components (m/s), Pressure (Pa):
 1D: 1.225 204.176 1.01325e+05
 2D: 1.225 204.052 7.12565 1.01325e+05
 3D: 1.225 204.052 7.12565 0.0 1.01325e+05
+
+Pressure and Temperature functions:
+1D - Pressure (Pa): 1.01325e+05, Temperature (K): 288.203
+2D - Pressure (Pa): 1.01325e+05, Temperature (K): 288.203
+3D - Pressure (Pa): 1.01325e+05, Temperature (K): 288.203
+
+Enthalpy and Internal Energy functions:
+1D - Enthalpy (J/m³): 3.80171e+05, Internal Energy (J/m³): 2.53313e+05
+2D - Enthalpy (J/m³): 3.80171e+05, Internal Energy (J/m³): 2.53312e+05
+3D - Enthalpy (J/m³): 3.80171e+05, Internal Energy (J/m³): 2.53312e+05
 
 Inviscid 1D Flux:
 250.116 1.52393e+05 7.7622e+07

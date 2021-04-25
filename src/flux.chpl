@@ -2,7 +2,7 @@ prototype module Flux
 {
   proc pressure(cons : [] real ) : real
   {
-    use Input;
+    import Input.fGamma;
     import LinearAlgebra.dot;
 
     var idxRho : int   = cons.domain.dim(0).low;           // First element is density
@@ -12,6 +12,42 @@ prototype module Flux
     var pressure : real = (fGamma-1.0)*(cons[idxEne] - 0.5*dot(cons[idxMom],cons[idxMom])/cons[1]);
 
     return pressure;
+  }
+
+  proc temperature(cons : [] real ) : real
+  {
+    import Input.fR;
+
+    var idxRho : int   = cons.domain.dim(0).low;           // First element is density
+
+    var p : real = pressure(cons);
+
+    var temperature : real = p/(cons[idxRho]*fR);
+
+    return temperature;
+  }
+
+  proc enthalpy(cons : [] real ) : real
+  {
+    var idxEne : int   = cons.domain.dim(0).high;          // Last element is energy
+
+    var p : real = pressure(cons);
+
+    var enthalpy : real = (cons[idxEne] + p);
+
+    return enthalpy;
+  }
+
+  proc internal_energy(cons : [] real ) : real
+  {
+    import Input.fCv;
+    import Input.fR;
+
+    var p : real = pressure(cons);
+
+    var internalEnergy : real = fCv*p/fR;
+
+    return internalEnergy;
   }
 
   proc invs_flux_cv_1d(u : [1..3] real ) : [1..3] real
@@ -90,15 +126,25 @@ prototype module Flux
     var prim2d : [1..4] real = [1.225, 204.0520155833210, 7.125653400511660, 101325.0];
     var prim3d : [1..5] real = [1.225, 204.0520155833210, 7.125653400511660, 0.0, 101325.0];
 
-    writeln("Conserverd variables:");
+    writeln("Conserverd variables, Density (kg/m³), XYZ Momentum components (kg*m/s*m³), Energy (J/m³):");
     writeln("1D: ", cons1d);
     writeln("2D: ", cons2d);
     writeln("3D: ", cons3d);
     writeln();
-    writeln("Primitive Variables:");
+    writeln("Primitive Variables, Density (kg/m³), XYZ Velocity components (m/s), Pressure (Pa):");
     writeln("1D: ", prim1d);
     writeln("2D: ", prim2d);
     writeln("3D: ", prim3d);
+    writeln();
+    writeln("Pressure and Temperature functions:");
+    writeln("1D - Pressure (Pa): ", pressure(cons1d), ", Temperature (K): ", temperature(cons1d));
+    writeln("2D - Pressure (Pa): ", pressure(cons2d), ", Temperature (K): ", temperature(cons2d));
+    writeln("3D - Pressure (Pa): ", pressure(cons3d), ", Temperature (K): ", temperature(cons3d));
+    writeln();
+    writeln("Enthalpy and Internal Energy functions:");
+    writeln("1D - Enthalpy (J/m³): ", enthalpy(cons1d), ", Internal Energy (J/m³): ", internal_energy(cons1d));
+    writeln("2D - Enthalpy (J/m³): ", enthalpy(cons2d), ", Internal Energy (J/m³): ", internal_energy(cons2d));
+    writeln("3D - Enthalpy (J/m³): ", enthalpy(cons3d), ", Internal Energy (J/m³): ", internal_energy(cons3d));
     writeln();
     writeln("Inviscid 1D Flux:\n", invs_flux_cv_1d(cons1d));
     writeln();

@@ -11,8 +11,10 @@ prototype module Input
   var boundaryConditions : int = BC_DIRICHLET;
 
   //parFluid
-  var fGamma : real = 1.4;           // Set the ratio of heat coefficients cp/cv
-  var fR     : real = 287.0;         // Set the gas constant
+  var fGamma : real =    1.4;        // Set the ratio of heat coefficients Cp/Cv
+  var fCp    : real = 1004.5;        // Set the heat coefficients at constant pressure Cp
+  var fCv    : real =  717.5;        // Set the heat coefficients at constant volume Cv
+  var fR     : real =  287.0;        // Set the specific gas constant J/(kg*K)
 
   //parMesh
   var meshGen       : bool = false;
@@ -101,6 +103,8 @@ prototype module Input
       boundaryConditions = tomlData["parPhysics"]!["boundaryConditions"]!.i : int;
 
       fGamma = tomlData["parFluid"]!["fGamma"]!.re : real;
+      fCp    = tomlData["parFluid"]!["fR"]!.re : real;
+      fCv    = tomlData["parFluid"]!["fR"]!.re : real;
       fR     = tomlData["parFluid"]!["fR"]!.re : real;
 
       xMin          = tomlData["parMesh"]!["xMin"]!.re : real;

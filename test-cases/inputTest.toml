@@ -4,8 +4,10 @@
   boundaryConditions = 0
 
 [parFluid]
-  fGamma = 1.4
-  fR     = 287.0
+  fGamma =    1.4
+  fCp    = 1004.5
+  fCv    =  717.5
+  fR     =  287.0
 
 [parMesh]
   xMin          = -1.0
