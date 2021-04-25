@@ -8,6 +8,8 @@ module FREI
     use Parameters.ParamInput;
     use Config;
     use Input;
+    use Flux;
+    use Riemann;
     use Interpolation;
     use Output;
     use Gmesh;

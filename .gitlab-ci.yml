@@ -25,6 +25,7 @@ compile_dbg:
                                             src/mesh.chpl
                                             src/gmesh.chpl
                                             src/flux.chpl
+                                            src/riemann.chpl
                                             src/correction.chpl
                                             src/interpolation.chpl
                                             src/polynomials.chpl

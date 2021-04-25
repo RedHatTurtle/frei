@@ -6,19 +6,24 @@ chpl -o flux_tests --main-module Flux src/flux.chpl src/input.chpl src/parameter
     tee flux_build_test.log
 echo "done"
 echo
+echo "Building Riemann Tests:"
+chpl -o riemann_tests --main-module Riemann src/riemann.chpl src/flux.chpl src/input.chpl src/parameters.chpl |
+    tee riemann_build_test.log
+echo "done"
+echo
 echo "Building Polynomials Tests:"
 chpl -o polynomials_tests --main-module Polynomials src/polynomials.chpl src/testing.chpl src/parameters.chpl |
     tee polynomials_build_test.log
 echo "done"
 echo
-echo "Building Correction Tests:"
-chpl -o correction_tests --main-module Correction src/correction.chpl src/polynomials.chpl src/testing.chpl src/input.chpl src/mesh.chpl src/gmesh.chpl src/config.chpl src/parameters.chpl |
-    tee correction_build_test.log
-echo "done"
-echo
 echo "Building Interpolation Tests:"
 chpl -o interpolation_tests --main-module Interpolation src/interpolation.chpl src/polynomials.chpl src/parameters.chpl src/testing.chpl |
     tee interpolation_build_test.log
+echo "done"
+echo
+echo "Building Correction Tests:"
+chpl -o correction_tests --main-module Correction src/correction.chpl src/polynomials.chpl src/testing.chpl src/input.chpl src/mesh.chpl src/gmesh.chpl src/config.chpl src/parameters.chpl |
+    tee correction_build_test.log
 echo "done"
 echo
 echo "Building Gmesh Tests:"
@@ -45,10 +50,11 @@ echo
 echo "Running Tests"
 # Run tests and output to file
 ./flux_tests          &> flux_tests.log
+./riemann_tests       &> riemann_tests.log
 
 ./polynomials_tests   &> polynomials_test.log
-./correction_tests    &> correction_test.log
 ./interpolation_tests &> interpolation_test.log
+./correction_tests    &> correction_test.log
 
 ./gmesh_tests         &> gmesh_test.log
 ./mesh_tests          &> mesh_test.log
