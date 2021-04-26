@@ -3,8 +3,11 @@ prototype module Polynomials
   use Random;
   use UnitTest;
 
-  proc eval_jacobi_poly (in  n: int , in  alpha: real, in beta: real, in x: real,
-                         out y: real, out dy: real, out d2y: real)
+  /////////////////////////////////////////
+  //   Polynomial evaluation functions   //
+  /////////////////////////////////////////
+
+  proc eval_jacobi_poly (n: int , alpha: real, beta: real, x: real, out y: real, out dy: real, out d2y: real)
   {
 
     var yp, dyp, d2yp : real;
@@ -58,7 +61,7 @@ prototype module Polynomials
     }
   }
 
-  proc normalized_jacobi_poly(in n : int, in alpha : real, in beta : real, in x : real) : real
+  proc normalized_jacobi_poly(n : int, alpha : real, beta : real, x : real) : real
   {
 //    //.. Local Scalars ..
 //    var i : int;
@@ -107,14 +110,12 @@ prototype module Polynomials
 //    }
   } // normalized_jacobi_poly
 
-  proc eval_legendre_poly (in n:int, in x:real,
-                           out y:real, out dy:real, out d2y:real)
+  proc eval_legendre_poly (n:int, x:real, out y:real, out dy:real, out d2y:real)
   {
     eval_jacobi_poly(n, 0, 0, x, y, dy, d2y);
   }
 
-  proc eval_radau_poly (in n:int, in x:real,
-                           out y:real, out dy:real, out d2y:real)
+  proc eval_radau_poly (n:int, x:real, out y:real, out dy:real, out d2y:real)
   {
     var y_n, dy_n, d2y_n : real;
     var y_p, dy_p, d2y_p : real;
@@ -127,24 +128,11 @@ prototype module Polynomials
     d2y = 0.5*( d2y_n -d2y_p ) * (-1)**n;
   }
 
-  proc grad_normalized_jacobi_poly(n : int, alpha : real, beta : real, x : real) : real
-  {
-//    //.. Local Scalars ..
-//    var rn, a1, b1, ab1 : real;
-//
-//    if (n == 0) {
-//      return 0.0;
-//    } else {
-//      rn  = n : real;
-//      a1  = alpha + 1.0;
-//      b1  = beta  + 1.0;
-//      ab1 = alpha + b1;
-//
-//      return sqrt(rn*(rn+ab1)) * normalized_jacobi_poly(n-1,a1,b1,x);
-//    }
-  }
+  /////////////////////////////////////////
+  //   Node/Root set finding functions   //
+  /////////////////////////////////////////
 
-  proc nodes_uniform(in n : int) : [1..n] real
+  proc nodes_uniform(n : int) : [1..n] real
   {
     var xi : [1..n] real;
 
@@ -154,13 +142,12 @@ prototype module Polynomials
     return xi;
   }
 
-  proc nodes_uniform(in   n : int,
-                     out xi : [1..n] real)
+  proc nodes_uniform(n : int, out xi : [1..n] real)
   {
      xi = nodes_uniform(n);
   }
 
-  proc nodes_uniform_lobatto(in n : int) : [1..n] real
+  proc nodes_uniform_lobatto(n : int) : [1..n] real
   {
     var xi : [1..n] real;
 
@@ -171,14 +158,12 @@ prototype module Polynomials
     return xi;
   }
 
-  proc nodes_uniform_lobatto(in   n : int,
-                             out xi : [1..n] real)
+  proc nodes_uniform_lobatto(n : int, out xi : [1..n] real)
   {
     xi = nodes_uniform_lobatto(n);
   }
 
-  proc nodes_jacobi_gauss(in n : int, in alpha : real, in beta : real,
-                          out xi : [1..n] real, out dxi : [1..n] real)
+  proc nodes_jacobi_gauss(n : int, alpha : real, beta : real, out xi : [1..n] real, out dxi : [1..n] real)
   {
     use Parameters.ParamConstants;
 
@@ -224,13 +209,12 @@ prototype module Polynomials
     }
   }
 
-  proc nodes_legendre_gauss(in  n  : int,
-                            out xi : [1..n] real, out dxi : [1..n] real)
+  proc nodes_legendre_gauss(n : int, out xi : [1..n] real, out dxi : [1..n] real)
   {
     nodes_jacobi_gauss(n, 0, 0, xi, dxi);
   }
 
-  proc nodes_legendre_gauss(in  n  : int) : [1..n] real
+  proc nodes_legendre_gauss(n  : int) : [1..n] real
   {
     var xi, dxi : [1..n] real;
     nodes_jacobi_gauss(n, 0, 0, xi, dxi);
@@ -315,8 +299,11 @@ prototype module Polynomials
 //      weights(i) = 2.0 / ((1.0 - xi(i)*xi(i)) * dy(i) * dy(i));
   }
 
-  proc weights_legendre_gauss_lobatto(in n : int, in vn : real,
-                                      out weights : real)
+  /////////////////////////////////////////
+  //   Weight set finding functions      //
+  /////////////////////////////////////////
+
+  proc weights_legendre_gauss_lobatto(n : int, vn : real, out weights : real)
   {
 //    //**********************************************************************
 //    //   COMPUTES THE WEIGHTS RELATIVE TO THE LEGENDRE GAUSS-LOBATTO FORMULA
@@ -343,8 +330,7 @@ prototype module Polynomials
 //      weights(i) = c / (vn(i)*vn(i));
   } // weights_legendre_gauss_lobatto
 
-  proc weights_dgbook_jacobi_gauss_lobatto(in n : int, in alpha : real, in beta : real, in xi : real,
-                                           out weights : real)
+  proc weights_dgbook_jacobi_gauss_lobatto(n : int, alpha : real, beta : real, xi : real, out weights : real)
   {
 //    //********************************************************************
 //    //   COMPUTES THE WEIGHTS RELATIVE TO THE JACOBI GAUSS-LOBATTO FORMULA
@@ -410,6 +396,27 @@ prototype module Polynomials
 //        scl = ( (1.0-xi(i))**a1 ) * ( (1.0+xi(i))**b1 );
 //        weights(i) = -scl*c3/y/dy;
 //      }
+//    }
+  }
+
+  /////////////////////////////////////////
+  //   Derivative evaluation functions   //
+  /////////////////////////////////////////
+
+  proc grad_normalized_jacobi_poly(n : int, alpha : real, beta : real, x : real) : real
+  {
+//    //.. Local Scalars ..
+//    var rn, a1, b1, ab1 : real;
+//
+//    if (n == 0) {
+//      return 0.0;
+//    } else {
+//      rn  = n : real;
+//      a1  = alpha + 1.0;
+//      b1  = beta  + 1.0;
+//      ab1 = alpha + b1;
+//
+//      return sqrt(rn*(rn+ab1)) * normalized_jacobi_poly(n-1,a1,b1,x);
 //    }
   }
 
@@ -513,6 +520,10 @@ prototype module Polynomials
 //      return_value(np,np) = c;
 //    }
   }
+
+  /////////////////////////////////////////
+  //   Test main function                //
+  /////////////////////////////////////////
 
   proc main()
   {
