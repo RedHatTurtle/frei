@@ -6,10 +6,13 @@ _by **Fábio Malacco Moreira** (RedHatTurtle)_
 _Licensed under the GNU Affero General Public License v3.0_
 
 ## Intro
-This is my first attempt at writing a functional Chapel code. The code is based on a computational project from ITA's
-graduate course CC-299 on high resolution methods for CFD. The code attempts to simulate a 1D shock tube experiment with
-several 2nd or higher order spatial discretization methods, including the Flux Reconstruction method as described by
-H.T. Huyhn from NASA Glenn.
+This code is a prototype version of a full high-order Flux Reconstruction (developed by H.T. Huyhn from NASA Glenn) LES
+solver.
+
+The initial objective is to build an accurate, stable and efficient 1D Euler solver while also providing the basic
+building blocks and structure for future development of the solver. Most of the work done currently is still targeted at
+this goal. The next major target will be to expand the solver to two dimensional flows and add support for simulating laminar
+viscous flows described by the Navier-Stokes equations.
 
 ## Compiling and running instructions
 
@@ -76,7 +79,7 @@ Default to camelCase.
 People's names are **always** Capitalized.
 Acronyms are **always** ALL CAPS.
 
-### Limit code lines to 132 columns
+### Limit code lines to 120 columns
 
 ### Limit comment/text lines to 120 characters
 
