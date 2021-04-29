@@ -11,10 +11,10 @@ psi[c_,p_]:=(c*(2*p+1)*(Factorial[2*p]/(2^p *Factorial[p]))^2)/2
 Ges[c_,p_,x_]:=(((-1)^p)/2)*(LegendreP[p,x]-((psi[c,p])*LegendreP[p-1,x]+LegendreP[p+1,x])/(psi[c,p]+1)) (*Enegy Stable Correction Function*)
 
 
-For [order=2,order<=5,order++,
+For [order=9,order<=9,order++,
 	(* Define custum functions for the relevant polynomials *)
 	Jac[x_]  :=JacobiP[order,a,b,x];
-	Leg[x_]  :=ColorData[97,4]ColorData[97,4][order,x];
+	Leg[x_]  :=LegendreP[order,x];
 	Legp[x_] :=LegendreP[order-1,x];
 	Rad[x_]  :=RadauP[order,x];
 	Radp[x_] :=RadauP[order-1,x];
@@ -27,7 +27,7 @@ For [order=2,order<=5,order++,
 	pts=AppendTo[pts,{1,0}];
 	pts=AppendTo[pts,{-1,1}];
 	Gga[x_]:=InterpolatingPolynomial[pts,x];
-	
+		
 	(*Print the current solution interpolation order*)
 	Print["Order ", order, " solution => Order", order+1, " Flux"];
 
@@ -49,8 +49,12 @@ For [order=2,order<=5,order++,
 	Print[Gga[x]];
 	Print[G2[x]];
 
+	LeGaPts=x/.Solve[Leg[x]==0,x,Reals];
+	LeGaPts=AppendTo[LeGaPts,1];
+	LeGaPts=AppendTo[LeGaPts,-1];
+	LeGaPts=SortBy[LeGaPts, N];
+
 	(*Calculate the Correction Functions and Derivatives at Reference Points*)
-	Print["x =", PaddedForm[N[x/.Solve[Leg[x]==0,x,Reals]], {8,6}]];
 	Print["x =", PaddedForm[N[Range[-1,1,2/(order+2)]], {8,6}]];
 	Print["   G_dg =", PaddedForm[ N[ Map[ Gdg , Range[-1,1,2/(order+2)] ] ], {8,6}] ];
 	Print["   G_dg'=", PaddedForm[ N[ Map[ Gdg', Range[-1,1,2/(order+2)] ] ], {8,6}] ];
@@ -58,6 +62,16 @@ For [order=2,order<=5,order++,
 	Print["   G_ga'=", PaddedForm[ N[ Map[ Gga', Range[-1,1,2/(order+2)] ] ], {8,6}] ];
 	Print["   G_2  =", PaddedForm[ N[ Map[ G2  , Range[-1,1,2/(order+2)] ] ], {8,6}] ];
 	Print["   G_2' =", PaddedForm[ N[ Map[ G2' , Range[-1,1,2/(order+2)] ] ], {8,6}] ];
+	Print[];
+
+	(*Calculate the Correction Functions and Derivatives at Reference Points*)
+	Print["x =", PaddedForm[N[LeGaPts], {8,6}]];
+	Print["   G_dg =", PaddedForm[ N[ Map[ Gdg , LeGaPts] ], {8,6}] ];
+	Print["   G_dg'=", PaddedForm[ N[ Map[ Gdg', LeGaPts] ], {8,6}] ];
+	Print["   G_ga =", PaddedForm[ N[ Map[ Gga , LeGaPts] ], {8,6}] ];
+	Print["   G_ga'=", PaddedForm[ N[ Map[ Gga', LeGaPts] ], {8,6}] ];
+	Print["   G_2  =", PaddedForm[ N[ Map[ G2  , LeGaPts] ], {8,6}] ];
+	Print["   G_2' =", PaddedForm[ N[ Map[ G2' , LeGaPts] ], {8,6}] ];
 	Print[];
 	
 	(*Get the Roots of the Polynomials*)
@@ -68,6 +82,9 @@ For [order=2,order<=5,order++,
 	Print["G_2   roots: ", PaddedForm[ N[ x/.Solve[G2  [x]==0, x, Reals] ], {8,6}] ];
 	Print["G_2'  roots: ", PaddedForm[ N[ x/.Solve[G2' [x]==0, x, Reals] ], {8,6}] ];
 ]
+
+
+
 
 
 
