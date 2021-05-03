@@ -61,6 +61,7 @@ prototype module Mesh
     var nodes : [nodes_d] int;
     //var edges : [edges_d] int;
     var faces : [faces_d] int;
+    var sides : [faces_d] int;
 
     var family : int;
 
@@ -372,6 +373,8 @@ prototype module Mesh
 
             // Save the face ID to the cell element
             this.cellList[cell].faces[face] = faceMap[faceNodes[face]];
+            // Save the side of the face this cell is on
+            this.cellList[cell].sides[face] = 1;
             // Save the cell ID as the left neighbor of the face
             this.faceList[faceMap[faceNodes[face]]].cells[1] = cell;
           }
@@ -386,6 +389,8 @@ prototype module Mesh
 
             // Save the face ID in the cell
             this.cellList[cell].faces[face] = this.nFaces;
+            // Save the side of the face this cell is on
+            this.cellList[cell].sides[face] = 2;
 
             // Fill up the face properties. Maybe this should be an initializer?
             select elem_topology(this.cellList[cell].elemType)
