@@ -16,6 +16,7 @@ module FREI
     use Mesh;
     use FRMesh;
     use FR;
+    use LinearAlgebra;
 
     var iteration : int = 0;
 
@@ -30,44 +31,77 @@ module FREI
     gmesh2.random1D(-1,1);
 
     // 5. Convert input mesh to solver mesh
-    var fr_mesh = new unmanaged fr_mesh_c(nDims=1, nVars=3);
-    fr_mesh.import_gmesh2(gmesh2);
-    fr_mesh.allocate_vars();
-    fr_mesh.set_points_locations();
+    var frMesh = new unmanaged fr_mesh_c(nDims=1, nVars=3, solOrder=iOrder-1);
+    frMesh.import_gmesh2(gmesh2);
+    frMesh.allocate_vars();
+    frMesh.set_points_locations();
 
     // 4. Initialize the solver, pre calculate stuff
-    init_sp2fpInterp(minOrder, maxOrder, fr_mesh.cellTopos);
+    init_sp2fpInterp(minOrder, maxOrder, frMesh.cellTopos);
 
     // Save mesh file in internal format
 
     // Initialize solution
-    fr_mesh.solSP = initial_condition(IC_SHOCKTUBE, fr_mesh.xyzSP);
+    frMesh.solSP = initial_condition(IC_SHOCKTUBE, frMesh.xyzSP);
 
     // Save restart file
 
     // Output initial state
-    iterOutput(iteration, fr_mesh);
+    iterOutput(iteration, frMesh);
 
     // Solve flow
     for iteration in 0..maxIter
     {
       // Iterate Solver (single or multiple time steps)
+      {
         // Interpolate solution to FPs
-        // Calculate numerical flux
-        // Calculate internal correction
-        // Calculate interface correction
+        for cellIdx in frMesh.cellList.domain
+        {
+          var thisCell = frMesh.cellList[cellIdx];
+          for cellFace in thisCell.faces.domain
+          {
+            var faceIdx  = thisCell.faces[cellFace];
+            var thisFace = frMesh.faceList[faceIdx];
+            var faceSide = thisCell.sides[cellFace];
+            for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
+            {
+              var cellFP = cellFace;
+              var cellSPini = frMesh.cellSPidx[cellIdx, 1];
+              var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
+              frMesh.solFP[meshFP, faceSide, 1] = dot(sp2fpInterp[(thisCell.elemTopo(), iOrder)]!.coefs(cellFP, ..),
+                                                      frMesh.solSP[cellSPini..#cellSPcnt,1]                                           );
+            }
+          }
+        }
 
+        // Calculate numerical flux
+        for face in frMesh.faceList.domain
+        {
+          for faceFP in frMesh.faceFPidx[face,1].. #frMesh.faceFPidx[face,2]
+          {
+            // Riemann flux
+          }
+        }
+
+        // Calculate internal correction
+        for cell in frMesh.cellList
+        {}
+
+        // Calculate interface correction
+        for cell in frMesh.cellList
+        {}
+      }
       // Print solver status / log
 
       // Save restart file
 
       // Output solution state
-      iterOutput(0, fr_mesh);
+      iterOutput(iteration, frMesh);
 
       // Check input changes
     }
 
     // Output the final solution
-    iterOutput(iteration, fr_mesh);
+    iterOutput(iteration, frMesh);
   }
 }

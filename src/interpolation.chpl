@@ -266,8 +266,8 @@ prototype module Interpolation
     var randStream = new RandomStream(real);
     var randStreamSeeded = new RandomStream(real, RANDOM_SEED);
 
-    var interpolation      : real;
-    var interpDeriv : real;
+    var interpolation : real;
+    var interpDeriv   : real;
     var node          : [0..9] real;
     var x             : [0..9] real;
     var y_node        : [0..9] real = 0;

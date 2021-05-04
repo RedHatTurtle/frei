@@ -18,21 +18,24 @@ compile_dbg:
     untracked: true
   script:
     - echo "Building single locale debug version of FREI."
-    - chpl -o frei_dbg --main-module "FREI" src/FREI.chpl
-                                            src/fr.chpl
-                                            src/output.chpl
-                                            src/frmesh.chpl
-                                            src/mesh.chpl
-                                            src/gmesh.chpl
-                                            src/flux.chpl
-                                            src/riemann.chpl
-                                            src/correction.chpl
-                                            src/interpolation.chpl
-                                            src/polynomials.chpl
-                                            src/config.chpl
-                                            src/input.chpl
-                                            src/parameters.chpl
-                                            src/testing.chpl
+    - chpl --set lapackImpl=off
+           --set blasImpl=off
+           -o frei_dbg
+           --main-module "FREI" src/FREI.chpl
+                                src/fr.chpl
+                                src/output.chpl
+                                src/frmesh.chpl
+                                src/mesh.chpl
+                                src/gmesh.chpl
+                                src/riemann.chpl
+                                src/flux.chpl
+                                src/correction.chpl
+                                src/interpolation.chpl
+                                src/polynomials.chpl
+                                src/config.chpl
+                                src/input.chpl
+                                src/parameters.chpl
+                                src/testing.chpl
 
 # compile_opt:
 #   stage: build_single_locale
@@ -40,16 +43,24 @@ compile_dbg:
 #     untracked: true
 #   script:
 #     - echo "Building single locale release version of FREI."
-#     - chpl -o frei_opt --main-module "FREI" src/FREI.chpl
-#                                             src/input.chpl
-#                                             src/config.chpl
-#                                             src/polynomials.chpl
-#                                             src/correction.chpl
-#                                             src/interpolation.chpl
-#                                             src/mesh.chpl
-#                                             src/gmesh.chpl
-#                                             src/testing.chpl
-#                                             src/parameters.chpl
+#    - chpl --set lapackImpl=off
+#           --set blasImpl=off
+#           -o frei_dbg
+#           --main-module "FREI" src/FREI.chpl
+#                                src/fr.chpl
+#                                src/output.chpl
+#                                src/frmesh.chpl
+#                                src/mesh.chpl
+#                                src/gmesh.chpl
+#                                src/riemann.chpl
+#                                src/flux.chpl
+#                                src/correction.chpl
+#                                src/interpolation.chpl
+#                                src/polynomials.chpl
+#                                src/config.chpl
+#                                src/input.chpl
+#                                src/parameters.chpl
+#                                src/testing.chpl
 
 # compile_dbg_multi_locale:
 #   stage: build_multi_locale
@@ -65,7 +76,7 @@ compile_dbg:
 #                                                          src/gmesh.chpl         \
 #                                                          src/testing.chpl       \
 #                                                          src/parameters.chpl
-#
+
 # compile_opt_multi_locale:
 #   stage: build_multi_locale
 #   image: "chapel/chapel-gasnet:latest"
