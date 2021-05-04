@@ -68,8 +68,8 @@ module FREI
               var cellFP = cellFace;
               var cellSPini = frMesh.cellSPidx[cellIdx, 1];
               var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
-              frMesh.solFP[meshFP, faceSide, 1] = dot(sp2fpInterp[(thisCell.elemTopo(), iOrder)]!.coefs(cellFP, ..),
-                                                      frMesh.solSP[cellSPini..#cellSPcnt,1]                                           );
+              frMesh.solFP[meshFP, faceSide, ..] = dot(sp2fpInterp[(thisCell.elemTopo(), iOrder)]!.coefs(cellFP, ..),
+                                                      frMesh.solSP[cellSPini..#cellSPcnt,..]                                           );
             }
           }
         }

@@ -157,7 +157,10 @@ prototype module Parameters
 
   prototype module ParamCGNS
   {
-    // CGNS Element Types   -   https://cgns.github.io/CGNS_docs_current/sids/conv.html
+    // CGNS Element Types    - https://cgns.github.io/CGNS_docs_current/sids/conv.html
+    // Relevant CPEX Proposals:
+    //  - P4 Extension Proposal - https://cgns.github.io/ProposedExtensions/GNS_P4_elem_defn2.pdf
+    //  - Generalized curved mesh and cell-wise polynomial - https://cgns.github.io/ProposedExtensions/CPEX0045_HighOrder_v2.pdf
     //
     //Dimension | Shape         | Linear    | Quadratic           | Cubic                        | Quartic
     //---------------------------------------------------------------------------------------------------------------------------
