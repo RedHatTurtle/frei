@@ -38,6 +38,7 @@ module FREI
 
     // 4. Initialize the solver, pre calculate stuff
     init_sp2fpInterp(minOrder, maxOrder, frMesh.cellTopos);
+    init_sp2spDeriv(minOrder, maxOrder, frMesh.cellTopos);
 
     // Save mesh file in internal format
 
@@ -58,6 +59,8 @@ module FREI
         for cellIdx in frMesh.cellList.domain
         {
           var thisCell = frMesh.cellList[cellIdx];
+          var cellSPini = frMesh.cellSPidx[cellIdx, 1];
+          var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
           for cellFace in thisCell.faces.domain
           {
             var faceIdx  = thisCell.faces[cellFace];
@@ -66,20 +69,33 @@ module FREI
             for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
             {
               var cellFP = cellFace;
-              var cellSPini = frMesh.cellSPidx[cellIdx, 1];
-              var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
               frMesh.solFP[meshFP, faceSide, ..] = dot(sp2fpInterp[(thisCell.elemTopo(), iOrder)]!.coefs(cellFP, ..),
-                                                      frMesh.solSP[cellSPini..#cellSPcnt,..]                                           );
+                                                       frMesh.solSP[cellSPini..#cellSPcnt,..]                       );
             }
           }
         }
 
-        // Calculate numerical flux
-        for face in frMesh.faceList.domain
+        // Calculate flux at SPs and it´s divergence
+        for cellIdx in frMesh.cellList.domain
         {
-          for faceFP in frMesh.faceFPidx[face,1].. #frMesh.faceFPidx[face,2]
+          // Get loop variables
+          var thisCell = frMesh.cellList[cellIdx];
+          var cellSPini = frMesh.cellSPidx[cellIdx, 1];
+          var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
+
+          // Allocate temporary flux array
+          var flxSP : [cellSPini.. #cellSPcnt, 1..frMesh.nVars] real;
+
+          // Calculate fluxes
+          for meshSP in cellSPini.. #cellSPcnt do
+            flxSP[meshSP, ..] = invs_flux_cv_1d(frMesh.solSP[meshSP, ..]);
+
+          // Calculate flux divergence
+          for cellSP in 1..cellSPcnt
           {
-            // Riemann flux
+            var meshSP = cellSPini + cellSP - 1;
+            frMesh.resSP[meshSP,..] = dot(sp2spDeriv[(thisCell.elemTopo(), iOrder)]!.coefs(cellSP, ..),
+                                          flxSP[cellSPini..#cellSPcnt,..]                             );
           }
         }
 
