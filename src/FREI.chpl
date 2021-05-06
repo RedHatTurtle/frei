@@ -15,6 +15,7 @@ module FREI
     use Gmesh;
     use Mesh;
     use FRMesh;
+    use Correction;
     use FR;
     use LinearAlgebra;
 
@@ -39,6 +40,7 @@ module FREI
     // 4. Initialize the solver, pre calculate stuff
     init_sp2fpInterp(minOrder, maxOrder, frMesh.cellTopos);
     init_sp2spDeriv(minOrder, maxOrder, frMesh.cellTopos);
+    init_correction();
 
     // Save mesh file in internal format
 
@@ -99,13 +101,34 @@ module FREI
           }
         }
 
-        // Calculate internal correction
-        for cell in frMesh.cellList
-        {}
 
         // Calculate interface correction
-        for cell in frMesh.cellList
-        {}
+        for cellIdx in frMesh.cellList.domain
+        {
+          // Get loop variables
+          var thisCell = frMesh.cellList[cellIdx];
+          var cellSPini = frMesh.cellSPidx[cellIdx, 1];
+          var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
+
+          for cellFace in thisCell.faces.domain
+          {
+            var faceIdx  = thisCell.faces[cellFace];
+            var thisFace = frMesh.faceList[faceIdx];
+            var faceSide = thisCell.sides[cellFace];
+
+            for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
+            {
+              var cellFP = cellFace;
+
+              // Calculate the flux jump
+              var lJump : [1..frMesh.nVars] real = frMesh.flxFP[meshFP, ..] - invs_flux_cv_1d(frMesh.solFP[meshFP, 1, ..]);
+              var rJump : [1..frMesh.nVars] real = frMesh.flxFP[meshFP, ..] - invs_flux_cv_1d(frMesh.solFP[meshFP, 2, ..]);
+
+              frMesh.resSP[cellSPini.. #cellSPcnt, ..] += outer(lJump[..],
+                  flux_correction[thisCell.elemTopo(), iOrder]!.correction[.., cellFP]);
+            }
+          }
+        }
       }
       // Print solver status / log
 
