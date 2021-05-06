@@ -21,17 +21,17 @@ prototype module Spatial {
   //}
 
     // Calculate discontinuous flux residue component
-    //calculate_local_flux_divergent
-    //calculate_discontinuous_flux_divergent
+    //calculate_local_flux_divergence
+    //calculate_discontinuous_flux_divergence
       // Calculate fluxes at SPs, inviscid and viscous
       // Transform fluxes to the computational domain
       // Calculate the divergence of the discontinuous flux and add to residue
       // Interpolate discontinuous flux to FPs and project it in the face normal direction
 
     // Calculate continuous flux residue component
-    //calculate_common_flux_divergent
-    //calculate_interface_flux_divergent
-    //calculate_continuous_flux_divergent
+    //calculate_common_flux_divergence
+    //calculate_interface_flux_divergence
+    //calculate_continuous_flux_divergence
       // Calculate common fluxes
       // Calculate flux jump at interface (common flux minus local discontinuous flux)
       // Add corrections due to flux jump to residuals of the SPs
