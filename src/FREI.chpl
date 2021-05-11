@@ -101,6 +101,45 @@ module FREI
           }
         }
 
+        // Apply boundary conditions
+        for faceIdx in frMesh.faceList.domain
+        {
+          // Get loop variables
+          var thisFace = frMesh.faceList[faceIdx];
+          var faceFPini = frMesh.faceFPidx[faceIdx, 1];
+          var faceFPcnt = frMesh.faceFPidx[faceIdx, 2];
+
+          // Check if the face´s right neighbor is a Boundary Condition
+          if frMesh.faceList[faceIdx].cells[2] < 0
+          {
+            // Yep, it is, lets get some local iteration variables
+            var bocoIdx = -frMesh.faceList[faceIdx].cells[2];
+            var thisBoco = frMesh.bocoList[bocoIdx];
+
+            var famlIdx = thisBoco.family;
+            var thisFaml = frMesh.famlList[famlIdx];
+
+            // Iterate through the FPs on this face
+            for meshFP in faceFPini.. #faceFPcnt
+            {
+              // Calculate the Boundary Condition using the solution at the left neighbor´s corresponding FP
+              //frMesh.solFP[meshFP, 2, 1..nVars] = Boundary.dirichlet[frMesh.solFP[meshFP, 1, 1..nVars]];
+            }
+          }
+
+          // Calculate Riemann Flux at interfaces
+          //for meshFP in faceFPini.. #faceFPcnt
+          //{
+          //  frMesh.flxFP[meshFP, ..] = rusanov_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..]);
+          //}
+        }
+
+        // Calculate numerical flux at interfaces
+        for meshFP in frMesh.flxFP.domain.dim(0)
+        {
+          // Riemann flux
+          frMesh.flxFP[meshFP, ..] = rusanov_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..]);
+        }
 
         // Calculate interface correction
         for cellIdx in frMesh.cellList.domain

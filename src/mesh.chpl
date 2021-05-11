@@ -273,6 +273,7 @@ prototype module Mesh
           }
           otherwise {}
         }
+
         // Fill the right side neighbor ID. Bocos have negative indexes so they can be easily distinguished
         this.faceList[this.nFaces].cells[2] = -boco;
         this.bocoList[boco].face = this.nFaces;
