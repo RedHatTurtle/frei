@@ -57,8 +57,8 @@ prototype module Parameters
     // Time Schemes
     param TIME_EULER      : int = 0;
     param TIME_RK_CLASSIC : int = 1;
-    param TIME_TVDRK_O2S2 : int = 2;    // Flux Reconstruction
-    param TIME_TVDRK_O2S3 : int = 3;    // Roe
+    param TIME_TVDRK_O2S2 : int = 2;    // 
+    param TIME_TVDRK_O2S3 : int = 3;    // 
     param TIME_TVDRK_O2S4 : int = 4;    // 
     param TIME_TVDRK_O2SN : int = 5;    // 
     param TIME_TVDRK_O3S3 : int = 6;    // 

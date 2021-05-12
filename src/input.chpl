@@ -24,7 +24,7 @@ prototype module Input
   var meshingScheme : int = MESH_UNIFORM;        // How to divide the domain into cells
 
   //parSpatial
-  var spatialScheme     : int = SPATIAL_BEAMWARMING;
+  var spatialScheme     : int = SPATIAL_FR;
   var dissipationScheme : int = DISS_NONE;    // Type of numerical dissipation added
 
   //parFR
@@ -35,12 +35,12 @@ prototype module Input
   var frScheme : int = FR_DG;
 
   //parTime
-  var timeScheme : int = TIME_RK_CLASSIC;
-  var timeStep   : real = 1e-4;
+  var timeScheme : int = TIME_TVDRK_O2S3;
+  var timeStep   : real = 1e-6;
 
   //parOutput
-  var ioIter  : int = 0;             // Number of iterations between output dumps
-  var maxIter : int = 0;             // Maximum number of iterations
+  var ioIter  : int =   100;         // Number of iterations between output dumps
+  var maxIter : int = 10000;         // Maximum number of iterations
   var ioTime  : real =-0.01;         // Time interval between output dumps
   var maxTime : real = 1.00;         // Maximum time to simulate
 
@@ -54,6 +54,8 @@ prototype module Input
   var rhoHigh : real = 5.0;          // Density on the HIGH pressure side of the shock tube
   var pHigh   : real = 5.0;          // Pressure on the HIGH pressure side of the shock tube
 
+  //parFamilies
+  var nFamilies : int = 1;
   //////////////////////////////////////////////////////////////////////////////
 
   // Derived data
@@ -136,6 +138,30 @@ prototype module Input
       pLow    = tomlData["parInit"]!["pLow"]!.re : real;
       rhoHigh = tomlData["parInit"]!["rhoHigh"]!.re : real;
       pHigh   = tomlData["parInit"]!["pHigh"]!.re : real;
+
+      nFamilies = tomlData["parFamilies"]!["nFamilies"]!.re : int;
+
+      for famlIdx in 1..nFamilies
+      {
+        pHigh   = tomlData["parFamilies"]![famlIdx:string]!["familyName"]!.re : int;
+        pHigh   = tomlData["parFamilies"]![famlIdx:string]!["familyDimension"]!.re : int;
+        pHigh   = tomlData["parFamilies"]![famlIdx:string]!["familyType"]!.re : int;
+        pHigh   = tomlData["parFamilies"]![famlIdx:string]!["familySubType"]!.re : int;
+        pHigh   = tomlData["parFamilies"]![famlIdx:string]!["familyParameters"]!.re : real;
+      }
+
+      // This was a sketch for an array of sub-tables based input. Each elemet of the array containing a subtable
+      // defining one family. Unfortunatly this feature is not yet supported on the Chapel TOML library.
+      //
+      //for famlIdx in 1..nFamilies
+      //{
+      //  pHigh   = tomlData["parFamilies"]![famlIdx]!["familyName"]!.re : int;
+      //  pHigh   = tomlData["parFamilies"]![famlIdx]!["familyDimension"]!.re : int;
+      //  pHigh   = tomlData["parFamilies"]![famlIdx]!["familyType"]!.re : int;
+      //  pHigh   = tomlData["parFamilies"]![famlIdx]!["familySubType"]!.re : int;
+      //  pHigh   = tomlData["parFamilies"]![famlIdx]!["familyParameters"]!.re : real;
+      //}
+
     } catch {
       write("Error reading input file.");
     }

@@ -46,3 +46,28 @@
   rhoHigh = 10.0
   pHigh   = 10.0
   dummy   = 0
+
+[parFamilies]
+  nFamilies = 3
+
+[parFamilies.1]
+  familyName = "flow"
+  familyDim = 1
+  familyType = 0
+  familySubType = 0
+  familyParameters = []
+
+[parFamilies.2]
+  familyName = "inlet"
+  familyDim = 0
+  familyType = 2
+  familySubType = 1
+  familyParameters = [1.225, 0.0, 101625.0]
+
+[parFamilies.3]
+  familyName = "outlet"
+  familyDim = 0
+  familyType = 2
+  familySubType = 2
+  familyParameters = [1.225, 0.0, 101625.0]
+
