@@ -16,6 +16,7 @@ module FREI
     use Mesh;
     use FRMesh;
     use Correction;
+    use Init;
     use FR;
     use LinearAlgebra;
 

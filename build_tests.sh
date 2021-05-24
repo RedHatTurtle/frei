@@ -41,8 +41,13 @@ chpl -o frmesh_tests --main-module FRMesh src/frmesh.chpl src/polynomials.chpl s
     tee frmesh_build.log
 echo "done"
 echo
+echo "Building Init Tests:"
+chpl -o init_tests --main-module Init src/init.chpl src/flux.chpl src/config.chpl src/input.chpl src/parameters.chpl |
+    tee init_build.log
+echo "done"
+echo
 echo "Building FR Tests:"
-chpl -o fr_tests --main-module FR src/fr.chpl src/parameters.chpl |
+chpl -o fr_tests --main-module FR src/fr.chpl |
     tee fr_build.log
 echo "done"
 echo
@@ -59,6 +64,8 @@ echo "Running Tests"
 ./gmesh_tests         &> gmesh_tests.log
 ./mesh_tests          &> mesh_tests.log
 ./frmesh_tests        &> frmesh_tests.log
+
+./init_tests          &> init_tests.log
 
 ./fr_tests            &> fr_tests.log
 echo "Done"
