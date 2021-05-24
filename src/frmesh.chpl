@@ -45,7 +45,7 @@ prototype module FRMesh {
     var cellSPidx : [cellSPidx_d] int;  // Index of the first SP and number of SPs of a cell
     var faceFPidx : [faceFPidx_d] int;  // Index of the first FP and number of FPs of a face
 
-    proc allocate_vars()
+    proc allocate_fr_vars()
     {
       var nSPs : int;
       var nFPs : int;
@@ -311,7 +311,7 @@ prototype module FRMesh {
     // Get number of physical dimensions from mesh or input
     var test_frmesh = new unmanaged fr_mesh_c(nDims=1, nVars=3, solOrder=2);
     test_frmesh.import_gmesh2(test_gmesh2);
-    test_frmesh.allocate_vars();
+    test_frmesh.allocate_fr_vars();
 
     writeln("Test 2: Allocate FR variables");
     writeln("nVarsSP  = ", test_frmesh.nVars);

@@ -34,9 +34,9 @@ module FREI
 
     // 5. Convert input mesh to solver mesh
     var frMesh = new unmanaged fr_mesh_c(nDims=1, nVars=3, solOrder=iOrder-1);
-    frMesh.import_gmesh2(gmesh2);
-    frMesh.allocate_vars();
-    frMesh.set_points_locations();
+    frMesh.import_gmesh2(gmesh2);   // Convert mesh to native format
+    frMesh.allocate_fr_vars();      // Allocate SP and FP solution/flux/residue arrays
+    frMesh.set_points_locations();  // Calculate coordinate trasnformations and point coordinates
 
     // 4. Initialize the solver, pre calculate stuff
     init_sp2fpInterp(minOrder, maxOrder, frMesh.cellTopos);
