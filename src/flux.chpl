@@ -1,6 +1,6 @@
 prototype module Flux
 {
-  proc pressure(cons : [] real ) : real
+  proc pressure_cv(cons : [] real) : real
   {
     import Input.fGamma;
     import LinearAlgebra.dot;
@@ -9,48 +9,76 @@ prototype module Flux
     var idxMom : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
     var idxEne : int   = cons.domain.dim(0).high;          // Last element is energy
 
-    var pressure : real = (fGamma-1.0)*(cons[idxEne] - 0.5*dot(cons[idxMom],cons[idxMom])/cons[1]);
+    var pressure : real = (fGamma-1.0)*(cons[idxEne] - 0.5*dot(cons[idxMom],cons[idxMom])/cons[idxRho]);
 
     return pressure;
   }
 
-  proc temperature(cons : [] real ) : real
+  proc temperature_cv(cons : [] real) : real
   {
     import Input.fR;
 
     var idxRho : int   = cons.domain.dim(0).low;           // First element is density
 
-    var p : real = pressure(cons);
+    var p : real = pressure_cv(cons);
 
     var temperature : real = p/(cons[idxRho]*fR);
 
     return temperature;
   }
 
-  proc enthalpy(cons : [] real ) : real
+  proc enthalpy_cv(cons : [] real) : real
   {
     var idxEne : int   = cons.domain.dim(0).high;          // Last element is energy
 
-    var p : real = pressure(cons);
+    var p : real = pressure_cv(cons);
 
     var enthalpy : real = (cons[idxEne] + p);
 
     return enthalpy;
   }
 
-  proc internal_energy(cons : [] real ) : real
+  proc internal_energy_cv(cons : [] real) : real
   {
     import Input.fCv;
     import Input.fR;
 
-    var p : real = pressure(cons);
+    var p : real = pressure_cv(cons);
 
     var internalEnergy : real = fCv*p/fR;
 
     return internalEnergy;
   }
 
-  proc invs_flux_cv_1d(u : [1..3] real ) : [1..3] real
+  proc sound_speed_cv(cons : [] real) : real
+  {
+    import Input.fGamma;
+
+    var idxRho : int   = cons.domain.dim(0).low;           // First element is density
+    var idxMom : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
+    var idxEne : int   = cons.domain.dim(0).high;          // Last element is energy
+
+    var p : real = pressure_cv(cons);
+
+    return sqrt(fGamma*p/cons[idxRho]);
+  }
+
+  proc mach_cv(cons : [] real) : real
+  {
+    import LinearAlgebra.norm;
+
+    var idxRho : int   = cons.domain.dim(0).low;           // First element is density
+    var idxMom : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
+    var idxEne : int   = cons.domain.dim(0).high;          // Last element is energy
+
+    var vel : [idxMom] real = cons[idxMom]/cons[idxRho];
+
+    var mach : real = norm(vel) / sound_speed_cv(cons);
+
+    return mach;
+  }
+
+  proc invs_flux_cv_1d(u : [1..3] real) : [1..3] real
   {
     import LinearAlgebra.dot;
 
@@ -59,7 +87,7 @@ prototype module Flux
     var idxEne : int   = u.domain.dim(0).high;          // Last element is energy
 
     var invs_flux_cv : [u.domain] real;
-    var p : real = pressure(u);
+    var p : real = pressure_cv(u);
 
     invs_flux_cv[1] = u[2];
     invs_flux_cv[2] = u[2]*u[2]/u[1] + p;
@@ -68,7 +96,7 @@ prototype module Flux
     return invs_flux_cv;
   }
 
-  proc invs_flux_cv(cons : [] real ) : [] real
+  proc invs_flux_cv(cons : [] real) : [] real
   {
     import LinearAlgebra.dot;
 
@@ -79,7 +107,7 @@ prototype module Flux
     var invs_flux_cv : [idxMom-1, cons.domain.dim(0)] real;
 
     var vel : [idxMom] real = cons[idxMom] / cons[idxRho];
-    var p   : real = pressure(cons);
+    var p   : real = pressure_cv(cons);
 
     for i in idxMom-1
     {
@@ -93,7 +121,7 @@ prototype module Flux
     return invs_flux_cv;
   }
 
-  proc invs_flux_pv(prim : [] real ) : [] real
+  proc invs_flux_pv(prim : [] real) : [] real
   {
     use Input;
     import LinearAlgebra.dot;
@@ -114,6 +142,14 @@ prototype module Flux
     }
 
     return invs_flux_pv;
+  }
+
+  proc visc_flux_cv(cons : [] real, consGrad : [] real) : [] real
+  {
+  }
+
+  proc visc_flux_pv(prim : [] real, promGrad : [] real) : [] real
+  {
   }
 
   proc main()
@@ -137,14 +173,19 @@ prototype module Flux
     writeln("3D: ", prim3d);
     writeln();
     writeln("Pressure and Temperature functions:");
-    writeln("1D - Pressure (Pa): ", pressure(cons1d), ", Temperature (K): ", temperature(cons1d));
-    writeln("2D - Pressure (Pa): ", pressure(cons2d), ", Temperature (K): ", temperature(cons2d));
-    writeln("3D - Pressure (Pa): ", pressure(cons3d), ", Temperature (K): ", temperature(cons3d));
+    writeln("1D - Pressure (Pa): ", pressure_cv(cons1d), ", Temperature (K): ", temperature_cv(cons1d));
+    writeln("2D - Pressure (Pa): ", pressure_cv(cons2d), ", Temperature (K): ", temperature_cv(cons2d));
+    writeln("3D - Pressure (Pa): ", pressure_cv(cons3d), ", Temperature (K): ", temperature_cv(cons3d));
     writeln();
     writeln("Enthalpy and Internal Energy functions:");
-    writeln("1D - Enthalpy (J/m³): ", enthalpy(cons1d), ", Internal Energy (J/m³): ", internal_energy(cons1d));
-    writeln("2D - Enthalpy (J/m³): ", enthalpy(cons2d), ", Internal Energy (J/m³): ", internal_energy(cons2d));
-    writeln("3D - Enthalpy (J/m³): ", enthalpy(cons3d), ", Internal Energy (J/m³): ", internal_energy(cons3d));
+    writeln("1D - Enthalpy (J/m³): ", enthalpy_cv(cons1d), ", Internal Energy (J/m³): ", internal_energy_cv(cons1d));
+    writeln("2D - Enthalpy (J/m³): ", enthalpy_cv(cons2d), ", Internal Energy (J/m³): ", internal_energy_cv(cons2d));
+    writeln("3D - Enthalpy (J/m³): ", enthalpy_cv(cons3d), ", Internal Energy (J/m³): ", internal_energy_cv(cons3d));
+    writeln();
+    writeln("Mach and Speed of Sound functions:");
+    writeln("1D - Mach (non-dimensional): ", mach_cv(cons1d), ", Speed of Sound (m/s): ", sound_speed_cv(cons1d));
+    writeln("2D - Mach (non-dimensional): ", mach_cv(cons2d), ", Speed of Sound (m/s): ", sound_speed_cv(cons2d));
+    writeln("3D - Mach (non-dimensional): ", mach_cv(cons3d), ", Speed of Sound (m/s): ", sound_speed_cv(cons3d));
     writeln();
     writeln("Inviscid 1D Flux:\n", invs_flux_cv_1d(cons1d));
     writeln();

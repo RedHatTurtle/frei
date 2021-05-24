@@ -3,7 +3,7 @@ prototype module Riemann
   proc rusanov_1d(uL : [1..3] real, uR : [1..3] real) : [1..3] real
   {
     use Input;
-    import Flux.pressure;
+    import Flux.pressure_cv;
     import Flux.invs_flux_cv;
 
     var idxRho : int   = uL.domain.dim(0).low;           // First element is density
@@ -17,12 +17,12 @@ prototype module Riemann
     //  Left state
     var rhoL : real = uL[1];
     var vL   : real = uL[2]/uL[1];
-    var pL   : real = pressure(uL);
+    var pL   : real = pressure_cv(uL);
     var hL   : real = ( uL[3] + pL ) / rhoL;
     //  Right state
     var rhoR : real = uR[1];
     var vR   : real = uR[2]/uR[1];
-    var pR   : real = pressure(uR);
+    var pR   : real = pressure_cv(uR);
     var hR   : real = ( uR[3] + pR ) / rhoR;
 
     // Compute the Roe Averages
@@ -43,7 +43,7 @@ prototype module Riemann
   proc roe_1d(uL : [1..3] real, uR : [1..3] real) : [1..3] real
   {
     use Input;
-    import Flux.pressure;
+    import Flux.pressure_cv;
     import Flux.invs_flux_cv;
 
     var gm1 : real = fGamma - 1.0;
@@ -53,13 +53,13 @@ prototype module Riemann
     //  Left state
     var rhoL : real = uL[1];
     var vL   : real = uL[2]/uL[1];
-    var pL   : real = pressure(uL);
+    var pL   : real = pressure_cv(uL);
     var aL   : real = sqrt(fGamma*pL/rhoL);
     var HL   : real = ( uL[3] + pL ) / rhoL;
     //  Right state
     var rhoR : real = uR[1];
     var vR   : real = uR[2]/uR[1];
-    var pR   : real = pressure(uR);
+    var pR   : real = pressure_cv(uR);
     var aR   : real = sqrt(fGamma*pR/rhoR);
     var HR   : real = ( uR[3] + pR ) / rhoR;
 

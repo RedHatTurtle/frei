@@ -18,6 +18,11 @@ Enthalpy and Internal Energy functions:
 2D - Enthalpy (J/m³): 3.80171e+05, Internal Energy (J/m³): 2.53312e+05
 3D - Enthalpy (J/m³): 3.80171e+05, Internal Energy (J/m³): 2.53312e+05
 
+Mach and Speed of Sound functions:
+1D - Mach (non-dimensional): 0.6, Speed of Sound (m/s): 340.294
+2D - Mach (non-dimensional): 0.6, Speed of Sound (m/s): 340.294
+3D - Mach (non-dimensional): 0.6, Speed of Sound (m/s): 340.294
+
 Inviscid 1D Flux:
 250.116 1.52393e+05 7.7622e+07
 
