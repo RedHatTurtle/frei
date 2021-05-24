@@ -92,9 +92,18 @@ Acronyms are **always** ALL CAPS.
 
 ## Common Abbreviations
 
+node, edge, face, cell : Mesh Elements
+boco, bc : Boundary Condition
+faml : Family
+ghst : Ghost cell/FP
+host : The cell neighboring a ghost
+
 sol, cons, cv : Conserved variables
-flx  : Flux vector
-prim, pv : Primitive variables
+flx           : Flux vector
+     prim, pv : Primitive variables
+
+SolPnt, SP : Solution Point
+FlxPnt, FP : Flux Point
 
 eq : Equation;
 idx : Index
@@ -102,6 +111,28 @@ idx : Index
 invs : Inviscid
 visc : Viscous
 
+dens : Density
+pres : Static Pressure
+temp : Temperature
+vel  : Velocity
+mom  : Momentum
+mach : Mach Number
+a    : Speed of Sound
+EneKin, ek : Kinetic Energy / Dynamic Pressure
+
+
+**GFR Boundary Condition functions abbreviations**
+gufp : Ghost solution (U) at Flux Point
+hufp : Host solution (U) at Flux Point
+fxyz : Coordinates of the Flux Points
+fnrm : Face Normal
+cv_in : Conserverd Variables
+pv_in : Primitive Variables
+wall_temperature : Wall Temperature
+var_int : Variable in the interior FP (host cell)
+var_ext : Variable in the exterior FP (ghost cell)
+var_ref : Variable prescribed for the boundary condition
+var0    : Total var. Ex: Total Pressure *p0*, Total Temperature *t0*
 
 ## References
 
