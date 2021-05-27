@@ -1,6 +1,6 @@
 [parPhysics]
   eqSet              = 6   # 1-Convection, 2-Inviscid Burgers, 3-Diffusion, 4-Linear Burgers, 5-Burgers, 6-Euler, 7-Navier-Stokes
-  initialConditions  = 1   # Shock tube
+  initialCondition   = 1   # Shock tube
   boundaryConditions = 0   # Dirichlet
 
 [parFluid]

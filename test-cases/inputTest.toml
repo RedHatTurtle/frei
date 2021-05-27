@@ -1,6 +1,6 @@
 [parPhysics]
   eqSet              = 6
-  initialConditions  = 1
+  initialCondition   = 1
   boundaryConditions = 0
 
 [parFluid]

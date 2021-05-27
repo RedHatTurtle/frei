@@ -4,6 +4,15 @@ prototype module Init
   use Input;
   use Config;
 
+  // Nozzle shape from "I do Like CFD", vol 1 by Katate Masatsuka (Hiroaki Nishikawa), page 248
+  // A(x) = 25/9(Ae-At)(x-xT)^2 + At
+  // aE = Exit area
+  // aT = Throat area
+  // xT = Throat location
+  param xThroat    : real = 0.4;
+  param exitArea   : real = 0.4;
+  param throatArea : real = 0.2;
+
   proc initial_condition(IC : int, const ref xyz : [] real) : [] real
   {
     var sol : [xyz.domain.dim(0), 1..3] real;
@@ -35,72 +44,180 @@ prototype module Init
           }
         }
       }
-      when IC_1D_NOZZLE
+      when IC_1D_NOZZLE_SUBSONIC
       {
-        const xT : real = 0.4;
-        const aE : real = 0.4;
-        const aT : real = 0.2;
-        var areaCrit : real = nozzle_ratio(xT); // Smooth transonic flow = Throat Area
+        const dens0 : real = 1.0;
+        const pres0 : real = 1.0;
+        const temp0 : real = 1.0;
+
+        // Set the exit pressure to uniquely define the solution
+        const presExit : real = 0.97;
+        const machExit : real = sqrt(2/(fGamma-1)*((presExit/pres0)**(-(fGamma-1)/fGamma)-1));
+
+        const aux : real = ( (2+(fGamma-1)*machExit**2)/(fGamma+1) )**((fGamma+1)/(fGamma-1)) / machExit**2;
+
+        var aCrit : real = exitArea / sqrt(aux);
 
         for i in xyz.domain.dim(0)
         {
-          const rho0 = 1;
-          const p0 = 1;
-          const t0 = 1;
+          var area : real = nozzle_area(xyz[i,1]);
 
-          var area = nozzle_ratio(xyz[i,1]);
-          var mach = nozzle_mach_sub(area);
+          var mach : real = nozzle_mach_sub(area/aCrit);
 
-          var aux = 1 + (fGamma-1.0)*mach**2/2;
+          var aux : real = 1.0 + 0.5*(fGamma-1.0)*mach**2;
 
-          var rho = rho0 * aux**(-1/(fGamma-1));
-          var p = p0 * aux**(-fGamma/(fGamma-1));
-          var t = t0 * aux**(-1);
+          var dens : real = dens0 * aux**(-1/(fGamma-1));
+          var pres : real = pres0 * aux**(-fGamma/(fGamma-1));
+          var temp : real = temp0 * aux**(-1);
 
-          var a = sqrt(fGamma*p/rho);
+          var a : real = sqrt(fGamma*pres/dens);
+          var vel : real = a*mach;
 
-          sol[i,1] = rho;  // Density
-          sol[i,2] = rho*mach*a;  // Momentum
-          sol[i,3] = p*(1/(fGamma-1) + fGamma*mach**2);  // Energy
+          sol[i,1] = dens;
+          sol[i,2] = dens*vel;
+          sol[i,3] = pres/(fGamma-1) + 0.5*dens*vel**2;
         }
       }
-      otherwise {}
+      when IC_1D_NOZZLE_SMOOTH_TRANSONIC
+      {
+        const dens0 : real = 1.0;
+        const pres0 : real = 1.0;
+        const temp0 : real = 1.0;
+
+        var aCrit : real = nozzle_area(xThroat);
+
+        for i in xyz.domain.dim(0)
+        {
+          var mach : real;
+          var area = nozzle_area(xyz[i,1]);
+
+          if xyz[i,1] < xThroat then
+            // Solve for subsonic conditions
+            mach = nozzle_mach_sub(area/throatArea);
+          else
+            // Solve for supersonic conditions
+            mach = nozzle_mach_sup(area/throatArea);
+
+          var aux : real = 1.0 + 0.5*(fGamma-1.0)*mach**2;
+
+          var dens : real = dens0 * aux**(-1/(fGamma-1));
+          var pres : real = pres0 * aux**(-fGamma/(fGamma-1));
+          var temp : real = temp0 * aux**(-1);
+
+          var a : real = sqrt(fGamma*pres/dens);
+          var vel : real = a*mach;
+
+          sol[i,1] = dens;
+          sol[i,2] = dens*vel;
+          sol[i,3] = pres/(fGamma-1) + 0.5*dens*vel**2;
+        }
+      }
+      when IC_1D_NOZZLE_SHOCKED_TRANSONIC
+      {
+        const dens0 : real = 1.0;
+        const pres0 : real = 1.0;
+        const temp0 : real = 1.0;
+
+        // Start with calculating the ideal solution
+        for i in xyz.domain.dim(0)
+        {
+          var mach : real;
+          var area = nozzle_area(xyz[i,1]);
+
+          if xyz[i,1] < xThroat then
+            // Solve for subsonic conditions
+            mach = nozzle_mach_sub(area/throatArea);
+          else
+            // Solve for supersonic conditions
+            mach = nozzle_mach_sup(area/throatArea);
+
+          var aux : real = 1.0 + 0.5*(fGamma-1.0)*mach**2;
+
+          var dens : real = dens0 * aux**(-1/(fGamma-1));
+          var pres : real = pres0 * aux**(-fGamma/(fGamma-1));
+          var temp : real = temp0 * aux**(-1);
+
+          var a : real = sqrt(fGamma*pres/dens);
+          var vel : real = a*mach;
+
+          sol[i,1] = dens;
+          sol[i,2] = dens*vel;
+          sol[i,3] = pres/(fGamma-1) + 0.5*dens*vel**2;
+        }
+
+        // Now calculate the subsonic solution based on the exit pressure
+        {
+          param presExit : real = 0.9;
+          const machExit : real = sqrt(2/(fGamma-1)*((presExit/pres0)**(-(fGamma-1)/fGamma)-1));
+          const aux : real = ( (2+(fGamma-1)*machExit**2)/(fGamma+1) )**((fGamma+1)/(fGamma-1)) / machExit**2;
+          const areaExitCrit : real = exitArea / sqrt(aux);
+
+          for i in xyz.domain.dim(0) by -1
+          {
+            var area : real = nozzle_area(xyz[i,1]);
+
+            // Solve for supersonic conditions
+            var machIdeal : real = nozzle_mach_sup(area/throatArea);
+            // Calculate mach after a hipothetical shock
+            var machPostShock : real = sqrt( (1+0.5*(fGamma-1)*(machIdeal)**2)/(fGamma*machIdeal**2-0.5*(fGamma-1)) );
+            // Calculate thesubsonic mach from the exit pressure
+            var machSub : real = nozzle_mach_sub(area/areaExitCrit);
+
+            // Check if a shock links the supersonic solution to the subsonic one based on the exit pressure
+            if machPostShock > machSub
+            {
+              // If it doesn´t then propagate the subsonic solution backwards
+              var aux : real = 1.0 + 0.5*(fGamma-1.0)*machSub**2;
+
+              var dens : real = dens0 * aux**(-1/(fGamma-1));
+              var pres : real = pres0 * aux**(-fGamma/(fGamma-1));
+              var temp : real = temp0 * aux**(-1);
+
+              var a : real = sqrt(fGamma*pres/dens);
+              var vel : real = a*machSub;
+
+              sol[i,1] = dens;
+              sol[i,2] = dens*vel;
+              sol[i,3] = pres/(fGamma-1) + 0.5*dens*vel**2;
+            }
+            else
+              // If the shock fits then keep the ideal solution on the rest of the nozzle
+              break;
+          }
+        }
+      }
     }
 
     return sol;
   }
 
-  proc nozzle_ratio(in x : real) : real
+  proc nozzle_area(in x : real) : real
   {
-    // Nozzle shape (from "I do Like CFD", vol 1 by Katate Masatsuka (Hiroaki Nishikawa))
-    // A(x) = 25/9(Ae-At)(x-0.4)^2 + At
+    // Nozzle shape from "I do Like CFD", vol 1 by Katate Masatsuka (Hiroaki Nishikawa), page 248
+    // A(x) = 25/9(Ae-At)(x-xT)^2 + At
     // aE = Exit area
     // aT = Throat area
-    const xT : real = 0.4;
-    const aE : real = 0.4;
-    const aT : real = 0.2;
+    // xT = Throat location
 
-    return (25.0/9.0*(aE-aT)*(x-xT)**2 + aT)/aT;
+    return 25.0/9.0*(exitArea-throatArea)*(x-xThroat)**2 + throatArea;
   }
 
   proc nozzle_mach_sub(in areaRatio : real) : real
   {
-    use IO;
+    var machA : real = 1.0;
+    var machB : real = 0.0;
+    var mach  : real = 0.5*(machA + machB);
 
-    var machLo : real = 0.0;
-    var machHi : real = 1.0;
-    var mach : real = 0.5*(machLo + machHi);
-
-    while (mach != machLo) && (mach != machHi)
+    while (mach != machA) && (mach != machB)
     {
-      var res = (1.0/mach)*((2.0+(fGamma-1.0)*mach**2)/(fGamma+1.0))**((fGamma+1.0)/(fGamma-1.0));
+      var res = (1.0/mach**2)*((2.0+(fGamma-1.0)*mach**2)/(fGamma+1.0))**((fGamma+1.0)/(fGamma-1.0));
 
       if res > areaRatio**2 then
-        machLo = mach;
+        machB = mach;
       else
-        machHi = mach;
+        machA = mach;
 
-      mach = 0.5*(machLo + machHi);
+      mach = 0.5*(machA + machB);
     }
 
     return mach;
@@ -108,29 +225,27 @@ prototype module Init
 
   proc nozzle_mach_sup(in areaRatio : real) : real
   {
-    var machLo : real =   1.0;
-    var machHi : real = 100.0;
-    var mach : real = 0.5*(machLo + machHi);
+    var machA : real =   1.0;
+    var machB : real = 100.0;
+    var mach  : real = 0.5*(machA + machB);
 
-    while (mach != machLo) && (mach != machHi)
+    while (mach != machA) && (mach != machB)
     {
-      var res = (1.0/mach)*((2.0+(fGamma-1.0)*mach**2)/(fGamma+1.0))**((fGamma+1.0)/(fGamma-1.0));
+      var res = (1.0/mach**2)*((2.0+(fGamma-1.0)*mach**2)/(fGamma+1.0))**((fGamma+1.0)/(fGamma-1.0));
 
-      if res < areaRatio**2 then
-        machLo = mach;
+      if res > areaRatio**2 then
+        machB = mach;
       else
-        machHi = mach;
+        machA = mach;
 
-      mach = 0.5*(machLo + machHi);
+      mach = 0.5*(machA + machB);
     }
 
     return mach;
   }
 
   proc entropy_wave_1d(x : real) : real
-  {
-    
-  }
+  {}
 
   proc main()
   {
@@ -160,8 +275,24 @@ prototype module Init
                                                                                     sol[i, 1], sol[i, 2], sol[i, 3]));
 
     writeln();
-    writeln("1D Nozzle Flow");
-    sol = initial_condition(IC_1D_NOZZLE, xyz);
+    writeln("1D Nozzle Flow - Subsonic");
+    sol = initial_condition(IC_1D_NOZZLE_SUBSONIC, xyz);
+    writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3],   Pressure,       Mach");
+    for i in xyz.domain.dim(0) do
+      writeln("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er".format(i, xyz[i, 1],
+            xyz[i, 2], xyz[i, 3], sol[i, 1], sol[i, 2], sol[i, 3], pressure_cv(sol[i,..]), mach_cv(sol[i,..])));
+
+    writeln();
+    writeln("1D Nozzle Flow - Smooth Transonic");
+    sol = initial_condition(IC_1D_NOZZLE_SMOOTH_TRANSONIC, xyz);
+    writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3],   Pressure,       Mach");
+    for i in xyz.domain.dim(0) do
+      writeln("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er".format(i, xyz[i, 1],
+            xyz[i, 2], xyz[i, 3], sol[i, 1], sol[i, 2], sol[i, 3], pressure_cv(sol[i,..]), mach_cv(sol[i,..])));
+
+    writeln();
+    writeln("1D Nozzle Flow - Shocked Transonic");
+    sol = initial_condition(IC_1D_NOZZLE_SHOCKED_TRANSONIC, xyz);
     writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3],   Pressure,       Mach");
     for i in xyz.domain.dim(0) do
       writeln("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er".format(i, xyz[i, 1],

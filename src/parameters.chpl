@@ -16,15 +16,35 @@ prototype module Parameters
     param EQ_EULER        : int = 6;    // Euler Eq
     param EQ_NAVIERSTOKES : int = 7;    // Navier-Stokes Eq
 
+    //
     // Initial Conditions
+    //
     param IC_SINUSOIDAL      : int = 11;    // Sinusoidal Wave
     param IC_GAUSSPULSE      : int = 12;    // Gaussian Pulse Wave
     param IC_ELLIPTICALPULSE : int = 13;    // Elliptic Pulse Wave
     param IC_SQUARE          : int = 14;    // Square Wave
     param IC_MIXEDWAVE       : int = 15;    // Mixed Wave
     param IC_SHOCKTUBE       : int = 61;    // Shock Tube
-    param IC_1D_NOZZLE       : int = 62;    // Quasi 1D Nozzle
+    param IC_1D_NOZZLE_SUBSONIC          : int = 62;    // Quasi 1D Nozzle
+    param IC_1D_NOZZLE_SMOOTH_TRANSONIC  : int = 63;    // Quasi 1D Nozzle
+    param IC_1D_NOZZLE_SHOCKED_TRANSONIC : int = 64;    // Quasi 1D Nozzle
 
+    // High-Order Workshop test cases
+    param IC_GENERIC_MEANFLOW        : int;    //
+    param IC_CHANNEL_FLOW            : int;    //
+    param IC_INVISCID_GAUSSIAN_BUMP  : int;    //
+    param IC_LAMINAR_BNDLYR          : int;    //
+    param IC_SHU_VORTEX              : int;    //
+    param IC_VORTEX_TRANSPORT        : int;    //
+    param IC_DENSITY_TRANSPORT       : int;    //
+    param IC_ENTROPY_TRANSPORT       : int;    //
+    param IC_TAYLOR_GREEN_VORTEX     : int;    //
+    param IC_NOZZLE_JET              : int;    //
+    param IC_DOUBLE_MACH_REFLECTION  : int;    //
+    param IC_INFINITE_CYLINDER       : int;    //
+    param IC_FREESTREAM_PRESERVATION : int;    //
+
+    //
     // Boundary Conditions
     param BC_PERIODIC  : int = 1;    // Periodic
     param BC_DIRICHLET : int = 2;    // Dirichlet

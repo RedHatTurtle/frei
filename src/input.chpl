@@ -7,7 +7,7 @@ prototype module Input
   //parPhysics
   var nDims              : int = 1;
   var eqSet              : int = EQ_EULER;
-  var initialConditions  : int = IC_SHOCKTUBE;
+  var initialCondition   : int = IC_SHOCKTUBE;
   var boundaryConditions : int = BC_DIRICHLET;
 
   //parFluid
@@ -101,7 +101,7 @@ prototype module Input
 
     try {
       eqSet = tomlData["parPhysics"]!["eqSet"]!.i : int;
-      initialConditions  = tomlData["parPhysics"]!["initialConditions"]!.i : int;
+      initialCondition   = tomlData["parPhysics"]!["initialCondition"]!.i : int;
       boundaryConditions = tomlData["parPhysics"]!["boundaryConditions"]!.i : int;
 
       fGamma = tomlData["parFluid"]!["fGamma"]!.re : real;
