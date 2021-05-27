@@ -98,26 +98,30 @@ faml : Family
 ghst : Ghost cell/FP
 host : The cell neighboring a ghost
 
-sol, cons, cv : Conserved variables
-flx           : Flux vector
-     prim, pv : Primitive variables
+Sol, Cons, cv : Conserved variables
+Flx           : Flux vector
+     Prim, pv : Primitive variables
 
 SolPnt, SP : Solution Point
 FlxPnt, FP : Flux Point
 
-eq : Equation;
-idx : Index
+Eq : Equation;
+Idx : Index
 
-invs : Inviscid
-visc : Viscous
+Invs : Inviscid
+Visc : Viscous
 
-dens : Density
-pres : Static Pressure
-temp : Temperature
-vel  : Velocity
-mom  : Momentum
-mach : Mach Number
-a    : Speed of Sound
+Sub : Subsonic
+Sup : Supersonic
+
+Dens : Density
+Ener : Energy
+Pres : Static Pressure
+Temp : Temperature
+Bel  : Velocity
+Mom  : Momentum
+Mach : Mach Number
+A    : Speed of Sound
 EneKin, ek : Kinetic Energy / Dynamic Pressure
 
 

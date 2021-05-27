@@ -78,6 +78,20 @@ prototype module Flux
     return mach;
   }
 
+  proc ener_pv(prim : [] real) : real
+  {
+    import Input.fGamma;
+    import LinearAlgebra.dot;
+
+    var idxDens : int   = prim.domain.dim(0).low;           // First element is density
+    var idxVel  : range = prim.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
+    var idxPres : int   = prim.domain.dim(0).high;          // Last element is energy
+
+    var ener : real = prim[idxPres]/(fGamma-1) + 0.5*prim[idxDens]*dot(prim[idxVel], prim[idxVel]);
+
+    return ener;
+  }
+
   proc invs_flux_cv_1d(u : [1..3] real) : [1..3] real
   {
     import LinearAlgebra.dot;
