@@ -16,6 +16,10 @@ Mason.lock
 
 *_tests
 
+*.dat
+
+*.old
+
 *~
 *.swp
 *.swo
