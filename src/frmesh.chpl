@@ -260,7 +260,7 @@ prototype module FRMesh {
       when TOPO_TRIA do return (solOrder+1)*(solOrder+2)/2;
       when TOPO_QUAD do return (solOrder+1)**2;
       when TOPO_TETR do return (solOrder+1)*(solOrder+2)*(solOrder+3)/6;
-      when TOPO_PYRA do return (solOrder+1)*(solOrder+2)*(2*solOrder+1)/6;
+      when TOPO_PYRA do return (solOrder+1)*(solOrder+2)*(2*solOrder+3)/6;
       when TOPO_PRIS do return (solOrder+1)*(solOrder+1)*(solOrder+2)/2;
       when TOPO_HEXA do return (solOrder+1)**3;
       otherwise return -1;
