@@ -1,6 +1,6 @@
 [parPhysics]
   eqSet             = 6
-  initialCondition  = 1
+  initialCondition  = 62
 
 [parFluid]
   fGamma =    1.4
@@ -11,7 +11,7 @@
 [parMesh]
   xMin          =  0.0
   xMax          =  1.0
-  nCells        = 100
+  nCells        = 10
   meshingScheme = 1
 
 [parSpatial]
@@ -20,8 +20,8 @@
 
 [parFR]
   iOrder   = 3
-  minOrder = 2
-  maxOrder = 4
+  minOrder = 1
+  maxOrder = 9
   distSP   = 0
   frScheme = 1
 
@@ -59,9 +59,9 @@
 [parFamilies.2]
   familyName = "left"
   familyDimension = 0
-  familyType = 1
-  familySubType = 12
-  familyParameters = [1.225, 0.0, 101625.0]
+  familyType = 9
+  familySubType = 95
+  familyParameters = []
 
 [parFamilies.3]
   familyName = "right"

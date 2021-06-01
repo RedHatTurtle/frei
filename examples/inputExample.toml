@@ -1,7 +1,6 @@
 [parPhysics]
   eqSet              = 6   # 1-Convection, 2-Inviscid Burgers, 3-Diffusion, 4-Linear Burgers, 5-Burgers, 6-Euler, 7-Navier-Stokes
   initialCondition   = 1   # Shock tube
-  boundaryConditions = 0   # Dirichlet
 
 [parFluid]
   fGamma =    1.4          # Set the ratio of heat coefficients cp/cv
@@ -10,9 +9,9 @@
   fR     =  287.0          # Set the gas constant
 
 [parMesh]
-  xMin          = -1.0
+  xMin          =  0.0
   xMax          =  1.0
-  nCells        = 1000
+  nCells        = 100
   meshingScheme = 1        # How to divide the mesh into cells: 1-Uniform, 2-Sinusoidal, 3-Random
 
 [parSpatial]
@@ -31,8 +30,8 @@
   timeStep   = 0.0001      # Size of the time step
 
 [parOutput]
-  ioIter  = 0              # Number of iterations between output dumps
-  maxIter = 0              # Maximum number of iterations
+  ioIter  = 1              # Number of iterations between output dumps
+  maxIter = 10             # Maximum number of iterations
   ioTime  = 0.00           # Time interval between output dumps
   maxTime = 1.00           # Maximum time to simulate
 
@@ -52,22 +51,22 @@
 
 [parFamilies.1]
   familyName = "flow"
-  familyDim = 1
+  familyDimension = 1
   familyType = 0
   familySubType = 0
   familyParameters = []
 
 [parFamilies.2]
-  familyName = "inlet"
-  familyDim = 0
-  familyType = 2
-  familySubType = 1
+  familyName = "left"
+  familyDimension = 0
+  familyType = 1
+  familySubType = 12
   familyParameters = [1.225, 0.0, 101625.0]
 
 [parFamilies.3]
-  familyName = "outlet"
-  familyDim = 0
+  familyName = "right"
+  familyDimension = 0
   familyType = 2
-  familySubType = 2
-  familyParameters = [1.225, 0.0, 101625.0]
+  familySubType = 22
+  familyParameters = [0.97]
 

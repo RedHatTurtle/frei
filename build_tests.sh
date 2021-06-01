@@ -1,16 +1,6 @@
 #!/bin/bash
 
 # Build all tests and save log
-echo "Building Flux Tests:"
-chpl -o flux_tests --main-module Flux src/flux.chpl src/input.chpl src/parameters.chpl |
-    tee flux_build.log
-echo "done"
-echo
-echo "Building Riemann Tests:"
-chpl -o riemann_tests --main-module Riemann src/riemann.chpl src/flux.chpl src/input.chpl src/parameters.chpl |
-    tee riemann_build.log
-echo "done"
-echo
 echo "Building Polynomials Tests:"
 chpl -o polynomials_tests --main-module Polynomials src/polynomials.chpl src/testing.chpl src/parameters.chpl |
     tee polynomials_build.log
@@ -41,8 +31,18 @@ chpl -o frmesh_tests --main-module FRMesh src/frmesh.chpl src/polynomials.chpl s
     tee frmesh_build.log
 echo "done"
 echo
+echo "Building Flux Tests:"
+chpl -o flux_tests --main-module Flux src/flux.chpl src/input.chpl src/mesh.chpl src/gmesh.chpl src/parameters.chpl |
+    tee flux_build.log
+echo "done"
+echo
+echo "Building Riemann Tests:"
+chpl -o riemann_tests --main-module Riemann src/riemann.chpl src/flux.chpl src/input.chpl src/mesh.chpl src/gmesh.chpl src/parameters.chpl |
+    tee riemann_build.log
+echo "done"
+echo
 echo "Building Init Tests:"
-chpl -o init_tests --main-module Init src/init.chpl src/flux.chpl src/config.chpl src/input.chpl src/parameters.chpl |
+chpl -o init_tests --main-module Init src/init.chpl src/flux.chpl src/config.chpl src/input.chpl src/mesh.chpl src/gmesh.chpl src/parameters.chpl |
     tee init_build.log
 echo "done"
 echo
@@ -54,9 +54,6 @@ echo
 
 echo "Running Tests"
 # Run tests and output to file
-./flux_tests          &> flux_tests.log
-./riemann_tests       &> riemann_tests.log
-
 ./polynomials_tests   &> polynomials_tests.log
 ./interpolation_tests &> interpolation_tests.log
 ./correction_tests    &> correction_tests.log
@@ -64,6 +61,9 @@ echo "Running Tests"
 ./gmesh_tests         &> gmesh_tests.log
 ./mesh_tests          &> mesh_tests.log
 ./frmesh_tests        &> frmesh_tests.log
+
+./flux_tests          &> flux_tests.log
+./riemann_tests       &> riemann_tests.log
 
 ./init_tests          &> init_tests.log
 

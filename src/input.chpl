@@ -3,12 +3,12 @@ prototype module Input
   use Random;
   use UnitTest;
   use Parameters.ParamInput;
+  import Mesh.faml_r;
 
   //parPhysics
-  var nDims              : int = 1;
-  var eqSet              : int = EQ_EULER;
-  var initialCondition   : int = IC_SHOCKTUBE;
-  var boundaryConditions : int = BC_DIRICHLET;
+  var nDims            : int = 1;
+  var eqSet            : int = EQ_EULER;
+  var initialCondition : int = IC_SHOCKTUBE;
 
   //parFluid
   var fGamma : real =    1.4;        // Set the ratio of heat coefficients Cp/Cv
@@ -55,7 +55,10 @@ prototype module Input
   var pHigh   : real = 5.0;          // Pressure on the HIGH pressure side of the shock tube
 
   //parFamilies
-  var nFamilies : int = 1;
+  var nFaml : int = 1;
+  var famlList_d : domain(1);
+  var famlList   : [famlList_d] faml_r;
+
   //////////////////////////////////////////////////////////////////////////////
 
   // Derived data
@@ -73,7 +76,10 @@ prototype module Input
     use TOML;
 
     var tomlFile : file;
+    var tomlData : unmanaged Toml?;
+
     try {
+      writeln("Opening input file");
       tomlFile = open(fileName, iomode.r);
     } catch e : FileNotFoundError {
       writeln("Critical Error: Input file not found.");
@@ -83,94 +89,81 @@ prototype module Input
       writeln("Stopping Execution immediately.");
     }
 
-    var tomlData = parseToml(tomlFile);
+    try {
+      writeln("Parsing input file");
+      tomlData = parseToml(tomlFile);
+    } catch {
+      writeln("Critical Error: Invalid TOML data");
+    }
 
     writeln();
     writeln("################################################################################");
-    writeln("###   Printing input file used                                               ###");
+    writeln("###   Input file dump                                                        ###");
     writeln("################################################################################");
-    writeln();
-
     writeln(tomlData);
-
-    writeln();
     writeln("################################################################################");
     writeln("###   End of input file                                                      ###");
     writeln("################################################################################");
     writeln();
 
     try {
-      eqSet = tomlData["parPhysics"]!["eqSet"]!.i : int;
-      initialCondition   = tomlData["parPhysics"]!["initialCondition"]!.i : int;
-      boundaryConditions = tomlData["parPhysics"]!["boundaryConditions"]!.i : int;
+      writeln("Configuring solver");
 
-      fGamma = tomlData["parFluid"]!["fGamma"]!.re : real;
-      fCp    = tomlData["parFluid"]!["fR"]!.re : real;
-      fCv    = tomlData["parFluid"]!["fR"]!.re : real;
-      fR     = tomlData["parFluid"]!["fR"]!.re : real;
+      eqSet             = tomlData!["parPhysics"]!["eqSet"]!.i : int;
+      initialCondition  = tomlData!["parPhysics"]!["initialCondition"]!.i : int;
 
-      xMin          = tomlData["parMesh"]!["xMin"]!.re : real;
-      xMax          = tomlData["parMesh"]!["xMax"]!.re : real;
-      nCells        = tomlData["parMesh"]!["nCells"]!.i : int;
-      meshingScheme = tomlData["parMesh"]!["meshingScheme"]!.i : int;
+      fGamma = tomlData!["parFluid"]!["fGamma"]!.re : real;
+      fCp    = tomlData!["parFluid"]!["fR"]!.re : real;
+      fCv    = tomlData!["parFluid"]!["fR"]!.re : real;
+      fR     = tomlData!["parFluid"]!["fR"]!.re : real;
 
-      spatialScheme     = tomlData["parSpatial"]!["spatialScheme"]!.i : int;
-      dissipationScheme = tomlData["parSpatial"]!["dissipationScheme"]!.i : int;
+      xMin          = tomlData!["parMesh"]!["xMin"]!.re : real;
+      xMax          = tomlData!["parMesh"]!["xMax"]!.re : real;
+      nCells        = tomlData!["parMesh"]!["nCells"]!.i : int;
+      meshingScheme = tomlData!["parMesh"]!["meshingScheme"]!.i : int;
 
-      iOrder = tomlData["parFR"]!["iOrder"]!.i : int;
-      minOrder = tomlData["parFR"]!["minOrder"]!.i : int;
-      maxOrder = tomlData["parFR"]!["maxOrder"]!.i : int;
-      distSP = tomlData["parFR"]!["distSP"]!.i : int;
-      distSP = tomlData["parFR"]!["frScheme"]!.i : int;
+      spatialScheme     = tomlData!["parSpatial"]!["spatialScheme"]!.i : int;
+      dissipationScheme = tomlData!["parSpatial"]!["dissipationScheme"]!.i : int;
 
-      timeStep = tomlData["parTime"]!["timeScheme"]!.i : int;
-      timeStep = tomlData["parTime"]!["timeStep"]!.re  : real;
+      iOrder   = tomlData!["parFR"]!["iOrder"]!.i : int;
+      minOrder = tomlData!["parFR"]!["minOrder"]!.i : int;
+      maxOrder = tomlData!["parFR"]!["maxOrder"]!.i : int;
+      distSP   = tomlData!["parFR"]!["distSP"]!.i : int;
+      distSP   = tomlData!["parFR"]!["frScheme"]!.i : int;
 
-      ioIter  = tomlData["parOutput"]!["ioIter"]!.i : int;
-      maxIter = tomlData["parOutput"]!["maxIter"]!.i : int;
-      ioTime  = tomlData["parOutput"]!["ioTime"]!.re : real;
-      maxTime = tomlData["parOutput"]!["maxTime"]!.re : real;
+      timeStep = tomlData!["parTime"]!["timeScheme"]!.i : int;
+      timeStep = tomlData!["parTime"]!["timeStep"]!.re  : real;
 
-      rhoRef  = tomlData["parRef"]!["rhoRef"]!.re : real;
-      pRef    = tomlData["parRef"]!["pRef"]!.re : real;
+      ioIter   = tomlData!["parOutput"]!["ioIter"]!.i : int;
+      maxIter  = tomlData!["parOutput"]!["maxIter"]!.i : int;
+      ioTime   = tomlData!["parOutput"]!["ioTime"]!.re : real;
+      maxTime  = tomlData!["parOutput"]!["maxTime"]!.re : real;
 
-      rhoLow  = tomlData["parInit"]!["rhoLow"]!.re : real;
-      pLow    = tomlData["parInit"]!["pLow"]!.re : real;
-      rhoHigh = tomlData["parInit"]!["rhoHigh"]!.re : real;
-      pHigh   = tomlData["parInit"]!["pHigh"]!.re : real;
+      rhoRef   = tomlData!["parRef"]!["rhoRef"]!.re : real;
+      pRef     = tomlData!["parRef"]!["pRef"]!.re : real;
 
-      nFamilies = tomlData["parFamilies"]!["nFamilies"]!.re : int;
+      rhoLow   = tomlData!["parInit"]!["rhoLow"]!.re : real;
+      pLow     = tomlData!["parInit"]!["pLow"]!.re : real;
+      rhoHigh  = tomlData!["parInit"]!["rhoHigh"]!.re : real;
+      pHigh    = tomlData!["parInit"]!["pHigh"]!.re : real;
 
-      for famlIdx in 1..nFamilies
+      nFaml    = tomlData!["parFamilies"]!["nFamilies"]!.i : int;
+
+      famlList_d = 1..nFaml;
+
+      for famlIdx in famlList.domain
       {
-        pHigh   = tomlData["parFamilies"]![famlIdx:string]!["familyName"]!.re : int;
-        pHigh   = tomlData["parFamilies"]![famlIdx:string]!["familyDimension"]!.re : int;
-        pHigh   = tomlData["parFamilies"]![famlIdx:string]!["familyType"]!.re : int;
-        pHigh   = tomlData["parFamilies"]![famlIdx:string]!["familySubType"]!.re : int;
-        pHigh   = tomlData["parFamilies"]![famlIdx:string]!["familyParameters"]!.re : real;
+        famlList[famlIdx].name           = tomlData!["parFamilies"]![famlIdx:string]!["familyName"]!.s : string;
+        famlList[famlIdx].nDim           = tomlData!["parFamilies"]![famlIdx:string]!["familyDimension"]!.i : int;
+        famlList[famlIdx].bocoType       = tomlData!["parFamilies"]![famlIdx:string]!["familyType"]!.i : int;
+        famlList[famlIdx].bocoSubType    = tomlData!["parFamilies"]![famlIdx:string]!["familySubType"]!.i : int;
+        for propIdx in tomlData!["parFamilies"]![famlIdx:string]!["familyParameters"]!.arr.domain do
+          famlList[famlIdx].bocoProperties[propIdx+1] =
+            tomlData!["parFamilies"]![famlIdx:string]!["familyParameters"]!.arr[propIdx]!.re : real;
       }
-
-      // This was a sketch for an array of sub-tables based input. Each elemet of the array containing a subtable
-      // defining one family. Unfortunatly this feature is not yet supported on the Chapel TOML library.
-      //
-      //for famlIdx in 1..nFamilies
-      //{
-      //  pHigh   = tomlData["parFamilies"]![famlIdx]!["familyName"]!.re : int;
-      //  pHigh   = tomlData["parFamilies"]![famlIdx]!["familyDimension"]!.re : int;
-      //  pHigh   = tomlData["parFamilies"]![famlIdx]!["familyType"]!.re : int;
-      //  pHigh   = tomlData["parFamilies"]![famlIdx]!["familySubType"]!.re : int;
-      //  pHigh   = tomlData["parFamilies"]![famlIdx]!["familyParameters"]!.re : real;
-      //}
-
     } catch {
-      write("Error reading input file.");
+      write("Critical Error: Invalid solver configuration");
     }
-
-    writeln();
-    writeln("################################################################################");
-    writeln("###   Finished reading input file                                            ###");
-    writeln("################################################################################");
-    writeln();
 
     nPoints = nCells + 1;
 
