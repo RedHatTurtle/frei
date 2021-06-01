@@ -51,36 +51,41 @@ prototype module FRMesh {
       var nFPs : int;
 
       cellSPidx_d = {this.cellList_d.dim(0), 1..2};
-      faceFPidx_d = {1..this.nFaces, 1..2};
+      faceFPidx_d = {this.faceList_d.dim(0), 1..2};
 
       for cell in this.cellList_d
       {
-        cellSPidx[cell, 1] = nSPs+1;
-        cellSPidx[cell, 2] = n_cell_sps(this.cellList(cell).elemTopo(), this.solOrder);
+        var cellSPcnt = n_cell_sps(this.cellList(cell).elemTopo(), this.solOrder);
 
-        nSPs += cellSPidx[cell, 2];
+        // Build the Cell -> SP map
+        cellSPidx[cell, 1] = nSPs+1;    // First SP of this cell
+        cellSPidx[cell, 2] = cellSPcnt; // Number of SPs on this cell (redundant info but convenient for programing)
 
+        // Update the mesh total SP count
+        nSPs += cellSPcnt;
+
+        // Resize the SP data arrays
         xyzSP_d  = {1..nSPs, 1..this.nDims};
-
-        metSP_d    = {1..nSPs, 1..this.nDims, 1..this.nDims};
-        jacSP_d    = {1..nSPs};
-
+        metSP_d  = {1..nSPs, 1..this.nDims, 1..this.nDims};
+        jacSP_d  = {1..nSPs};
         solSP_d  = {1..nSPs, 1..this.nVars};
         dSolSP_d = {1..nSPs, 1..this.nVars, 1..this.nDims};
       }
 
       for face in this.faceList_d
       {
-        faceFPidx[face, 1] = nFPs+1;
-        faceFPidx[face, 2] = n_face_fps(this.faceList(face).elemTopo(), this.solOrder);
+        var faceFPcnt = n_face_fps(this.faceList(face).elemTopo(), this.solOrder);
 
-        nFPs += faceFPidx[face, 2];
+        // Build the Face -> FP map
+        faceFPidx[face, 1] = nFPs+1;    // First FP of this face
+        faceFPidx[face, 2] = faceFPcnt; // Number of FPs on this face (redundant info but convenient for programing)
 
+        nFPs += faceFPcnt;
+
+        // Resize the FP data arrays
         xyzFP_d  = {1..nFPs, 1..this.nDims};
-
-        metFP_d    = {1..nFPs, 1..2, 1..this.nDims, 1..this.nDims};
-        jacFP_d    = {1..nFPs, 1..2};
-
+        metFP_d  = {1..nFPs, 1..2, 1..this.nDims, 1..this.nDims};
+        jacFP_d  = {1..nFPs, 1..2};
         solFP_d  = {1..nFPs, 1..2, 1..this.nVars};
         flxFP_d  = {1..nFPs, 1..this.nVars};
         dSolFP_d = {1..nFPs, 1..2, 1..this.nVars, 1..this.nDims};
