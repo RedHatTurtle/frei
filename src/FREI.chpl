@@ -35,6 +35,7 @@ module FREI
     // 5. Convert input mesh to solver mesh
     var frMesh = new unmanaged fr_mesh_c(nDims=1, nVars=3, solOrder=iOrder-1);
     frMesh.import_gmesh2(gmesh2);   // Convert mesh to native format
+    frMesh.set_families(famlList);  // Get families data from input file and write to mesh
     frMesh.allocate_fr_vars();      // Allocate SP and FP solution/flux/residue arrays
     frMesh.set_points_locations();  // Calculate coordinate trasnformations and point coordinates
 

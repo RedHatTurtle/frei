@@ -423,6 +423,27 @@ prototype module Mesh
       }
     }
 
+    proc set_families(inputFamlList)
+    {
+      // Loop through the mesh families
+      for meshFaml in this.famlList
+      {
+        // Check the input file for the corresponding family
+        for inputFaml in inputFamlList
+        {
+          if meshFaml.name == inputFaml.name && meshFaml.nDim == inputFaml.nDim
+          {
+            meshFaml.name           = inputFaml.name;
+            meshFaml.nDim           = inputFaml.nDim;
+            meshFaml.bocoType       = inputFaml.bocoType;
+            meshFaml.bocoSubType    = inputFaml.bocoSubType;
+            meshFaml.bocoProperties = inputFaml.bocoProperties;
+            continue;
+          }
+        }
+      }
+    }
+
     proc elem_set_builder()
     {
       for cell in this.cellList
