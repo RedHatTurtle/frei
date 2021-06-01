@@ -36,6 +36,7 @@ prototype module Output
     use FileSystem;
     use IO;
     use Path;
+    use Flux;
 
     const GNUPlotIOStyle = new iostyle(min_width_columns=15, showpointzero=0, showplus=1, precision=6, realfmt=2);
     param fileRoot : string = "sol_gnuplt";
@@ -55,7 +56,7 @@ prototype module Output
     var outputChan = outputFile.writer();
 
     for dof in xyz.domain.dim(0) do
-      outputChan.writeln(dof, xyz[dof,..], vars[dof,..]);
+      outputChan.writeln(dof, xyz[dof,..], vars[dof,..], pressure_cv(vars[dof,..]), mach_cv(vars[dof,..]));
 
     outputChan.close();
     outputFile.close();
