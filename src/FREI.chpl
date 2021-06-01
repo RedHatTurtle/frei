@@ -29,37 +29,42 @@ module FREI
     //configure();
 
     // 3. Read / define mesh
-    var gmesh2 = new unmanaged gmesh2_c(nNodes=7, nElements=8, nFamilies=3);
-    gmesh2.random1D(-1,1);
+    var gmesh2 = new unmanaged gmesh2_c(nNodes=Input.nCells+1, nElements=Input.nCells+2, nFamilies=Input.nFaml);
+    gmesh2.random1D(Input.xMin, Input.xMax);
 
     // 5. Convert input mesh to solver mesh
-    var frMesh = new unmanaged fr_mesh_c(nDims=1, nVars=3, solOrder=iOrder-1);
+    var frMesh = new unmanaged fr_mesh_c(nDims=1, nVars=3, solOrder=Input.iOrder-1);
     frMesh.import_gmesh2(gmesh2);   // Convert mesh to native format
     frMesh.set_families(famlList);  // Get families data from input file and write to mesh
     frMesh.allocate_fr_vars();      // Allocate SP and FP solution/flux/residue arrays
     frMesh.set_points_locations();  // Calculate coordinate trasnformations and point coordinates
 
     // 4. Initialize the solver, pre calculate stuff
-    init_sp2fpInterp(minOrder, maxOrder, frMesh.cellTopos);
-    init_sp2spDeriv(minOrder, maxOrder, frMesh.cellTopos);
+    init_sp2fpInterp(Input.minOrder, Input.maxOrder, frMesh.cellTopos);
+    init_sp2spDeriv(Input.minOrder, Input.maxOrder, frMesh.cellTopos);
     init_correction();
 
     // Save mesh file in internal format
 
     // Initialize solution
-    frMesh.solSP = initial_condition(IC_SHOCKTUBE, frMesh.xyzSP);
+    frMesh.solSP = initial_condition(Input.initialCondition, frMesh.xyzSP);
 
     // Save restart file
 
     // Output initial state
     iterOutput(iteration, frMesh);
 
+    writeln("Start Iterating");
+
     // Solve flow
-    for iteration in 0..maxIter
+    for iteration in 1..Input.maxIter
     {
+      writeln();
+      writeln("Starting iteration ", iteration);
       // Iterate Solver (single or multiple time steps)
       {
         // Interpolate solution to FPs
+        writeln("Interpolate solution to FPs");
         for cellIdx in frMesh.cellList.domain
         {
           var thisCell = frMesh.cellList[cellIdx];
@@ -80,6 +85,7 @@ module FREI
         }
 
         // Calculate flux at SPs and it´s divergence
+        writeln("Calculate flux at SPs and it´s divergence");
         for cellIdx in frMesh.cellList.domain
         {
           // Get loop variables
@@ -104,6 +110,7 @@ module FREI
         }
 
         // Apply boundary conditions
+        writeln("Apply boundary conditions");
         for faceIdx in frMesh.faceList.domain
         {
           // Get loop variables
@@ -137,6 +144,7 @@ module FREI
         }
 
         // Calculate numerical flux at interfaces
+        writeln("Calculate numerical flux at interfaces");
         for meshFP in frMesh.flxFP.domain.dim(0)
         {
           // Riemann flux
@@ -144,6 +152,7 @@ module FREI
         }
 
         // Calculate interface correction
+        writeln("Calculate interface correction");
         for cellIdx in frMesh.cellList.domain
         {
           // Get loop variables
@@ -183,5 +192,8 @@ module FREI
 
     // Output the final solution
     iterOutput(iteration, frMesh);
+
+    writeln();
+    writeln("Fin.");
   }
 }
