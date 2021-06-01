@@ -15,6 +15,7 @@ module FREI
     use Gmesh;
     use Mesh;
     use FRMesh;
+    use Boundary;
     use Correction;
     use Init;
     use FR;
@@ -132,7 +133,7 @@ module FREI
             for meshFP in faceFPini.. #faceFPcnt
             {
               // Calculate the Boundary Condition using the solution at the left neighbor´s corresponding FP
-              //frMesh.solFP[meshFP, 2, 1..nVars] = Boundary.dirichlet[frMesh.solFP[meshFP, 1, 1..nVars]];
+              frMesh.solFP[meshFP, 2, ..] = Boundary.boundary(frMesh.solFP[meshFP, 1, ..], thisFaml);
             }
           }
 

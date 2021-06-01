@@ -46,6 +46,11 @@ chpl -o init_tests --main-module Init src/init.chpl src/flux.chpl src/config.chp
     tee init_build.log
 echo "done"
 echo
+echo "Building Boundary Tests:"
+chpl -o fr_tests --main-module Boundary src/boundary.chpl src/init.chpl src/flux.chpl src/mesh.chpl src/gmesh.chpl src/config.chpl src/input.chpl src/parameters.chpl |
+    tee boundary_build.log
+echo "done"
+echo
 echo "Building FR Tests:"
 chpl -o fr_tests --main-module FR src/fr.chpl |
     tee fr_build.log
@@ -66,6 +71,7 @@ echo "Running Tests"
 ./riemann_tests       &> riemann_tests.log
 
 ./init_tests          &> init_tests.log
+./boundary_tests      &> boundary_tests.log
 
 ./fr_tests            &> fr_tests.log
 echo "Done"

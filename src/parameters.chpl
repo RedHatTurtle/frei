@@ -46,8 +46,42 @@ prototype module Parameters
 
     //
     // Boundary Conditions
-    param BC_PERIODIC  : int = 1;    // Periodic
-    param BC_DIRICHLET : int = 2;    // Dirichlet
+    //
+    param BC_TYPE_FLOW                : int =  0;
+    // Inflow BCs
+    param BC_TYPE_INFLOW              : int =  1;
+    param BC_SUBTYPE_GENERIC_INFLOW   : int = 11;
+    param BC_SUBTYPE_SUB_INFLOW       : int = 12;
+    param BC_SUBTYPE_SUP_INFLOW       : int = 13;
+    param BC_SUBTYPE_MDOT_INFLOW      : int = 14;
+    // Outflow BCs
+    param BC_TYPE_OUTFLOW             : int =  2;
+    param BC_SUBTYPE_GENERIC_OUTFLOW  : int = 21;
+    param BC_SUBTYPE_SUB_OUTFLOW      : int = 22;
+    param BC_SUBTYPE_SUP_OUTFLOW      : int = 23;
+    param BC_SUBTYPE_MDOT_OUTFLOW     : int = 24;
+    // Generic Inflow/Outflow BCs
+    param BC_TYPE_OPENING             : int =  3;
+    param BC_SUBTYPE_CHARACTERISTIC   : int = 31;
+    param BC_SUBTYPE_GENERIC_FREEFLOW : int = 32;
+    param BC_SUBTYPE_FREESTREAM       : int = 33;
+    param BC_SUBTYPE_FIXED            : int = 34;
+    // Wall BCs
+    param BC_TYPE_WALL                : int =  4;
+    param BC_SUBTYPE_SLIP_WALL        : int = 41;
+    param BC_SUBTYPE_EULER_WALL       : int = 42;
+    param BC_SUBTYPE_ADIABATIC_WALL   : int = 43;
+    param BC_SUBTYPE_ISOTHERMAL_WALL  : int = 44;
+    param BC_SUBTYPE_DEFAULT_WALL     : int = 45;
+    // Other BCs
+    param BC_TYPE_SPECIAL             : int =  9;
+    param BC_SUBTYPE_SYMMETRY         : int = 91;
+    param BC_SUBTYPE_PERIODIC         : int = 92;
+    param BC_SUBTYPE_DIRICHLET        : int = 93;
+    param BC_SUBTYPE_1D_NOZZLE_CRIT_INFLOW     : int = 94;
+    param BC_SUBTYPE_1D_NOZZLE_SUBSONIC_INFLOW : int = 95;
+    param BC_SUBTYPE_1D_NOZZLE_SHOCKED_INFLOW  : int = 96;
+    param BC_SUBTYPE_MMS_DIRICHLET    : int = 99;
 
     // Parametric internal 1D meshing methods
     param MESH_UNIFORM    : int = 1;    // 
