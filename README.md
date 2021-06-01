@@ -90,6 +90,21 @@ Acronyms are **always** ALL CAPS.
 
 ### Use double quotes "" for strings
 
+## Order vs Degree
+
+When referring to the solution interpolation polynomial it is usual in the High-Order CFD community to use the term
+"order" to refer to the degree of the polynomial. This can lead to miscommunication and misunderstanding in discussions
+(as many of my colegues can attest). This is no way a topic of great concern currently but it is definition yet to be
+made. Currently my predisposition is to use the term "degree", leaving the term "order" only for the few places where
+"order of approximation" is being referred.
+
+Currently the terms "order" and "degree" may be used interchangeably in the code and are always (mostly?) referring to
+the degree of the polinomial. Ex: iOrder (interpolation order), solOrder (solution order).
+
+References:
+[Wikipedia entry for "degree of a polynomial"][https://en.wikipedia.org/wiki/Degree_of_a_polynomial]
+[Wikipedia entry for "order of approximation"][https://en.wikipedia.org/wiki/Order_of_approximation]
+
 ## Common Abbreviations
 
 node, edge, face, cell : Mesh Elements
