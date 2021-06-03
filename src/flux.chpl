@@ -94,12 +94,6 @@ prototype module Flux
 
   proc invs_flux_cv_1d(u : [1..3] real) : [1..3] real
   {
-    import LinearAlgebra.dot;
-
-    var idxRho : int   = u.domain.dim(0).low;           // First element is density
-    var idxMom : range = u.domain.dim(0).expand(-1);    // Intermediary elements are the momentum components
-    var idxEne : int   = u.domain.dim(0).high;          // Last element is energy
-
     var invs_flux_cv : [u.domain] real;
     var p : real = pressure_cv(u);
 
@@ -112,8 +106,6 @@ prototype module Flux
 
   proc invs_flux_cv(cons : [] real) : [] real
   {
-    import LinearAlgebra.dot;
-
     var idxRho : int   = cons.domain.dim(0).low;           // First element is density
     var idxMom : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
     var idxEne : int   = cons.domain.dim(0).high;          // Last element is energy
