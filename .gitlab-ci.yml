@@ -20,10 +20,13 @@ compile_dbg:
     - echo "Building single locale debug version of FREI."
     - chpl --set lapackImpl=off
            --set blasImpl=off
+           --warnings
+           --warn-unstable
            -o frei_dbg
            --main-module "FREI" src/FREI.chpl
                                 src/fr.chpl
                                 src/output.chpl
+                                src/boundary.chpl
                                 src/frmesh.chpl
                                 src/mesh.chpl
                                 src/gmesh.chpl
@@ -32,37 +35,41 @@ compile_dbg:
                                 src/correction.chpl
                                 src/interpolation.chpl
                                 src/polynomials.chpl
+                                src/sourceterm.chpl
                                 src/init.chpl
                                 src/config.chpl
                                 src/input.chpl
                                 src/parameters.chpl
                                 src/testing.chpl
 
-# compile_opt:
-#   stage: build_single_locale
-#   artifacts:
-#     untracked: true
-#   script:
-#     - echo "Building single locale release version of FREI."
-#    - chpl --set lapackImpl=off
-#           --set blasImpl=off
-#           -o frei_dbg
-#           --main-module "FREI" src/FREI.chpl
-#                                src/fr.chpl
-#                                src/output.chpl
-#                                src/frmesh.chpl
-#                                src/mesh.chpl
-#                                src/gmesh.chpl
-#                                src/riemann.chpl
-#                                src/flux.chpl
-#                                src/correction.chpl
-#                                src/interpolation.chpl
-#                                src/polynomials.chpl
-#                                src/init.chpl
-#                                src/config.chpl
-#                                src/input.chpl
-#                                src/parameters.chpl
-#                                src/testing.chpl
+compile_opt:
+  stage: build_single_locale
+  artifacts:
+    untracked: true
+  script:
+    - echo "Building single locale release version of FREI."
+    - chpl --set lapackImpl=off
+           --set blasImpl=off
+           --fast
+           -o frei_opt
+           --main-module "FREI" src/FREI.chpl
+                                src/fr.chpl
+                                src/output.chpl
+                                src/boundary.chpl
+                                src/frmesh.chpl
+                                src/mesh.chpl
+                                src/gmesh.chpl
+                                src/riemann.chpl
+                                src/flux.chpl
+                                src/correction.chpl
+                                src/interpolation.chpl
+                                src/polynomials.chpl
+                                src/sourceterm.chpl
+                                src/init.chpl
+                                src/config.chpl
+                                src/input.chpl
+                                src/parameters.chpl
+                                src/testing.chpl
 
 # compile_dbg_multi_locale:
 #   stage: build_multi_locale
@@ -103,12 +110,12 @@ run_1d_test_dbg:
     - ls
     - ./frei_dbg --inputFile=test-cases/inputTest.toml
 
-# run_1d_test_opt:
-#   stage: test_single_locale
-#   needs: [compile_opt]
-#   script:
-#     - ls
-#     - ./frei_opt --inputFile=test-cases/inputTest.toml
+run_1d_test_opt:
+  stage: test_single_locale
+  needs: [compile_opt]
+  script:
+    - ls
+    - ./frei_opt --inputFile=test-cases/inputTest.toml
 
 # run_1d_test_dbg_multi_locale:
 #   stage: test_multi_locale
