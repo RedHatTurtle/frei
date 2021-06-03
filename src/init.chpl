@@ -193,13 +193,25 @@ prototype module Init
 
   proc nozzle_area(in x : real) : real
   {
-    // Nozzle shape from "I do Like CFD", vol 1 by Katate Masatsuka (Hiroaki Nishikawa), page 248
-    // A(x) = 25/9(Ae-At)(x-xT)^2 + At
-    // aE = Exit area
-    // aT = Throat area
-    // xT = Throat location
+    // Nozzle shape from "i do like cfd", vol 1 by Katate Masatsuka (Hiroaki Nishikawa), page 248
+    // a(x) = 25/9(ae-at)(x-xt)^2 + at
+    // ae = exit area
+    // at = throat area
+    // xt = throat location
 
     return 25.0/9.0*(exitArea-throatArea)*(x-xThroat)**2 + throatArea;
+  }
+
+  proc nozzle_area_deriv(in x : real) : real
+  {
+    // Nozzle shape from "i do like cfd", vol 1 by Katate Masatsuka (Hiroaki Nishikawa), page 248
+    // a(x) = 25/9(ae-at)(x-xt)^2 + at
+    // a'(x) = 50/9(ae-at)(x-xt)
+    // ae = exit area
+    // at = throat area
+    // xt = throat location
+
+    return 50.0/9.0*(exitArea-throatArea)*(x-xThroat);
   }
 
   proc nozzle_mach_sub(in areaRatio : real) : real

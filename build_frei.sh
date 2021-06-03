@@ -25,6 +25,7 @@ chpl --set lapackImpl=off                        \
                           src/correction.chpl    \
                           src/interpolation.chpl \
                           src/polynomials.chpl   \
+                          src/sourceterm.chpl    \
                           src/init.chpl          \
                           src/config.chpl        \
                           src/input.chpl         \
@@ -55,6 +56,7 @@ chpl --set lapackImpl=off                        \
                           src/correction.chpl    \
                           src/interpolation.chpl \
                           src/polynomials.chpl   \
+                          src/sourceterm.chpl    \
                           src/init.chpl          \
                           src/config.chpl        \
                           src/input.chpl         \

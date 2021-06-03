@@ -1,6 +1,6 @@
 [parPhysics]
-  eqSet             = 6
-  initialCondition  = 62
+  eqSet             = 8
+  initialCondition  = 82
 
 [parFluid]
   fGamma =    1.4

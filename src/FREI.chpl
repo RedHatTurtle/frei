@@ -20,6 +20,7 @@ module FREI
     use Init;
     use FR;
     use LinearAlgebra;
+    use SourceTerm;
 
     var iteration : int = 0;
 
@@ -62,125 +63,146 @@ module FREI
     {
       writeln();
       writeln("Starting iteration ", iteration);
-      // Iterate Solver (single or multiple time steps)
+
+      // Calculate residue for this iteration
       {
-        // Interpolate solution to FPs
-        writeln("Interpolate solution to FPs");
-        for cellIdx in frMesh.cellList.domain
+        // The residue has 3 components:
+        //   1. Continuous Flux
+        //   2. Discontinuous Flux
+        //   3. Source terms
+        //
+        // The residual array is reset in the time stepping procedure
+
+        // Component 1: Source Term
         {
-          var thisCell = frMesh.cellList[cellIdx];
-          var cellSPini = frMesh.cellSPidx[cellIdx, 1];
-          var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
-          for cellFace in thisCell.faces.domain
+          writeln("Calculate Source term");
+          frMesh.resSP += source_term(frMesh.xyzSP, frMesh.solSP, Input.eqSet);
+        }
+
+        // Component 2: Discontiunous Flux
+        {
+          // Calculate flux at SPs and it´s divergence
+          writeln("Calculate flux at SPs and it´s divergence");
+          for cellIdx in frMesh.cellList.domain
           {
-            var faceIdx  = thisCell.faces[cellFace];
-            var thisFace = frMesh.faceList[faceIdx];
-            var faceSide = thisCell.sides[cellFace];
-            for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
+            // Get loop variables
+            var thisCell = frMesh.cellList[cellIdx];
+            var cellSPini = frMesh.cellSPidx[cellIdx, 1];
+            var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
+
+            // Allocate temporary flux array
+            var flxSP : [cellSPini.. #cellSPcnt, 1..frMesh.nVars] real;
+
+            // Calculate fluxes
+            for meshSP in cellSPini.. #cellSPcnt do
+              flxSP[meshSP, ..] = invs_flux_cv_1d(frMesh.solSP[meshSP, ..]);
+
+            // Calculate flux divergence
+            for cellSP in 1..cellSPcnt
             {
-              var cellFP = cellFace;
-              frMesh.solFP[meshFP, faceSide, ..] = dot(sp2fpInterp[(thisCell.elemTopo(), iOrder)]!.coefs(cellFP, ..),
-                                                       frMesh.solSP[cellSPini..#cellSPcnt,..]                       );
+              var meshSP = cellSPini + cellSP - 1;
+              frMesh.resSP[meshSP,..] += dot(sp2spDeriv[(thisCell.elemTopo(), iOrder)]!.coefs(cellSP, ..),
+                                             flxSP[cellSPini..#cellSPcnt,..]                             );
             }
           }
         }
 
-        // Calculate flux at SPs and it´s divergence
-        writeln("Calculate flux at SPs and it´s divergence");
-        for cellIdx in frMesh.cellList.domain
+        // Component 3: Continuous Flux
         {
-          // Get loop variables
-          var thisCell = frMesh.cellList[cellIdx];
-          var cellSPini = frMesh.cellSPidx[cellIdx, 1];
-          var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
-
-          // Allocate temporary flux array
-          var flxSP : [cellSPini.. #cellSPcnt, 1..frMesh.nVars] real;
-
-          // Calculate fluxes
-          for meshSP in cellSPini.. #cellSPcnt do
-            flxSP[meshSP, ..] = invs_flux_cv_1d(frMesh.solSP[meshSP, ..]);
-
-          // Calculate flux divergence
-          for cellSP in 1..cellSPcnt
+          // Interpolate solution to FPs
+          writeln("Interpolate solution to FPs");
+          for cellIdx in frMesh.cellList.domain
           {
-            var meshSP = cellSPini + cellSP - 1;
-            frMesh.resSP[meshSP,..] = dot(sp2spDeriv[(thisCell.elemTopo(), iOrder)]!.coefs(cellSP, ..),
-                                          flxSP[cellSPini..#cellSPcnt,..]                             );
-          }
-        }
-
-        // Apply boundary conditions
-        writeln("Apply boundary conditions");
-        for faceIdx in frMesh.faceList.domain
-        {
-          // Get loop variables
-          var thisFace = frMesh.faceList[faceIdx];
-          var faceFPini = frMesh.faceFPidx[faceIdx, 1];
-          var faceFPcnt = frMesh.faceFPidx[faceIdx, 2];
-
-          // Check if the face´s right neighbor is a Boundary Condition
-          if frMesh.faceList[faceIdx].cells[2] < 0
-          {
-            // Yep, it is, lets get some local iteration variables
-            var bocoIdx = -frMesh.faceList[faceIdx].cells[2];
-            var thisBoco = frMesh.bocoList[bocoIdx];
-
-            var famlIdx = thisBoco.family;
-            var thisFaml = frMesh.famlList[famlIdx];
-
-            // Iterate through the FPs on this face
-            for meshFP in faceFPini.. #faceFPcnt
+            var thisCell = frMesh.cellList[cellIdx];
+            var cellSPini = frMesh.cellSPidx[cellIdx, 1];
+            var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
+            for cellFace in thisCell.faces.domain
             {
-              // Calculate the Boundary Condition using the solution at the left neighbor´s corresponding FP
-              frMesh.solFP[meshFP, 2, ..] = Boundary.boundary(frMesh.solFP[meshFP, 1, ..], thisFaml);
+              var faceIdx  = thisCell.faces[cellFace];
+              var thisFace = frMesh.faceList[faceIdx];
+              var faceSide = thisCell.sides[cellFace];
+              for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
+              {
+                var cellFP = cellFace;
+                frMesh.solFP[meshFP, faceSide, ..] = dot(sp2fpInterp[(thisCell.elemTopo(), iOrder)]!.coefs(cellFP, ..),
+                                                         frMesh.solSP[cellSPini..#cellSPcnt,..]                       );
+              }
             }
           }
 
-          // Calculate Riemann Flux at interfaces
-          //for meshFP in faceFPini.. #faceFPcnt
-          //{
-          //  frMesh.flxFP[meshFP, ..] = rusanov_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..]);
-          //}
-        }
-
-        // Calculate numerical flux at interfaces
-        writeln("Calculate numerical flux at interfaces");
-        for meshFP in frMesh.flxFP.domain.dim(0)
-        {
-          // Riemann flux
-          frMesh.flxFP[meshFP, ..] = rusanov_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..]);
-        }
-
-        // Calculate interface correction
-        writeln("Calculate interface correction");
-        for cellIdx in frMesh.cellList.domain
-        {
-          // Get loop variables
-          var thisCell = frMesh.cellList[cellIdx];
-          var cellSPini = frMesh.cellSPidx[cellIdx, 1];
-          var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
-
-          for cellFace in thisCell.faces.domain
+          // Apply boundary conditions
+          writeln("Apply boundary conditions");
+          for faceIdx in frMesh.faceList.domain
           {
-            var faceIdx  = thisCell.faces[cellFace];
+            // Get loop variables
             var thisFace = frMesh.faceList[faceIdx];
-            var faceSide = thisCell.sides[cellFace];
+            var faceFPini = frMesh.faceFPidx[faceIdx, 1];
+            var faceFPcnt = frMesh.faceFPidx[faceIdx, 2];
 
-            for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
+            // Check if the face´s right neighbor is a Boundary Condition
+            if frMesh.faceList[faceIdx].cells[2] < 0
             {
-              var cellFP = cellFace;
+              // Yep, it is, lets get some local iteration variables
+              var bocoIdx = -frMesh.faceList[faceIdx].cells[2];
+              var thisBoco = frMesh.bocoList[bocoIdx];
 
-              // Calculate the flux jump
-              var lJump : [1..frMesh.nVars] real = frMesh.flxFP[meshFP, ..] - invs_flux_cv_1d(frMesh.solFP[meshFP, 1, ..]);
-              var rJump : [1..frMesh.nVars] real = frMesh.flxFP[meshFP, ..] - invs_flux_cv_1d(frMesh.solFP[meshFP, 2, ..]);
+              var famlIdx = thisBoco.family;
+              var thisFaml = frMesh.famlList[famlIdx];
 
-              frMesh.resSP[cellSPini.. #cellSPcnt, ..] += outer(lJump[..],
-                  flux_correction[thisCell.elemTopo(), iOrder]!.correction[.., cellFP]);
+              // Iterate through the FPs on this face
+              for meshFP in faceFPini.. #faceFPcnt
+              {
+                // Calculate the Boundary Condition using the solution at the left neighbor´s corresponding FP
+                frMesh.solFP[meshFP, 2, ..] = Boundary.boundary(frMesh.solFP[meshFP, 1, ..], thisFaml);
+              }
+            }
+
+            // Calculate Riemann Flux at interfaces
+            //for meshFP in faceFPini.. #faceFPcnt
+            //{
+            //  frMesh.flxFP[meshFP, ..] = rusanov_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..]);
+            //}
+          }
+
+          // Calculate numerical flux at interfaces
+          writeln("Calculate numerical flux at interfaces");
+          for meshFP in frMesh.flxFP.domain.dim(0)
+          {
+            // Riemann flux
+            frMesh.flxFP[meshFP, ..] = rusanov_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..]);
+          }
+
+          // Calculate interface correction
+          writeln("Calculate interface correction");
+          for cellIdx in frMesh.cellList.domain
+          {
+            // Get loop variables
+            var thisCell = frMesh.cellList[cellIdx];
+            var cellSPini = frMesh.cellSPidx[cellIdx, 1];
+            var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
+
+            for cellFace in thisCell.faces.domain
+            {
+              var faceIdx  = thisCell.faces[cellFace];
+              var thisFace = frMesh.faceList[faceIdx];
+              var faceSide = thisCell.sides[cellFace];
+
+              for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
+              {
+                var cellFP = cellFace;
+
+                // Calculate the flux jump
+                var lJump : [1..frMesh.nVars] real = frMesh.flxFP[meshFP, ..] - invs_flux_cv_1d(frMesh.solFP[meshFP, 1, ..]);
+                var rJump : [1..frMesh.nVars] real = frMesh.flxFP[meshFP, ..] - invs_flux_cv_1d(frMesh.solFP[meshFP, 2, ..]);
+
+                frMesh.resSP[cellSPini.. #cellSPcnt, ..] += outer(lJump[..],
+                    flux_correction[thisCell.elemTopo(), iOrder]!.correction[.., cellFP]);
+              }
             }
           }
         }
       }
+
       // Print solver status / log
 
       // Save restart file

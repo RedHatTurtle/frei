@@ -8,13 +8,14 @@ prototype module Parameters
   prototype module ParamInput
   {
     // Equation Sets
-    param EQ_CONVECTION   : int = 1;    // Convection Eq            du/dt + c*(du/dx) = 0
-    param EQ_INVBURGERS   : int = 2;    // Inviscid Burgers Eq      du/dt + u*(du/dx) = 0
-    param EQ_DIFFUSION    : int = 3;    // Diffusion Eq             du/dt             + k*(ddu/dxx) = 0
-    param EQ_LINBURGERS   : int = 4;    // Linear Burgers Eq        du/dt + c*(du/dx) + k*(ddu/dxx) = 0
-    param EQ_VISBURGERS   : int = 5;    // Viscous Burgers Eq       du/dt + u*(du/dx) + k*(ddu/dxx) = 0
-    param EQ_EULER        : int = 6;    // Euler Eq
-    param EQ_NAVIERSTOKES : int = 7;    // Navier-Stokes Eq
+    param EQ_CONVECTION     : int = 1;    // Convection Eq            du/dt + c*(du/dx) = 0
+    param EQ_INVBURGERS     : int = 2;    // Inviscid Burgers Eq      du/dt + u*(du/dx) = 0
+    param EQ_DIFFUSION      : int = 3;    // Diffusion Eq             du/dt             + k*(ddu/dxx) = 0
+    param EQ_LINBURGERS     : int = 4;    // Linear Burgers Eq        du/dt + c*(du/dx) + k*(ddu/dxx) = 0
+    param EQ_VISBURGERS     : int = 5;    // Viscous Burgers Eq       du/dt + u*(du/dx) + k*(ddu/dxx) = 0
+    param EQ_EULER          : int = 6;    // Euler Eq
+    param EQ_NAVIERSTOKES   : int = 7;    // Navier-Stokes Eq
+    param EQ_QUASI_1D_EULER : int = 8;    // Euler equations for the Quasi 1D Nozzle flow
 
     //
     // Initial Conditions
@@ -25,9 +26,9 @@ prototype module Parameters
     param IC_SQUARE          : int = 14;    // Square Wave
     param IC_MIXEDWAVE       : int = 15;    // Mixed Wave
     param IC_SHOCKTUBE       : int = 61;    // Shock Tube
-    param IC_1D_NOZZLE_SUBSONIC          : int = 62;    // Quasi 1D Nozzle
-    param IC_1D_NOZZLE_SMOOTH_TRANSONIC  : int = 63;    // Quasi 1D Nozzle
-    param IC_1D_NOZZLE_SHOCKED_TRANSONIC : int = 64;    // Quasi 1D Nozzle
+    param IC_1D_NOZZLE_SUBSONIC          : int = 81;    // Quasi 1D Nozzle
+    param IC_1D_NOZZLE_SMOOTH_TRANSONIC  : int = 82;    // Quasi 1D Nozzle
+    param IC_1D_NOZZLE_SHOCKED_TRANSONIC : int = 83;    // Quasi 1D Nozzle
 
     // High-Order Workshop test cases
     param IC_GENERIC_MEANFLOW        : int;    //
