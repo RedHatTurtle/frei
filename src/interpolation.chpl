@@ -44,7 +44,7 @@ prototype module Interpolation
           // Initially assume the whole mesh uses the same base distribution specified in input file.
           // Even more initially assume the whole mesh has SPs on Legendre roots. xD
           var spLoc : [spCnt] real = nodes_legendre_gauss(interpOrder);
-          var fpLoc : [fpCnt] real = [-0.5, 0.5];
+          var fpLoc : [fpCnt] real = [-1.0, 1.0];
 
           sp2fpInterp[(cellTopo, interpOrder)] = new interpolation_coefficients_t({fpCnt, spCnt})!;
 
