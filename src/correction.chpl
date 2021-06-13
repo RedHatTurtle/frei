@@ -61,12 +61,14 @@ prototype module Correction
             select frScheme
             {
                 when FR_DG do
-                  flux_correction[elemTopo, solOrder]!.correction[fp,sp] = correction_dg(solOrder, spLoc[sp]);
+                  flux_correction[elemTopo, solOrder]!.correction[fp,sp] = correction_dg_deriv(solOrder, spLoc[sp]);
                 when FR_GA do
-                  flux_correction[elemTopo, solOrder]!.correction[fp,sp] = correction_ga(solOrder, spLoc[sp]);
+                  flux_correction[elemTopo, solOrder]!.correction[fp,sp] = correction_ga_deriv(solOrder, spLoc[sp]);
                 when FR_G2 do
-                  flux_correction[elemTopo, solOrder]!.correction[fp,sp] = correction_g2(solOrder, spLoc[sp]);
+                  flux_correction[elemTopo, solOrder]!.correction[fp,sp] = correction_g2_deriv(solOrder, spLoc[sp]);
             }
+
+          flux_correction[elemTopo, solOrder]!.correction[2,..].reverse();
         }
         when TOPO_TRIA {}
         when TOPO_QUAD {}
