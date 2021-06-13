@@ -111,11 +111,10 @@ prototype module FRMesh {
         var exponents    : [1..this.nDims, nodes_d.dim(0)] int;  // Exponents of the transformation polynomial
         var mat : [nodes_d.dim(0), nodes_d.dim(0)] real = 1; // Coordinate transformation eq system matrix
 
-        for i in nodes_d do
-            xyzMshNodes[1..this.nDims,i] = this.nodeList[nodes[i]].xyz[1..this.nDims];
-
         // The B vector holds one of the physical coordinates in the physical domain of each of the mesh reference points.
         // Ex: B_x = { x[p_1], x[p_2], x[p_3], ... , x[p_n] }
+        for i in nodes_d do
+            xyzMshNodes[1..this.nDims,i] = this.nodeList[nodes[i]].xyz[1..this.nDims];
 
         // The matrix M is composed of lines with the powers of the computational (reference) domain coordinates of a
         //    given reference point.
@@ -128,6 +127,7 @@ prototype module FRMesh {
             //    A_x = { coef_x[xi^0], coef_x[xi^1], coef_x[xi^2], ... , coef_x[xi^n] }
             //    B_x = {      x[p_1] ,      x[p_2] ,      x[p_3] , ... ,      x[p_n]  }
             //
+            // In 1D M degenerates into a Vandermonde matrix
             //    M_x = {   xi[p_1]^0 ,   xi[p_1]^1 ,   xi[p_1]^2 , ... ,    xi[p_1]^n
             //              xi[p_2]^0 ,   xi[p_2]^1 ,   xi[p_2]^2 , ... ,    xi[p_2]^n
             //              xi[p_3]^0 ,   xi[p_3]^1 ,   xi[p_3]^2 , ... ,    xi[p_3]^n
@@ -146,7 +146,7 @@ prototype module FRMesh {
             for j in nodes_d do exponents[1, j] = j-1;
 
             // SP locations
-            xyzStdSPs[1, 1..this.solOrder] = nodes_legendre_gauss(this.solOrder);
+            xyzStdSPs[1, 1..n_cell_sps(TOPO_LINE, solOrder)] = nodes_legendre_gauss(n_cell_sps(TOPO_LINE, solOrder));
           }
           when TOPO_TRIA {}
           when TOPO_QUAD
@@ -196,7 +196,6 @@ prototype module FRMesh {
         // Future 1: Using Lapack QR factorization
         //geqrf(matrix_order: lapack_memory_order = 101, a: [] real(32), tau: [] real(32));
 
-
         // Future 2: Using interpolation and Lagrange derivative
 
         /////////////////////////////////////////////////////////
@@ -211,7 +210,7 @@ prototype module FRMesh {
         for face in this.cellList[cell].faces do
           // Get FPs from this face
           for fp in faceFPidx[face,1]..#faceFPidx[face,2] do
-            // Find out if we write to the Left or Right FPs of the face
+            // Find out the position of the cell relative to the face 1 = left, 2 = right
             if this.faceList[face].cells[1] == cell then
               this.metFP[fp, 1, .., ..] = coefficients[1, 2];
             else if this.faceList[face].cells[2] == cell then
@@ -236,7 +235,7 @@ prototype module FRMesh {
         //////////////////////////////
 
         // Calculate the Jacobian at SPs
-        for sp in 1..#cellSPidx[cell, 2] do
+        for sp in 1.. #cellSPidx[cell, 2] do
           this.xyzSP[cellSPidx[cell, 1]+sp-1, 1] = coefficients[1,1]+xyzStdSPs[1,sp]*coefficients[1,2];
 
         // Calculate the Jacobian at FPs
