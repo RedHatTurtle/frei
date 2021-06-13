@@ -17,6 +17,7 @@ Mason.lock
 *_tests
 
 *.dat
+*.svg
 
 *.old
 
