@@ -129,10 +129,10 @@ prototype module Input
       minOrder = tomlData!["parFR"]!["minOrder"]!.i : int;
       maxOrder = tomlData!["parFR"]!["maxOrder"]!.i : int;
       distSP   = tomlData!["parFR"]!["distSP"]!.i : int;
-      distSP   = tomlData!["parFR"]!["frScheme"]!.i : int;
+      frScheme = tomlData!["parFR"]!["frScheme"]!.i : int;
 
-      timeStep = tomlData!["parTime"]!["timeScheme"]!.i : int;
-      timeStep = tomlData!["parTime"]!["timeStep"]!.re  : real;
+      timeScheme = tomlData!["parTime"]!["timeScheme"]!.i : int;
+      timeStep   = tomlData!["parTime"]!["timeStep"]!.re  : real;
 
       ioIter   = tomlData!["parOutput"]!["ioIter"]!.i : int;
       maxIter  = tomlData!["parOutput"]!["maxIter"]!.i : int;
