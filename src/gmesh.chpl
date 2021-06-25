@@ -97,6 +97,63 @@ prototype module Gmesh
       this.elements[elemPermutation[this.nElements]].nodes[1] = nodePermutation[this.nNodes];
     }
 
+    proc uniform1D(xMin: real, xMax: real)
+    {
+      use Random;
+      use Parameters.ParamTest;
+      use Parameters.ParamGmesh;
+      import Sort.sort;
+
+      var x = this.nodes[..,1];
+      var cells : [1..this.nElements-2, 1..2] int;
+
+      // Get random values from xMin to xMax
+      var step : real = (xMax - xMin)/(this.nNodes-1);
+      for node in 1..this.nNodes do
+        x[node] = xMin + (node-1)*step;
+
+      // Fill element list with non overlapping elements oriented from left to right
+      for i in 1..this.nElements-2 {
+        cells[i,1] = i;
+        cells[i,2] = i+1;
+      }
+
+      // Commit values to object
+
+      // Set the boundary and internal families
+      this.families[1].nDim = 1;
+      this.families[1].name = "flow";
+      this.families[2].nDim = 0;
+      this.families[2].name = "left";
+      this.families[3].nDim = 0;
+      this.families[3].name = "right";
+
+      // Fill node list in randomized order
+      for i in 1..this.nNodes do
+        this.nodes[i,1] = x[i];
+
+      // Fill element list with the internal elements in random order
+      for i in 2..this.nElements-1 {
+        this.elements[i].elemType = GMESH_LIN_2;
+        this.elements[i].setNodes;
+        this.elements[i].tags[1] = 1; // Family
+        this.elements[i].nodes[1] = cells[i-1,1];
+        this.elements[i].nodes[2] = cells[i-1,2];
+      }
+
+      // Add left boundary point to elements list
+      this.elements[1].elemType = GMESH_PNT_1;
+      this.elements[1].setNodes;
+      this.elements[1].tags[1] = 2; // Family
+      this.elements[1].nodes[1] = 1;
+
+      // Add right boundary point to elements list
+      this.elements[this.nElements].elemType = GMESH_PNT_1;
+      this.elements[this.nElements].setNodes;
+      this.elements[this.nElements].tags[1] = 3; // Family
+      this.elements[this.nElements].nodes[1] = this.nNodes;
+    }
+
     proc read_gmesh_file() {}
     proc write_gmesh_file() {}
   }
