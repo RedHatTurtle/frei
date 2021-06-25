@@ -15,7 +15,7 @@ prototype module SourceTerm
     {
       when EQ_QUASI_1D_EULER
       {
-        for point in consVars.domain.dim(0)
+        for point in xyz.domain.dim(0)
         {
           // There could be a switch for different area functions if there are any. For this a new input variable might
           // be needed.
