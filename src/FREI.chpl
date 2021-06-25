@@ -75,7 +75,11 @@ module FREI
 
         // Component 1: Source Term
         {
-          frMesh.resSP = -source_term(frMesh.xyzSP, frMesh.solSP, Input.eqSet) * frMesh.jacSP;
+          for spIdx in frMesh.resSP.domain.dim(0) do
+            frMesh.resSP[spIdx..#1, ..] = -source_term(frMesh.xyzSP[spIdx..#1, ..],
+                                                       frMesh.solSP[spIdx..#1, ..],
+                                                       Input.eqSet                )
+                                          * frMesh.jacSP[spIdx];
         }
 
         // Component 2: Discontinuous Flux
