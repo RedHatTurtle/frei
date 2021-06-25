@@ -11,3 +11,4 @@ Conserverd variables:
 Left  Flux:   250.116 1.52393e+05 7.7622e+07
 Right Flux:   300.116 1.67576e+05 8.13066e+07
 Runanov Flux: 202.216 1.4673e+05 7.41624e+07
+Roe     Flux: 245.415 1.52986e+05 7.6572e+07

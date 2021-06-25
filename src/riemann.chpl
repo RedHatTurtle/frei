@@ -147,5 +147,6 @@ prototype module Riemann
     writeln("Left  Flux:   ", invs_flux_cv(cons1dL));
     writeln("Right Flux:   ", invs_flux_cv(cons1dR));
     writeln("Runanov Flux: ", rusanov_1d(cons1dL, cons1dR));
+    writeln("Roe     Flux: ", roe_1d(cons1dL, cons1dR));
   }
 }
