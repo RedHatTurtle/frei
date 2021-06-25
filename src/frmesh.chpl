@@ -36,8 +36,8 @@ prototype module FRMesh {
 
     var oldSolSP : [ solSP_d] real;     // Backup of the solution at the beginning of residue calculation
     var    solSP : [ solSP_d] real;     // Conserved variables at SPs
-    var    solFP : [ solFP_d] real;     // Conserved variables at FPs (0-Left / 1-right)
-    var    flxFP : [ flxFP_d] real;     // Unique convective flux at FPs
+    var    solFP : [ solFP_d] real;     // Conserved variables at FPs (1-Left / 2-right)
+    var    flxFP : [ flxFP_d] real;     // Discontinuous flux at FPs (1-Left / 2-right)
     var   dSolSP : [dSolSP_d] real;     // Gradient, at the SPs, of the discontinuous solution interpolation
     var   dSolFP : [dSolFP_d] real;     // Gradient, at the FPs, of the discontinuous flux reconstruction
     var    resSP : [ solSP_d] real;     // conserved variables residual
