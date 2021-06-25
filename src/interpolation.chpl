@@ -282,17 +282,17 @@ prototype module Interpolation
     node = nodes_legendre_gauss(10);
     writeln("Interpolation nodes (Legendre-Gauss):         ", node);
     for i in 0..9 do
-      node[i] = -cos( half_pi * (2*i+1)/10 )/2;
-    writeln("Normalized interpolation nodes [-0.5 to 0.5]: ", node);
+      node[i] = -cos( half_pi * (2*i+1)/10 );
+    writeln("Normalized interpolation nodes [-1.0 to 1.0]: ", node);
     writeln();
 
-    // Get random interpolation targets [-0.5,0.5] and random polynomials
+    // Get random interpolation targets [-1.0, 1.0] and random polynomials
     x[0] = 0;
     x[9] = 1;
     randStreamSeeded.fillRandom(x[1..8]);
     randStreamSeeded.fillRandom(coef);
-    x = x-0.5;
-    coef = 2*coef -1;
+    x = 2.0*x-1.0;
+    coef = 2.0*coef -1.0;
     writeln("Interpolation Targets   = ", x);
     writeln("Polynomial Coefficients = ", coef);
     writeln();
@@ -384,6 +384,7 @@ prototype module Interpolation
       // Generate random polynomial of degree interpOrder
       var coef : [0..interpOrder] real;
       randStreamSeeded.fillRandom(coef);
+      coef = 2.0*coef -1.0;
 
       // Function evaluated at interpolation abscissa
       var yDirectSP : [1..spCnt] real = 0.0;
@@ -423,6 +424,7 @@ prototype module Interpolation
       // Generate random polynomial of degree interpOrder
       var coef : [0..interpOrder] real;
       randStreamSeeded.fillRandom(coef);
+      coef = 2.0*coef -1.0;
 
       // Function evaluated at interpolation abscissa
       var yDirectSP : [1..spCnt] real = 0.0;
