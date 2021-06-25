@@ -1,5 +1,4 @@
-target/
-
+# Ignore most common executable names
 frei
 FREI
 frei_real
@@ -12,16 +11,25 @@ frei_opt
 FREI_opt
 frei_opt_real
 FREI_opt_real
+
+# I don't remember what this is. Mason is the Chapel package manager
 Mason.lock
+
+# Mathematica notebooks
+*.nb
+
+# Test executables
+test_frei.sh
 
 *_tests
 
+# Output files and images
 *.dat
 *.svg
 
-*.old
-
+# Text editor swap/temp files
 *~
+*.old
 *.swp
 *.swo
 *.kate*
