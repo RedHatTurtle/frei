@@ -99,8 +99,10 @@ module FREI
             for meshSP in cellSPini.. #cellSPcnt do
               flxSP[meshSP, ..] = invs_flux_cv_1d(frMesh.solSP[meshSP, ..]);
 
-            // Convert fluxes from physical to computational domain
-            flxSP[cellSPini.. #cellSPcnt, ..] *= frMesh.metSP[cellSPini.. #cellSPcnt, 1, 1];
+            // Convert fluxes from physical to computational domain.
+            // Multiply the flux vector by the inverse Jacobian matrix and by the Jacobian determiant
+            for meshSP in cellSPini.. #cellSPcnt do
+              flxSP[meshSP, ..] = dot(flxSP[meshSP, ..], frMesh.metSP[meshSP, 1, 1]**(-1))*frMesh.jacSP[meshSP];
 
             // Calculate flux divergence
             for cellSP in 1..cellSPcnt
@@ -193,8 +195,9 @@ module FREI
                 // Calculate the flux jump = numerical_flux - local_flux
                 var jump : [1..frMesh.nVars] real = frMesh.flxFP[meshFP, ..] - invs_flux_cv_1d(frMesh.solFP[meshFP, faceSide, ..]);
 
-                // Convert flux jump from physical to computational domains
-                jump *= frMesh.metFP[meshFP, faceSide, 1, 1];
+                // Convert fluxes from physical to computational domain.
+                // Multiply the flux vector by the inverse Jacobian matrix and by the Jacobian determiant
+                jump[..] = dot(jump[..], frMesh.metFP[meshFP, faceSide, 1, 1]**(-1))*frMesh.jacFP[meshFP, faceSide];
 
                 frMesh.resSP[cellSPini.. #cellSPcnt, ..] += outer(jump[..],
                     flux_correction[thisCell.elemTopo(), iOrder]!.correction[1..cellSPcnt, cellFP]);
