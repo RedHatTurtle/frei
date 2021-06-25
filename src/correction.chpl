@@ -54,7 +54,7 @@ prototype module Correction
           // Initially assume the whole mesh uses the same base distribution specified in input file.
           // Even more initially assume the whole mesh uses has SPs on Legendre roots. xD
           var spLoc : [1..spCnt] real = nodes_legendre_gauss(spCnt);
-          var fpLoc : [1..fpCnt] real = [-0.5, 0.5];
+          var fpLoc : [1..fpCnt] real = [-1.0, 1.0];
 
           flux_correction[(cellTopo, interpOrder)] = new flux_correction_t({1..fpCnt, 1..spCnt})!;
 
@@ -70,6 +70,7 @@ prototype module Correction
             }
 
           flux_correction[(cellTopo, interpOrder)]!.correction[2,..].reverse();
+          flux_correction[(cellTopo, interpOrder)]!.correction[2,..] *= -1;
         }
         when TOPO_TRIA {}
         when TOPO_QUAD {}
