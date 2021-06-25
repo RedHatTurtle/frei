@@ -199,8 +199,11 @@ module FREI
                 // Multiply the flux vector by the inverse Jacobian matrix and by the Jacobian determiant
                 jump[..] = dot(jump[..], frMesh.metFP[meshFP, faceSide, 1, 1]**(-1))*frMesh.jacFP[meshFP, faceSide];
 
-                frMesh.resSP[cellSPini.. #cellSPcnt, ..] += outer(jump[..],
-                    flux_correction[(thisCell.elemTopo(), iOrder)]!.correction[1..cellSPcnt, cellFP]);
+                // The correction function was calculated in the computational domain already, therefore no
+                // transformation is required.
+                frMesh.resSP[cellSPini.. #cellSPcnt, ..] += outer(
+                    flux_correction[(thisCell.elemTopo(), iOrder+1)]!.correction[cellFP, 1..cellSPcnt],
+                    jump[..]);
               }
             }
           }
