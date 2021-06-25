@@ -11,6 +11,7 @@ prototype module Correction
 
   use Random;
   use UnitTest;
+  use Set;
 
   class flux_correction_c
   {
@@ -24,51 +25,51 @@ prototype module Correction
   // Perhaps it might be useful in the future to have a sparse domain with the cell topologies present in the mesh
   //var flux_correction_d : sparse domain(2);
 
-  var flux_correction_d : domain(2); // {elemType, interpOrder}
+  var flux_correction_d : domain(2*int); // {cellType, interpOrder}
 
   var flux_correction : [flux_correction_d] flux_correction_t;
 
-  proc init_correction()
+  proc init_correction(minOrder : int, maxOrder : int, cellTopos : set(int))
   {
-    use Input;
+    import Input.frScheme;
     use Parameters.ParamInput;
     use Parameters.ParamMesh;
     use Polynomials;
 
-    // Allocate flux correction structure
-    var elemTopos : range = 2..2;
-    var solOrders : range = 1..9;
-    flux_correction_d = {elemTopos, solOrders};
+    // Add all combination of cell topology and interpolation order to the domain
+    for cellTopo in cellTopos do
+      for interpOrder in minOrder..maxOrder do
+        flux_correction_d.add((cellTopo, interpOrder));
 
-    for (elemTopo, solOrder) in flux_correction.domain
+    for (cellTopo, interpOrder) in flux_correction.domain
     {
-      select elemTopo
+      select cellTopo
       {
         when TOPO_LINE
         {
-          var spCnt : range = 1..solOrder;
-          var fpCnt : range = 1..2;
+          var spCnt : int = interpOrder;
+          var fpCnt : int = 2;
 
           // Need to build an appropriate way to query the point location for each element.
           // Initially assume the whole mesh uses the same base distribution specified in input file.
           // Even more initially assume the whole mesh uses has SPs on Legendre roots. xD
-          var spLoc : [spCnt] real = nodes_legendre_gauss(solOrder);
-          var fpLoc : [fpCnt] real = [-0.5, 0.5];
+          var spLoc : [1..spCnt] real = nodes_legendre_gauss(spCnt);
+          var fpLoc : [1..fpCnt] real = [-0.5, 0.5];
 
-          flux_correction[elemTopo, solOrder] = new flux_correction_t({fpCnt, spCnt})!;
+          flux_correction[(cellTopo, interpOrder)] = new flux_correction_t({1..fpCnt, 1..spCnt})!;
 
-          for (fp,sp) in {fpCnt,spCnt} do
+          for (fp,sp) in {1..fpCnt, 1..spCnt} do
             select frScheme
             {
                 when FR_DG do
-                  flux_correction[elemTopo, solOrder]!.correction[fp,sp] = correction_dg_deriv(solOrder, spLoc[sp]);
+                  flux_correction[(cellTopo, interpOrder)]!.correction[fp,sp] = correction_dg_deriv(interpOrder, spLoc[sp]);
                 when FR_GA do
-                  flux_correction[elemTopo, solOrder]!.correction[fp,sp] = correction_ga_deriv(solOrder, spLoc[sp]);
+                  flux_correction[(cellTopo, interpOrder)]!.correction[fp,sp] = correction_ga_deriv(interpOrder, spLoc[sp]);
                 when FR_G2 do
-                  flux_correction[elemTopo, solOrder]!.correction[fp,sp] = correction_g2_deriv(solOrder, spLoc[sp]);
+                  flux_correction[(cellTopo, interpOrder)]!.correction[fp,sp] = correction_g2_deriv(interpOrder, spLoc[sp]);
             }
 
-          flux_correction[elemTopo, solOrder]!.correction[2,..].reverse();
+          flux_correction[(cellTopo, interpOrder)]!.correction[2,..].reverse();
         }
         when TOPO_TRIA {}
         when TOPO_QUAD {}
@@ -199,11 +200,19 @@ prototype module Correction
       writeln();
     }
 
+    // Create a set with the cell topologies contained in the hypothetics test mesh
+    var cellTopos : set(int);
+    cellTopos.add(2);  // Add Line element to the set
+
+    var minOrder : int = 0;
+    var maxOrder : int = 9;
+
+    // Calculate the FR structures
     writeln();
     writeln("Flux correction initialized structure for FR:");
     writeln();
 
-    init_correction();
+    init_correction(minOrder, maxOrder, cellTopos);
     writeln(flux_correction);
     writeln();
   }

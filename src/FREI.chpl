@@ -44,7 +44,7 @@ module FREI
     // 4. Initialize the solver, pre calculate stuff
     init_sp2fpInterp(Input.minOrder, Input.maxOrder, frMesh.cellTopos);
     init_sp2spDeriv(Input.minOrder, Input.maxOrder, frMesh.cellTopos);
-    init_correction();
+    init_correction(Input.minOrder+1, Input.maxOrder+1, frMesh.cellTopos);
 
     // Save mesh file in internal format
 
@@ -200,7 +200,7 @@ module FREI
                 jump[..] = dot(jump[..], frMesh.metFP[meshFP, faceSide, 1, 1]**(-1))*frMesh.jacFP[meshFP, faceSide];
 
                 frMesh.resSP[cellSPini.. #cellSPcnt, ..] += outer(jump[..],
-                    flux_correction[thisCell.elemTopo(), iOrder]!.correction[1..cellSPcnt, cellFP]);
+                    flux_correction[(thisCell.elemTopo(), iOrder)]!.correction[1..cellSPcnt, cellFP]);
               }
             }
           }
