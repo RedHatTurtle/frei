@@ -1,6 +1,6 @@
 [parPhysics]
   eqSet             = 8
-  initialCondition  = 82
+  initialCondition  = 81
 
 [parFluid]
   fGamma =    1.4
@@ -19,14 +19,14 @@
   dissipationScheme = 2
 
 [parFR]
-  iOrder   = 3
+  iOrder   = 2
   minOrder = 1
   maxOrder = 9
-  distSP   = 0
+  distSP   = 2
   frScheme = 1
 
 [parTime]
-  timeScheme = 1
+  timeScheme = 4
   timeStep   = 0.0001
 
 [parOutput]
