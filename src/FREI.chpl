@@ -55,7 +55,8 @@ prototype module FREI
 
     // 3. Read / define mesh
     var gmesh2 = new unmanaged gmesh2_c(nNodes=Input.nCells+1, nElements=Input.nCells+2, nFamilies=Input.nFaml);
-    gmesh2.random1D(Input.xMin, Input.xMax);
+    //gmesh2.random1D(Input.xMin, Input.xMax);
+    gmesh2.uniform1D(Input.xMin, Input.xMax);
 
     // 5. Convert input mesh to solver mesh
     var frMesh = new unmanaged fr_mesh_c(nDims=1, nVars=3, solOrder=Input.iOrder);
@@ -127,6 +128,21 @@ prototype module FREI
               for meshSP in cellSPini.. #cellSPcnt do
                 flxSP[meshSP, ..] = invs_flux_cv_1d(frMesh.solSP[meshSP, ..]);
 
+              // Interpolate fluxes to FPs
+              for cellFace in thisCell.faces.domain
+              {
+                var faceIdx  = thisCell.faces[cellFace];
+                var thisFace = frMesh.faceList[faceIdx];
+                var faceSide = thisCell.sides[cellFace];
+
+                for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
+                {
+                  var cellFP = cellFace;
+                  frMesh.flxFP[meshFP, faceSide, ..] = dot(sp2fpInterp[(thisCell.elemTopo(), iOrder)]!.coefs(cellFP, ..),
+                                                           flxSP[cellSPini..#cellSPcnt,..]                              );
+                }
+              }
+
               // Convert fluxes from physical to computational domain.
               // Multiply the flux vector by the inverse Jacobian matrix and by the Jacobian determiant
               for meshSP in cellSPini.. #cellSPcnt do
@@ -193,13 +209,6 @@ prototype module FREI
               }
             }
 
-            // Calculate numerical flux at interfaces
-            for meshFP in frMesh.flxFP.domain.dim(0)
-            {
-              // Riemann flux
-              frMesh.flxFP[meshFP, ..] = rusanov_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..]);
-            }
-
             // Calculate interface correction
             for cellIdx in frMesh.cellList.domain
             {
@@ -221,7 +230,8 @@ prototype module FREI
                   var cellFP = cellFace;
 
                   // Calculate the flux jump = numerical_flux - local_flux
-                  var jump : [1..frMesh.nVars] real = frMesh.flxFP[meshFP, ..] - invs_flux_cv_1d(frMesh.solFP[meshFP, faceSide, ..]);
+                  var jump : [1..frMesh.nVars] real = roe_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..])
+                                                     -frMesh.flxFP[meshFP, faceSide, ..];
 
                   // Convert fluxes from physical to computational domain.
                   // Multiply the flux vector by the inverse Jacobian matrix and by the Jacobian determiant

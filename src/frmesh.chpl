@@ -18,7 +18,7 @@ prototype module FRMesh {
 
     var  solSP_d : domain(rank=2, idxType=int);    // {1..nSPs, 1..nVars}
     var  solFP_d : domain(rank=3, idxType=int);    // {1..nFPs, 1..2, 1..nVars}
-    var  flxFP_d : domain(rank=2, idxType=int);    // {1..nFPs, 1..nVars}
+    var  flxFP_d : domain(rank=3, idxType=int);    // {1..nFPs, 1..2, 1..nVars}
     var dSolSP_d : domain(rank=3, idxType=int);    // {1..nSPs, 1..nVars, 1..nVars}
     var dSolFP_d : domain(rank=4, idxType=int);    // {1..nFPs, 1..2, 1..nVars, 1..nVars}
 
@@ -87,7 +87,7 @@ prototype module FRMesh {
         metFP_d  = {1..nFPs, 1..2, 1..this.nDims, 1..this.nDims};
         jacFP_d  = {1..nFPs, 1..2};
         solFP_d  = {1..nFPs, 1..2, 1..this.nVars};
-        flxFP_d  = {1..nFPs, 1..this.nVars};
+        flxFP_d  = {1..nFPs, 1..2, 1..this.nVars};
         dSolFP_d = {1..nFPs, 1..2, 1..this.nVars, 1..this.nDims};
       }
     }
