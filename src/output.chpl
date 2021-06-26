@@ -46,7 +46,7 @@ prototype module Output
     const GNUPlotIOStyle = new iostyle(min_width_columns=15, showpointzero=0, showplus=1, precision=6, realfmt=2);
     //param fileRoot : string = "sol_gnuplt";
     param fileExt  : string = ".dat";
-    param nameSep  : string = "_";
+    param nameSep  : string = "-";
 
     var fileName   : string = fileRoot + nameSep + fileSulfix + fileExt;
     var outputFile : file;

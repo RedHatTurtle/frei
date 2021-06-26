@@ -1,3 +1,6 @@
-sort -gk2 sol_gnuplt_0.dat > sol_gnuplt_100_sorted.dat
-sort -gk2 sol_gnuplt_0.dat > sol_gnuplt_100_sorted.dat
+#!/bin/sh
+
+sort -gk2 sol_sp_gnuplt-0.dat                > sol_sp_gnuplt_reference.dat
+sort -gk2 sol_sp_gnuplt-$1.dat               > sol_sp_gnuplt_sorted.dat
+
 gnuplot -c plotSolution-1d.gnu
