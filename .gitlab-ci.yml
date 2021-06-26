@@ -25,6 +25,7 @@ compile_dbg:
            -o frei_dbg
            --main-module "FREI" src/FREI.chpl
                                 src/fr.chpl
+                                src/temporal.chpl
                                 src/output.chpl
                                 src/boundary.chpl
                                 src/frmesh.chpl
@@ -54,6 +55,7 @@ compile_opt:
            -o frei_opt
            --main-module "FREI" src/FREI.chpl
                                 src/fr.chpl
+                                src/temporal.chpl
                                 src/output.chpl
                                 src/boundary.chpl
                                 src/frmesh.chpl
