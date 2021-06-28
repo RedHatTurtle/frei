@@ -1,6 +1,6 @@
 [parPhysics]
-  eqSet             = 6
-  initialCondition  = 1
+  eqSet             = 1
+  initialCondition  = 11
 
 [parConvection]
   convectionSpeed = [1.0, 0.0, 0.0]

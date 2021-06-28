@@ -10,6 +10,12 @@ prototype module Input
   var eqSet            : int = EQ_EULER;
   var initialCondition : int = IC_SHOCKTUBE;
 
+  //parConvection
+  var convectionSpeed : [1..3] real = [1.0, 0.0, 0.0];
+
+  //parDiffusion
+  var diffusionCoef : real = 1.0;
+
   //parFluid
   var fGamma : real =    1.4;        // Set the ratio of heat coefficients Cp/Cv
   var fCp    : real = 1004.5;        // Set the heat coefficients at constant pressure Cp
@@ -112,10 +118,19 @@ prototype module Input
       eqSet             = tomlData!["parPhysics"]!["eqSet"]!.i : int;
       initialCondition  = tomlData!["parPhysics"]!["initialCondition"]!.i : int;
 
-      fGamma = tomlData!["parFluid"]!["fGamma"]!.re : real;
-      fCp    = tomlData!["parFluid"]!["fR"]!.re : real;
-      fCv    = tomlData!["parFluid"]!["fR"]!.re : real;
-      fR     = tomlData!["parFluid"]!["fR"]!.re : real;
+      if eqSet == EQ_CONVECTION then
+        convectionSpeed[1..3] = tomlData!["parConvection"]!["convectionSpeed"]!.arr[0..2]!.re : real;
+
+      if eqSet == EQ_DIFFUSION then
+        diffusionCoef = tomlData!["parDiffusion"]!["diffusionCoef"]!.re : real;
+
+      if (eqSet == EQ_EULER || eqSet == EQ_NAVIERSTOKES || eqSet == EQ_QUASI_1D_EULER)
+      {
+        fGamma = tomlData!["parFluid"]!["fGamma"]!.re : real;
+        fCp    = tomlData!["parFluid"]!["fCp"]!.re : real;
+        fCv    = tomlData!["parFluid"]!["fCv"]!.re : real;
+        fR     = tomlData!["parFluid"]!["fR"]!.re : real;
+      }
 
       xMin          = tomlData!["parMesh"]!["xMin"]!.re : real;
       xMax          = tomlData!["parMesh"]!["xMax"]!.re : real;
