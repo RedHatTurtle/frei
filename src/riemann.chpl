@@ -4,7 +4,7 @@ prototype module Riemann
   {
     use Input;
     import Flux.pressure_cv;
-    import Flux.invs_flux_cv;
+    import Flux.euler_flux_cv;
 
     var idxRho : int   = uL.domain.dim(0).low;           // First element is density
     var idxMom : range = uL.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
@@ -35,7 +35,7 @@ prototype module Riemann
     var smax : real = abs(v) + a;
 
     // Compute the average flux.
-    var rusanov : [1..3] real = 0.5*( invs_flux_cv(uL)[1,1..3] + invs_flux_cv(uR)[1,1..3] - smax*(uR-uL));
+    var rusanov : [1..3] real = 0.5*( euler_flux_cv(uL)[1,1..3] + euler_flux_cv(uR)[1,1..3] - smax*(uR-uL));
 
     return rusanov;
   }
@@ -44,7 +44,7 @@ prototype module Riemann
   {
     use Input;
     import Flux.pressure_cv;
-    import Flux.invs_flux_cv;
+    import Flux.euler_flux_cv;
 
     var gm1 : real = fGamma - 1.0;
     var gp1 : real = fGamma + 1.0;
@@ -110,7 +110,7 @@ prototype module Riemann
     R[3,3] = H + v*a;
 
     //Compute the average flux.
-    var roe : [1..3] real = 0.5*( invs_flux_cv(uL)[1,1..3] + invs_flux_cv(uR)[1,1..3] );
+    var roe : [1..3] real = 0.5*( euler_flux_cv(uL)[1,1..3] + euler_flux_cv(uR)[1,1..3] );
 
     //!Add the matrix dissipation term to complete the Roe flux.
     for j in 1..3 do {
@@ -124,7 +124,7 @@ prototype module Riemann
 
   proc main()
   {
-    import Flux.invs_flux_cv;
+    import Flux.euler_flux_cv;
 
     var cons1dL : [1..3] real = [1.225, 250.1160830494510, 278846.40];
     var cons2dL : [1..4] real = [1.225, 249.9637190895680, 8.728925415626780, 278846.40];
@@ -144,8 +144,8 @@ prototype module Riemann
     writeln("2D: ", cons2dR);
     writeln("3D: ", cons3dR);
     writeln();
-    writeln("Left  Flux:   ", invs_flux_cv(cons1dL));
-    writeln("Right Flux:   ", invs_flux_cv(cons1dR));
+    writeln("Left  Flux:   ", euler_flux_cv(cons1dL));
+    writeln("Right Flux:   ", euler_flux_cv(cons1dR));
     writeln("Runanov Flux: ", rusanov_1d(cons1dL, cons1dR));
     writeln("Roe     Flux: ", roe_1d(cons1dL, cons1dR));
   }

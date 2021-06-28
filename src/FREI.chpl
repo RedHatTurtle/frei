@@ -126,7 +126,7 @@ prototype module FREI
 
               // Calculate fluxes
               for meshSP in cellSPini.. #cellSPcnt do
-                flxSP[meshSP, ..] = invs_flux_cv_1d(frMesh.solSP[meshSP, ..]);
+                flxSP[meshSP, ..] = euler_flux_cv_1d(frMesh.solSP[meshSP, ..]);
 
               // Interpolate fluxes to FPs
               for cellFace in thisCell.faces.domain
