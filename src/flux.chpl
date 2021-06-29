@@ -99,6 +99,11 @@ prototype module Flux
     return cons*convectionSpeed;
   }
 
+  proc burgers_flux_cv_1d(cons : real) : real
+  {
+    return 0.5*cons**2.0;
+  }
+
   proc euler_flux_cv_1d(cons : [1..3] real) : [1..3] real
   {
     var euler_flux_cv : [cons.domain] real;
