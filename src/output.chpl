@@ -14,7 +14,7 @@ prototype module Output
 
     // Write all selected output files
     writeln("Writing output of iteration %7i".format(nIter));
-    output_gnuplot(outputDir, "sol_sp_gnuplt", stringIter, fr_mesh.xyzSP, fr_mesh.solSP);
+    output_gnuplot(outputDir, "sol_sp_gnuplt", stringIter, fr_mesh.xyzSP, fr_mesh.solSP, true, true);
     output_gnuplot(outputDir, "res_sp_gnuplt", stringIter, fr_mesh.xyzSP, fr_mesh.resSP);
     output_gnuplot(outputDir, "sol_fp1_gnuplt", stringIter, fr_mesh.xyzFP, fr_mesh.solFP[..,1,..]);
     output_gnuplot(outputDir, "sol_fp2_gnuplt", stringIter, fr_mesh.xyzFP, fr_mesh.solFP[..,2,..]);
@@ -36,7 +36,8 @@ prototype module Output
 //    call stdOut(dirName);
 //  }
 
-  proc output_gnuplot(outputDir : string, fileRoot : string, fileSulfix : string, xyz : [] real, vars : [] real)
+  proc output_gnuplot(outputDir : string, fileRoot : string, fileSulfix : string, xyz : [] real, vars : [] real,
+      flagPressure : bool = false, flagMach : bool = false)
   {
     use FileSystem;
     use IO;
@@ -60,9 +61,65 @@ prototype module Output
 
     var outputChan = outputFile.writer();
 
-    outputChan.writeln("      ID-DoF     X-Coordinate   Density         X-Momentum      Energy         Pressure       Mach");
-    for dof in xyz.domain.dim(0) do
-      outputChan.writeln(dof, xyz[dof,..], vars[dof,..], pressure_cv(vars[dof,..]), mach_cv(vars[dof,..]));
+    // Channel style:
+    //   binary = 0,
+    //   byteorder = 1,
+    //   str_style = -65280,
+    //   min_width_columns = 15,
+    //   max_width_columns = 4294967295,
+    //   max_width_characters = 4294967295,
+    //   max_width_bytes = 4294967295,
+    //   string_start = 34,
+    //   string_end = 34,
+    //   string_format = 0,
+    //   bytes_prefix = 98,
+    //   base = 0,
+    //   point_char = 46,
+    //   exponent_char = 101,
+    //   other_exponent_char = 112,
+    //   positive_char = 43,
+    //   negative_char = 45,
+    //   i_char = 105,
+    //   prefix_base = 1,
+    //   pad_char = 32,
+    //   showplus = 1,
+    //   uppercase = 0,
+    //   leftjustify = 0,
+    //   showpoint = 0,
+    //   showpointzero = 0,
+    //   precision = 6,
+    //   realfmt = 2,
+    //   complex_style = 0,
+    //   array_style = 0,
+    //   aggregate_style = 0,
+    //   tuple_style = 0
+
+    // Write header
+    outputChan.writef("      #DOF");
+    for dimIdx in xyz.domain.dim(1) do
+      outputChan.writef("    Coordinate-%i", dimIdx);
+    for varIdx in vars.domain.dim(1) do
+      outputChan.writef("      Variable-%i", varIdx);
+    if flagPressure then
+      outputChan.writef("        Pressure");
+    if flagMach then
+      outputChan.writef("            Mach");
+    outputChan.writeln();
+
+    // Write values
+    for dof in xyz.domain.dim(0)
+    {
+      outputChan.writef("%{10i}", dof);
+      for dimIdx in xyz.domain.dim(1) do
+        outputChan.writef("%{+16.6er}", xyz[dof,dimIdx]);
+      for varIdx in vars.domain.dim(1) do
+        outputChan.writef("%{+16.6er}", vars[dof,varIdx]);
+      if flagPressure then
+        outputChan.writef("%{+16.6er}", pressure_cv(vars[dof,..]));
+      if flagMach then
+        outputChan.writef("%{+16.6er}", mach_cv(vars[dof,..]));
+      outputChan.writeln();
+    }
 
     outputChan.close();
     outputFile.close();
