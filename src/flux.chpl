@@ -92,6 +92,13 @@ prototype module Flux
     return ener;
   }
 
+  proc convection_flux_cv(cons : real) : [] real
+  {
+    import Input.convectionSpeed;
+
+    return cons*convectionSpeed;
+  }
+
   proc euler_flux_cv_1d(cons : [1..3] real) : [1..3] real
   {
     var euler_flux_cv : [cons.domain] real;
