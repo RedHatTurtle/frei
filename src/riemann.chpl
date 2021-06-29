@@ -14,7 +14,7 @@ prototype module Riemann
     return upwind;
   }
 
-  proc rusanov_1d(uL : [1..3] real, uR : [1..3] real) : [1..3] real
+  proc rusanov_1d(uL : [1..3] real, uR : [1..3] real, nrm : real) : [1..3] real
   {
     use Input;
     import Flux.pressure_cv;
@@ -49,12 +49,12 @@ prototype module Riemann
     var smax : real = abs(v) + a;
 
     // Compute the average flux.
-    var rusanov : [1..3] real = 0.5*( euler_flux_cv(uL)[1,1..3] + euler_flux_cv(uR)[1,1..3] - smax*(uR-uL));
+    var rusanov : [1..3] real = 0.5*( euler_flux_cv(uL)[1,1..3] + euler_flux_cv(uR)[1,1..3] - nrm*smax*(uR-uL));
 
     return rusanov;
   }
 
-  proc roe_1d(uL : [1..3] real, uR : [1..3] real) : [1..3] real
+  proc roe_1d(uL : [1..3] real, uR : [1..3] real, nrm : real) : [1..3] real
   {
     use Input;
     import Flux.pressure_cv;
@@ -129,7 +129,7 @@ prototype module Riemann
     //!Add the matrix dissipation term to complete the Roe flux.
     for j in 1..3 do {
       for k in 1..3 do {
-        roe[j] = roe[j] - 0.5*ws[k]*dV[k]*R[j,k];
+        roe[j] = roe[j] - 0.5*nrm*ws[k]*dV[k]*R[j,k];
       }
     }
 
@@ -140,31 +140,34 @@ prototype module Riemann
   {
     import Flux.euler_flux_cv;
 
-    var cons1dL : [1..3] real = [1.225, 250.1160830494510, 278846.40];
-    var cons2dL : [1..4] real = [1.225, 249.9637190895680, 8.728925415626780, 278846.40];
-    var cons3dL : [1..5] real = [1.225, 249.9637190895680, 8.728925415626780, 0.0, 278846.40];
+    const cons1dL : [1..3] real = [1.225, 250.1160830494510, 278846.40];
+    const cons2dL : [1..4] real = [1.225, 249.9637190895680, 8.728925415626780, 278846.40];
+    const cons3dL : [1..5] real = [1.225, 249.9637190895680, 8.728925415626780, 0.0, 278846.40];
 
-    var cons1dR : [1..3] real = [1.5, 300.1160830494510, 298846.40];
-    var cons2dR : [1..4] real = [1.5, 300.9637190895680, 9.728925415626780, 298846.40];
-    var cons3dR : [1..5] real = [1.5, 300.9637190895680, 9.728925415626780, 0.0, 298846.40];
+    const cons1dR : [1..3] real = [1.5, 300.1160830494510, 298846.40];
+    const cons2dR : [1..4] real = [1.5, 300.9637190895680, 9.728925415626780, 298846.40];
+    const cons3dR : [1..5] real = [1.5, 300.9637190895680, 9.728925415626780, 0.0, 298846.40];
 
     writeln("Conserverd variables:");
     writeln("  Left:");
-    writeln("1D: ", cons1dL);
-    writeln("2D: ", cons2dL);
-    writeln("3D: ", cons3dL);
+    writeln("    1D: ", cons1dL);
+    writeln("    2D: ", cons2dL);
+    writeln("    3D: ", cons3dL);
     writeln("  Right:");
-    writeln("1D: ", cons1dR);
-    writeln("2D: ", cons2dR);
-    writeln("3D: ", cons3dR);
+    writeln("    1D: ", cons1dR);
+    writeln("    2D: ", cons2dR);
+    writeln("    3D: ", cons3dR);
     writeln();
-    writeln("Left  Flux:   ", euler_flux_cv(cons1dL));
-    writeln("Right Flux:   ", euler_flux_cv(cons1dR));
-    writeln("Runanov Flux: ", rusanov_1d(cons1dL, cons1dR));
-    writeln("Roe     Flux: ", roe_1d(cons1dL, cons1dR));
+    writeln("1D Fluxes");
+    writeln("  Left  Flux:      ", euler_flux_cv(cons1dL));
+    writeln("  Right Flux:      ", euler_flux_cv(cons1dR));
     writeln("  Normal = -1");
     writeln("    1D Upwind  Flux: ", upwind_1d(cons1dL, cons1dR, -1.0));
+    writeln("    1D Runanov Flux: ", rusanov_1d(cons1dL, cons1dR, -1.0));
+    writeln("    1D Roe     Flux: ", roe_1d(cons1dL, cons1dR, -1.0));
     writeln("  Normal = +1");
     writeln("    1D Upwind  Flux: ", upwind_1d(cons1dL, cons1dR, +1.0));
+    writeln("    1D Runanov Flux: ", rusanov_1d(cons1dL, cons1dR, +1.0));
+    writeln("    1D Roe     Flux: ", roe_1d(cons1dL, cons1dR, +1.0));
   }
 }
