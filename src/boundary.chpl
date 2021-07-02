@@ -52,7 +52,8 @@ prototype module Boundary
         select faml.bocoSubType
         {
           when BC_SUBTYPE_SYMMETRY {}
-          when BC_SUBTYPE_PERIODIC {}
+          when BC_SUBTYPE_PERIODIC do
+            ghstConsVars = periodic(hostConsVars, faml.bocoProperties);
           when BC_SUBTYPE_DIRICHLET do
             ghstConsVars = dirichlet(hostConsVars, faml.bocoProperties);
           when BC_SUBTYPE_1D_NOZZLE_CRIT_INFLOW do
@@ -285,6 +286,15 @@ prototype module Boundary
     // It seems safe to assume that the boundaries have the same orientation and lenght
     //   1. Require a specified "translation vector"
     //   2. Add to that a rotatation axis and angle
+
+    // Pre-Processing:
+    //  - Build a list of matching FPs
+
+    // 1. Get index of corresponding FP
+    // 2. Copy conserved variables - frMesh.solFP[meshFP, side, var]
+    // 3. Copy interpolated discontinuous flux - frMesh.flxFP[meshFP, side, var]
+
+    return 0.0;
   }
 
   proc main()
