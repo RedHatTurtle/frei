@@ -34,6 +34,8 @@ prototype module FRMesh {
     var jacSP : [jacSP_d] real;   // Jacobian
     var jacFP : [jacFP_d] real;   // Jacobian
 
+    var nrmFP : [xyzFP_d] real;   // Unit normal vector from left (1) to right (2) cell
+
     var oldSolSP : [ solSP_d] real;     // Backup of the solution at the beginning of residue calculation
     var    solSP : [ solSP_d] real;     // Conserved variables at SPs
     var    solFP : [ solFP_d] real;     // Conserved variables at FPs (1-Left / 2-right)
@@ -234,17 +236,50 @@ prototype module FRMesh {
         ///   Points coordinates   ///
         //////////////////////////////
 
-        // Calculate the Jacobian at SPs
+        // Calculate the coordinates of the SPs
         for sp in 1.. #cellSPidx[cell, 2] do
           this.xyzSP[cellSPidx[cell, 1]+sp-1, 1] = coefficients[1,1]+xyzStdSPs[1,sp]*coefficients[1,2];
 
-        // Calculate the Jacobian at FPs
+        // Calculate the coordinates of the FPs
         for face in this.cellList[cell].faces do
           for fp in faceFPidx[face,1]..#faceFPidx[face,2] do
               if this.cellList[cell].faces[1] == face then
                 this.xyzFP[fp, 1] = coefficients[1,1]-1*coefficients[1,2];
               else if this.cellList[cell].faces[2] == face then
                 this.xyzFP[fp, 1] = coefficients[1,1]+1*coefficients[1,2];
+
+        //////////////////////
+        ///   FP normals   ///
+        //////////////////////
+
+        // Iterate through this cell's faces to see if we are the left cell of any face
+        for cellFace in this.cellList[cell].faces.domain
+        {
+          var meshFace : int = this.cellList[cell].faces[cellFace];
+
+          if this.faceList[meshFace].cells[1] == cell
+          {
+            // Get the face normal from this cell's metric terms
+            for fp in faceFPidx[meshFace,1].. #faceFPidx[meshFace,2] do
+              select this.cellList[cell].elemTopo()
+              {
+                when TOPO_LINE do
+                  select cellFace
+                  {
+                    when 1 do
+                      this.nrmFP[fp, 1] = -1.0;
+                    when 2 do
+                      this.nrmFP[fp, 1] = +1.0;
+                  }
+                when TOPO_TRIA {}
+                when TOPO_QUAD {}
+                when TOPO_TETR {}
+                when TOPO_PYRA {}
+                when TOPO_PRIS {}
+                when TOPO_HEXA {}
+              }
+          }
+        }
       }
     }
   }
