@@ -92,11 +92,19 @@ prototype module Flux
     return ener;
   }
 
-  proc convection_flux_cv(cons : real) : [] real
+  proc convection_flux_cv_1d(cons : real) : real
   {
     import Input.convectionSpeed;
 
-    return cons*convectionSpeed;
+    return cons*convectionSpeed[1];
+  }
+
+  proc convection_flux_cv(cons : real) : [] real
+  {
+    import Input.convectionSpeed;
+    import Input.nEqs;
+
+    return cons*convectionSpeed[1..nEqs];
   }
 
   proc burgers_flux_cv_1d(cons : real) : real
