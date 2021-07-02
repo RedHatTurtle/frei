@@ -183,13 +183,18 @@ prototype module Input
     nPoints = nCells + 1;
 
     select eqSet {
-      when EQ_CONVECTION   do nEqs=1;
-      when EQ_INVBURGERS   do nEqs=1;
-      when EQ_DIFFUSION    do nEqs=1;
-      when EQ_LINBURGERS   do nEqs=1;
-      when EQ_VISBURGERS   do nEqs=1;
-      when EQ_EULER        do nEqs=3;
-      when EQ_NAVIERSTOKES do nEqs=3;
+      when EQ_CONVECTION     do nEqs=nDims;
+      when EQ_INVBURGERS     do nEqs=1;
+      when EQ_DIFFUSION      do nEqs=nDims;
+      when EQ_LINBURGERS     do nEqs=nDims;
+      when EQ_VISBURGERS     do nEqs=1;
+      when EQ_EULER          do nEqs=nDims+2;
+      when EQ_NAVIERSTOKES   do nEqs=nDims+2;
+      when EQ_QUASI_1D_EULER do nEqs=nDims+2;
+      otherwise
+      {
+        writeln("Undefined number or equations \"nEqs\"");
+      }
     }
   }
 }
