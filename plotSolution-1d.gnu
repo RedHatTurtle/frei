@@ -44,30 +44,30 @@ set y2label "Density Residual"
 set title "Density plot - Reference vs Numeric" font "Cantarell,60"
 set output "gnuplot-density.svg"
 plot "sol_sp_gnuplt_reference.dat"  using 2:3 with lines       ls  1 axis x1y1 title "Reference", \
-     "sol_sp_gnuplt_sorted.dat"     using 2:3 with linespoints ls 10 axis x1y1 title "Solution @ SP"
+     "sol_sp_gnuplt_sorted.dat"     using 2:3 with linespoints ls 10 axis x1y1 title "Solution at SP"
 
 set ylabel "Momentum"
 set y2label "Momentum Residual"
 set title "Momentum plot - Reference vs Numeric"
 set output "gnuplot-momentum.svg"
 plot "sol_sp_gnuplt_reference.dat"  using 2:4 with lines       ls  1 axis x1y1 title "Reference", \
-     "sol_sp_gnuplt_sorted.dat"     using 2:4 with linespoints ls 10 axis x1y1 title "Solution @ SP"
+     "sol_sp_gnuplt_sorted.dat"     using 2:4 with linespoints ls 10 axis x1y1 title "Solution at SP"
 
 set ylabel "Energy"
 set y2label "Energy Residual"
 set title "Energy plot - Reference vs Numeric"
 set output "gnuplot-energy.svg"
 plot "sol_sp_gnuplt_reference.dat"  using 2:5 with lines       ls  1 axis x1y1 title "Reference", \
-     "sol_sp_gnuplt_sorted.dat"     using 2:5 with linespoints ls 10 axis x1y1 title "Solution @ SP"
+     "sol_sp_gnuplt_sorted.dat"     using 2:5 with linespoints ls 10 axis x1y1 title "Solution at SP"
 
 set ylabel "Pressure"
 set title "Pressure plot - Reference vs Numeric"
 set output "gnuplot-pressure.svg"
 plot "sol_sp_gnuplt_reference.dat"  using 2:6 with lines       ls  1 axis x1y1 title "Reference", \
-     "sol_sp_gnuplt_sorted.dat"     using 2:6 with linespoints ls 10 axis x1y1 title "Solution @ SP"
+     "sol_sp_gnuplt_sorted.dat"     using 2:6 with linespoints ls 10 axis x1y1 title "Solution at SP"
 
 set ylabel "Mach"
 set title "Mach plot - Reference vs Numeric"
 set output "gnuplot-mach.svg"
 plot "sol_sp_gnuplt_reference.dat"  using 2:7 with lines       ls  1 axis x1y1 title "Reference", \
-     "sol_sp_gnuplt_sorted.dat"     using 2:7 with linespoints ls 10 axis x1y1 title "Solution @ SP"
+     "sol_sp_gnuplt_sorted.dat"     using 2:7 with linespoints ls 10 axis x1y1 title "Solution at SP"
