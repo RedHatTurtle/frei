@@ -55,8 +55,14 @@ prototype module FREI
 
     // 3. Read / define mesh
     var gmesh2 = new unmanaged gmesh2_c(nNodes=Input.nCells+1, nElements=Input.nCells+2, nFamilies=Input.nFaml);
-    //gmesh2.random1D(Input.xMin, Input.xMax);
-    gmesh2.uniform1D(Input.xMin, Input.xMax);
+
+    select Input.meshingScheme
+    {
+      when MESH_UNIFORM do
+        gmesh2.uniform1D(Input.xMin, Input.xMax);
+      when MESH_RANDOM do
+        gmesh2.random1D(Input.xMin, Input.xMax);
+    }
 
     // 5. Convert input mesh to solver mesh
     var frMesh = new unmanaged fr_mesh_c(nDims=1, nVars=3, solOrder=Input.iOrder);
