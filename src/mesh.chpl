@@ -365,7 +365,7 @@ prototype module Mesh
           otherwise {}
         }
 
-        for face in 1..elem_faces(elem_topology(this.cellList[cell].elemType))
+        for face in this.cellList[cell].faces.domain
         {
           // Check if this face is already in the map
           if faceMap_d.contains(sort_tuple(faceNodes[face]))
