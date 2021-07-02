@@ -5,39 +5,30 @@
 [parConvection]
   convectionSpeed = [1.0, 0.0, 0.0]
 
-[parDiffusion]
-  diffusionCoef = 1.0
-
-[parFluid]
-  fGamma =    1.4
-  fCp    = 1004.5
-  fCv    =  717.5
-  fR     =  287.0
-
 [parMesh]
   xMin          =  0.0
-  xMax          =  1.0
-  nCells        = 100
-  meshingScheme = 1
+  xMax          =  2.0
+  nCells        = 20
+  meshingScheme = 2
 
 [parSpatial]
   spatialScheme     = 1
   dissipationScheme = 2
 
 [parFR]
-  iOrder   = 3
-  minOrder = 2
-  maxOrder = 4
-  distSP   = 0
+  iOrder   = 2
+  minOrder = 1
+  maxOrder = 9
+  distSP   = 2
   frScheme = 1
 
 [parTime]
-  timeScheme = 1
-  timeStep   = 0.0001
+  timeScheme = 4
+  timeStep   = 0.001
 
 [parOutput]
-  ioIter  = 1
-  maxIter = 10
+  ioIter  = 100
+  maxIter = 1000
   ioTime  = 0.00
   maxTime = 1.00
 
@@ -65,14 +56,14 @@
 [parFamilies.2]
   familyName = "left"
   familyDimension = 0
-  familyType = 1
-  familySubType = 12
-  familyParameters = [1.225, 0.0, 101625.0]
+  familyType = 9
+  familySubType = 92
+  familyParameters = [+2.0, 0.0, 0.0]
 
 [parFamilies.3]
   familyName = "right"
   familyDimension = 0
-  familyType = 2
-  familySubType = 22
-  familyParameters = [0.97]
+  familyType = 9
+  familySubType = 92
+  familyParameters = [-2.0, 0.0, 0.0]
 
