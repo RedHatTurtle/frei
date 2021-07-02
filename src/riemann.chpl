@@ -1,5 +1,19 @@
 prototype module Riemann
 {
+  proc upwind_1d(uL : [] real, uR : [] real, nrm : real) : [] real
+  {
+    use Flux;
+
+    var upwind : [uL.domain] real;
+
+    if nrm < 0 then
+      upwind = convection_flux_cv_1d(uR);
+    else
+      upwind = convection_flux_cv_1d(uL);
+
+    return upwind;
+  }
+
   proc rusanov_1d(uL : [1..3] real, uR : [1..3] real) : [1..3] real
   {
     use Input;
@@ -148,5 +162,9 @@ prototype module Riemann
     writeln("Right Flux:   ", euler_flux_cv(cons1dR));
     writeln("Runanov Flux: ", rusanov_1d(cons1dL, cons1dR));
     writeln("Roe     Flux: ", roe_1d(cons1dL, cons1dR));
+    writeln("  Normal = -1");
+    writeln("    1D Upwind  Flux: ", upwind_1d(cons1dL, cons1dR, -1.0));
+    writeln("  Normal = +1");
+    writeln("    1D Upwind  Flux: ", upwind_1d(cons1dL, cons1dR, +1.0));
   }
 }
