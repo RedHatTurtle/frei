@@ -13,9 +13,10 @@ prototype module Init
   param exitArea   : real = 0.4;
   param throatArea : real = 0.2;
 
-  proc initial_condition(IC : int, const ref xyz : [] real) : [] real
+  proc initial_condition(IC : int, xyz : [] real) : [] real
   {
-    var sol : [xyz.domain.dim(0), 1..3] real;
+    var sol : [xyz.domain.dim(0), 1..Input.nEqs] real;
+
     select IC
     {
       when IC_SHOCKTUBE
@@ -280,6 +281,7 @@ prototype module Init
 
     writeln();
     writeln("1D Shock Tube");
+    Input.nEqs = 3;
     sol = initial_condition(IC_SHOCKTUBE, xyz);
     writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3]");
     for i in xyz.domain.dim(0) do
@@ -288,6 +290,7 @@ prototype module Init
 
     writeln();
     writeln("1D Nozzle Flow - Subsonic");
+    Input.nEqs = 3;
     sol = initial_condition(IC_1D_NOZZLE_SUBSONIC, xyz);
     writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3],   Pressure,       Mach");
     for i in xyz.domain.dim(0) do
@@ -296,6 +299,7 @@ prototype module Init
 
     writeln();
     writeln("1D Nozzle Flow - Smooth Transonic");
+    Input.nEqs = 3;
     sol = initial_condition(IC_1D_NOZZLE_SMOOTH_TRANSONIC, xyz);
     writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3],   Pressure,       Mach");
     for i in xyz.domain.dim(0) do
@@ -304,6 +308,7 @@ prototype module Init
 
     writeln();
     writeln("1D Nozzle Flow - Shocked Transonic");
+    Input.nEqs = 3;
     sol = initial_condition(IC_1D_NOZZLE_SHOCKED_TRANSONIC, xyz);
     writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3],   Pressure,       Mach");
     for i in xyz.domain.dim(0) do
