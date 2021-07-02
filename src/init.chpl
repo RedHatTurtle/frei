@@ -19,6 +19,20 @@ prototype module Init
 
     select IC
     {
+      when IC_SINUSOIDAL do
+        for i in xyz.domain.dim(0) do
+          sol[i,1] = sin(xyz[i,1]*pi);
+      when IC_GAUSSPULSE do
+        for i in xyz.domain.dim(0)
+        {
+          var a : real = 1/4;
+          var b : real = 3/4;
+
+          if (xyz[i,1] > a && xyz[i,1] < b) then
+            sol[i,1] = exp(1/((xyz[i,1]-a)*(xyz[i,1]-b))+(abs(a-b)/2)**(-2.0));
+          else
+            sol[i,1] = 0.0;;
+        }
       when IC_SHOCKTUBE
       {
         var xMin : real = 0.0;
