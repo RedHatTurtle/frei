@@ -132,7 +132,17 @@ prototype module FREI
 
               // Calculate fluxes
               for meshSP in cellSPini.. #cellSPcnt do
-                flxSP[meshSP, ..] = euler_flux_cv_1d(frMesh.solSP[meshSP, ..]);
+                select Input.eqSet
+                {
+                  when EQ_CONVECTION do
+                    flxSP[meshSP, ..] = convection_flux_cv_1d(frMesh.solSP[meshSP, ..]);
+                  when EQ_INVBURGERS do
+                    flxSP[meshSP, ..] = burgers_flux_cv_1d(frMesh.solSP[meshSP, ..]);
+                  when EQ_EULER do
+                    flxSP[meshSP, ..] = euler_flux_cv_1d(frMesh.solSP[meshSP, ..]);
+                  when EQ_QUASI_1D_EULER do
+                    flxSP[meshSP, ..] = euler_flux_cv_1d(frMesh.solSP[meshSP, ..]);
+                }
 
               // Interpolate fluxes to FPs
               for cellFace in thisCell.faces.domain
@@ -235,9 +245,19 @@ prototype module FREI
                   // position in the cell
                   var cellFP = cellFace;
 
-                  // Calculate the flux jump = numerical_flux - local_flux
-                  var jump : [1..frMesh.nVars] real = roe_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..])
-                                                     -frMesh.flxFP[meshFP, faceSide, ..];
+                  // Calculate the flux jump = -1*(local_flux) + numerical_flux
+                  var jump : [1..frMesh.nVars] real = -frMesh.flxFP[meshFP, faceSide, ..];
+                  select Input.eqSet
+                  {
+                    when EQ_CONVECTION do
+                      jump += upwind_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..], frMesh.nrmFP[meshFP, 1]);
+                    when EQ_INVBURGERS do
+                      jump += upwind_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..], frMesh.nrmFP[meshFP, 1]);
+                    when EQ_QUASI_1D_EULER do
+                      jump += roe_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..]);
+                    when EQ_EULER do
+                      jump += roe_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..]);
+                  }
 
                   // Convert fluxes from physical to computational domain.
                   // Multiply the flux vector by the inverse Jacobian matrix and by the Jacobian determiant
