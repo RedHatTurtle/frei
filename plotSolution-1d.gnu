@@ -9,6 +9,7 @@ set colorsequence default
 #set key outside
 set key bottom right
 set key font "Cantarell,36"
+set key autotitle columnhead
 
 set grid xtics mxtics ytics y2tics
 

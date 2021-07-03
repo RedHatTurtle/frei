@@ -95,7 +95,7 @@ prototype module Output
     //   tuple_style = 0
 
     // Write header
-    outputChan.writef("      #DOF");
+    outputChan.writef("       DOF");
     for dimIdx in xyz.domain.dim(1) do
       outputChan.writef("    Coordinate-%i", dimIdx);
     for varIdx in vars.domain.dim(1) do
