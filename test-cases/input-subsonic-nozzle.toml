@@ -21,17 +21,17 @@
 [parFR]
   iOrder   = 2
   minOrder = 1
-  maxOrder = 9
+  maxOrder = 5
   distSP   = 2
   frScheme = 1
 
 [parTime]
-  timeScheme = 4
-  timeStep   = 0.0001
+  timeScheme = 2
+  timeStep   = 0.001
 
 [parOutput]
-  ioIter  = 1
-  maxIter = 10
+  ioIter  = 100
+  maxIter = 10000
   ioTime  = 0.00
   maxTime = 1.00
 
