@@ -2,6 +2,7 @@ prototype module Output
 {
   import FRMesh.fr_mesh_c;
 
+  // Select the adequate output routines that need to be run
   proc iterOutput(nIter : int, fr_mesh : fr_mesh_c)
   {
     use IO;

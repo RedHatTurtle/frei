@@ -71,12 +71,12 @@ prototype module FREI
     frMesh.allocate_fr_vars();      // Allocate SP and FP solution/flux/residue arrays
     frMesh.set_points_locations();  // Calculate coordinate trasnformations and point coordinates
 
+    // Save mesh file in internal format
+
     // 4. Initialize the solver, pre calculate stuff
     init_sp2fpInterp(Input.minOrder, Input.maxOrder, frMesh.cellTopos);
     init_sp2spDeriv(Input.minOrder, Input.maxOrder, frMesh.cellTopos);
     init_correction(Input.minOrder+1, Input.maxOrder+1, frMesh.cellTopos);
-
-    // Save mesh file in internal format
 
     // Initialize solution
     frMesh.solSP = initial_condition(Input.initialCondition, frMesh.xyzSP);
@@ -241,7 +241,7 @@ prototype module FREI
 
                 for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
                 {
-                  // For 1D each face has 1 FP therefore the FP and the Face have the same index relative to it's
+                  // For 1D each face has 1 FP therefore the FP and the Face have the same index Relative to it's
                   // position in the cell
                   var cellFP = cellFace;
 
@@ -305,11 +305,11 @@ prototype module FREI
 
       // Save restart file
 
-      // Output solution state
+      // Check if we should write the solution this iteration
       if iteration % ioIter == 0 then
         iterOutput(iteration, frMesh);
 
-      // Check input changes
+      // Check if input file changed
     }
 
     // Output the final solution
