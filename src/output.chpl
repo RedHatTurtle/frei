@@ -1,6 +1,43 @@
 prototype module Output
 {
+  use IO;
   import FRMesh.fr_mesh_c;
+
+  proc log_convergence(convergenceLogChan : channel, iteration : int, lInfDelta : [] real, l2Delta : [] real, l1Delta : [] real,
+                       lInfRelativeDelta : [] real, l2RelativeDelta : [] real, l1RelativeDelta : [] real)
+  {
+    use IO;
+
+    const header : [1..6] string = ["Linf(ΔSol[%1i])",   "L2(ΔSol[%1i])",   "L1(ΔSol[%1i])",
+                                    "Linf(%%ΔSol[%1i])", "L2(%%ΔSol[%1i])", "L1(%%ΔSol[%1i])"];
+
+    // Write header on first iteration
+    if iteration == 1
+    {
+      convergenceLogChan.writef("%10s", "Iteration");
+      for metric in header do
+        for varIdx in l2Delta.domain do
+          convergenceLogChan.writef("%16s", metric.format(varIdx));
+      convergenceLogChan.writef("\n");
+    }
+
+    convergenceLogChan.writef("%10i", iteration);
+    for varIdx in l2Delta.domain do
+      convergenceLogChan.writef("%{ 16.8er}", lInfDelta[varIdx]);
+    for varIdx in l2Delta.domain do
+      convergenceLogChan.writef("%{ 16.8er}", l2Delta[varIdx]);
+    for varIdx in l2Delta.domain do
+      convergenceLogChan.writef("%{ 16.8er}", l1Delta[varIdx]);
+    for varIdx in l2Delta.domain do
+      convergenceLogChan.writef("%{ 16.8er}", lInfRelativeDelta[varIdx]);
+    for varIdx in l2Delta.domain do
+      convergenceLogChan.writef("%{ 16.8er}", l2RelativeDelta[varIdx]);
+    for varIdx in l2Delta.domain do
+      convergenceLogChan.writef("%{ 16.8er}", l1RelativeDelta[varIdx]);
+    convergenceLogChan.writef("]\n");
+
+    convergenceLogChan.flush();
+  }
 
   // Select the adequate output routines that need to be run
   proc iterOutput(nIter : int, fr_mesh : fr_mesh_c)
@@ -14,7 +51,6 @@ prototype module Output
     // Create directory for this iteration output
 
     // Write all selected output files
-    writeln("Writing output of iteration %7i".format(nIter));
     output_gnuplot(outputDir, "sol_sp_gnuplt", stringIter, fr_mesh.xyzSP, fr_mesh.solSP, true, true);
     output_gnuplot(outputDir, "res_sp_gnuplt", stringIter, fr_mesh.xyzSP, fr_mesh.resSP);
     output_gnuplot(outputDir, "sol_fp1_gnuplt", stringIter, fr_mesh.xyzFP, fr_mesh.solFP[..,1,..]);
