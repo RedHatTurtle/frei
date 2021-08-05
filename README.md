@@ -107,6 +107,7 @@ References:
 
 ## Common Abbreviations
 
+node, line, tria, quad, tetr, pyra, pris, hexa : Mesh element geometries
 node, edge, face, cell : Mesh Elements
 boco, bc : Boundary Condition
 faml : Family
