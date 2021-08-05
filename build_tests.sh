@@ -82,7 +82,7 @@ chpl -o init_tests                                 \
 echo "done"
 echo
 echo "Building Boundary Tests:"
-chpl -o fr_tests                                   \
+chpl -o boundary_tests                             \
      --warnings                                    \
      --warn-unstable                               \
      --main-module Boundary src/boundary.chpl src/init.chpl src/flux.chpl src/mesh.chpl src/gmesh.chpl src/config.chpl src/input.chpl src/parameters.chpl |
@@ -103,6 +103,7 @@ echo "Running Tests"
 ./polynomials_tests   &> polynomials_tests.log
 ./quadrature_tests    &> quadrature_tests.log
 ./interpolation_tests &> interpolation_tests.log
+
 ./correction_tests    &> correction_tests.log
 
 ./gmesh_tests         &> gmesh_tests.log
