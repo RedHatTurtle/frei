@@ -6,6 +6,7 @@ prototype module FREI
 
   proc main() {
     use IO;
+    use Time;
     use Parameters.ParamInput;
     use Config;
     use Input;
@@ -26,6 +27,18 @@ prototype module FREI
     use LinearAlgebra;
     use SourceTerm;
     use Temporal_Methods;
+
+    // Timing variables
+    var initTime : real = 0.0;
+    var iterTime : real = 0.0;
+    var srcTermTime : real = 0.0;
+    var dscFluxTime : real = 0.0;
+    var cntFluxTime : real = 0.0;
+    var timeStepTime : real = 0.0;
+    var stabilizeTime : real = 0.0;
+    var stopwatch : Timer;
+    var iterTimer : Timer;
+    stopwatch.start();
 
     var iteration : int = 0;
 
@@ -141,11 +154,16 @@ prototype module FREI
     }
     var convergenceLogChan = convergenceLog.writer();
 
-    writeln("Start Iterating");
+    initTime = stopwatch.elapsed(TimeUnits.milliseconds);
+    writef("Stopwatch - Init    : %10.2dr ms\n", initTime);
+    writef("Start Iterating");
 
     // Solve flow
+    iterTimer.start();
     for iteration in 1..Input.maxIter
     {
+      iterTimer.clear();
+
       // Zero out residue
       frMesh.resSP = 0.0;
 
@@ -165,15 +183,21 @@ prototype module FREI
 
           // Component 1: Source Term
           {
+            stopwatch.clear();
+
             for spIdx in frMesh.resSP.domain.dim(0) do
               frMesh.resSP[spIdx..#1, ..] = -source_term(frMesh.xyzSP[spIdx..#1, ..],
                                                          frMesh.solSP[spIdx..#1, ..],
                                                          Input.eqSet                )
                                             * frMesh.jacSP[spIdx];
+
+            srcTermTime += stopwatch.elapsed(TimeUnits.milliseconds);
           }
 
           // Component 2: Discontinuous Flux
           {
+            stopwatch.clear();
+
             // Calculate flux at SPs and it´s divergence
             for cellIdx in frMesh.cellList.domain
             {
@@ -227,10 +251,13 @@ prototype module FREI
                                                flxSP[cellSPini..#cellSPcnt,..]                             );
               }
             }
+            dscFluxTime += stopwatch.elapsed(TimeUnits.milliseconds);
           }
 
           // Component 3: Continuous Flux
           {
+            stopwatch.clear();
+
             // Interpolate solution to FPs
             for cellIdx in frMesh.cellList.domain
             {
@@ -326,11 +353,14 @@ prototype module FREI
                 }
               }
             }
+            cntFluxTime += stopwatch.elapsed(TimeUnits.milliseconds);
           }
         }
 
         // Advance RK Stage
         {
+          stopwatch.clear();
+
           // Loop through cells
           for cellIdx in frMesh.cellList.domain
           {
@@ -353,10 +383,13 @@ prototype module FREI
                                                                     frMesh.resSP[cellSPini.. #cellSPcnt, ..],
                                                                     dt, stage, Input.timeScheme);
           }
+          timeStepTime += stopwatch.elapsed(TimeUnits.milliseconds);
         }
 
         // Stabilize Solution
         {
+          stopwatch.clear();
+
           // Loop through cells
           for cellIdx in frMesh.cellList.domain
           {
@@ -376,6 +409,8 @@ prototype module FREI
                                                                                   projDegree = stableDegree);
             }
           }
+
+          stabilizeTime += stopwatch.elapsed(TimeUnits.milliseconds);
         }
       }
 
@@ -411,7 +446,8 @@ prototype module FREI
         }
 
         // Output summarized convergence metrics to stdOut
-        writef("Iteration %9i | Log10(L2(ΔSol)/L2(ΔSol0)) = %{ 7.4dr}", iteration, log10(norm(l2Delta)/norm(l2DeltaIni)));
+        writef("Iteration %9i | Time %{ 10.2dr}ms | Log10(L2(ΔSol)/L2(ΔSol0)) = %{ 7.4dr}", iteration,
+            iterTimer.elapsed(TimeUnits.milliseconds), log10(norm(l2Delta)/norm(l2DeltaIni)));
 
         // Output full state to log file
         log_convergence(convergenceLogChan, iteration, l1Delta, l2Delta, lInfDelta, l1RelativeDelta, l2RelativeDelta, lInfRelativeDelta);
@@ -431,6 +467,15 @@ prototype module FREI
 
     // Output the final solution
     //iterOutput(iteration, frMesh);
+
+    writeln();
+    writef("Time splits:\n");
+    writef("  Stopwatch - Init    : %11.2dr ms\n", initTime);
+    writef("  Stopwatch - Src Term: %11.2dr ms\n", srcTermTime);
+    writef("  Stopwatch - Dsc Flux: %11.2dr ms\n", dscFluxTime);
+    writef("  Stopwatch - Cnt Flux: %11.2dr ms\n", cntFluxTime);
+    writef("  Stopwatch - Stabiliz: %11.2dr ms\n", stabilizeTime);
+    writef("  Stopwatch - Timestep: %11.2dr ms\n", timeStepTime);
 
     writeln();
     writeln("Fin");
