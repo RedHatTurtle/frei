@@ -36,6 +36,7 @@ chpl -o frei_dbg                                 \
                           src/riemann.chpl       \
                           src/flux.chpl          \
                           src/correction.chpl    \
+                          src/limiter.chpl       \
                           src/projection.chpl    \
                           src/quadrature.chpl    \
                           src/interpolation.chpl \
@@ -79,6 +80,7 @@ chpl -o frei_opt                                 \
                           src/riemann.chpl       \
                           src/flux.chpl          \
                           src/correction.chpl    \
+                          src/limiter.chpl       \
                           src/projection.chpl    \
                           src/quadrature.chpl    \
                           src/interpolation.chpl \

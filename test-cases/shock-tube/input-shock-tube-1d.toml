@@ -1,0 +1,64 @@
+[parPhysics]
+  eqSet             =  6
+
+[parFluid]
+  fGamma =    1.4
+  fCp    = 1004.5
+  fCv    =  717.5
+  fR     =  287.0
+
+[parMesh]
+  xMin          =  0.0
+  xMax          =  1.0
+  nCells        = 200
+  meshingScheme = 1
+
+[parSpatial]
+  spatialScheme     = 1
+  dissipationScheme = 2
+
+[parFR]
+  iOrder   = 2
+  minOrder = 0
+  maxOrder = 3
+  distSP   = 2
+  frScheme = 1
+
+[parTime]
+  timeScheme = 3
+  timeStep   = 0.0001
+
+[parOutput]
+  ioIter  =   100
+  maxIter =  1000
+  ioTime  = 0.00
+  maxTime = 1.00
+
+[parRef]
+  rhoRef  = 1.0
+  pRef    = 1.0
+
+[parFamilies]
+  nFamilies = 3
+
+[parFamilies.1]
+  familyName = "flow"
+  familyDimension = 1
+  familyType = 0
+  familySubType = 61
+  familyParameters = [1.0, 1.0, 0.1, 0.1]
+
+[parFamilies.2]
+  familyName = "left"
+  familyDimension = 0
+  familyType = 9
+  familySubType = 93
+  familyParameters = [1.0, 0.0, 2.5]
+
+[parFamilies.3]
+  familyName = "right"
+  familyDimension = 0
+  familyType = 9
+  familySubType = 93
+  familyParameters = [0.1, 0.0, 0.25]
+

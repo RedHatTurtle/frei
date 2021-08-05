@@ -112,6 +112,19 @@ chpl -o boundary_tests                             \
     tee boundary_build.log
 echo "done"
 echo
+echo "Building Limiter Tests:"
+chpl -o limiter_tests                              \
+     --warnings                                    \
+     --warn-unstable                               \
+     -I/usr/include                                \
+     -L/usr/lib64 -lcblas                          \
+     -I/usr/include                                \
+     -L/usr/lib64 -lgfortran                       \
+     -L/usr/lib64 -llapacke -llapack -lcblas       \
+     --main-module Limiter src/limiter.chpl src/projection.chpl src/quadrature.chpl src/polynomials.chpl src/parameters.chpl src/testing.chpl |
+    tee limiter_build.log
+echo "done"
+echo
 echo "Building FR Tests:"
 chpl -o fr_tests                                   \
      --warnings                                    \
@@ -139,6 +152,7 @@ echo "Running Tests"
 
 ./init_tests          &> init_tests.log
 ./boundary_tests      &> boundary_tests.log
+./limiter_tests       &> limiter_tests.log
 
 ./fr_tests            &> fr_tests.log
 echo "Done"

@@ -34,6 +34,7 @@ compile_dbg:
                                 src/riemann.chpl
                                 src/flux.chpl
                                 src/correction.chpl
+                                src/limiter.chpl
                                 src/projection.chpl
                                 src/quadrature.chpl
                                 src/interpolation.chpl
@@ -66,6 +67,7 @@ compile_opt:
                                 src/riemann.chpl
                                 src/flux.chpl
                                 src/correction.chpl
+                                src/limiter.chpl
                                 src/projection.chpl
                                 src/quadrature.chpl
                                 src/interpolation.chpl

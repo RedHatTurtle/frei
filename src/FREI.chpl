@@ -21,6 +21,7 @@ prototype module FREI
     use Init;
     use Quadrature;
     use Projection;
+    use Limiter;
     use FR;
     use LinearAlgebra;
     use SourceTerm;
@@ -102,6 +103,29 @@ prototype module FREI
 
     // Output initial state
     iterOutput(iteration, frMesh);
+
+    // Stabilize Solution
+    {
+      // Loop through cells
+      for cellIdx in frMesh.cellList.domain
+      {
+        var cellSPini = frMesh.cellSPidx[cellIdx, 1];
+        var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
+
+        for varIdx in 1..frMesh.nVars
+        {
+          var stableDegree : int = troubled_cell_marker(solPoly = frMesh.solSP[cellSPini.. #cellSPcnt, varIdx],
+                                                        cellTopo = frMesh.cellList[cellIdx].elemTopo(),
+                                                        solDegree = iOrder);
+
+          if stableDegree < iOrder then
+            frMesh.solSP[cellSPini.. #cellSPcnt, varIdx] = projection_limiter(solPoly = frMesh.solSP[cellSPini.. #cellSPcnt, varIdx],
+                                                                              cellTopo = frMesh.cellList[cellIdx].elemTopo(),
+                                                                              solDegree = iOrder,
+                                                                              projDegree = stableDegree);
+        }
+      }
+    }
 
     // Save restart file
 
@@ -328,6 +352,29 @@ prototype module FREI
                                                                     frMesh.solSP[cellSPini.. #cellSPcnt, ..],
                                                                     frMesh.resSP[cellSPini.. #cellSPcnt, ..],
                                                                     dt, stage, Input.timeScheme);
+          }
+        }
+
+        // Stabilize Solution
+        {
+          // Loop through cells
+          for cellIdx in frMesh.cellList.domain
+          {
+            var cellSPini = frMesh.cellSPidx[cellIdx, 1];
+            var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
+
+            for varIdx in 1..frMesh.nVars
+            {
+              var stableDegree : int = troubled_cell_marker(solPoly = frMesh.solSP[cellSPini.. #cellSPcnt, varIdx],
+                                                            cellTopo = frMesh.cellList[cellIdx].elemTopo(),
+                                                            solDegree = iOrder);
+
+              if stableDegree < iOrder then
+                frMesh.solSP[cellSPini.. #cellSPcnt, varIdx] = projection_limiter(solPoly = frMesh.solSP[cellSPini.. #cellSPcnt, varIdx],
+                                                                                  cellTopo = frMesh.cellList[cellIdx].elemTopo(),
+                                                                                  solDegree = iOrder,
+                                                                                  projDegree = stableDegree);
+            }
           }
         }
       }
