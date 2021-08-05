@@ -28,7 +28,8 @@ prototype module Boundary
           when BC_SUBTYPE_GENERIC_OUTFLOW {}
           when BC_SUBTYPE_SUB_OUTFLOW do
             ghstConsVars = sub_outflow(hostConsVars, faml.bocoProperties);
-          when BC_SUBTYPE_SUP_OUTFLOW {}
+          when BC_SUBTYPE_SUP_OUTFLOW do
+            ghstConsVars = sup_outflow(hostConsVars, faml.bocoProperties);
           when BC_SUBTYPE_MDOT_OUTFLOW {}
         }
       when BC_TYPE_OPENING do

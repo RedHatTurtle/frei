@@ -205,6 +205,10 @@ prototype module Init
           }
         }
       }
+      when IC_RINGLEB
+      {
+
+      }
     }
 
     return flowVars;

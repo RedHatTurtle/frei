@@ -42,6 +42,9 @@ prototype module Parameters
     // 1D Euler
     param IC_SHOCKTUBE       : int = 61;    // Shock Tube
 
+    // 2D Euler
+    param IC_RINGLEB         : int = 62;
+
     // Quasi 1D Nozzle
     param IC_1D_NOZZLE_SUBSONIC          : int = 81;    // Quasi 1D Nozzle
     param IC_1D_NOZZLE_SMOOTH_TRANSONIC  : int = 82;    // Quasi 1D Nozzle
