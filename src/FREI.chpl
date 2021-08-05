@@ -5,6 +5,7 @@ prototype module FREI
   config const inputFile : string = "input.toml";
 
   proc main() {
+    use IO;
     use Parameters.ParamInput;
     use Config;
     use Input;
@@ -24,7 +25,6 @@ prototype module FREI
     use LinearAlgebra;
     use SourceTerm;
     use Temporal_Methods;
-    use IO;
 
     var iteration : int = 0;
 
@@ -84,12 +84,26 @@ prototype module FREI
     init_correction(Input.minOrder+1, Input.maxOrder+1, frMesh.cellTopos);
 
     // Initialize solution
-    frMesh.solSP = initial_condition(Input.initialCondition, frMesh.xyzSP);
+    for cellIdx in frMesh.cellList.domain
+    {
+      ref familyIdx = frMesh.cellList[cellIdx].family;
 
-    // Save restart file
+      ref familyType = frMesh.famlList[familyIdx].bocoType;
+      ref familySubType = frMesh.famlList[familyIdx].bocoSubType;
+      ref familyParameters = frMesh.famlList[familyIdx].bocoProperties;
+
+      ref cellSPini = frMesh.cellSPidx[cellIdx, 1];
+      ref cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
+
+      frMesh.solSP[cellSPini.. #cellSPcnt, ..] = flow_condition(familySubType,
+                                                                familyParameters,
+                                                                frMesh.xyzSP[cellSPini.. #cellSPcnt, ..]);
+    }
 
     // Output initial state
     iterOutput(iteration, frMesh);
+
+    // Save restart file
 
     // Initialize convergence monitoring variables
     var l2DeltaIni           : [1..frMesh.nVars] real;
@@ -372,6 +386,6 @@ prototype module FREI
     //iterOutput(iteration, frMesh);
 
     writeln();
-    writeln("Fin.");
+    writeln("Fin");
   }
 }

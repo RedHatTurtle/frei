@@ -222,14 +222,14 @@ prototype module Boundary
 
     // Get data from the initial condition
     use Parameters.ParamInput;
-    import Init.initial_condition;
+    import Init.flow_condition;
 
     var xyz : [1..1, 1..1] real = 0;
 
     // Local area + Critical area -> Local Mach -> Primitive Variables
     // Local Pressure -> Local Mach -> Primitive Variables
 
-    var ghstConsVars : [hostConsVars.domain] real = reshape(initial_condition(IC_1D_NOZZLE_SMOOTH_TRANSONIC, xyz),
+    var ghstConsVars : [hostConsVars.domain] real = reshape(flow_condition(IC_1D_NOZZLE_SMOOTH_TRANSONIC, [0.0], xyz),
         hostConsVars.domain);
 
     return ghstConsVars;
@@ -244,14 +244,14 @@ prototype module Boundary
 
     // Get data from the initial condition
     use Parameters.ParamInput;
-    import Init.initial_condition;
+    import Init.flow_condition;
 
     var xyz : [1..1, 1..1] real = 0;
 
     // Local area + Critical area -> Local Mach -> Primitive Variables
     // Local Pressure -> Local Mach -> Primitive Variables
 
-    var ghstConsVars : [hostConsVars.domain] real = reshape(initial_condition(IC_1D_NOZZLE_SUBSONIC, xyz),
+    var ghstConsVars : [hostConsVars.domain] real = reshape(flow_condition(IC_1D_NOZZLE_SUBSONIC, [0.0], xyz),
         hostConsVars.domain);
 
     return ghstConsVars;
@@ -266,14 +266,14 @@ prototype module Boundary
 
     // Get data from the initial condition
     use Parameters.ParamInput;
-    import Init.initial_condition;
+    import Init.flow_condition;
 
     var xyz : [1..1, 1..1] real = 0;
 
     // Local area + Critical area -> Local Mach -> Primitive Variables
     // Local Pressure -> Local Mach -> Primitive Variables
 
-    var ghstConsVars : [hostConsVars.domain] real = reshape(initial_condition(IC_1D_NOZZLE_SHOCKED_TRANSONIC, xyz),
+    var ghstConsVars : [hostConsVars.domain] real = reshape(flow_condition(IC_1D_NOZZLE_SHOCKED_TRANSONIC, [0.0], xyz),
         hostConsVars.domain);
 
     return ghstConsVars;

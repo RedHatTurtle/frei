@@ -1,6 +1,5 @@
 [parPhysics]
   eqSet             = 6
-  initialCondition  = 1
 
 [parConvection]
   convectionSpeed = [1.0, 0.0, 0.0]
@@ -25,32 +24,25 @@
   dissipationScheme = 2
 
 [parFR]
-  iOrder   = 3
-  minOrder = 2
-  maxOrder = 4
-  distSP   = 0
+  iOrder   = 2
+  minOrder = 0
+  maxOrder = 3
+  distSP   = 2
   frScheme = 1
 
 [parTime]
-  timeScheme = 1
-  timeStep   = 0.0001
+  timeScheme = 3
+  timeStep   = 0.001
 
 [parOutput]
-  ioIter  = 1
-  maxIter = 10
+  ioIter  =  1000
+  maxIter = 10000
   ioTime  = 0.00
   maxTime = 1.00
 
 [parRef]
-  rhoRef  = 10.0
-  pRef    = 10.0
-
-[parInit]
-  rhoLow  = 1.0
-  pLow    = 1.0
-  rhoHigh = 10.0
-  pHigh   = 10.0
-  dummy   = 0
+  rhoRef  = 1.0
+  pRef    = 1.0
 
 [parFamilies]
   nFamilies = 3
@@ -59,7 +51,7 @@
   familyName = "flow"
   familyDimension = 1
   familyType = 0
-  familySubType = 0
+  familySubType = 1
   familyParameters = []
 
 [parFamilies.2]

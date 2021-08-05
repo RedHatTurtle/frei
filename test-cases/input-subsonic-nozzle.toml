@@ -1,6 +1,5 @@
 [parPhysics]
   eqSet             = 8
-  initialCondition  = 81
 
 [parFluid]
   fGamma =    1.4
@@ -11,7 +10,7 @@
 [parMesh]
   xMin          =  0.0
   xMax          =  1.0
-  nCells        = 10
+  nCells        = 20
   meshingScheme = 1
 
 [parSpatial]
@@ -20,31 +19,24 @@
 
 [parFR]
   iOrder   = 2
-  minOrder = 1
-  maxOrder = 5
+  minOrder = 0
+  maxOrder = 3
   distSP   = 2
   frScheme = 1
 
 [parTime]
-  timeScheme = 2
+  timeScheme = 3
   timeStep   = 0.001
 
 [parOutput]
-  ioIter  = 100
+  ioIter  =  1000
   maxIter = 10000
   ioTime  = 0.00
   maxTime = 1.00
 
 [parRef]
-  rhoRef  = 10.0
-  pRef    = 10.0
-
-[parInit]
-  rhoLow  = 1.0
-  pLow    = 1.0
-  rhoHigh = 10.0
-  pHigh   = 10.0
-  dummy   = 0
+  rhoRef  = 1.0
+  pRef    = 1.0
 
 [parFamilies]
   nFamilies = 3
@@ -53,7 +45,7 @@
   familyName = "flow"
   familyDimension = 1
   familyType = 0
-  familySubType = 0
+  familySubType = 81
   familyParameters = []
 
 [parFamilies.2]

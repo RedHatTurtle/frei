@@ -13,49 +13,53 @@ prototype module Init
   param exitArea   : real = 0.4;
   param throatArea : real = 0.2;
 
-  proc initial_condition(IC : int, xyz : [] real) : [] real
+  proc flow_condition(familySubType : int, familyParameters : [] real, xyz : [] real) : [] real
   {
-    var sol : [xyz.domain.dim(0), 1..Input.nEqs] real;
+    var flowVars : [xyz.domain.dim(0), 1..Input.nEqs] real;
 
-    select IC
+    select familySubType
     {
-      when IC_SINUSOIDAL do
+      when IC_SINUSOIDAL
+      {
         for i in xyz.domain.dim(0) do
-          sol[i,1] = sin(xyz[i,1]*pi);
-      when IC_GAUSSPULSE do
+          flowVars[i,1] = sin(xyz[i,1]*pi);
+      }
+      when IC_GAUSSPULSE
+      {
         for i in xyz.domain.dim(0)
         {
           var a : real = 1/4;
           var b : real = 3/4;
 
           if (xyz[i,1] > a && xyz[i,1] < b) then
-            sol[i,1] = exp(1/((xyz[i,1]-a)*(xyz[i,1]-b))+(abs(a-b)/2)**(-2.0));
+            flowVars[i,1] = exp(1/((xyz[i,1]-a)*(xyz[i,1]-b))+(abs(a-b)/2)**(-2.0));
           else
-            sol[i,1] = 0.0;;
+            flowVars[i,1] = 0.0;;
         }
+      }
       when IC_SHOCKTUBE
       {
-        var xMin : real = 0.0;
-        var xMax : real = 1.0;
+        const xMin : real = 0.0;
+        const xMax : real = 1.0;
 
-        var rhoHi : real = 2.0;
-        var eHi   : real = 2.0;
-        var rhoLo : real = 1.0;
-        var eLo   : real = 1.0;
+        ref  rhoHi = familyParameters[1];
+        ref  pHi   = familyParameters[2];
+        ref  rhoLo = familyParameters[3];
+        ref  pLo   = familyParameters[4];
 
         for i in xyz.domain.dim(0)
         {
           if xyz[i,1] < 0.5*(xMin+xMax) then
           {
-            sol[i,1] = rhoHi;
-            sol[i,2] = 0.0;
-            sol[i,3] = eHi;
+            flowVars[i,1] = rhoHi;
+            flowVars[i,2] = 0.0;
+            flowVars[i,3] = pHi/(fGamma-1.0);
           }
           else
           {
-            sol[i,1] = rhoLo;
-            sol[i,2] = 0.0;
-            sol[i,3] = eLo;
+            flowVars[i,1] = rhoLo;
+            flowVars[i,2] = 0.0;
+            flowVars[i,3] = pLo/(fGamma-1.0);
           }
         }
       }
@@ -88,9 +92,9 @@ prototype module Init
           var a : real = sqrt(fGamma*pres/dens);
           var vel : real = a*mach;
 
-          sol[i,1] = dens;
-          sol[i,2] = dens*vel;
-          sol[i,3] = pres/(fGamma-1) + 0.5*dens*vel**2;
+          flowVars[i,1] = dens;
+          flowVars[i,2] = dens*vel;
+          flowVars[i,3] = pres/(fGamma-1) + 0.5*dens*vel**2;
         }
       }
       when IC_1D_NOZZLE_SMOOTH_TRANSONIC
@@ -122,9 +126,9 @@ prototype module Init
           var a : real = sqrt(fGamma*pres/dens);
           var vel : real = a*mach;
 
-          sol[i,1] = dens;
-          sol[i,2] = dens*vel;
-          sol[i,3] = pres/(fGamma-1) + 0.5*dens*vel**2;
+          flowVars[i,1] = dens;
+          flowVars[i,2] = dens*vel;
+          flowVars[i,3] = pres/(fGamma-1) + 0.5*dens*vel**2;
         }
       }
       when IC_1D_NOZZLE_SHOCKED_TRANSONIC
@@ -155,9 +159,9 @@ prototype module Init
           var a : real = sqrt(fGamma*pres/dens);
           var vel : real = a*mach;
 
-          sol[i,1] = dens;
-          sol[i,2] = dens*vel;
-          sol[i,3] = pres/(fGamma-1) + 0.5*dens*vel**2;
+          flowVars[i,1] = dens;
+          flowVars[i,2] = dens*vel;
+          flowVars[i,3] = pres/(fGamma-1) + 0.5*dens*vel**2;
         }
 
         // Now calculate the subsonic solution based on the exit pressure
@@ -191,9 +195,9 @@ prototype module Init
               var a : real = sqrt(fGamma*pres/dens);
               var vel : real = a*machSub;
 
-              sol[i,1] = dens;
-              sol[i,2] = dens*vel;
-              sol[i,3] = pres/(fGamma-1) + 0.5*dens*vel**2;
+              flowVars[i,1] = dens;
+              flowVars[i,2] = dens*vel;
+              flowVars[i,3] = pres/(fGamma-1) + 0.5*dens*vel**2;
             }
             else
               // If the shock fits then keep the ideal solution on the rest of the nozzle
@@ -203,7 +207,7 @@ prototype module Init
       }
     }
 
-    return sol;
+    return flowVars;
   }
 
   proc nozzle_area(in x : real) : real
@@ -296,7 +300,7 @@ prototype module Init
     writeln();
     writeln("1D Shock Tube");
     Input.nEqs = 3;
-    sol = initial_condition(IC_SHOCKTUBE, xyz);
+    sol = flow_condition(IC_SHOCKTUBE, [1.0, 1.0, 0.1, 0.1], xyz);
     writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3]");
     for i in xyz.domain.dim(0) do
       writeln("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er".format(i, xyz[i, 1], xyz[i, 2], xyz[i, 3],
@@ -305,7 +309,7 @@ prototype module Init
     writeln();
     writeln("1D Nozzle Flow - Subsonic");
     Input.nEqs = 3;
-    sol = initial_condition(IC_1D_NOZZLE_SUBSONIC, xyz);
+    sol = flow_condition(IC_1D_NOZZLE_SUBSONIC, [0.0], xyz);
     writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3],   Pressure,       Mach");
     for i in xyz.domain.dim(0) do
       writeln("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er".format(i, xyz[i, 1],
@@ -314,7 +318,7 @@ prototype module Init
     writeln();
     writeln("1D Nozzle Flow - Smooth Transonic");
     Input.nEqs = 3;
-    sol = initial_condition(IC_1D_NOZZLE_SMOOTH_TRANSONIC, xyz);
+    sol = flow_condition(IC_1D_NOZZLE_SMOOTH_TRANSONIC, [0.0], xyz);
     writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3],   Pressure,       Mach");
     for i in xyz.domain.dim(0) do
       writeln("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er".format(i, xyz[i, 1],
@@ -323,7 +327,7 @@ prototype module Init
     writeln();
     writeln("1D Nozzle Flow - Shocked Transonic");
     Input.nEqs = 3;
-    sol = initial_condition(IC_1D_NOZZLE_SHOCKED_TRANSONIC, xyz);
+    sol = flow_condition(IC_1D_NOZZLE_SHOCKED_TRANSONIC, [0.0], xyz);
     writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3],   Pressure,       Mach");
     for i in xyz.domain.dim(0) do
       writeln("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er".format(i, xyz[i, 1],

@@ -17,65 +17,73 @@ prototype module Parameters
     param EQ_NAVIERSTOKES   : int = 7;    // Navier-Stokes Eq
     param EQ_QUASI_1D_EULER : int = 8;    // Euler equations for the Quasi 1D Nozzle flow
 
-    //
-    // Initial Conditions
-    //
+    //////////////////////
+    //   Family Types   //
+    //////////////////////
+
+    param BC_TYPE_FLOW                : int =  0;
+    param BC_TYPE_INFLOW              : int =  1;
+    param BC_TYPE_OUTFLOW             : int =  2;
+    param BC_TYPE_OPENING             : int =  3;
+    param BC_TYPE_WALL                : int =  4;
+    param BC_TYPE_SPECIAL             : int =  9;
+
+    //////////////////////////
+    //   Family Sub-Types   //
+    //////////////////////////
+
+    // Convection Waves
     param IC_SINUSOIDAL      : int = 11;    // Sinusoidal Wave
     param IC_GAUSSPULSE      : int = 12;    // Gaussian Pulse Wave
     param IC_ELLIPTICALPULSE : int = 13;    // Elliptic Pulse Wave
     param IC_SQUARE          : int = 14;    // Square Wave
     param IC_MIXEDWAVE       : int = 15;    // Mixed Wave
+
+    // 1D Euler
     param IC_SHOCKTUBE       : int = 61;    // Shock Tube
+
+    // Quasi 1D Nozzle
     param IC_1D_NOZZLE_SUBSONIC          : int = 81;    // Quasi 1D Nozzle
     param IC_1D_NOZZLE_SMOOTH_TRANSONIC  : int = 82;    // Quasi 1D Nozzle
     param IC_1D_NOZZLE_SHOCKED_TRANSONIC : int = 83;    // Quasi 1D Nozzle
 
     // High-Order Workshop test cases
-    param IC_GENERIC_MEANFLOW        : int;    //
-    param IC_CHANNEL_FLOW            : int;    //
-    param IC_INVISCID_GAUSSIAN_BUMP  : int;    //
-    param IC_LAMINAR_BNDLYR          : int;    //
-    param IC_SHU_VORTEX              : int;    //
-    param IC_VORTEX_TRANSPORT        : int;    //
-    param IC_DENSITY_TRANSPORT       : int;    //
-    param IC_ENTROPY_TRANSPORT       : int;    //
-    param IC_TAYLOR_GREEN_VORTEX     : int;    //
-    param IC_NOZZLE_JET              : int;    //
-    param IC_DOUBLE_MACH_REFLECTION  : int;    //
-    param IC_INFINITE_CYLINDER       : int;    //
-    param IC_FREESTREAM_PRESERVATION : int;    //
+    param IC_GENERIC_MEANFLOW        : int;
+    param IC_CHANNEL_FLOW            : int;
+    param IC_INVISCID_GAUSSIAN_BUMP  : int;
+    param IC_LAMINAR_BNDLYR          : int;
+    param IC_SHU_VORTEX              : int;
+    param IC_VORTEX_TRANSPORT        : int;
+    param IC_DENSITY_TRANSPORT       : int;
+    param IC_ENTROPY_TRANSPORT       : int;
+    param IC_TAYLOR_GREEN_VORTEX     : int;
+    param IC_NOZZLE_JET              : int;
+    param IC_DOUBLE_MACH_REFLECTION  : int;
+    param IC_INFINITE_CYLINDER       : int;
+    param IC_FREESTREAM_PRESERVATION : int;
 
-    //
-    // Boundary Conditions
-    //
-    param BC_TYPE_FLOW                : int =  0;
     // Inflow BCs
-    param BC_TYPE_INFLOW              : int =  1;
     param BC_SUBTYPE_GENERIC_INFLOW   : int = 11;
     param BC_SUBTYPE_SUB_INFLOW       : int = 12;
     param BC_SUBTYPE_SUP_INFLOW       : int = 13;
     param BC_SUBTYPE_MDOT_INFLOW      : int = 14;
     // Outflow BCs
-    param BC_TYPE_OUTFLOW             : int =  2;
     param BC_SUBTYPE_GENERIC_OUTFLOW  : int = 21;
     param BC_SUBTYPE_SUB_OUTFLOW      : int = 22;
     param BC_SUBTYPE_SUP_OUTFLOW      : int = 23;
     param BC_SUBTYPE_MDOT_OUTFLOW     : int = 24;
     // Generic Inflow/Outflow BCs
-    param BC_TYPE_OPENING             : int =  3;
     param BC_SUBTYPE_CHARACTERISTIC   : int = 31;
     param BC_SUBTYPE_GENERIC_FREEFLOW : int = 32;
     param BC_SUBTYPE_FREESTREAM       : int = 33;
     param BC_SUBTYPE_FIXED            : int = 34;
     // Wall BCs
-    param BC_TYPE_WALL                : int =  4;
     param BC_SUBTYPE_SLIP_WALL        : int = 41;
     param BC_SUBTYPE_EULER_WALL       : int = 42;
     param BC_SUBTYPE_ADIABATIC_WALL   : int = 43;
     param BC_SUBTYPE_ISOTHERMAL_WALL  : int = 44;
     param BC_SUBTYPE_DEFAULT_WALL     : int = 45;
-    // Other BCs
-    param BC_TYPE_SPECIAL             : int =  9;
+    // Special BCs
     param BC_SUBTYPE_SYMMETRY         : int = 91;
     param BC_SUBTYPE_PERIODIC         : int = 92;
     param BC_SUBTYPE_DIRICHLET        : int = 93;
@@ -85,59 +93,59 @@ prototype module Parameters
     param BC_SUBTYPE_MMS_DIRICHLET    : int = 99;
 
     // Parametric internal 1D meshing methods
-    param MESH_UNIFORM    : int = 1;    // 
-    param MESH_RANDOM     : int = 2;    // 
+    param MESH_UNIFORM    : int = 1;
+    param MESH_RANDOM     : int = 2;
 
     // Spatial Schemes
-    param SPATIAL_BEAMWARMING      : int =  1;    // 
-    param SPATIAL_LAXWENDROFF      : int =  2;    // 
-    param SPATIAL_MACCORMAK        : int =  3;    // 
+    param SPATIAL_BEAMWARMING       : int =  1;
+    param SPATIAL_LAXWENDROFF       : int =  2;
+    param SPATIAL_MACCORMAK         : int =  3;
 
-    param SPATIAL_STEGERWARMING_O1 : int =  4;    // 
-    param SPATIAL_STEGERWARMING_O2 : int =  5;    // 
+    param SPATIAL_STEGERWARMING_O1  : int =  4;
+    param SPATIAL_STEGERWARMING_O2  : int =  5;
 
-    param SPATIAL_STEGERWARMINGO1  : int =  4;    // 
-    param SPATIAL_STEGERWARMINGO2  : int =  5;    // 
+    param SPATIAL_STEGERWARMINGO1   : int =  4;
+    param SPATIAL_STEGERWARMINGO2   : int =  5;
 
-    param SPATIAL_STEGER_WARMING_O1 : int =  4;    // 
-    param SPATIAL_STEGER_WARMING_O2 : int =  5;    // 
+    param SPATIAL_STEGER_WARMING_O1 : int =  4;
+    param SPATIAL_STEGER_WARMING_O2 : int =  5;
 
-    param SPATIAL_VANLEER_O1       : int =  6;    // 
-    param SPATIAL_VANLEER_O2       : int =  7;    // 
-    param SPATIAL_AUSM_O1          : int =  8;    // 
-    param SPATIAL_AUSMPLUS_O1      : int =  9;    // 
-    param SPATIAL_ROE              : int = 10;    // 
-    param SPATIAL_FR               : int = 11;    // 
+    param SPATIAL_VANLEER_O1        : int =  6;
+    param SPATIAL_VANLEER_O2        : int =  7;
+    param SPATIAL_AUSM_O1           : int =  8;
+    param SPATIAL_AUSMPLUS_O1       : int =  9;
+    param SPATIAL_ROE               : int = 10;
+    param SPATIAL_FR                : int = 11;
 
     // Time Schemes
     param TIME_EULER      : int = 0;
     param TIME_RK_CLASSIC : int = 1;
-    param TIME_TVDRK_O2S2 : int = 2;    // 
-    param TIME_TVDRK_O2S3 : int = 3;    // 
-    param TIME_TVDRK_O2S4 : int = 4;    // 
-    param TIME_TVDRK_O2SN : int = 5;    // 
-    param TIME_TVDRK_O3S3 : int = 6;    // 
-    param TIME_TVDRK_O3S4 : int = 7;    // 
-    param TIME_TVDRK_O3S5 : int = 8;    // 
-    param TIME_TVDRK_O4S5 : int = 9;    // 
+    param TIME_TVDRK_O2S2 : int = 2;
+    param TIME_TVDRK_O2S3 : int = 3;
+    param TIME_TVDRK_O2S4 : int = 4;
+    param TIME_TVDRK_O2SN : int = 5;
+    param TIME_TVDRK_O3S3 : int = 6;
+    param TIME_TVDRK_O3S4 : int = 7;
+    param TIME_TVDRK_O3S5 : int = 8;
+    param TIME_TVDRK_O4S5 : int = 9;
 
     // Inviscid Numerical Flux Schemes
-    param FLUX_RUSANOV : int = 1;    // 
-    param FLUX_ROE     : int = 2;    // 
-    param FLUX_HLL     : int = 3;    // 
-    param FLUX_HLLC    : int = 3;    // 
-    param FLUX_RHLL    : int = 3;    // 
+    param FLUX_RUSANOV : int = 1;
+    param FLUX_ROE     : int = 2;
+    param FLUX_HLL     : int = 3;
+    param FLUX_HLLC    : int = 4;
+    param FLUX_RHLL    : int = 5;
 
     // Viscou Numerical Flux Scheme
-    param VISC_BR1 : int = 1;    // 
-    param VISC_BR2 : int = 2;    // 
-    param VISC_LDG : int = 3;    // 
+    param VISC_BR1 : int = 1;
+    param VISC_BR2 : int = 2;
+    param VISC_LDG : int = 3;
 
     // Dissipation Scheme
-    param DISS_NONE    : int = 0;    // 
-    param DISS_SECOND  : int = 1;    // 
-    param DISS_FOURTH  : int = 2;    // 
-    param DISS_JAMESON : int = 3;    // 
+    param DISS_NONE    : int = 0;
+    param DISS_SECOND  : int = 1;
+    param DISS_FOURTH  : int = 2;
+    param DISS_JAMESON : int = 3;
 
     // Solution Point distributions
     param PTS_UNIFORM          : int = 1;    // Uniform
@@ -290,7 +298,6 @@ prototype module Parameters
 
   prototype module ParamGmesh
   {
-
     // Gmesh element topologies
     param GMESH_PNT     : int = 1;
     param GMESH_LIN     : int = 2;

@@ -8,7 +8,6 @@ prototype module Input
   //parPhysics
   var nDims            : int = 1;
   var eqSet            : int = EQ_EULER;
-  var initialCondition : int = IC_SHOCKTUBE;
 
   //parConvection
   var convectionSpeed : [1..3] real = [1.0, 0.0, 0.0];
@@ -53,12 +52,6 @@ prototype module Input
   //parRef
   var rhoRef  : real = 1.0;          // Reference density for non-dimensionalization
   var pRef    : real = 1.0;          // Reference pressure for non-dimensionalization
-
-  //parInit
-  var rhoLow  : real = 1.0;          // Density on the LOW pressure side of the shock tube
-  var pLow    : real = 1.0;          // Pressure on the LOW pressure side of the shock tube
-  var rhoHigh : real = 5.0;          // Density on the HIGH pressure side of the shock tube
-  var pHigh   : real = 5.0;          // Pressure on the HIGH pressure side of the shock tube
 
   //parFamilies
   var nFaml : int = 1;
@@ -115,8 +108,8 @@ prototype module Input
     try {
       writeln("Configuring solver");
 
+      // parPhysics
       eqSet             = tomlData!["parPhysics"]!["eqSet"]!.i : int;
-      initialCondition  = tomlData!["parPhysics"]!["initialCondition"]!.i : int;
 
       if eqSet == EQ_CONVECTION then
         convectionSpeed[1..3] = tomlData!["parConvection"]!["convectionSpeed"]!.arr[0..2]!.re : real;
@@ -124,6 +117,7 @@ prototype module Input
       if eqSet == EQ_DIFFUSION then
         diffusionCoef = tomlData!["parDiffusion"]!["diffusionCoef"]!.re : real;
 
+      // parFluid
       if (eqSet == EQ_EULER || eqSet == EQ_NAVIERSTOKES || eqSet == EQ_QUASI_1D_EULER)
       {
         fGamma = tomlData!["parFluid"]!["fGamma"]!.re : real;
@@ -132,38 +126,39 @@ prototype module Input
         fR     = tomlData!["parFluid"]!["fR"]!.re : real;
       }
 
+      // parMesh
       xMin          = tomlData!["parMesh"]!["xMin"]!.re : real;
       xMax          = tomlData!["parMesh"]!["xMax"]!.re : real;
       nCells        = tomlData!["parMesh"]!["nCells"]!.i : int;
       meshingScheme = tomlData!["parMesh"]!["meshingScheme"]!.i : int;
 
+      // parSpacial
       spatialScheme     = tomlData!["parSpatial"]!["spatialScheme"]!.i : int;
       dissipationScheme = tomlData!["parSpatial"]!["dissipationScheme"]!.i : int;
 
+      // parFR
       iOrder   = tomlData!["parFR"]!["iOrder"]!.i : int;
       minOrder = tomlData!["parFR"]!["minOrder"]!.i : int;
       maxOrder = tomlData!["parFR"]!["maxOrder"]!.i : int;
       distSP   = tomlData!["parFR"]!["distSP"]!.i : int;
       frScheme = tomlData!["parFR"]!["frScheme"]!.i : int;
 
+      // parTime
       timeScheme = tomlData!["parTime"]!["timeScheme"]!.i : int;
       timeStep   = tomlData!["parTime"]!["timeStep"]!.re  : real;
 
+      // parOutput
       ioIter   = tomlData!["parOutput"]!["ioIter"]!.i : int;
       maxIter  = tomlData!["parOutput"]!["maxIter"]!.i : int;
       ioTime   = tomlData!["parOutput"]!["ioTime"]!.re : real;
       maxTime  = tomlData!["parOutput"]!["maxTime"]!.re : real;
 
+      // parRef
       rhoRef   = tomlData!["parRef"]!["rhoRef"]!.re : real;
       pRef     = tomlData!["parRef"]!["pRef"]!.re : real;
 
-      rhoLow   = tomlData!["parInit"]!["rhoLow"]!.re : real;
-      pLow     = tomlData!["parInit"]!["pLow"]!.re : real;
-      rhoHigh  = tomlData!["parInit"]!["rhoHigh"]!.re : real;
-      pHigh    = tomlData!["parInit"]!["pHigh"]!.re : real;
-
+      // parFamilies
       nFaml    = tomlData!["parFamilies"]!["nFamilies"]!.i : int;
-
       famlList_d = 1..nFaml;
 
       for famlIdx in famlList.domain
