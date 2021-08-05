@@ -115,6 +115,24 @@ prototype module Polynomials
     eval_jacobi_poly(n, 0, 0, x, y, dy, d2y);
   }
 
+  proc eval_legendre_poly (n:int, x:real) : real
+  {
+    var y, dy, d2y : real;
+
+    eval_jacobi_poly(n, 0, 0, x, y, dy, d2y);
+
+    return y;
+  }
+
+  proc eval_legendre_poly_dy (n:int, x:real) : real
+  {
+    var y, dy, d2y : real;
+
+    eval_jacobi_poly(n, 0, 0, x, y, dy, d2y);
+
+    return dy;
+  }
+
   proc eval_radau_poly (n:int, x:real, out y:real, out dy:real, out d2y:real)
   {
     var y_n, dy_n, d2y_n : real;
@@ -270,131 +288,6 @@ prototype module Polynomials
 //
 //        vn(i+1)   = y*sn
 //        vn(n-i+1) = y
-//      }
-//    }
-  }
-
-  proc weights_legendre_gauss(n,xi,dy,weights)
-  {
-//    //****************************************************************
-//    //   COMPUTES THE WEIGHTS RELATIVE TO THE LEGENDRE GAUSS FORMULA
-//    //   N  = ORDER OF THE FORMULA
-//    //   CS = 0.0ES OF THE LEGENDRE POLYNOMIAL, CS(I), I=1,N
-//    //   DZ = VECTOR OF THE DERIVATIVES AT THE 0.0ES, DZ(I), I=1,N
-//    //   WE = VECTOR OF THE WEIGHTS, WE(I), I=1,N
-//    //****************************************************************
-//
-//    //.. Formal Arguments ..
-//    int     ,                 intent(in)  :: n;
-//    real, dimension(1:n), intent(in)  :: xi;
-//    real, dimension(1:n), intent(in)  :: dy;
-//    real, dimension(1:n), intent(out) :: weights;
-//
-//    //.. Local Scalars ..
-//    int :: i;
-//
-//    weights(:) = 2.0;
-//
-//    for i in 1..n do
-//      weights(i) = 2.0 / ((1.0 - xi(i)*xi(i)) * dy(i) * dy(i));
-  }
-
-  /////////////////////////////////////////
-  //   Weight set finding functions      //
-  /////////////////////////////////////////
-
-  proc weights_legendre_gauss_lobatto(n : int, vn : real, out weights : real)
-  {
-//    //**********************************************************************
-//    //   COMPUTES THE WEIGHTS RELATIVE TO THE LEGENDRE GAUSS-LOBATTO FORMULA
-//    //   N  = ORDER OF THE FORMULA
-//    //   ET = JACOBI GAUSS-LOBATTO NODES, ET(I), I=0,N
-//    //   VN = VALUES OF THE LEGENDRE POLYNOMIAL AT THE NODES, VN(I), I=0,N
-//    //   WT = VECTOR OF THE WEIGHTS, WT(I), I=0,N
-//    //**********************************************************************
-//
-//    //.. Formal Arguments ..
-//    int     ,                   intent(in)  :: n;
-//    real, dimension(1:n+1), intent(in)  :: vn;
-//    real, dimension(1:n+1), intent(out) :: weights;
-//
-//    //.. Local Scalars ..
-//    int      :: i;
-//    real :: c;
-//
-//    c = 2.0;
-//    if (n > 0) then
-//      c = c / (n*n+1) : real;
-//
-//    for i in 1..n+1 do
-//      weights(i) = c / (vn(i)*vn(i));
-  } // weights_legendre_gauss_lobatto
-
-  proc weights_dgbook_jacobi_gauss_lobatto(n : int, alpha : real, beta : real, xi : real, out weights : real)
-  {
-//    //********************************************************************
-//    //   COMPUTES THE WEIGHTS RELATIVE TO THE JACOBI GAUSS-LOBATTO FORMULA
-//    //   N  = ORDER OF THE FORMULA
-//    //   alpha  = PARAMETER > -1
-//    //   beta  = PARAMETER > -1
-//    //   ET = JACOBI GAUSS-LOBATTO NODES, ET(I), I=0,N
-//    //   WT = VECTOR OF THE WEIGHTS, WT(I), I=0,N
-//    //********************************************************************
-//
-//    //.. Formal Arguments ..
-//    int,                        intent(in)  :: n;
-//    real,                   intent(in)  :: alpha;
-//    real,                   intent(in)  :: beta;
-//    real, dimension(1:n+1), intent(in)  :: xi;
-//    real, dimension(1:n+1), intent(out) :: weights;
-//
-//    //.. Local Scalars ..
-//    int  :: i;
-//    real :: a1, a2, b1, b2, ab, ab1, ab2;
-//    real :: c, c1, c2, c3, ri, rn, su;
-//    real :: y, z, dy, d2y, scl;
-//
-//    weights(:) = 0.0;
-//
-//    if (n > 1) {
-//      a1  = alpha + 1.0;
-//      a2  = alpha + 2.0;
-//      b1  = beta  + 1.0;
-//      b2  = beta  + 2.0;
-//      ab  = alpha + beta;
-//      ab1 = alpha + beta + 1.0;
-//      ab2 = alpha + beta + 2.0;
-//
-//      c = (2.0**ab) * gammafun(a1) * gammafun(b1) / gammafun(ab2);
-//
-//      rn = real(n,kind=lp);
-//      c  = c * (2.0*rn + ab) / (rn + ab1);
-//      c1 = c * a1 / (b2 * ab2);
-//      c2 = c * b1 / (a2 * ab2);
-//      c3 = 0.5 * c * a1 * b1;
-//
-//      for i in 2..n-1 {
-//        ri = i-1 : real;;
-//        c1 = c1*(ri+a1)*ri / ((ri+ab2)*(ri+b2));
-//        c2 = c2*(ri+b1)*ri / ((ri+ab2)*(ri+a2));
-//        c3 = c3*(ri+a1)*(ri+b1) / ((ri+2.0)*(ri+ab1));
-//      }
-//
-//      su = 0.0;
-//      for i in 2..n do
-//        su = su + xi(i);
-//
-//      scl = ( (1.0-xi(1))**a1 ) * ( (1.0+xi(1))**b1 );
-//      weights(1)   = scl*c1*(rn-1.0-su);
-//
-//      scl = ( (1.0-xi(n+1))**a1 ) * ( (1.0+xi(n+1))**b1 );
-//      weights(n+1) = scl*c2*(rn-1.0+su);
-//
-//      for i in 2..n {
-//        eval_jacobi_poly(n  ,alpha,beta,xi(i),y,dy,d2y);
-//        eval_jacobi_poly(n-1,alpha,beta,xi(i),z,dy,d2y);
-//        scl = ( (1.0-xi(i))**a1 ) * ( (1.0+xi(i))**b1 );
-//        weights(i) = -scl*c3/y/dy;
 //      }
 //    }
   }
@@ -586,5 +479,4 @@ prototype module Polynomials
       writeln();
     }
   }
-
 }

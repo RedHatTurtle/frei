@@ -9,6 +9,14 @@ chpl -o polynomials_tests                          \
     tee polynomials_build.log
 echo "done"
 echo
+echo "Building Quadrature Tests:"
+chpl -o quadrature_tests                           \
+     --warnings                                    \
+     --warn-unstable                               \
+     --main-module Quadrature src/quadrature.chpl src/polynomials.chpl src/testing.chpl src/parameters.chpl |
+    tee quadrature_build.log
+echo "done"
+echo
 echo "Building Interpolation Tests:"
 chpl -o interpolation_tests                        \
      --warnings                                    \
@@ -93,6 +101,7 @@ echo
 echo "Running Tests"
 # Run tests and output to file
 ./polynomials_tests   &> polynomials_tests.log
+./quadrature_tests    &> quadrature_tests.log
 ./interpolation_tests &> interpolation_tests.log
 ./correction_tests    &> correction_tests.log
 
