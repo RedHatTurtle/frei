@@ -101,13 +101,10 @@ prototype module Riemann
     ws[2] = abs(v  );
     ws[3] = abs(v+a);
 
-    //Modified wave speeds for nonlinear fields (to remove expansion shocks).
-    //There are various ways to implement an entropy fix. This is just one
-    //example.
-    var Da : real = max(0.0, 4.0*((vR-aR)-(vL-aL)) );
-    if (ws(1) < 0.5*Da) then ws(1) = ws(1)*ws(1)/Da + 0.25*Da;
-    Da = max(0.0, 4.0*((vR+aR)-(vL+aL)) );
-    if (ws(3) < 0.5*Da) then ws(3) = ws(3)*ws(3)/Da + 0.25*Da;
+    // Harten's Entropy Fix JCP(1983), 49, pp357-393. Only for the nonlinear fields.
+    // It avoids vanishing wave speeds by making a parabolic fit near ws = 0.
+    if ( ws(1) < 0.2 ) then ws(1) = (ws(1)**2)/0.4+0.1;
+    if ( ws(3) < 0.2 ) then ws(3) = (ws(3)**2)/0.4+0.1;
 
     //Right eigenvectors
     var R : [1..3,1..3] real;
@@ -124,13 +121,14 @@ prototype module Riemann
     R[3,3] = H + v*a;
 
     //Compute the average flux.
-    var roe : [1..3] real = 0.5*( euler_flux_cv(uL)[1,1..3] + euler_flux_cv(uR)[1,1..3] );
+    var roe : [1..3] real = euler_flux_cv(uL)[1,1..3] + euler_flux_cv(uR)[1,1..3];
 
     //!Add the matrix dissipation term to complete the Roe flux.
     for j in 1..3 do {
       for k in 1..3 do {
-        roe[j] = roe[j] - 0.5*nrm*ws[k]*dV[k]*R[j,k];
+        roe[j] = roe[j] - nrm*ws[k]*dV[k]*R[j,k];
       }
+      roe[j] = roe[j]/2.0;
     }
 
     return roe;
