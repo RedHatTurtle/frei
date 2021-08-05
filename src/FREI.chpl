@@ -19,6 +19,7 @@ prototype module FREI
     use Correction;
     use Init;
     use Quadrature;
+    use Projection;
     use FR;
     use LinearAlgebra;
     use SourceTerm;
@@ -79,6 +80,7 @@ prototype module FREI
     init_sp2fpInterp(Input.minOrder, Input.maxOrder, frMesh.cellTopos);
     init_sp2spDeriv(Input.minOrder, Input.maxOrder, frMesh.cellTopos);
     init_quadratureWeights(Input.minOrder, Input.maxOrder, frMesh.cellTopos);
+    init_polyProj(Input.minOrder, Input.maxOrder, frMesh.cellTopos);
     init_correction(Input.minOrder+1, Input.maxOrder+1, frMesh.cellTopos);
 
     // Initialize solution

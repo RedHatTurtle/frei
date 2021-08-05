@@ -1,5 +1,11 @@
 #!/bin/bash
 
+PATH_TO_CBLAS_DIR="/usr/include"
+PATH_TO_BLAS_LIBS="/usr/lib64"
+PATH_TO_LAPACKE_INCLUDE_DIR="/usr/include"
+PATH_TO_LIBGFORTRAN="/usr/lib64"
+PATH_TO_LAPACK_BINARIES="/usr/lib64"
+
 # Build all tests and save log
 echo "Building Polynomials Tests:"
 chpl -o polynomials_tests                          \
@@ -23,6 +29,23 @@ chpl -o interpolation_tests                        \
      --warn-unstable                               \
      --main-module Interpolation src/interpolation.chpl src/polynomials.chpl src/parameters.chpl src/testing.chpl |
     tee interpolation_build.log
+echo "done"
+echo
+echo "Building Projection Tests:"
+chpl -o projection_tests                           \
+     --warnings                                    \
+     --warn-unstable                               \
+     -I/usr/include                                \
+     -L/usr/lib64 -lcblas                          \
+     -I/usr/include                                \
+     -L/usr/lib64 -lgfortran                       \
+     -L/usr/lib64 -llapacke -llapack -lcblas       \
+     --main-module Projection src/projection.chpl  \
+                              src/quadrature.chpl  \
+                              src/polynomials.chpl \
+                              src/testing.chpl     \
+                              src/parameters.chpl  |
+    tee projection_build.log
 echo "done"
 echo
 echo "Building Correction Tests:"
@@ -103,6 +126,7 @@ echo "Running Tests"
 ./polynomials_tests   &> polynomials_tests.log
 ./quadrature_tests    &> quadrature_tests.log
 ./interpolation_tests &> interpolation_tests.log
+./projection_tests    &> projection_tests.log
 
 ./correction_tests    &> correction_tests.log
 
