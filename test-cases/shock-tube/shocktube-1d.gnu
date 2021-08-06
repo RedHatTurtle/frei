@@ -36,47 +36,89 @@ set style line 31 lt 1 dt "_" lc rgb "#FFBA08" lw  4 pt 1 ps 0.8 # Residue Compo
 set style line 32 lt 1 dt "-" lc rgb "#FAA307" lw  4 pt 1 ps 0.8 # Residue Component 2 - Discontinuus Flux
 set style line 33 lt 1 dt "." lc rgb "#F48C06" lw  4 pt 1 ps 0.8 # Residue Component 3 - Continuous Flux
 
+set ylabel "Density"
+set yrange [0:1.05]
+set y2label "Density Residual"
+set title "Density plot - Analytical vs Numeric" font "Cantarell,60"
+set output "gnuplot-density-debug.svg"
+plot "analytical/ana010.txt"     using ($1+0.5):($2/10) with lines       ls  1 axis x1y1 title "Analytical", \
+     "sol_sp_gnuplt_sorted.dat"  using 2:3              with linespoints ls 10 axis x1y1 title "Solution at SP", \
+     "res_sp_gnuplt_sorted.dat"  using 2:3              with linespoints ls 30 axis x1y2 title "Residue", \
+     "res_src_gnuplt_sorted.dat" using 2:3              with linespoints ls 31 axis x1y2 title "Residue - Src Term", \
+     "res_dsc_gnuplt_sorted.dat" using 2:3              with linespoints ls 32 axis x1y2 title "Residue - Dsc Flux", \
+     "res_cnt_gnuplt_sorted.dat" using 2:3              with linespoints ls 33 axis x1y2 title "Residue - Cnt Flux", \
+     "sol_fp1_gnuplt_sorted.dat" using 2:3              with      points ls  3 axis x1y1 title "Solution at FP1", \
+     "sol_fp2_gnuplt_sorted.dat" using 2:3              with      points ls  4 axis x1y1 title "Solution at FP2"
+
+set ylabel "Momentum"
+set yrange [0:1.05]
+set y2label "Momentum Residual"
+set title "Momentum plot - Analytical vs Numeric"
+set output "gnuplot-momentum-debug.svg"
+plot "analytical/ana010.txt"     using ($1+0.5):($2*$3/10) with lines       ls  1 axis x1y1 title "Analytical", \
+     "sol_sp_gnuplt_sorted.dat"  using 2:4                 with linespoints ls 10 axis x1y1 title "Solution at SP", \
+     "res_sp_gnuplt_sorted.dat"  using 2:4                 with linespoints ls 30 axis x1y2 title "Residue", \
+     "res_src_gnuplt_sorted.dat" using 2:4                 with linespoints ls 31 axis x1y2 title "Residue - Src Term", \
+     "res_dsc_gnuplt_sorted.dat" using 2:4                 with linespoints ls 32 axis x1y2 title "Residue - Dsc Flux", \
+     "res_cnt_gnuplt_sorted.dat" using 2:4                 with linespoints ls 33 axis x1y2 title "Residue - Cnt Flux", \
+     "sol_fp1_gnuplt_sorted.dat" using 2:4                 with      points ls  3 axis x1y1 title "Solution at FP1", \
+     "sol_fp2_gnuplt_sorted.dat" using 2:4                 with      points ls  4 axis x1y1 title "Solution at FP2"
+
+set ylabel "Energy"
+set yrange [0:2.625]
+set y2label "Energy Residual"
+set title "Energy plot - Analytical vs Numeric"
+set output "gnuplot-energy-debug.svg"
+plot "analytical/ana010.txt"     using ($1+0.5):($4/0.4+0.5*$2*$3*$3)/10 with lines       ls  1 axis x1y1 title "Analytical", \
+     "sol_sp_gnuplt_sorted.dat"  using 2:5                               with linespoints ls 10 axis x1y1 title "Solution at SP", \
+     "res_sp_gnuplt_sorted.dat"  using 2:5                               with linespoints ls 30 axis x1y2 title "Residue", \
+     "res_src_gnuplt_sorted.dat" using 2:5                               with linespoints ls 31 axis x1y2 title "Residue - Src Term", \
+     "res_dsc_gnuplt_sorted.dat" using 2:5                               with linespoints ls 32 axis x1y2 title "Residue - Dsc Flux", \
+     "res_cnt_gnuplt_sorted.dat" using 2:5                               with linespoints ls 33 axis x1y2 title "Residue - Cnt Flux", \
+     "sol_fp1_gnuplt_sorted.dat" using 2:5                               with      points ls  3 axis x1y1 title "Solution at FP1", \
+     "sol_fp2_gnuplt_sorted.dat" using 2:5                               with      points ls  4 axis x1y1 title "Solution at FP2"
+
 unset y2label
 set ytics mirror
 
 set ylabel "Density"
 set title "Density plot - Analytical vs Numeric" font "Cantarell,60"
 set output "gnuplot-density.svg"
-plot "analytical/ana010.txt" using ($1+0.5):($2/10) with lines ls  1 axis x1y1 title "Analytical", \
-     "sol_sp_gnuplt_sorted.dat"        using 2:3              with lines ls 10 axis x1y1 title "Solution at SPs"
+plot "analytical/ana010.txt"    using ($1+0.5):($2/10) with lines ls  1 axis x1y1 title "Analytical", \
+     "sol_sp_gnuplt_sorted.dat" using 2:3              with lines ls 10 axis x1y1 title "Solution at SPs"
 
 set ylabel "Momentum"
 set title "Momentum plot - Analytical vs Numeric"
 set output "gnuplot-momentum.svg"
-plot "analytical/ana010.txt" using ($1+0.5):($2*$3/10) with lines ls  1 axis x1y1 title "Analytical", \
-     "sol_sp_gnuplt_sorted.dat"        using 2:4                 with lines ls 10 axis x1y1 title "Solution at SPs"
+plot "analytical/ana010.txt"    using ($1+0.5):($2*$3/10) with lines ls  1 axis x1y1 title "Analytical", \
+     "sol_sp_gnuplt_sorted.dat" using 2:4                 with lines ls 10 axis x1y1 title "Solution at SPs"
 
 set ylabel "Energy"
 set title "Energy plot - Analytical vs Numeric"
 set output "gnuplot-energy.svg"
-plot "analytical/ana010.txt" using ($1+0.5):($4/0.4+0.5*$2*$3*$3)/10 with lines ls  1 axis x1y1 title "Analytical", \
-     "sol_sp_gnuplt_sorted.dat"        using 2:5                               with lines ls 10 axis x1y1 title "Solution at SPs"
+plot "analytical/ana010.txt"    using ($1+0.5):($4/0.4+0.5*$2*$3*$3)/10 with lines ls  1 axis x1y1 title "Analytical", \
+     "sol_sp_gnuplt_sorted.dat" using 2:5                               with lines ls 10 axis x1y1 title "Solution at SPs"
 
 set ylabel "Velocity"
 set title "Velocity plot - Analytical vs Numeric"
 set output "gnuplot-velocity.svg"
-plot "analytical/ana010.txt" using ($1+0.5):($3) with lines ls  1 axis x1y1 title "Analytical", \
-     "sol_sp_gnuplt_sorted.dat"        using 2:($4/$3)     with lines ls 10 axis x1y1 title "Solution at SPs"
+plot "analytical/ana010.txt"    using ($1+0.5):($3) with lines ls  1 axis x1y1 title "Analytical", \
+     "sol_sp_gnuplt_sorted.dat" using 2:($4/$3)     with lines ls 10 axis x1y1 title "Solution at SPs"
 
 set ylabel "Pressure"
 set title "Pressure plot - Analytical vs Numeric"
 set output "gnuplot-pressure.svg"
-plot "analytical/ana010.txt" using ($1+0.5):($4/10) with lines ls  1 title "Analytical", \
-     "sol_sp_gnuplt_sorted.dat"        using 2:6              with lines ls 10 axis x1y1 title "Solution at SPs"
+plot "analytical/ana010.txt"    using ($1+0.5):($4/10) with lines ls  1 title "Analytical", \
+     "sol_sp_gnuplt_sorted.dat" using 2:6              with lines ls 10 axis x1y1 title "Solution at SPs"
 
 set ylabel "Temperature"
 set title "Temperature plot - Analytical vs Numeric"
 set output "gnuplot-temperature.svg"
-plot "analytical/ana010.txt" using ($1+0.5):($4/(10*$2*287)) with lines ls  1 title "Analytical", \
-     "sol_sp_gnuplt_sorted.dat"        using 2:($6/($3*287))          with lines ls 10 axis x1y1 title "Solution at SPs"
+plot "analytical/ana010.txt"    using ($1+0.5):($4/(10*$2*287)) with lines ls  1 title "Analytical", \
+     "sol_sp_gnuplt_sorted.dat" using 2:($6/($3*287))           with lines ls 10 axis x1y1 title "Solution at SPs"
 
 set ylabel "Mach"
 set title "Mach plot - Analytical vs Numeric"
 set output "gnuplot-mach.svg"
-plot "analytical/ana010.txt" using ($1+0.5):($5) with lines ls  1 axis x1y1 title "Analytical", \
-     "sol_sp_gnuplt_sorted.dat"        using 2:7           with lines ls 10 axis x1y1 title "Solution at SPs"
+plot "analytical/ana010.txt"    using ($1+0.5):($5) with lines ls  1 axis x1y1 title "Analytical", \
+     "sol_sp_gnuplt_sorted.dat" using 2:7           with lines ls 10 axis x1y1 title "Solution at SPs"
