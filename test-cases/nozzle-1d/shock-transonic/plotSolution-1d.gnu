@@ -23,7 +23,7 @@ set my2tics 5
 
 set xlabel "X Coordinate"
 
-set style line  1 lt 1        lc rgb "#000000" lw 15 pt 1 ps 1.0 # Continuous thick black line for reference solution at SPs
+set style line  1 lt 1        lc rgb "#000000" lw 15 pt 1 ps 1.0 # Continuous thick black line for initial solution at SPs
 
 set style line 10 lt 1        lc rgb "#9D0208" lw  7 pt 1 ps 1.5 # Continuous medium orange line for current iteration solution at SPs
 set style line  6 lt 1        lc rgb "#8f1402" lw  7 pt 1 ps 1.5 # Dark red continuous line for solution at SPs in next iteration
@@ -42,41 +42,41 @@ set ytics mirror
 set ylabel "Density"
 set title "Density plot - Analytical vs Numeric" font "Cantarell,60"
 set output "gnuplot-density.svg"
-plot "analytical/ana010.txt" using ($1+0.5):($2/10) with lines ls  1 axis x1y1 title "Analytical", \
-     "sol_sp_gnuplt_sorted.dat"        using 2:3              with lines ls 10 axis x1y1 title "Solution at SPs"
+plot "sol_sp_gnuplt_initial.dat" using 2:3             with lines       ls  1 axis x1y1 title "Initial", \
+     "sol_sp_gnuplt_sorted.dat"  using 2:3             with lines       ls 10 axis x1y1 title "Solution at SPs"
 
 set ylabel "Momentum"
 set title "Momentum plot - Analytical vs Numeric"
 set output "gnuplot-momentum.svg"
-plot "analytical/ana010.txt" using ($1+0.5):($2*$3/10) with lines ls  1 axis x1y1 title "Analytical", \
-     "sol_sp_gnuplt_sorted.dat"        using 2:4                 with lines ls 10 axis x1y1 title "Solution at SPs"
+plot "sol_sp_gnuplt_initial.dat" using 2:4             with lines       ls  1 axis x1y1 title "Initial", \
+     "sol_sp_gnuplt_sorted.dat"  using 2:4             with lines       ls 10 axis x1y1 title "Solution at SPs"
 
 set ylabel "Energy"
 set title "Energy plot - Analytical vs Numeric"
 set output "gnuplot-energy.svg"
-plot "analytical/ana010.txt" using ($1+0.5):($4/0.4+0.5*$2*$3*$3)/10 with lines ls  1 axis x1y1 title "Analytical", \
-     "sol_sp_gnuplt_sorted.dat"        using 2:5                               with lines ls 10 axis x1y1 title "Solution at SPs"
+plot "sol_sp_gnuplt_initial.dat" using 2:5             with lines       ls  1 axis x1y1 title "Initial", \
+     "sol_sp_gnuplt_sorted.dat"  using 2:5             with lines       ls 10 axis x1y1 title "Solution at SPs"
 
 set ylabel "Velocity"
-set title "Velocity plot - Analytical vs Numeric"
+set title "Velocity plot - Initial vs Current"
 set output "gnuplot-velocity.svg"
-plot "analytical/ana010.txt" using ($1+0.5):($3) with lines ls  1 axis x1y1 title "Analytical", \
-     "sol_sp_gnuplt_sorted.dat"        using 2:($4/$3)     with lines ls 10 axis x1y1 title "Solution at SPs"
+plot "sol_sp_gnuplt_initial.dat" using 2:($4/$3)       with lines       ls  1 axis x1y1 title "Initial", \
+     "sol_sp_gnuplt_sorted.dat"  using 2:($4/$3)       with lines       ls 10 axis x1y1 title "Solution at SPs"
 
 set ylabel "Pressure"
-set title "Pressure plot - Analytical vs Numeric"
+set title "Pressure plot - Initial vs Current"
 set output "gnuplot-pressure.svg"
-plot "analytical/ana010.txt" using ($1+0.5):($4/10) with lines ls  1 title "Analytical", \
-     "sol_sp_gnuplt_sorted.dat"        using 2:6              with lines ls 10 axis x1y1 title "Solution at SPs"
+plot "sol_sp_gnuplt_initial.dat" using 2:6             with lines       ls  1 axis x1y1 title "Initial", \
+     "sol_sp_gnuplt_sorted.dat"  using 2:6             with linespoints ls 10 axis x1y1 title "Solution at SP"
 
 set ylabel "Temperature"
 set title "Temperature plot - Analytical vs Numeric"
 set output "gnuplot-temperature.svg"
-plot "analytical/ana010.txt" using ($1+0.5):($4/(10*$2*287)) with lines ls  1 title "Analytical", \
-     "sol_sp_gnuplt_sorted.dat"        using 2:($6/($3*287))          with lines ls 10 axis x1y1 title "Solution at SPs"
+plot "sol_sp_gnuplt_initial.dat" using 2:($6/($3*287)) with lines ls  1 axis x1y1 title "Initial", \
+     "sol_sp_gnuplt_sorted.dat"  using 2:($6/($3*287)) with lines ls 10 axis x1y1 title "Solution at SPs"
 
 set ylabel "Mach"
-set title "Mach plot - Analytical vs Numeric"
+set title "Mach plot - Initial vs Current"
 set output "gnuplot-mach.svg"
-plot "analytical/ana010.txt" using ($1+0.5):($5) with lines ls  1 axis x1y1 title "Analytical", \
-     "sol_sp_gnuplt_sorted.dat"        using 2:7           with lines ls 10 axis x1y1 title "Solution at SPs"
+plot "sol_sp_gnuplt_initial.dat" using 2:7             with lines       ls  1 axis x1y1 title "Initial", \
+     "sol_sp_gnuplt_sorted.dat"  using 2:7             with linespoints ls 10 axis x1y1 title "Solution at SP", \

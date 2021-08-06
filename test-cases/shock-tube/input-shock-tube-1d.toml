@@ -10,7 +10,7 @@
 [parMesh]
   xMin          =  0.0
   xMax          =  1.0
-  nCells        = 200
+  nCells        = 100
   meshingScheme = 1
 
 [parSpatial]
@@ -18,9 +18,9 @@
   dissipationScheme = 2
 
 [parFR]
-  iOrder   = 2
-  minOrder = 0
-  maxOrder = 3
+  iOrder   = 20
+  minOrder = 20
+  maxOrder = 40
   distSP   = 2
   frScheme = 1
 
