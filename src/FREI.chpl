@@ -320,6 +320,7 @@ module FREI
           //   3. Source terms
           //
           // The residual array is reset in the time stepping procedure
+          writef("   RK-Stage %1i\n", rkStage);
 
           // Component 1: Source Term
           {
@@ -338,6 +339,7 @@ module FREI
                                                   Input.eqSet                 );
 
             srcTermTime += residueWatch.elapsed();
+            writef("      Stopwatch - Src Term: %10.2dr ms\n", residueWatch.elapsed()*1000);
           }
           stringIter = "iter_" + iteration:string + "-rkstage_" + rkStage:string;
           if iteration % ioIter == 0 then
@@ -460,6 +462,7 @@ module FREI
             }
 
             dscFluxTime += residueWatch.elapsed();
+            writef("      Stopwatch - Dsc Flux: %10.2dr ms\n", residueWatch.elapsed()*1000);
           }
           if iteration % ioIter == 0
           {
@@ -623,6 +626,7 @@ module FREI
             cntFluxTime3 += cntFluxWatch.elapsed();
 
             cntFluxTime += residueWatch.elapsed();
+            writef("      Stopwatch - Cnt Flux: %10.2dr ms\n", residueWatch.elapsed()*1000);
           }
 
           residueTime += solveWatch.elapsed();
@@ -686,6 +690,7 @@ module FREI
           frMesh.resSP = 0.0;
 
           timeStepTime += solveWatch.elapsed();
+          writef("      Stopwatch - Timestep: %10.2dr ms\n", solveWatch.elapsed()*1000);
         }
 
         // Stabilize Solution
@@ -717,6 +722,7 @@ module FREI
           }
 
           stabilizeTime += solveWatch.elapsed();
+          writef("      Stopwatch - Stabiliz: %10.2dr ms\n", solveWatch.elapsed()*1000);
         }
 
         if iteration % ioIter == 0 then
