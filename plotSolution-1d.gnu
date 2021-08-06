@@ -40,6 +40,48 @@ unset y2label
 set ytics mirror
 
 set ylabel "Density"
+set y2label "Density Residual"
+set title "Density plot - Initial vs Current" font "Cantarell,60"
+set output "gnuplot-density-debug.svg"
+plot "sol_sp_gnuplt_initial.dat" using 2:3 with lines       ls  1 axis x1y1 title "Initial", \
+     "sol_sp_gnuplt_sorted.dat"  using 2:3 with linespoints ls 10 axis x1y1 title "Solution at SP", \
+     "res_sp_gnuplt_sorted.dat"  using 2:3 with linespoints ls 30 axis x1y2 title "Residue", \
+     "res_src_gnuplt_sorted.dat" using 2:3 with linespoints ls 31 axis x1y2 title "Residue - Src Term", \
+     "res_dsc_gnuplt_sorted.dat" using 2:3 with linespoints ls 32 axis x1y2 title "Residue - Dsc Flux", \
+     "res_cnt_gnuplt_sorted.dat" using 2:3 with linespoints ls 33 axis x1y2 title "Residue - Cnt Flux", \
+     "sol_fp1_gnuplt_sorted.dat" using 2:3 with      points ls  3 axis x1y1 title "Solution at FP1", \
+     "sol_fp2_gnuplt_sorted.dat" using 2:3 with      points ls  4 axis x1y1 title "Solution at FP2"
+
+set ylabel "Momentum"
+set y2label "Momentum Residual"
+set title "Momentum plot - Initial vs Current"
+set output "gnuplot-momentum-debug.svg"
+plot "sol_sp_gnuplt_initial.dat" using 2:4 with lines       ls  1 axis x1y1 title "Initial", \
+     "sol_sp_gnuplt_sorted.dat"  using 2:4 with linespoints ls 10 axis x1y1 title "Solution at SP", \
+     "res_sp_gnuplt_sorted.dat"  using 2:4 with linespoints ls 30 axis x1y2 title "Residue", \
+     "res_src_gnuplt_sorted.dat" using 2:4 with linespoints ls 31 axis x1y2 title "Residue - Src Term", \
+     "res_dsc_gnuplt_sorted.dat" using 2:4 with linespoints ls 32 axis x1y2 title "Residue - Dsc Flux", \
+     "res_cnt_gnuplt_sorted.dat" using 2:4 with linespoints ls 33 axis x1y2 title "Residue - Cnt Flux", \
+     "sol_fp1_gnuplt_sorted.dat" using 2:4 with      points ls  3 axis x1y1 title "Solution at FP1", \
+     "sol_fp2_gnuplt_sorted.dat" using 2:4 with      points ls  4 axis x1y1 title "Solution at FP2"
+
+set ylabel "Energy"
+set y2label "Energy Residual"
+set title "Energy plot - Initial vs Current"
+set output "gnuplot-energy-debug.svg"
+plot "sol_sp_gnuplt_initial.dat" using 2:5 with lines       ls  1 axis x1y1 title "Initial", \
+     "sol_sp_gnuplt_sorted.dat"  using 2:5 with linespoints ls 10 axis x1y1 title "Solution at SP", \
+     "res_sp_gnuplt_sorted.dat"  using 2:5 with linespoints ls 30 axis x1y2 title "Residue", \
+     "res_src_gnuplt_sorted.dat" using 2:5 with linespoints ls 31 axis x1y2 title "Residue - Src Term", \
+     "res_dsc_gnuplt_sorted.dat" using 2:5 with linespoints ls 32 axis x1y2 title "Residue - Dsc Flux", \
+     "res_cnt_gnuplt_sorted.dat" using 2:5 with linespoints ls 33 axis x1y2 title "Residue - Cnt Flux", \
+     "sol_fp1_gnuplt_sorted.dat" using 2:5 with      points ls  3 axis x1y1 title "Solution at FP1", \
+     "sol_fp2_gnuplt_sorted.dat" using 2:5 with      points ls  4 axis x1y1 title "Solution at FP2"
+
+unset y2label
+set ytics mirror
+
+set ylabel "Density"
 set title "Density plot - Analytical vs Numeric" font "Cantarell,60"
 set output "gnuplot-density.svg"
 plot "sol_sp_gnuplt_initial.dat" using 2:3             with lines       ls  1 axis x1y1 title "Initial", \
@@ -80,3 +122,11 @@ set title "Mach plot - Initial vs Current"
 set output "gnuplot-mach.svg"
 plot "sol_sp_gnuplt_initial.dat" using 2:7             with lines       ls  1 axis x1y1 title "Initial", \
      "sol_sp_gnuplt_sorted.dat"  using 2:7             with linespoints ls 10 axis x1y1 title "Solution at SP", \
+     "sol_fp1_gnuplt_sorted.dat" using 2:7             with      points ls  3 axis x1y1 title "Solution at FP1", \
+     "sol_fp2_gnuplt_sorted.dat" using 2:7             with      points ls  4 axis x1y1 title "Solution at FP2"
+
+set ylabel "Density Flux"
+set title "Density Flux" font "Cantarell,60"
+set output "gnuplot-density-flux.svg"
+plot "flx_fp1_gnuplt_sorted.dat" using 2:3             with linespoints ls  3 axis x1y1 title "Flux at FP1", \
+     "flx_fp2_gnuplt_sorted.dat" using 2:3             with linespoints ls  4 axis x1y1 title "Flux at FP2"

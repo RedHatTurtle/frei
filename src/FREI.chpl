@@ -282,6 +282,15 @@ module FREI
     // Main Solver Iteration //
     ///////////////////////////
 
+    // Residue debug additions
+    use IO;
+    use Path;
+    var outputDir  : string = curDir;
+    var stringIter : string;
+    var res1 : [frMesh.resSP.domain] real;
+    var res2 : [frMesh.resSP.domain] real;
+    var res3 : [frMesh.resSP.domain] real;
+
     writeln();
     writef("Start Iterating\n");
     totalWatch.restart();
@@ -298,6 +307,10 @@ module FREI
       // Iterate RK stages
       label RK_STAGE for rkStage in 1..timeStepStages
       {
+        res1 = 0.0;
+        res2 = 0.0;
+        res3 = 0.0;
+
         // Calculate residue for this iteration
         {
           solveWatch.restart();
@@ -319,8 +332,16 @@ module FREI
                                                              Input.eqSet                 )
                                                * frMesh.jacSP[spIdx];
 
+            for spIdx in frMesh.resSP.domain.dim(1) do
+              res1[.., spIdx.. #1] = -source_term(frMesh.xyzSP[spIdx.. #1, ..],
+                                                  frMesh.solSP[.., spIdx.. #1],
+                                                  Input.eqSet                 );
+
             srcTermTime += residueWatch.elapsed();
           }
+          stringIter = "iter_" + iteration:string + "-rkstage_" + rkStage:string;
+          if iteration % ioIter == 0 then
+            output_gnuplot(outputDir, "res_src_gnuplt", stringIter, frMesh.xyzSP, res1);
 
           // Component 2: Discontinuous Flux
           {
@@ -431,12 +452,22 @@ module FREI
                 {
                   var flxsp = flxSP[dimIdx, .., 1..cellSPcnt];
                   frMesh.resSP[.., meshSP] += dot(flxsp, sp2spDeriv[(cellTopo, frMesh.solOrder)]!.coefs[cellSP, dimIdx, ..]);
+
+                  res2[.., meshSP] += dot(flxsp, sp2spDeriv[(cellTopo, frMesh.solOrder)]!.coefs[cellSP, dimIdx, ..]) / frMesh.jacSP[meshSP];
                 }
               }
               //dscFluxTime4 += dscFluxWatch.elapsed();
             }
 
             dscFluxTime += residueWatch.elapsed();
+          }
+          if iteration % ioIter == 0
+          {
+            var flxFPL : [frMesh.flxFP.domain.dim(0), frMesh.flxFP.domain.dim(2)] real = frMesh.flxFP[.., 1, ..];
+            var flxFPR : [frMesh.flxFP.domain.dim(0), frMesh.flxFP.domain.dim(2)] real = frMesh.flxFP[.., 2, ..];
+            output_gnuplot( outputDir, "flx_fpL_gnuplt", stringIter, frMesh.xyzFP, flxFPL.T );
+            output_gnuplot( outputDir, "flx_fpR_gnuplt", stringIter, frMesh.xyzFP, flxFPR.T );
+            output_gnuplot(outputDir, "res_dsc_gnuplt", stringIter, frMesh.xyzSP, res2);
           }
 
           // Component 3: Continuous Flux
@@ -581,6 +612,9 @@ module FREI
                     // transformation is required.
                     frMesh.resSP[.., cellSPini.. #cellSPcnt] += outer(jump[..]                          ,
                         flux_correction[(cellTopo, frMesh.solOrder+1)]!.correction[cellFP, 1..cellSPcnt]);
+
+                    res3[.., cellSPini.. #cellSPcnt] += outer(jump[..]                                  ,
+                        flux_correction[(cellTopo, frMesh.solOrder+1)]!.correction[cellFP, 1..cellSPcnt]);
                   }
                   //corrTime += correctionWatch.elapsed();
                 }
@@ -592,6 +626,12 @@ module FREI
           }
 
           residueTime += solveWatch.elapsed();
+
+          for meshSP in res3.domain.dim(1) do
+            res3[.., meshSP] /= frMesh.jacSP[meshSP];
+
+          if iteration % ioIter == 0 then
+            output_gnuplot(outputDir, "res_cnt_gnuplt", stringIter, frMesh.xyzSP, res3);
         }
 
         // Advance RK Stage
@@ -678,6 +718,9 @@ module FREI
 
           stabilizeTime += solveWatch.elapsed();
         }
+
+        if iteration % ioIter == 0 then
+          output_gnuplot(outputDir, "res_tot_gnuplt", stringIter, frMesh.xyzSP, frMesh.resSP);
       }
 
       // IO
