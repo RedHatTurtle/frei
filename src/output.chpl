@@ -53,8 +53,6 @@ prototype module Output
     // Write all selected output files
     output_gnuplot(outputDir, "sol_sp_gnuplt", stringIter, fr_mesh.xyzSP, fr_mesh.solSP, true, true);
     output_gnuplot(outputDir, "res_sp_gnuplt", stringIter, fr_mesh.xyzSP, fr_mesh.resSP);
-    output_gnuplot(outputDir, "sol_fp1_gnuplt", stringIter, fr_mesh.xyzFP, fr_mesh.solFP[..,1,..]);
-    output_gnuplot(outputDir, "sol_fp2_gnuplt", stringIter, fr_mesh.xyzFP, fr_mesh.solFP[..,2,..]);
 
     // Delete old output directories if necessary
   }
