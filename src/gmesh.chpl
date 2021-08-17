@@ -23,15 +23,15 @@ prototype module Gmesh
 
   class gmesh2_c
   {
-    var nNodes : int;
-    var nElements : int;
-    var nFamilies : int;
+    var nodes_d    : domain(rank=2, idxType=int);
+    var elements_d : domain(rank=1, idxType=int);
+    var families_d : domain(rank=1, idxType=int);
 
-    var nodes    : [1..nNodes, 1..3] real;
-    var elements : [1..nElements] gmesh_element_r;
-    var families : [1..nFamilies] gmesh_family_r;
+    var nodes    : [nodes_d] real;
+    var elements : [elements_d] gmesh_element_r;
+    var families : [families_d] gmesh_family_r;
 
-    proc random1D(xMin: real, xMax: real)
+    proc random1D(nCells : int, xMin : real = -1.0, xMax : real= 1.0)
     {
       use Random;
       use Parameters.ParamTest;
@@ -39,10 +39,16 @@ prototype module Gmesh
       import Sort.sort;
 
       var randStreamSeeded = new RandomStream(real, RANDOM_SEED);
+
+      // Allocate mesh elements
+      this.nodes_d = {1..nCells+1, 1..3};
+      this.elements_d = {1..nCells+2};
+      this.families_d = {1..3};
+
+      var nodePermutation : [this.nodes.domain.dim(0)] int;
+      var elemPermutation : [this.elements.domain] int;
       var x = this.nodes[..,1];
-      var cells : [1..this.nElements-2, 1..2] int;
-      var nodePermutation : [1..this.nNodes] int;
-      var elemPermutation : [1..this.nElements] int;
+      var cells : [1..nCells, 1..2] int;
 
       // Get random values from xMin to xMax
       x[1] = 0;
@@ -56,7 +62,8 @@ prototype module Gmesh
       permutation(elemPermutation, RANDOM_SEED);
 
       // Fill element list with non overlapping elements oriented from left to right
-      for i in 1..this.nElements-2 {
+      for i in 1..nCells
+      {
         cells[i,1] = i;
         cells[i,2] = i+1;
       }
@@ -72,11 +79,12 @@ prototype module Gmesh
       this.families[3].name = "right";
 
       // Fill node list in randomized order
-      for i in 1..this.nNodes do
+      for i in this.nodes.domain.dim(0) do
         this.nodes[nodePermutation[i],1] = x[i];
 
       // Fill element list with the internal elements in random order
-      for i in 2..this.nElements-1 {
+      for i in this.elements.domain.dim(0).expand(-1)
+      {
         this.elements[elemPermutation[i]].elemType = GMESH_LIN_2;
         this.elements[elemPermutation[i]].setNodes;
         this.elements[elemPermutation[i]].tags[1] = 1; // Family
@@ -91,29 +99,33 @@ prototype module Gmesh
       this.elements[elemPermutation[1]].nodes[1] = nodePermutation[1];
 
       // Add right boundary point to elements list
-      this.elements[elemPermutation[this.nElements]].elemType = GMESH_PNT_1;
-      this.elements[elemPermutation[this.nElements]].setNodes;
-      this.elements[elemPermutation[this.nElements]].tags[1] = 3; // Family
-      this.elements[elemPermutation[this.nElements]].nodes[1] = nodePermutation[this.nNodes];
+      this.elements[elemPermutation[nCells+2]].elemType = GMESH_PNT_1;
+      this.elements[elemPermutation[nCells+2]].setNodes;
+      this.elements[elemPermutation[nCells+2]].tags[1] = 3; // Family
+      this.elements[elemPermutation[nCells+2]].nodes[1] = nodePermutation[this.nodes.domain.dim(0).high];
     }
 
-    proc uniform1D(xMin: real, xMax: real)
+    proc uniform1D(nCells : int, xMin: real = -1.0, xMax: real = 1.0)
     {
-      use Random;
-      use Parameters.ParamTest;
       use Parameters.ParamGmesh;
       import Sort.sort;
 
-      var x = this.nodes[..,1];
-      var cells : [1..this.nElements-2, 1..2] int;
+      // Allocate mesh elements
+      this.nodes_d = {1..nCells+1, 1..3};
+      this.elements_d = {1..nCells+2};
+      this.families_d = {1..3};
 
-      // Get random values from xMin to xMax
-      var step : real = (xMax - xMin)/(this.nNodes-1);
-      for node in 1..this.nNodes do
+      var x = this.nodes[..,1];
+      var cells : [1..nCells, 1..2] int;
+
+      // Get uniform nodes from xMin to xMax
+      var step : real = (xMax - xMin)/nCells;
+      for node in this.nodes.domain.dim(0) do
         x[node] = xMin + (node-1)*step;
 
       // Fill element list with non overlapping elements oriented from left to right
-      for i in 1..this.nElements-2 {
+      for i in 1..nCells
+      {
         cells[i,1] = i;
         cells[i,2] = i+1;
       }
@@ -128,12 +140,13 @@ prototype module Gmesh
       this.families[3].nDim = 0;
       this.families[3].name = "right";
 
-      // Fill node list in randomized order
-      for i in 1..this.nNodes do
+      // Fill node list
+      for i in this.nodes.domain.dim(0) do
         this.nodes[i,1] = x[i];
 
-      // Fill element list with the internal elements in random order
-      for i in 2..this.nElements-1 {
+      // Fill element list with the internal elements
+      for i in this.elements.domain.dim(0).expand(-1)
+      {
         this.elements[i].elemType = GMESH_LIN_2;
         this.elements[i].setNodes;
         this.elements[i].tags[1] = 1; // Family
@@ -148,10 +161,10 @@ prototype module Gmesh
       this.elements[1].nodes[1] = 1;
 
       // Add right boundary point to elements list
-      this.elements[this.nElements].elemType = GMESH_PNT_1;
-      this.elements[this.nElements].setNodes;
-      this.elements[this.nElements].tags[1] = 3; // Family
-      this.elements[this.nElements].nodes[1] = this.nNodes;
+      this.elements[nCells+2].elemType = GMESH_PNT_1;
+      this.elements[nCells+2].setNodes;
+      this.elements[nCells+2].tags[1] = 3; // Family
+      this.elements[nCells+2].nodes[1] = this.nodes.domain.dim(0).high;
     }
 
     proc read_gmesh_file() {}
@@ -276,11 +289,20 @@ prototype module Gmesh
 
   proc main()
   {
-    var test_gmesh2 = new gmesh2_c(nNodes=7, nElements=8, nFamilies=3);
-    test_gmesh2.random1D(-1,2);
+    {
+      var test_gmesh2 = new gmesh2_c();
+      test_gmesh2.random1D(nCells=6, xMin=-1, xMax=2);
+      writeln("Test 1: Random 1D mesh - Gmsh2:");
+      writeln(test_gmesh2);
+      writeln();
+    }
 
-    writeln("Test 1: Random 1D mesh - Gmsh2:");
-    writeln(test_gmesh2);
-    writeln();
+    {
+      var test_gmesh2 = new gmesh2_c();
+      test_gmesh2.uniform1D(nCells=6, xMin=-1, xMax=2);
+      writeln("Test 2: Uniform 1D mesh - Gmsh2:");
+      writeln(test_gmesh2);
+      writeln();
+    }
   }
 }

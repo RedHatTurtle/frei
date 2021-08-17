@@ -1,5 +1,5 @@
 Test 1: Random 1D mesh - Gmesh:
-{nNodes = 7, nElements = 8, nFamilies = 3, nodes = -1.0 0.0 0.0
+{nodes_d = {1..7, 1..3}, elements_d = {1..8}, families_d = {1..3}, nodes = -1.0 0.0 0.0
 0.167753 0.0 0.0
 -0.851556 0.0 0.0
 -0.358397 0.0 0.0

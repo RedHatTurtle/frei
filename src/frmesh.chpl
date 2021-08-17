@@ -336,8 +336,8 @@ prototype module FRMesh {
   {
     use Gmesh;
 
-    var test_gmesh2 = new unmanaged gmesh2_c(nNodes=7, nElements=8, nFamilies=3);
-    test_gmesh2.random1D(-1,1);
+    var test_gmesh2 = new unmanaged gmesh2_c();
+    test_gmesh2.random1D(nCells=6, xMin=-1.0, xMax=1.0);
 
     // Get number of physical dimensions from mesh or input
     var test_mesh = new unmanaged mesh_c(nDims=1);

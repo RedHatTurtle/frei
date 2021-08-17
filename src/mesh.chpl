@@ -140,13 +140,13 @@ prototype module Mesh
       use Gmesh;
 
       // Copy nodes
-      this.nNodes = gmesh.nNodes;
+      this.nNodes = gmesh.nodes.domain.dim(0).high;
       this.nodeList_d = {1..this.nNodes};
       for node in this.nodeList_d do
         this.nodeList[node].xyz = gmesh.nodes[node,1..3];
 
       // Get family names and dimensions. These are used to sort the elements.
-      this.nFamls = gmesh.nFamilies;
+      this.nFamls = gmesh.families.domain.dim(0).high;
       this.famlList_d = {1..this.nFamls};
       for faml in this.famlList_d
       {
@@ -662,8 +662,8 @@ prototype module Mesh
   {
     use Gmesh;
 
-    var test_gmesh2 = new unmanaged gmesh2_c(nNodes=7, nElements=8, nFamilies=3);
-    test_gmesh2.random1D(-1,1);
+    var test_gmesh2 = new unmanaged gmesh2_c();
+    test_gmesh2.random1D(nCells=6, xMin=-1.0, xMax=1.0);
 
     writeln("Test 1: Random 1D mesh - Gmesh:");
     writeln(test_gmesh2);

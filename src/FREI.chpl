@@ -71,14 +71,14 @@ prototype module FREI
     }
 
     // 3. Read / define mesh
-    var gmesh2 = new unmanaged gmesh2_c(nNodes=Input.nCells+1, nElements=Input.nCells+2, nFamilies=Input.nFaml);
+    var gmesh2 = new unmanaged gmesh2_c();
 
     select Input.meshingScheme
     {
       when MESH_UNIFORM do
-        gmesh2.uniform1D(Input.xMin, Input.xMax);
+        gmesh2.uniform1D(Input.nCells, Input.xMin, Input.xMax);
       when MESH_RANDOM do
-        gmesh2.random1D(Input.xMin, Input.xMax);
+        gmesh2.random1D(Input.nCells, Input.xMin, Input.xMax);
     }
 
     // 5. Convert input mesh to solver mesh
@@ -156,7 +156,7 @@ prototype module FREI
 
     initTime = stopwatch.elapsed(TimeUnits.milliseconds);
     writef("Stopwatch - Init    : %10.2dr ms\n", initTime);
-    writef("Start Iterating");
+    writef("Start Iterating\n");
 
     // Solve flow
     iterTimer.start();
