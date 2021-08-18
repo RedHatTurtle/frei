@@ -16,3 +16,37 @@ Test 2: Uniform 1D mesh - Gmsh2:
 1.5 0.0 0.0
 2.0 0.0 0.0, elements = (elemType = 15, tags_d = {1..1}, tags = 2, nodes_d = {1..1}, nodes = 1) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 1 2) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 2 3) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 3 4) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 4 5) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 5 6) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 6 7) (elemType = 15, tags_d = {1..1}, tags = 3, nodes_d = {1..1}, nodes = 7), families = (tag = 1, nDim = 1, name = flow) (tag = 2, nDim = 0, name = left) (tag = 3, nDim = 0, name = right)}
 
+Test 3: Read 2D mesh - Gmsh2:
+Opening Gmesh2 formated mesh file
+Verifying Mesh Format  ... done
+Reading Physical Names ... done
+Reading Mesh Nodes     ... done
+Reading Mesh Elements  ... done
+
+Families found:
+   inlet, 0-D Elements, Tag:  1
+   outlet, 0-D Elements, Tag:  2
+   flow, 1-D Elements, Tag:  3
+
+{nodes_d = {1..21, 1..3}, elements_d = {1..22}, families_d = {1..3}, nodes = -10.0 0.0 0.0
+10.0 0.0 0.0
+-9.0 0.0 0.0
+-8.0 0.0 0.0
+-7.0 0.0 0.0
+-6.0 0.0 0.0
+-5.0 0.0 0.0
+-4.0 0.0 0.0
+-3.0 0.0 0.0
+-2.0 0.0 0.0
+-1.0 0.0 0.0
+-1.22906e-11 0.0 0.0
+1.0 0.0 0.0
+2.0 0.0 0.0
+3.0 0.0 0.0
+4.0 0.0 0.0
+5.0 0.0 0.0
+6.0 0.0 0.0
+7.0 0.0 0.0
+8.0 0.0 0.0
+9.0 0.0 0.0, elements = (elemType = 15, tags_d = {1..2}, tags = 1 1, nodes_d = {1..1}, nodes = 1) (elemType = 15, tags_d = {1..2}, tags = 2 2, nodes_d = {1..1}, nodes = 2) (elemType = 1, tags_d = {1..2}, tags = 3 1, nodes_d = {1..2}, nodes = 1 3) (elemType = 1, tags_d = {1..2}, tags = 3 1, nodes_d = {1..2}, nodes = 3 4) (elemType = 1, tags_d = {1..2}, tags = 3 1, nodes_d = {1..2}, nodes = 4 5) (elemType = 1, tags_d = {1..2}, tags = 3 1, nodes_d = {1..2}, nodes = 5 6) (elemType = 1, tags_d = {1..2}, tags = 3 1, nodes_d = {1..2}, nodes = 6 7) (elemType = 1, tags_d = {1..2}, tags = 3 1, nodes_d = {1..2}, nodes = 7 8) (elemType = 1, tags_d = {1..2}, tags = 3 1, nodes_d = {1..2}, nodes = 8 9) (elemType = 1, tags_d = {1..2}, tags = 3 1, nodes_d = {1..2}, nodes = 9 10) (elemType = 1, tags_d = {1..2}, tags = 3 1, nodes_d = {1..2}, nodes = 10 11) (elemType = 1, tags_d = {1..2}, tags = 3 1, nodes_d = {1..2}, nodes = 11 12) (elemType = 1, tags_d = {1..2}, tags = 3 1, nodes_d = {1..2}, nodes = 12 13) (elemType = 1, tags_d = {1..2}, tags = 3 1, nodes_d = {1..2}, nodes = 13 14) (elemType = 1, tags_d = {1..2}, tags = 3 1, nodes_d = {1..2}, nodes = 14 15) (elemType = 1, tags_d = {1..2}, tags = 3 1, nodes_d = {1..2}, nodes = 15 16) (elemType = 1, tags_d = {1..2}, tags = 3 1, nodes_d = {1..2}, nodes = 16 17) (elemType = 1, tags_d = {1..2}, tags = 3 1, nodes_d = {1..2}, nodes = 17 18) (elemType = 1, tags_d = {1..2}, tags = 3 1, nodes_d = {1..2}, nodes = 18 19) (elemType = 1, tags_d = {1..2}, tags = 3 1, nodes_d = {1..2}, nodes = 19 20) (elemType = 1, tags_d = {1..2}, tags = 3 1, nodes_d = {1..2}, nodes = 20 21) (elemType = 1, tags_d = {1..2}, tags = 3 1, nodes_d = {1..2}, nodes = 21 2), families = (tag = 1, nDim = 0, name = inlet) (tag = 2, nDim = 0, name = outlet) (tag = 3, nDim = 1, name = flow)}
+

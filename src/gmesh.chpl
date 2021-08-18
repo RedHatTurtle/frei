@@ -3,6 +3,8 @@ prototype module Gmesh
   use Random;
   use UnitTest;
 
+  config const testMesh : string = "test-cases/gmesh-1d-test.msh";
+
   // Planned supported mesh formats
   //
   // - 1D Internal generated mesh  (Frei 1.0)
@@ -179,7 +181,252 @@ prototype module Gmesh
       this.elements[nCells+2].nodes[1] = this.nodes.domain.dim(0).high;
     }
 
-    proc read_gmesh_file() {}
+    proc read_gmesh_file(meshFileName : string)
+    {
+      use IO;
+      use SysError;
+
+      enum section {Main, MeshFormat, PhysicalNames, Nodes, Elements, Periodic, NodeData, ElementData,
+                                ElementNodeData, InterpolationScheme};
+
+      var meshFile : file;
+
+      // Open the mesh file for reading only
+      try {
+        writeln("Opening Gmesh2 formated mesh file");
+        meshFile = open(meshFileName, iomode.r);
+      } catch e : FileNotFoundError {
+        writeln("Critical Error: Mesh file not found.");
+      } catch {
+        writeln("Unknown Error opening mesh file.");
+      }
+      var meshReadingChannel = meshFile.reader();
+
+      // Set initial state
+      var state = section.Main;
+      var nLines : int = 0;
+      var lineIdx : int = 1;
+
+      for line in meshReadingChannel.lines()
+      {
+        select state
+        {
+          when section.Main
+          {
+            // Update state with the section starting at this line
+            select line
+            {
+              when "$MeshFormat\n" do
+              {
+                write("Verifying Mesh Format  ...");
+                state = section.MeshFormat;
+              }
+              when "$PhysicalNames\n"
+              {
+                write("Reading Physical Names ...");
+                state = section.PhysicalNames;
+              }
+              when "$Nodes\n"
+              {
+                write("Reading Mesh Nodes     ...");
+                state = section.Nodes;
+              }
+              when "$Elements\n"
+              {
+                write("Reading Mesh Elements  ...");
+                state = section.Elements;
+              }
+              when "$Periodic\n" do
+                state = section.Periodic;
+              when "$NodeData\n" do
+                state = section.NodeData;
+              when "$ElementData\n" do
+                state = section.ElementData;
+              when "$ElementNodeData\n" do
+                state = section.ElementNodeData;
+              when "$InterpolationScheme\n" do
+                state = section.InterpolationScheme;
+              otherwise do
+                writeln("Unexpected line on main section");
+            }
+          }
+          when section.MeshFormat
+          {
+            if line == "$EndMeshFormat\n"
+            {
+                // Reset state to main section
+                writeln(" done");
+                state = section.Main;
+                nLines = 0;
+            }
+            else if line != "2.2 0 8\n"
+            {
+              // Validate if gmesh format is compatible with this class
+              writeln("Unsuported mesh format version");
+            }
+          }
+          when section.PhysicalNames
+         {
+            if line == "$EndPhysicalNames\n"
+            {
+                // Reset state to main section
+                writeln(" done");
+                state = section.Main;
+                nLines = 0;
+                lineIdx = 1;
+            }
+            else if nLines == 0
+            {
+              // If it's the first line of the section get the number of Physical Namas and allocate families
+              nLines = line : int;
+              this.families_d = {1..nLines};
+            }
+            else
+            {
+              var physicalDim  : int;
+              var physicalTag  : int;
+              var physicalName : string;
+              var valueIdx : int = 1;
+
+              for value in line.split()
+              {
+                 if valueIdx == 1 then
+                    this.families[lineIdx].nDim = value:int;
+                 if valueIdx == 2 then
+                    this.families[lineIdx].tag = value:int;
+                 if valueIdx == 3 then
+                    this.families[lineIdx].name = value.strip("\"");
+
+                 valueIdx += 1;
+              }
+
+              lineIdx += 1;
+            }
+          }
+          when section.Nodes
+          {
+            if line == "$EndNodes\n"
+            {
+                // Reset state to main section
+                writeln(" done");
+                state = section.Main;
+                nLines = 0;
+                lineIdx = 1;
+            }
+            else if nLines == 0
+            {
+              // If it's the first line of the section get the number of Physical Namas and allocate families
+              nLines = line : int;
+              this.nodes_d = {1..nLines, 1..3};
+            }
+            else
+            {
+              var nodeIdx   : int;
+              var nodeCoord : [1..3] real;
+
+              var valueIdx  : int = 1;
+              for value in line.split()
+              {
+                 if valueIdx == 1 then
+                    nodeIdx = value : int;
+                 if valueIdx == 2 then
+                    nodeCoord[1] = value : real;
+                 if valueIdx == 3 then
+                    nodeCoord[2] = value : real;
+                 if valueIdx == 4 then
+                    nodeCoord[3] = value : real;
+
+                 valueIdx += 1;
+              }
+
+              this.nodes[nodeIdx, 1..3] = nodeCoord[1..3];
+
+              lineIdx += 1;
+            }
+          }
+          when section.Elements
+          {
+            if line == "$EndElements\n"
+            {
+                // Reset state to main section
+                writeln(" done");
+                state = section.Main;
+                nLines = 0;
+                lineIdx = 1;
+            }
+            else if nLines == 0
+            {
+              // If it's the first line of the section get the number of Physical Namas and allocate families
+              nLines = line : int;
+              this.elements_d = {1..nLines};
+            }
+            else
+            {
+              var elemIdx   : int;
+
+              var valueIdx  : int = 1;
+              for value in line.split()
+              {
+                 // Element Number
+                 if valueIdx == 1 then
+                    elemIdx = value : int;
+                 // Element Type
+                 if valueIdx == 2
+                 {
+                    this.elements[elemIdx].elemType = value : int;
+                    this.elements[elemIdx].setNodes();
+                 }
+                 // Number of Tags
+                 if valueIdx == 3 then
+                    this.elements[elemIdx].tags_d = {1..value:int};
+                 // Tags
+                 if ((valueIdx > 3) && (valueIdx < 4+this.elements[elemIdx].tags.domain.dim(0).high)) then
+                    this.elements[elemIdx].tags[valueIdx-3] = value : int;
+                 // Node List
+                 if valueIdx >= 4+this.elements[elemIdx].tags.domain.dim(0).high then
+                   this.elements[elemIdx].nodes[valueIdx-(3+this.elements[elemIdx].tags_d.dim(0).high)] = value : int;
+
+                 valueIdx += 1;
+              }
+
+              lineIdx += 1;
+            }
+          }
+          when section.Periodic
+          {
+            if line == "$EndPeriodic\n" then
+              state = section.Main;
+          }
+          when section.NodeData
+          {
+            if line == "$EndNodeData\n" then
+              state = section.Main;
+          }
+          when section.ElementData
+          {
+            if line == "$EndElementData\n" then
+              state = section.Main;
+          }
+          when section.ElementNodeData
+          {
+            if line == "$EndElementNodeData\n" then
+              state = section.Main;
+          }
+          when section.InterpolationScheme
+          {
+            if line == "$EndInterpolationScheme\n" then
+              state = section.Main;
+          }
+        }
+      }
+
+      writeln();
+      writeln("Families found:");
+      for family in this.families do
+        writef("   %s, %1i-D Elements, Tag: %2i\n", family.name, family.nDim, family.tag);
+      writeln();
+    }
+
     proc write_gmesh_file() {}
   }
 
@@ -373,6 +620,14 @@ prototype module Gmesh
       writeln("Test 2: Uniform 1D mesh - Gmsh2:");
       var test_gmesh2 = new gmesh2_c();
       test_gmesh2.uniform1D(nCells=6, xMin=-1, xMax=2);
+      writeln(test_gmesh2);
+      writeln();
+    }
+
+    {
+      writeln("Test 3: Read 2D mesh - Gmsh2:");
+      var test_gmesh2 = new gmesh2_c();
+      test_gmesh2.read_gmesh_file(testMesh);
       writeln(test_gmesh2);
       writeln();
     }
