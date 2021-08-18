@@ -302,15 +302,15 @@ prototype module Parameters
   prototype module ParamGmesh
   {
     // Gmesh element topologies
-    param GMESH_PNT     : int = 1;
-    param GMESH_LIN     : int = 2;
-    param GMESH_TRI     : int = 3;
-    param GMESH_QUA     : int = 4;
-    param GMESH_TET     : int = 5;
-    param GMESH_PYR     : int = 6;
-    param GMESH_PRI     : int = 7;
-    param GMESH_HEX     : int = 8;
-    param GMESH_POLYG   : int = 9;
+    param GMESH_PNT     : int =  1;
+    param GMESH_LIN     : int =  2;
+    param GMESH_TRI     : int =  3;
+    param GMESH_QUA     : int =  4;
+    param GMESH_TET     : int =  5;
+    param GMESH_PYR     : int =  6;
+    param GMESH_PRI     : int =  7;
+    param GMESH_HEX     : int =  8;
+    param GMESH_POLYG   : int =  9;
     param GMESH_POLYH   : int = 10;
     param GMESH_XFEM    : int = 11;
     param GMESH_MINI    : int = 12;

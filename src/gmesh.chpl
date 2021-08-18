@@ -86,7 +86,7 @@ prototype module Gmesh
       for i in this.elements.domain.dim(0).expand(-1)
       {
         this.elements[elemPermutation[i]].elemType = GMESH_LIN_2;
-        this.elements[elemPermutation[i]].setNodes;
+        this.elements[elemPermutation[i]].setNodes();
         this.elements[elemPermutation[i]].tags[1] = 1; // Family
         this.elements[elemPermutation[i]].nodes[1] = nodePermutation[cells[i-1,1]];
         this.elements[elemPermutation[i]].nodes[2] = nodePermutation[cells[i-1,2]];
@@ -94,13 +94,13 @@ prototype module Gmesh
 
       // Add left boundary point to elements list
       this.elements[elemPermutation[1]].elemType = GMESH_PNT_1;
-      this.elements[elemPermutation[1]].setNodes;
+      this.elements[elemPermutation[1]].setNodes();
       this.elements[elemPermutation[1]].tags[1] = 2; // Family
       this.elements[elemPermutation[1]].nodes[1] = nodePermutation[1];
 
       // Add right boundary point to elements list
       this.elements[elemPermutation[nCells+2]].elemType = GMESH_PNT_1;
-      this.elements[elemPermutation[nCells+2]].setNodes;
+      this.elements[elemPermutation[nCells+2]].setNodes();
       this.elements[elemPermutation[nCells+2]].tags[1] = 3; // Family
       this.elements[elemPermutation[nCells+2]].nodes[1] = nodePermutation[this.nodes.domain.dim(0).high];
     }
@@ -148,7 +148,7 @@ prototype module Gmesh
       for i in this.elements.domain.dim(0).expand(-1)
       {
         this.elements[i].elemType = GMESH_LIN_2;
-        this.elements[i].setNodes;
+        this.elements[i].setNodes();
         this.elements[i].tags[1] = 1; // Family
         this.elements[i].nodes[1] = cells[i-1,1];
         this.elements[i].nodes[2] = cells[i-1,2];
@@ -156,13 +156,13 @@ prototype module Gmesh
 
       // Add left boundary point to elements list
       this.elements[1].elemType = GMESH_PNT_1;
-      this.elements[1].setNodes;
+      this.elements[1].setNodes();
       this.elements[1].tags[1] = 2; // Family
       this.elements[1].nodes[1] = 1;
 
       // Add right boundary point to elements list
       this.elements[nCells+2].elemType = GMESH_PNT_1;
-      this.elements[nCells+2].setNodes;
+      this.elements[nCells+2].setNodes();
       this.elements[nCells+2].tags[1] = 3; // Family
       this.elements[nCells+2].nodes[1] = this.nodes.domain.dim(0).high;
     }
@@ -228,7 +228,7 @@ prototype module Gmesh
       // Fill element list with the internal elements in random order
       for i in 2..this.nElements-1 {
         this.elements[elemPermutation[i]].elemType = GMESH_LIN_2;
-        this.elements[elemPermutation[i]].setNodes;
+        this.elements[elemPermutation[i]].setNodes();
         this.elements[elemPermutation[i]].tags[1] = 1; // Family
         this.elements[elemPermutation[i]].nodes[1] = nodePermutation[cells[i-1,1]];
         this.elements[elemPermutation[i]].nodes[2] = nodePermutation[cells[i-1,2]];
@@ -236,13 +236,13 @@ prototype module Gmesh
 
       // Add left boundary point to elements list
       this.elements[elemPermutation[1]].elemType = GMESH_PNT_1;
-      this.elements[elemPermutation[1]].setNodes;
+      this.elements[elemPermutation[1]].setNodes();
       this.elements[elemPermutation[1]].tags[1] = 2; // Family
       this.elements[elemPermutation[1]].nodes[1] = nodePermutation[1];
 
       // Add right boundary point to elements list
       this.elements[elemPermutation[this.nElements]].elemType = GMESH_PNT_1;
-      this.elements[elemPermutation[this.nElements]].setNodes;
+      this.elements[elemPermutation[this.nElements]].setNodes();
       this.elements[elemPermutation[this.nElements]].tags[1] = 3; // Family
       this.elements[elemPermutation[this.nElements]].nodes[1] = nodePermutation[this.nNodes];
     }
@@ -260,23 +260,83 @@ prototype module Gmesh
     var nodes_d : domain(rank=1, idxType=int);
     var nodes : [nodes_d] int;
 
-    proc setNodes
+    proc setNodes()
     {
       use Parameters.ParamGmesh;
 
       select this.elemType {
-        when GMESH_PNT_1  do this.nodes_d = {1..1};
-        when GMESH_LIN_2  do this.nodes_d = {1..2};
-        when GMESH_LIN_3  do this.nodes_d = {1..3};
-        when GMESH_LIN_4  do this.nodes_d = {1..4};
-        when GMESH_TRI_3  do this.nodes_d = {1..3};
-        when GMESH_TRI_6  do this.nodes_d = {1..6};
-        when GMESH_TRI_9  do this.nodes_d = {1..9};
-        when GMESH_TRI_10 do this.nodes_d = {1..10};
-        when GMESH_QUA_4  do this.nodes_d = {1..4};
-        when GMESH_QUA_9  do this.nodes_d = {1..9};
-        when GMESH_QUA_8  do this.nodes_d = {1..8};
-        when GMESH_QUA_16 do this.nodes_d = {1..16};
+        // Point
+        when GMESH_PNT_1    do this.nodes_d = {1..1   };
+        // Line
+        when GMESH_LIN_2    do this.nodes_d = {1..2   };
+        when GMESH_LIN_3    do this.nodes_d = {1..3   };
+        when GMESH_LIN_4    do this.nodes_d = {1..4   };
+        when GMESH_LIN_5    do this.nodes_d = {1..5   };
+        when GMESH_LIN_6    do this.nodes_d = {1..6   };
+        when GMESH_LIN_7    do this.nodes_d = {1..7   };
+        when GMESH_LIN_8    do this.nodes_d = {1..8   };
+        when GMESH_LIN_9    do this.nodes_d = {1..9   };
+        when GMESH_LIN_10   do this.nodes_d = {1..10  };
+        // Lagrange Triangles
+        when GMESH_TRI_3    do this.nodes_d = {1..3   };
+        when GMESH_TRI_6    do this.nodes_d = {1..6   };
+        when GMESH_TRI_10   do this.nodes_d = {1..10  };
+        when GMESH_TRI_15   do this.nodes_d = {1..15  };
+        when GMESH_TRI_21   do this.nodes_d = {1..21  };
+        when GMESH_TRI_28   do this.nodes_d = {1..28  };
+        when GMESH_TRI_36   do this.nodes_d = {1..36  };
+        when GMESH_TRI_45   do this.nodes_d = {1..45  };
+        when GMESH_TRI_55   do this.nodes_d = {1..55  };
+        // Lagrange Quadrilaterals
+        when GMESH_QUA_4    do this.nodes_d = {1..4   };
+        when GMESH_QUA_9    do this.nodes_d = {1..9   };
+        when GMESH_QUA_16   do this.nodes_d = {1..16  };
+        when GMESH_QUA_25   do this.nodes_d = {1..25  };
+        when GMESH_QUA_36   do this.nodes_d = {1..36  };
+        when GMESH_QUA_49   do this.nodes_d = {1..49  };
+        when GMESH_QUA_64   do this.nodes_d = {1..64  };
+        when GMESH_QUA_81   do this.nodes_d = {1..81  };
+        when GMESH_QUA_100  do this.nodes_d = {1..100 };
+        // Lagrange Tetrahedra
+        when GMESH_TET_4    do this.nodes_d = {1..4   };
+        when GMESH_TET_10   do this.nodes_d = {1..10  };
+        when GMESH_TET_20   do this.nodes_d = {1..20  };
+        when GMESH_TET_35   do this.nodes_d = {1..35  };
+        when GMESH_TET_56   do this.nodes_d = {1..56  };
+        when GMESH_TET_84   do this.nodes_d = {1..84  };
+        when GMESH_TET_120  do this.nodes_d = {1..120 };
+        when GMESH_TET_165  do this.nodes_d = {1..165 };
+        when GMESH_TET_220  do this.nodes_d = {1..220 };
+        // Lagrange Pyramids
+        when GMESH_PYR_5    do this.nodes_d = {1..5   };
+        when GMESH_PYR_14   do this.nodes_d = {1..14  };
+        when GMESH_PYR_30   do this.nodes_d = {1..30  };
+        when GMESH_PYR_55   do this.nodes_d = {1..55  };
+        when GMESH_PYR_91   do this.nodes_d = {1..91  };
+        when GMESH_PYR_140  do this.nodes_d = {1..140 };
+        when GMESH_PYR_204  do this.nodes_d = {1..204 };
+        when GMESH_PYR_285  do this.nodes_d = {1..285 };
+        when GMESH_PYR_385  do this.nodes_d = {1..385 };
+        // Lagrange Prisms
+        when GMESH_PRI_6    do this.nodes_d = {1..6   };
+        when GMESH_PRI_18   do this.nodes_d = {1..18  };
+        when GMESH_PRI_40   do this.nodes_d = {1..40  };
+        when GMESH_PRI_75   do this.nodes_d = {1..75  };
+        when GMESH_PRI_126  do this.nodes_d = {1..126 };
+        when GMESH_PRI_196  do this.nodes_d = {1..196 };
+        when GMESH_PRI_288  do this.nodes_d = {1..288 };
+        when GMESH_PRI_405  do this.nodes_d = {1..405 };
+        when GMESH_PRI_550  do this.nodes_d = {1..550 };
+        // Lagrange Hexahedra
+        when GMESH_HEX_8    do this.nodes_d = {1..8   };
+        when GMESH_HEX_27   do this.nodes_d = {1..27  };
+        when GMESH_HEX_64   do this.nodes_d = {1..64  };
+        when GMESH_HEX_125  do this.nodes_d = {1..125 };
+        when GMESH_HEX_216  do this.nodes_d = {1..216 };
+        when GMESH_HEX_343  do this.nodes_d = {1..343 };
+        when GMESH_HEX_512  do this.nodes_d = {1..512 };
+        when GMESH_HEX_729  do this.nodes_d = {1..729 };
+        when GMESH_HEX_1000 do this.nodes_d = {1..1000};
       }
     }
   }
