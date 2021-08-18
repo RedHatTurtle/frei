@@ -5,7 +5,7 @@ Test 1: Random 1D mesh - Gmsh2:
 -0.0375952 0.0 0.0
 2.0 0.0 0.0
 0.0779055 0.0 0.0
-1.30107 0.0 0.0, elements = (elemType = 15, nTags = 1, tags = 3, nodes_d = {1..1}, nodes = 5) (elemType = 1, nTags = 1, tags = 1, nodes_d = {1..2}, nodes = 6 2) (elemType = 1, nTags = 1, tags = 1, nodes_d = {1..2}, nodes = 1 3) (elemType = 1, nTags = 1, tags = 1, nodes_d = {1..2}, nodes = 3 4) (elemType = 1, nTags = 1, tags = 1, nodes_d = {1..2}, nodes = 7 5) (elemType = 1, nTags = 1, tags = 1, nodes_d = {1..2}, nodes = 4 6) (elemType = 1, nTags = 1, tags = 1, nodes_d = {1..2}, nodes = 2 7) (elemType = 15, nTags = 1, tags = 2, nodes_d = {1..1}, nodes = 1), families = (nDim = 1, name = flow) (nDim = 0, name = left) (nDim = 0, name = right)}
+1.30107 0.0 0.0, elements = (elemType = 15, tags_d = {1..1}, tags = 3, nodes_d = {1..1}, nodes = 5) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 6 2) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 1 3) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 3 4) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 7 5) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 4 6) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 2 7) (elemType = 15, tags_d = {1..1}, tags = 2, nodes_d = {1..1}, nodes = 1), families = (tag = 1, nDim = 1, name = flow) (tag = 2, nDim = 0, name = left) (tag = 3, nDim = 0, name = right)}
 
 Test 2: Uniform 1D mesh - Gmsh2:
 {nodes_d = {1..7, 1..3}, elements_d = {1..8}, families_d = {1..3}, nodes = -1.0 0.0 0.0
@@ -14,5 +14,5 @@ Test 2: Uniform 1D mesh - Gmsh2:
 0.5 0.0 0.0
 1.0 0.0 0.0
 1.5 0.0 0.0
-2.0 0.0 0.0, elements = (elemType = 15, nTags = 1, tags = 2, nodes_d = {1..1}, nodes = 1) (elemType = 1, nTags = 1, tags = 1, nodes_d = {1..2}, nodes = 1 2) (elemType = 1, nTags = 1, tags = 1, nodes_d = {1..2}, nodes = 2 3) (elemType = 1, nTags = 1, tags = 1, nodes_d = {1..2}, nodes = 3 4) (elemType = 1, nTags = 1, tags = 1, nodes_d = {1..2}, nodes = 4 5) (elemType = 1, nTags = 1, tags = 1, nodes_d = {1..2}, nodes = 5 6) (elemType = 1, nTags = 1, tags = 1, nodes_d = {1..2}, nodes = 6 7) (elemType = 15, nTags = 1, tags = 3, nodes_d = {1..1}, nodes = 7), families = (nDim = 1, name = flow) (nDim = 0, name = left) (nDim = 0, name = right)}
+2.0 0.0 0.0, elements = (elemType = 15, tags_d = {1..1}, tags = 2, nodes_d = {1..1}, nodes = 1) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 1 2) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 2 3) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 3 4) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 4 5) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 5 6) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 6 7) (elemType = 15, tags_d = {1..1}, tags = 3, nodes_d = {1..1}, nodes = 7), families = (tag = 1, nDim = 1, name = flow) (tag = 2, nDim = 0, name = left) (tag = 3, nDim = 0, name = right)}
 

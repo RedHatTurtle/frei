@@ -71,10 +71,13 @@ prototype module Gmesh
       // Commit values to object
 
       // Set the boundary and internal families
+      this.families[1].tag  = 1;
       this.families[1].nDim = 1;
       this.families[1].name = "flow";
+      this.families[2].tag  = 2;
       this.families[2].nDim = 0;
       this.families[2].name = "left";
+      this.families[3].tag  = 3;
       this.families[3].nDim = 0;
       this.families[3].name = "right";
 
@@ -87,6 +90,7 @@ prototype module Gmesh
       {
         this.elements[elemPermutation[i]].elemType = GMESH_LIN_2;
         this.elements[elemPermutation[i]].setNodes();
+        this.elements[elemPermutation[i]].tags_d = {1..1};
         this.elements[elemPermutation[i]].tags[1] = 1; // Family
         this.elements[elemPermutation[i]].nodes[1] = nodePermutation[cells[i-1,1]];
         this.elements[elemPermutation[i]].nodes[2] = nodePermutation[cells[i-1,2]];
@@ -95,12 +99,14 @@ prototype module Gmesh
       // Add left boundary point to elements list
       this.elements[elemPermutation[1]].elemType = GMESH_PNT_1;
       this.elements[elemPermutation[1]].setNodes();
+      this.elements[elemPermutation[1]].tags_d = {1..1};
       this.elements[elemPermutation[1]].tags[1] = 2; // Family
       this.elements[elemPermutation[1]].nodes[1] = nodePermutation[1];
 
       // Add right boundary point to elements list
       this.elements[elemPermutation[nCells+2]].elemType = GMESH_PNT_1;
       this.elements[elemPermutation[nCells+2]].setNodes();
+      this.elements[elemPermutation[nCells+2]].tags_d = {1..1};
       this.elements[elemPermutation[nCells+2]].tags[1] = 3; // Family
       this.elements[elemPermutation[nCells+2]].nodes[1] = nodePermutation[this.nodes.domain.dim(0).high];
     }
@@ -133,10 +139,13 @@ prototype module Gmesh
       // Commit values to object
 
       // Set the boundary and internal families
+      this.families[1].tag  = 1;
       this.families[1].nDim = 1;
       this.families[1].name = "flow";
+      this.families[2].tag  = 2;
       this.families[2].nDim = 0;
       this.families[2].name = "left";
+      this.families[3].tag  = 3;
       this.families[3].nDim = 0;
       this.families[3].name = "right";
 
@@ -149,6 +158,7 @@ prototype module Gmesh
       {
         this.elements[i].elemType = GMESH_LIN_2;
         this.elements[i].setNodes();
+        this.elements[i].tags_d = {1..1};
         this.elements[i].tags[1] = 1; // Family
         this.elements[i].nodes[1] = cells[i-1,1];
         this.elements[i].nodes[2] = cells[i-1,2];
@@ -157,12 +167,14 @@ prototype module Gmesh
       // Add left boundary point to elements list
       this.elements[1].elemType = GMESH_PNT_1;
       this.elements[1].setNodes();
+      this.elements[1].tags_d = {1..1};
       this.elements[1].tags[1] = 2; // Family
       this.elements[1].nodes[1] = 1;
 
       // Add right boundary point to elements list
       this.elements[nCells+2].elemType = GMESH_PNT_1;
       this.elements[nCells+2].setNodes();
+      this.elements[nCells+2].tags_d = {1..1};
       this.elements[nCells+2].tags[1] = 3; // Family
       this.elements[nCells+2].nodes[1] = this.nodes.domain.dim(0).high;
     }
@@ -254,11 +266,10 @@ prototype module Gmesh
   record gmesh_element_r
   {
     var elemType : int;
-    var nTags : int = 1;
-    var tags : [1..1] int;
-
-    var nodes_d : domain(rank=1, idxType=int);
-    var nodes : [nodes_d] int;
+    var tags_d   : domain(rank=1, idxType=int);
+    var tags     : [tags_d] int;
+    var nodes_d  : domain(rank=1, idxType=int);
+    var nodes    : [nodes_d] int;
 
     proc setNodes()
     {
@@ -343,6 +354,7 @@ prototype module Gmesh
 
   record gmesh_family_r
   {
+    var tag  : int;
     var nDim : int;
     var name : string;
   }
@@ -350,17 +362,17 @@ prototype module Gmesh
   proc main()
   {
     {
+      writeln("Test 1: Random 1D mesh - Gmsh2:");
       var test_gmesh2 = new gmesh2_c();
       test_gmesh2.random1D(nCells=6, xMin=-1, xMax=2);
-      writeln("Test 1: Random 1D mesh - Gmsh2:");
       writeln(test_gmesh2);
       writeln();
     }
 
     {
+      writeln("Test 2: Uniform 1D mesh - Gmsh2:");
       var test_gmesh2 = new gmesh2_c();
       test_gmesh2.uniform1D(nCells=6, xMin=-1, xMax=2);
-      writeln("Test 2: Uniform 1D mesh - Gmsh2:");
       writeln(test_gmesh2);
       writeln();
     }
