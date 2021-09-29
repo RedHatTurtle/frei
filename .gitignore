@@ -34,3 +34,5 @@ test_frei.sh
 *.swo
 *.kate*
 
+# Anything in the build folder
+/build/
