@@ -134,7 +134,7 @@ Dens : Density
 Ener : Energy
 Pres : Static Pressure
 Temp : Temperature
-Bel  : Velocity
+Vel  : Velocity
 Mom  : Momentum
 Mach : Mach Number
 A    : Speed of Sound

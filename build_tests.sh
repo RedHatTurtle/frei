@@ -89,10 +89,20 @@ chpl -o tests/flux_tests                                 \
 echo "done"
 echo
 echo "Building Riemann Tests:"
-chpl -o tests/riemann_tests                              \
-     --warnings                                    \
-     --warn-unstable                               \
-     --main-module Riemann src/riemann.chpl src/flux.chpl src/input.chpl src/mesh.chpl src/gmesh.chpl src/parameters.chpl |
+chpl -o tests/riemann_tests                             \
+     --warnings                                         \
+     --warn-unstable                                    \
+     -I/usr/include                                     \
+     -L/usr/lib64 -lcblas                               \
+     -I/usr/include                                     \
+     -L/usr/lib64 -lgfortran                            \
+     -L/usr/lib64 -llapacke -llapack -lcblas            \
+     --main-module Riemann src/riemann.chpl             \
+                           src/flux.chpl                \
+                           src/input.chpl               \
+                           src/mesh.chpl                \
+                           src/gmesh.chpl               \
+                           src/parameters.chpl          |
     tee tests/riemann_build.log
 echo "done"
 echo

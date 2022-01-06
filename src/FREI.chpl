@@ -332,18 +332,23 @@ prototype module FREI
                   select Input.eqSet
                   {
                     when EQ_CONVECTION do
-                      jump += upwind_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..], frMesh.nrmFP[meshFP, 1]);
+                      jump += upwind_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..], frMesh.nrmFP[meshFP, ..]);
                     when EQ_INVBURGERS do
-                      jump += upwind_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..], frMesh.nrmFP[meshFP, 1]);
+                      jump += upwind_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..], frMesh.nrmFP[meshFP, ..]);
                     when EQ_QUASI_1D_EULER do
-                      jump += roe_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..], frMesh.nrmFP[meshFP, 1]);
+                      jump += roe_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..], frMesh.nrmFP[meshFP, ..]);
                     when EQ_EULER do
-                      jump += roe_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..], frMesh.nrmFP[meshFP, 1]);
+                      jump += roe(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..], frMesh.nrmFP[meshFP, ..]);
                   }
 
                   // Convert fluxes from physical to computational domain.
                   // Multiply the flux vector by the inverse Jacobian matrix and by the Jacobian determiant
                   jump[..] = dot(jump[..], frMesh.metFP[meshFP, faceSide, 1, 1]**(-1))*frMesh.jacFP[meshFP, faceSide];
+
+                  if faceSide == 1 && cellFace == 1 then
+                    jump = -jump;
+                  if faceSide == 2 && cellFace == 2 then
+                    jump = -jump;
 
                   // The correction function was calculated in the computational domain already, therefore no
                   // transformation is required.
