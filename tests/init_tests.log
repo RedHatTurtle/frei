@@ -3,3 +3,9 @@
 1D Shock Tube
 src/init.chpl:48: error: halt reached - array index out of bounds
 note: index was 4 but array bounds are 0..3
+Stacktrace
+
+halt() at $CHPL_HOME/modules/standard/Errors.chpl:741
+checkAccess() at $CHPL_HOME/modules/internal/ChapelArray.chpl:1063
+flow_condition() at src/init.chpl:16
+main() at src/init.chpl:285
