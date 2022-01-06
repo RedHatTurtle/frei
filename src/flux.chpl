@@ -50,6 +50,19 @@ prototype module Flux
     return internalEnergy;
   }
 
+  proc entropy_cv(cons : [] real) : real
+  {
+    import Input.fGamma;
+
+    var idxDens : int   = cons.domain.dim(0).high;          // Last element is energy
+
+    var pressure : real = pressure_cv(cons);
+
+    var entropy : real = pressure/(cons[idxDens]**fGamma);
+
+    return entropy;
+  }
+
   proc sound_speed_cv(cons : [] real) : real
   {
     import Input.fGamma;
@@ -85,7 +98,7 @@ prototype module Flux
 
     var idxDens : int   = prim.domain.dim(0).low;           // First element is density
     var idxVel  : range = prim.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
-    var idxPres : int   = prim.domain.dim(0).high;          // Last element is energy
+    var idxPres : int   = prim.domain.dim(0).high;          // Last element is pressure
 
     var ener : real = prim[idxPres]/(fGamma-1) + 0.5*prim[idxDens]*dot(prim[idxVel], prim[idxVel]);
 
@@ -174,19 +187,19 @@ prototype module Flux
   {
   }
 
-  proc visc_flux_pv(prim : [] real, promGrad : [] real) : [] real
+  proc visc_flux_pv(prim : [] real, primGrad : [] real) : [] real
   {
   }
 
   proc main()
   {
     var cons1d : [1..3] real = [1.225, 250.1160830494510, 278846.40];
-    var cons2d : [1..4] real = [1.225, 249.9637190895680, 8.728925415626780, 278846.40];
-    var cons3d : [1..5] real = [1.225, 249.9637190895680, 8.728925415626780, 0.0, 278846.40];
+    var cons2d : [1..4] real = [1.225, 249.1643158413380, 21.7990529913099000, 278846.40];
+    var cons3d : [1..5] real = [1.225, 249.0125316723220, 21.7990529913099000, 8.6957092190856900, 278846.40];
 
     var prim1d : [1..3] real = [1.225, 204.1763943260830, 101325.0];
-    var prim2d : [1..4] real = [1.225, 204.0520155833210, 7.125653400511660, 101325.0];
-    var prim3d : [1..5] real = [1.225, 204.0520155833210, 7.125653400511660, 0.0, 101325.0];
+    var prim2d : [1..4] real = [1.225, 203.3994415031330, 17.7951452990285000, 101325.0];
+    var prim3d : [1..5] real = [1.225, 203.2755360590380, 17.7951452990285000, 7.0985381380291300, 101325.0];
 
     writeln("Conserverd variables, Density (kg/m³), XYZ Momentum components (kg*m/s*m³), Energy (J/m³):");
     writeln("1D: ", cons1d);
