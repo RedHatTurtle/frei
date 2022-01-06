@@ -35,7 +35,8 @@ prototype module Temporal_Methods
 
         newSol = sspRK_o2sN(oldSol, sol, res, dt, thisStage, nStages);
       }
-      when TIME_TVDRK_O3S3 {}
+      when TIME_TVDRK_O3S3 do
+        newSol = sspRK_o3s3(oldSol, sol, res, dt, thisStage);
       when TIME_TVDRK_O3S4 {}
       when TIME_TVDRK_O3S5 {}
       when TIME_TVDRK_O4S5 {}
@@ -91,8 +92,32 @@ prototype module Temporal_Methods
     if thisStage < nStages then
       newSol = sol - 1.0/(nStages-1.0)*res*dt;
     else if thisStage == nStages then
-      newSol = (oldSol + sol*(nStages-1.0) - dt*res)/nStages;
+      newSol = (oldSol + sol*(nStages-1.0) - res*dt)/nStages;
 
     return newSol;
+  }
+
+  proc sspRK_o3s3(oldSol : [] real, sol : [oldSol.domain] real, res : [oldSol.domain] real, dt : real, thisStage : int)
+      : [sol.domain] real
+  {
+    var newSol : [sol.domain] real;
+
+    if thisStage == 1 then
+      newSol = sol - res*dt;
+    else if thisStage == 2 then
+      newSol = (3.0/4.0)*oldSol + (1.0/4.0)*sol - (1.0/4.0)*res*dt;
+    else if thisStage == 3 then
+      newSol = (1.0/3.0)*oldSol + (2.0/3.0)*sol - (2.0/3.0)*res*dt;
+
+    return newSol;
+  }
+
+  proc main()
+  {
+    use IO.FormattedIO;
+    use Testing;
+
+    // Solver a simple random ODE and validate the solution
+
   }
 }
