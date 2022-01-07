@@ -1,3 +1,15 @@
+
+Initializing Polynomial Projection matrices
+    Cell Topologies: {2}
+    Minimum Polynomial Degree: 1
+    Maximum Polynomial Degree: 9
+    Initialized in     7.4 ms
+
+Initializing Quadrature Weight matrices
+    Element Topologies: {2}
+    Minimum Polynomial Degree: 1
+    Maximum Polynomial Degree: 9
+    Initialized in     0.2 ms
 2 Node Interpolation
    Limiter:   1.0000  | Sin:  [-6.549797e-01, -5.838524e-01]
    Limited Polynomial         [-6.194160e-01, -6.194160e-01]

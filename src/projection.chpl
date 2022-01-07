@@ -44,9 +44,18 @@ prototype module Projection
     //
     // Store inverted M so that alpha = matmul( M^(-1) , j[j] ) is easy to calculate
 
+    use Time;
     use Parameters.ParamMesh;
     use Polynomials;
     use Quadrature;
+
+    writeln();
+    writeln("Initializing Polynomial Projection matrices");
+    writeln("    Cell Topologies: ", cellTopos);
+    writeln("    Minimum Polynomial Degree: ", minPolyDegree);
+    writeln("    Maximum Polynomial Degree: ", maxPolyDegree);
+    var stopwatch : Timer;
+    stopwatch.start();
 
     // Add all combination of cell topology and interpolation order to the domain
     for cellTopo in cellTopos do
@@ -83,6 +92,8 @@ prototype module Projection
         otherwise do writeln("Unsupported mesh element found at projection initialization.");
       }
     }
+
+    writef("    Initialized in  %6.1dr ms\n", stopwatch.elapsed(TimeUnits.milliseconds));
   }
 
   proc proj_matrix(basis : [] real, weights : [] real, normalizedBasis : bool = false)
@@ -183,10 +194,13 @@ prototype module Projection
     cellTopos.add(TOPO_LINE);
 
     // Initialize projection matrix structure
+    init_polyProj(minPolyDegree, maxPolyDegree, cellTopos);
+
+    // Print initialized projection structure
     writeln();
     writeln("Interpolation initialized structure for FR (polyProj):");
+    writeln(polyProj);
     writeln();
-    init_polyProj(minPolyDegree, maxPolyDegree, cellTopos);
 
     // Define test polynomial parameters
     var polyDegree : int = 9;

@@ -1,7 +1,13 @@
 
 Quadrature initialized structure for FR (quadratureWeights)
 
-{weights_d = {1..2}, weights = 1.0 1.0} {weights_d = {1..4}, weights = 0.347855 0.652145 0.652145 0.347855} {weights_d = {1..8}, weights = 0.101229 0.222381 0.313707 0.362684 0.362684 0.313707 0.222381 0.101229} {weights_d = {1..1}, weights = 2.0} {weights_d = {1..7}, weights = 0.129485 0.279705 0.38183 0.417959 0.38183 0.279705 0.129485} {weights_d = {1..10}, weights = 0.0666713 0.149451 0.219086 0.269267 0.295524 0.295524 0.269267 0.219086 0.149451 0.0666713} {weights_d = {1..9}, weights = 0.0812744 0.180648 0.260611 0.312347 0.330239 0.312347 0.260611 0.180648 0.0812744} {weights_d = {1..5}, weights = 0.236927 0.478629 0.568889 0.478629 0.236927} {weights_d = {1..6}, weights = 0.171324 0.360762 0.467914 0.467914 0.360762 0.171324} {weights_d = {1..3}, weights = 0.555556 0.888889 0.555556}
+
+Initializing Quadrature Weight matrices
+    Element Topologies: {2}
+    Minimum Polynomial Degree: 0
+    Maximum Polynomial Degree: 9
+    Initialized in     0.5 ms
+{weights_d = {1..2}, weights = 1.0 1.0} {weights_d = {1..4}, weights = 0.347855 0.652145 0.652145 0.347855} {weights_d = {1..10}, weights = 0.0666713 0.149451 0.219086 0.269267 0.295524 0.295524 0.269267 0.219086 0.149451 0.0666713} {weights_d = {1..9}, weights = 0.0812744 0.180648 0.260611 0.312347 0.330239 0.312347 0.260611 0.180648 0.0812744} {weights_d = {1..8}, weights = 0.101229 0.222381 0.313707 0.362684 0.362684 0.313707 0.222381 0.101229} {weights_d = {1..1}, weights = 2.0} {weights_d = {1..5}, weights = 0.236927 0.478629 0.568889 0.478629 0.236927} {weights_d = {1..6}, weights = 0.171324 0.360762 0.467914 0.467914 0.360762 0.171324} {weights_d = {1..7}, weights = 0.129485 0.279705 0.38183 0.417959 0.38183 0.279705 0.129485} {weights_d = {1..3}, weights = 0.555556 0.888889 0.555556}
 
 Poly Degree | Algebraic Integral |  Simple Quadrature, Abs Error, Rel Error | Gauss Quadrature  , Abs Error, Rel Error
           0 |  1.48443711607e-01 |  1.48443711607e-01,  0.00e+00,  0.00e+00 |  1.48443711607e-01,  0.00e+00,  0.00e+00
