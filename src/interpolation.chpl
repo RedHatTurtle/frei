@@ -18,8 +18,12 @@ prototype module Interpolation
   var sp2spDeriv_d  : domain(2*int);
 
   // Coefficient structures
-  var sp2fpInterp : [sp2fpInterp_d] interpolation_coefficients_t;
-  var sp2spDeriv  : [sp2spDeriv_d]  interpolation_coefficients_t;
+  var sp2fpInterp : [sp2fpInterp_d] interpolation_coefficients_t; // Cell to face interpolation
+  var sp2spDeriv  : [sp2spDeriv_d]  interpolation_coefficients_t; // Cell to cell derivative
+
+  ///////////////////////////////////
+  //   Initialization Procedures   //
+  ///////////////////////////////////
 
   proc init_sp2fpInterp(minOrder : int, maxOrder : int, cellTopos : set(int))
   {
@@ -31,6 +35,7 @@ prototype module Interpolation
       for interpOrder in minOrder..maxOrder do
         sp2fpInterp_d.add((cellTopo, interpOrder));
 
+    // Calculate all relevant coefficients
     for (cellTopo, interpOrder) in sp2fpInterp.domain
     {
       select cellTopo
@@ -61,8 +66,6 @@ prototype module Interpolation
         otherwise do writeln("Unsupported mesh element found at interpolation initialization.");
       }
     }
-
-    // Calculate all relevant coefficients
   }
 
   proc init_sp2spDeriv(minOrder : int, maxOrder : int, cellTopos : set(int))
@@ -75,6 +78,7 @@ prototype module Interpolation
       for interpOrder in minOrder..maxOrder do
         sp2spDeriv_d.add((cellTopo, interpOrder));
 
+    // Calculate all relevant coefficients
     for (cellTopo, interpOrder) in sp2spDeriv.domain
     {
       select cellTopo
@@ -103,9 +107,11 @@ prototype module Interpolation
         otherwise do writeln("Unsupported mesh element found at interpolation initialization.");
       }
     }
-
-    // Calculate all relevant coefficients
   }
+
+  //////////////////////////////////////////
+  //   Lagrange Interpolation functions   //
+  //////////////////////////////////////////
 
   proc eval_LagrangePoly1D(x : real, k : int, xi : [] real) : real
   {
@@ -256,6 +262,10 @@ prototype module Interpolation
     return evalD2LagrangeDx2Array;
   }
 
+  ///////////////////////////////
+  //   Module Test Procedure   //
+  ///////////////////////////////
+
   proc main()
   {
     use IO;
@@ -297,7 +307,7 @@ prototype module Interpolation
     writeln("Polynomial Coefficients = ", coef);
     writeln();
 
-    // Create a set with the cell topologies contained in the hypothetics test mesh
+    // Create a set with the cell topologies contained in the hypothetical test mesh
     var cellTopos : set(int);
     cellTopos.add(2);  // Add Line element to the set
 
