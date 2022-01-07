@@ -29,6 +29,10 @@ prototype module Correction
 
   var flux_correction : [flux_correction_d] flux_correction_t;
 
+  //////////////////////////////////
+  //   Initialization Procedure   //
+  //////////////////////////////////
+
   proc init_correction(minOrder : int, maxOrder : int, cellTopos : set(int))
   {
     import Input.frScheme;
@@ -68,6 +72,7 @@ prototype module Correction
                   flux_correction[(cellTopo, interpOrder)]!.correction[fp,sp] = correction_g2_deriv(interpOrder, spLoc[sp]);
             }
 
+          // Invert the correction derivative for right side FP
           flux_correction[(cellTopo, interpOrder)]!.correction[2,..].reverse();
           flux_correction[(cellTopo, interpOrder)]!.correction[2,..] *= -1;
         }
@@ -81,6 +86,10 @@ prototype module Correction
       }
     }
   }
+
+  //////////////////////////////
+  //   Correction Functions   //
+  //////////////////////////////
 
   proc correction_dg (in n : int, in x : real) : real
   {
@@ -167,6 +176,10 @@ prototype module Correction
 
     return dy_n*( (n-1):real/(2*n-1):real ) + dy_p*( n:real/(2*n-1):real );
   }
+
+  ///////////////////////////////
+  //   Module Test Procedure   //
+  ///////////////////////////////
 
   proc main()
   {
