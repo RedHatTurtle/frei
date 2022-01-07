@@ -67,9 +67,9 @@ prototype module Quadrature
     return dot(quadratureWeights[(elemTopo, nodeCnt)]!.weights, nodalPoly);
   }
 
-  /////////////////////////////////////////
-  //   Weight set finding functions      //
-  /////////////////////////////////////////
+  //////////////////////////////////////
+  //   Weight set finding functions   //
+  //////////////////////////////////////
 
   proc weights_legendre_gauss(n : int) : [1..n] real
   {
@@ -217,11 +217,11 @@ prototype module Quadrature
     var minQuadratureDegree : int = 0;
     var maxQuadratureDegree : int = 9;
 
-    // Create a set with the cell topologies contained in the hypothetics test mesh
+    // Create a set with the cell topologies contained in the hypothetical test mesh
     var cellTopos : set(int);
-    cellTopos.add(TOPO_LINE);  // Add Line element to the set
+    cellTopos.add(TOPO_LINE);
 
-    // Intitialize projection matrix structure
+    // Intitialize quadrature matrix structure
     writeln();
     writeln("Quadrature initialized structure for FR (quadratureWeights)");
     writeln();
@@ -253,8 +253,8 @@ prototype module Quadrature
           for j in 0..testPolyDegree do
             nodalTestPoly[i] += testPoly[j]*nodes[i]**j;
         writef(" | %{18.11er}, %{9.2er}, %{9.2er}", integrate(nodalTestPoly, TOPO_LINE, nodeCnt-1),
-            error(algebraicIntegral, integrate(nodalTestPoly, TOPO_LINE, nodeCnt-1)),
-            relative_error(algebraicIntegral, integrate(nodalTestPoly, TOPO_LINE, nodeCnt-1)));
+                           error(algebraicIntegral, integrate(nodalTestPoly, TOPO_LINE, nodeCnt-1)),
+                  relative_error(algebraicIntegral, integrate(nodalTestPoly, TOPO_LINE, nodeCnt-1)));
       }
 
       // Gauss quadrature
@@ -266,8 +266,8 @@ prototype module Quadrature
           for j in 0..testPolyDegree do
             nodalTestPoly[i] += testPoly[j]*nodes[i]**j;
         writef(" | %{18.11er}, %{9.2er}, %{9.2er}", integrate(nodalTestPoly, TOPO_LINE, nodeCnt-1),
-            error(algebraicIntegral, integrate(nodalTestPoly, TOPO_LINE, nodeCnt-1)),
-            relative_error(algebraicIntegral, integrate(nodalTestPoly, TOPO_LINE, nodeCnt-1)));
+                           error(algebraicIntegral, integrate(nodalTestPoly, TOPO_LINE, nodeCnt-1)),
+                  relative_error(algebraicIntegral, integrate(nodalTestPoly, TOPO_LINE, nodeCnt-1)));
       }
       writef("\n");
     }
