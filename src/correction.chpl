@@ -35,10 +35,19 @@ prototype module Correction
 
   proc init_correction(minOrder : int, maxOrder : int, cellTopos : set(int))
   {
+    use Time;
     import Input.frScheme;
     use Parameters.ParamInput;
     use Parameters.ParamMesh;
     use Polynomials;
+
+    writeln();
+    writeln("Initializing Correction matrices");
+    writeln("    Cell Topologies: ", cellTopos);
+    writeln("    Minimum Polynomial Degree: ", minOrder);
+    writeln("    Maximum Polynomial Degree: ", maxOrder);
+    var stopwatch : Timer;
+    stopwatch.start();
 
     // Add all combination of cell topology and interpolation order to the domain
     for cellTopo in cellTopos do
@@ -85,6 +94,8 @@ prototype module Correction
         otherwise do writeln("Unsupported mesh element found at flux correction initialization.");
       }
     }
+
+    writef("    Initialized in  %6.1dr ms\n", stopwatch.elapsed(TimeUnits.milliseconds));
   }
 
   //////////////////////////////
