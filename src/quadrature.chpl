@@ -24,9 +24,18 @@ prototype module Quadrature
 
   proc init_quadratureWeights(minPolyDegree : int, maxPolyDegree : int, elemTopos : set(int))
   {
+    use Time;
     use Set;
     use Parameters.ParamMesh;
     use Polynomials;
+
+    writeln();
+    writeln("Initializing Quadrature Weight matrices");
+    writeln("    Element Topologies: ", elemTopos);
+    writeln("    Minimum Polynomial Degree: ", minPolyDegree);
+    writeln("    Maximum Polynomial Degree: ", maxPolyDegree);
+    var stopwatch : Timer;
+    stopwatch.start();
 
     // Add all combination of cell topology and interpolation order to the domain
     for elemTopo in elemTopos do
@@ -54,6 +63,8 @@ prototype module Quadrature
         otherwise do writeln("Unsupported mesh element found at quadrature initialization.");
       }
     }
+
+    writef("    Initialized in  %6.1dr ms\n", stopwatch.elapsed(TimeUnits.milliseconds));
   }
 
   ///////////////////////////////
