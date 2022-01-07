@@ -47,6 +47,7 @@ chpl -o build/frei_dbg                           \
                           src/polynomials.chpl   \
                           src/sourceterm.chpl    \
                           src/init.chpl          \
+                          src/ringleb.chpl       \
                           src/config.chpl        \
                           src/input.chpl         \
                           src/parameters.chpl    \
@@ -91,6 +92,7 @@ chpl -o build/frei_opt                           \
                           src/polynomials.chpl   \
                           src/sourceterm.chpl    \
                           src/init.chpl          \
+                          src/ringleb.chpl       \
                           src/config.chpl        \
                           src/input.chpl         \
                           src/parameters.chpl    \
@@ -134,6 +136,7 @@ PATH_TO_LAPACK_BINARIES="/opt/intel/oneapi/mkl/latest/lib/intel64"
 #                          src/polynomials.chpl   \
 #                          src/sourceterm.chpl    \
 #                          src/init.chpl          \
+#                          src/ringleb.chpl       \
 #                          src/config.chpl        \
 #                          src/input.chpl         \
 #                          src/parameters.chpl    \

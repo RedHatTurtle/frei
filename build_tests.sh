@@ -106,6 +106,19 @@ chpl -o tests/riemann_tests                             \
     tee tests/riemann_build.log
 echo "done"
 echo
+echo "Building Ringleb Tests:"
+chpl -o tests/ringleb_tests                             \
+     --warnings                                         \
+     --warn-unstable                                    \
+     --main-module Ringleb src/ringleb.chpl             \
+                           src/input.chpl               \
+                           src/mesh.chpl                \
+                           src/gmesh.chpl               \
+                           src/testing.chpl             \
+                           src/parameters.chpl          |
+   tee tests/ringleb_build.log
+echo "done"
+echo
 echo "Building Init Tests:"
 chpl -o tests/init_tests                                 \
      --warnings                                    \
@@ -160,6 +173,7 @@ echo "Running Tests"
 ./tests/flux_tests          &> tests/flux_tests.log
 ./tests/riemann_tests       &> tests/riemann_tests.log
 
+./tests/ringleb_tests       &> tests/ringleb_tests.log
 ./tests/init_tests          &> tests/init_tests.log
 ./tests/boundary_tests      &> tests/boundary_tests.log
 ./tests/limiter_tests       &> tests/limiter_tests.log

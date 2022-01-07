@@ -169,6 +169,10 @@ prototype module Parameters
   {
     param PI : real = 3.1415926535897932384626433832795028841971;
 
+    param EPS4 :  real = 1.0e-4;
+    param EPS6  : real = 1.0e-6;
+    param EPS8  : real = 1.0e-8;
+    param EPS10 : real = 1.0e-10;
     param EPS12 : real = 1.0e-12;
     param EPS13 : real = 1.0e-13;
     param EPS14 : real = 1.0e-14;
