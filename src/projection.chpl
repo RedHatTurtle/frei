@@ -21,6 +21,10 @@ prototype module Projection
   // Coefficient structures
   var polyProj : [polyProj_d] projection_coefficients_t;
 
+  //////////////////////////////////
+  //   Initialization Procedure   //
+  //////////////////////////////////
+
   proc init_polyProj(minPolyDegree : int, maxPolyDegree : int, cellTopos : set(int))
   {
     // We can build a matrix M[i,j] = P_j(x_i) that multiplied by a vector alpha[j] containing a linear combination of the orthogonal
@@ -61,14 +65,14 @@ prototype module Projection
 
           polyProj[(cellTopo, polyDegree)] = new projection_coefficients_t({0..polyDegree, 1..spCnt, 1..spCnt})!;
 
-          // calculate nodal values in several points for each component of the basis
-          var nodalbasis : [1..spCnt, 1..spCnt] real;
+          // Evaluate each component "n" of the polynomial basis at the interpolation points "i"
+          var nodalBasis : [1..spCnt, 1..spCnt] real;
           for i in 1..spCnt do
             for j in 1..spCnt do
-              nodalbasis[i,j] = eval_legendre_poly(j-1, nodes[i]);
+              nodalBasis[i,j] = eval_legendre_poly(j-1, nodes[i]);
 
           for projDegree in 0..polyDegree by -1 do
-            polyProj[(cellTopo, polyDegree)]!.coefs[projDegree, .., ..] = proj_matrix(nodalbasis[.., 1..projDegree+1], weights);
+            polyProj[(cellTopo, polyDegree)]!.coefs[projDegree, .., ..] = proj_matrix(nodalBasis[.., 1..projDegree+1], weights);
         }
         when TOPO_TRIA {}
         when TOPO_QUAD {}
@@ -87,11 +91,13 @@ prototype module Projection
 
     // basis : [1..spCnt, 1..modeCnt] real
     //      Matrix of the basis vectors of the projection space in nodal form
+    //      Values of each polynomial mode at each SP
     //
     // weights : [1..sps] real
     //      Gaussian quadrature weights for the abscissa used to represent the basis vectors
 
     // ProjectionMatrix(B) = B * (B^T * W * B)^{-1} * B^T * W
+    //      Where W is a diagonal matrix with the quadrature weights
 
 
     // B^T * W
@@ -102,7 +108,7 @@ prototype module Projection
     // If the basis is not normalized then normalize projection
     if !normalizedBasis
     {
-      // Inverse of the tnternal product of the basis vectors with themselfes. This shoud be a diagonal matrix with the
+      // Inverse of the internal product of the basis vectors with themselves. This should be a diagonal matrix with the
       // inverse of the norms of the basis vectors unless the basis is not orthogonal.
       var invNorm : [basis.domain.dim(1), basis.domain.dim(1)] real = inv(dot(BtW, basis));
 
@@ -116,6 +122,10 @@ prototype module Projection
 
     return projMatrix;
   }
+
+  /////////////////////////////
+  //   Projection Function   //
+  /////////////////////////////
 
   proc project_poly(nodalPoly : [1..polyDegree+1] real, cellTopo : int, polyDegree : int, projDegree : int)
   {
@@ -142,6 +152,10 @@ prototype module Projection
     return projection;
   }
 
+  ///////////////////////////////
+  //   Module Test Procedure   //
+  ///////////////////////////////
+
   proc main()
   {
     /*
@@ -164,11 +178,11 @@ prototype module Projection
     var minPolyDegree : int = 0;
     var maxPolyDegree : int = 9;
 
-    // Create a set with the cell topologies contained in the hypothetics test mesh
+    // Create a set with the cell topologies contained in the hypothetical test mesh
     var cellTopos : set(int);
-    cellTopos.add(2);  // Add Line element to the set
+    cellTopos.add(TOPO_LINE);
 
-    // Intitialize projection matrix structure
+    // Initialize projection matrix structure
     writeln();
     writeln("Interpolation initialized structure for FR (polyProj):");
     writeln();
