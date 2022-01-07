@@ -18,6 +18,55 @@ prototype module Quadrature
   // Coefficient structures
   var quadratureWeights : [quadratureWeights_d] quadrature_weights_t;
 
+  //////////////////////////////////
+  //   Initialization Procedure   //
+  //////////////////////////////////
+
+  proc init_quadratureWeights(minPolyDegree : int, maxPolyDegree : int, elemTopos : set(int))
+  {
+    use Set;
+    use Parameters.ParamMesh;
+    use Polynomials;
+
+    // Add all combination of cell topology and interpolation order to the domain
+    for elemTopo in elemTopos do
+      for quadratureDegree in minPolyDegree..maxPolyDegree do
+        quadratureWeights_d.add((elemTopo, quadratureDegree));
+
+    for (elemTopo, quadratureDegree) in quadratureWeights.domain
+    {
+      select elemTopo
+      {
+        when TOPO_LINE
+        {
+          var nodeCnt : int = quadratureDegree+1;
+
+          quadratureWeights[(elemTopo, quadratureDegree)] = new quadrature_weights_t({1..nodeCnt})!;
+
+          quadratureWeights[(elemTopo, quadratureDegree)]!.weights = weights_legendre_gauss(nodeCnt);
+        }
+        when TOPO_TRIA {}
+        when TOPO_QUAD {}
+        when TOPO_TETR {}
+        when TOPO_PYRA {}
+        when TOPO_PRIS {}
+        when TOPO_HEXA {}
+        otherwise do writeln("Unsupported mesh element found at quadrature initialization.");
+      }
+    }
+  }
+
+  ///////////////////////////////
+  //   Integration Procedure   //
+  ///////////////////////////////
+
+  proc integrate(nodalPoly : [] real, elemTopo : int, nodeCnt : int) : real
+  {
+    use LinearAlgebra;
+
+    return dot(quadratureWeights[(elemTopo, nodeCnt)]!.weights, nodalPoly);
+  }
+
   /////////////////////////////////////////
   //   Weight set finding functions      //
   /////////////////////////////////////////
@@ -141,56 +190,6 @@ prototype module Quadrature
 //        weights(i) = -scl*c3/y/dy;
 //      }
 //    }
-  }
-
-  //////////////////////////////////
-  //   Initialization Procedure   //
-  //////////////////////////////////
-
-  proc init_quadratureWeights(minPolyDegree : int, maxPolyDegree : int, elemTopos : set(int))
-  {
-    use Set;
-    use Parameters.ParamMesh;
-    use Polynomials;
-
-    // Add all combination of cell topology and interpolation order to the domain
-    for elemTopo in elemTopos do
-      for quadratureDegree in minPolyDegree..maxPolyDegree do
-        quadratureWeights_d.add((elemTopo, quadratureDegree));
-
-    for (elemTopo, quadratureDegree) in quadratureWeights.domain
-    {
-      select elemTopo
-      {
-        when TOPO_LINE
-        {
-          var nodeCnt : int = quadratureDegree+1;
-          var nodes   : [1..nodeCnt] real = nodes_legendre_gauss(nodeCnt);
-
-          quadratureWeights[(elemTopo, quadratureDegree)] = new quadrature_weights_t({1..nodeCnt})!;
-
-          quadratureWeights[(elemTopo, quadratureDegree)]!.weights = weights_legendre_gauss(nodeCnt);
-        }
-        when TOPO_TRIA {}
-        when TOPO_QUAD {}
-        when TOPO_TETR {}
-        when TOPO_PYRA {}
-        when TOPO_PRIS {}
-        when TOPO_HEXA {}
-        otherwise do writeln("Unsupported mesh element found at quadrature initialization.");
-      }
-    }
-  }
-
-  ///////////////////////////////
-  //   Integration Procedure   //
-  ///////////////////////////////
-
-  proc integrate(nodalPoly : [] real, elemTopo : int, nodeCnt : int) : real
-  {
-    use LinearAlgebra;
-
-    return dot(quadratureWeights[(elemTopo, nodeCnt)]!.weights, nodalPoly);
   }
 
   ///////////////////////////////
