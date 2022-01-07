@@ -293,6 +293,7 @@ prototype module Interpolation
     use IO;
     use Testing;
     use Parameters.ParamTest;
+    use Parameters.ParamMesh;
     use Polynomials;
 
     var randStream = new RandomStream(real);
@@ -331,7 +332,7 @@ prototype module Interpolation
 
     // Create a set with the cell topologies contained in the hypothetical test mesh
     var cellTopos : set(int);
-    cellTopos.add(2);  // Add Line element to the set
+    cellTopos.add(TOPO_LINE);
 
     // Calculate the Lagrange Basis
     writeln("Interpolation Basis");
@@ -401,7 +402,7 @@ prototype module Interpolation
 
     // Test the FR structures
     writeln();
-    writeln("Testing the inteterpolation structure for FR(sp2fpInterp):");
+    writeln("Testing the interpolation structure for FR(sp2fpInterp):");
     writeln();
     for interpOrder in minOrder..maxOrder
     {
@@ -444,7 +445,7 @@ prototype module Interpolation
     }
 
     writeln();
-    writeln("Testing the inteterpolation derivative structure for FR(sp2spDeriv):");
+    writeln("Testing the interpolation derivative structure for FR(sp2spDeriv):");
     writeln();
     for interpOrder in minOrder..maxOrder
     {

@@ -257,7 +257,7 @@ Initializing SP -> FP Interpolation matrices
     Cell Topologies: {2}
     Minimum Polynomial Degree: 0
     Maximum Polynomial Degree: 9
-    Initialized in     0.4 ms
+    Initialized in     0.6 ms
 {coefs_d = {1..2, 1..2}, coefs = 1.36603 -0.366025
 -0.366025 1.36603} {coefs_d = {1..2, 1..4}, coefs = 1.52679 -0.813632 0.400762 -0.113917
 -0.113917 0.400762 -0.813632 1.52679} {coefs_d = {1..2, 1..10}, coefs = 1.58801 -1.01629 0.757523 -0.583605 0.446602 -0.330858 0.230692 -0.144607 0.0735281 -0.0209922
@@ -278,7 +278,7 @@ Initializing SP -> SP' Differentiation matrices
     Cell Topologies: {2}
     Minimum Polynomial Degree: 0
     Maximum Polynomial Degree: 9
-    Initialized in     2.7 ms
+    Initialized in     2.8 ms
 {coefs_d = {1..2, 1..2}, coefs = -0.866025 0.866025
 -0.866025 0.866025} {coefs_d = {1..4, 1..4}, coefs = -3.332 4.86015 -2.10878 0.580628
 -0.757558 -0.384414 1.47067 -0.328698
@@ -327,7 +327,7 @@ Initializing SP -> SP' Differentiation matrices
 0.645497 -2.58199 1.93649}
 
 
-Testing the inteterpolation structure for FR(sp2fpInterp):
+Testing the interpolation structure for FR(sp2fpInterp):
 
 Degree  0 interpolation | y(-1.0000) =  0.2789 | interp(-1.0000) =  0.2789 | Abs Erro =   0.000e+00 | Rel Error =   0.000e+00
 Degree  0 interpolation | y( 1.0000) =  0.2789 | interp( 1.0000) =  0.2789 | Abs Erro =   0.000e+00 | Rel Error =   0.000e+00
@@ -360,7 +360,7 @@ Degree  9 interpolation | y(-1.0000) =  0.2184 | interp(-1.0000) =  0.2184 | Abs
 Degree  9 interpolation | y( 1.0000) =  4.4442 | interp( 1.0000) =  4.4442 | Abs Erro =  -8.882e-16 | Rel Error =  -1.999e-16
 
 
-Testing the inteterpolation derivative structure for FR(sp2spDeriv):
+Testing the interpolation derivative structure for FR(sp2spDeriv):
 
 Degree  0 interpolation | y( 0.0000) =  0.0000 | interp( 0.0000) =  0.0000 | Abs Erro =   0.000e+00 | Rel Error =         nan
 
