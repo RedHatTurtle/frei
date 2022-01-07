@@ -40,17 +40,17 @@ prototype module Interpolation
           var spCnt : int = interpOrder+1;
           var fpCnt : int = 2;
 
+          sp2fpInterp[(cellTopo, interpOrder)] = new interpolation_coefficients_t({1..fpCnt, 1..spCnt})!;
+
           // Need to build an appropriate way to query the point location for each element.
           // Initially assume the whole mesh uses the same base distribution specified in input file.
           // Even more initially assume the whole mesh has SPs on Legendre roots. xD
           var spLoc : [1..spCnt] real = nodes_legendre_gauss(spCnt);
           var fpLoc : [1..fpCnt] real = [-1.0, 1.0];
 
-          sp2fpInterp[(cellTopo, interpOrder)] = new interpolation_coefficients_t({1..fpCnt, 1..spCnt})!;
-
           for fp in 1..fpCnt do
-            sp2fpInterp[(cellTopo, interpOrder)]!.coefs[{fp..#1, 1..spCnt}] =
-                  reshape(eval_LagrangePoly1D_array(fpLoc[fp], spLoc), {fp..#1, 1..spCnt});
+            sp2fpInterp[(cellTopo, interpOrder)]!.coefs[{fp..#1, 1..spCnt}] = reshape(
+                eval_LagrangePoly1D_array(fpLoc[fp], spLoc), {fp..#1, 1..spCnt});
         }
         when TOPO_TRIA {}
         when TOPO_QUAD {}
@@ -83,12 +83,12 @@ prototype module Interpolation
         {
           var spCnt : int = interpOrder+1;
 
+          sp2spDeriv[(cellTopo, interpOrder)] = new interpolation_coefficients_t({1..spCnt, 1..spCnt})!;
+
           // Need to build an appropriate way to query the point location for each element.
           // Initially assume the whole mesh uses the same base distribution specified in input file.
           // Even more initially assume the whole mesh has SPs on Legendre roots. xD
           var spLoc : [1..spCnt] real = nodes_legendre_gauss(spCnt);
-
-          sp2spDeriv[(cellTopo, interpOrder)] = new interpolation_coefficients_t({1..spCnt, 1..spCnt})!;
 
           for sp in 1..spCnt do
             sp2spDeriv[(cellTopo, interpOrder)]!.coefs[{sp..#1, 1..spCnt}] =
@@ -297,6 +297,10 @@ prototype module Interpolation
     writeln("Polynomial Coefficients = ", coef);
     writeln();
 
+    // Create a set with the cell topologies contained in the hypothetics test mesh
+    var cellTopos : set(int);
+    cellTopos.add(2);  // Add Line element to the set
+
     // Calculate the Lagrange Basis
     writeln("Interpolation Basis");
     for i in 0..9 {
@@ -342,10 +346,6 @@ prototype module Interpolation
       }
       writeln();
     }
-
-    // Create a set with the cell topologies contained in the hypothetics test mesh
-    var cellTopos : set(int);
-    cellTopos.add(2);  // Add Line element to the set
 
     var minOrder : int = 0;
     var maxOrder : int = 9;
