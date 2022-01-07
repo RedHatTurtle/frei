@@ -159,7 +159,8 @@ Initializing Correction matrices
     Cell Topologies: {2}
     Minimum Polynomial Degree: 0
     Maximum Polynomial Degree: 9
-    Initialized in     0.5 ms
+    Initialized in     0.3 ms
+
 {correction_d = {1..2, 1..1}, correction = -0.5
 0.5} {correction_d = {1..2, 1..3}, correction = -2.6619 0.75 -0.338105
 0.338105 -0.75 2.6619} {correction_d = {1..2, 1..9}, correction = -19.5008 5.56708 -2.8295 1.77117 -1.23047 0.903801 -0.678061 0.497175 -0.315473

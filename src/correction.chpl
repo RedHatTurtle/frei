@@ -195,6 +195,7 @@ prototype module Correction
   proc main()
   {
     use IO;
+    use Parameters.ParamMesh;
     use Testing;
     use Polynomials;
 
@@ -226,7 +227,7 @@ prototype module Correction
 
     // Create a set with the cell topologies contained in the hypothetics test mesh
     var cellTopos : set(int);
-    cellTopos.add(2);  // Add Line element to the set
+    cellTopos.add(TOPO_LINE);
 
     var minOrder : int = 0;
     var maxOrder : int = 9;
@@ -237,6 +238,7 @@ prototype module Correction
     writeln();
 
     init_correction(minOrder, maxOrder, cellTopos);
+    writeln();
     writeln(flux_correction);
     writeln();
   }
