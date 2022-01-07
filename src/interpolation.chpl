@@ -27,8 +27,17 @@ prototype module Interpolation
 
   proc init_sp2fpInterp(minOrder : int, maxOrder : int, cellTopos : set(int))
   {
+    use Time;
     use Parameters.ParamMesh;
     use Polynomials;
+
+    writeln();
+    writeln("Initializing SP -> FP Interpolation matrices");
+    writeln("    Cell Topologies: ", cellTopos);
+    writeln("    Minimum Polynomial Degree: ", minOrder);
+    writeln("    Maximum Polynomial Degree: ", maxOrder);
+    var stopwatch : Timer;
+    stopwatch.start();
 
     // Add all combination of cell topology and interpolation order to the domain
     for cellTopo in cellTopos do
@@ -66,12 +75,23 @@ prototype module Interpolation
         otherwise do writeln("Unsupported mesh element found at interpolation initialization.");
       }
     }
+
+    writef("    Initialized in  %6.1dr ms\n", stopwatch.elapsed(TimeUnits.milliseconds));
   }
 
   proc init_sp2spDeriv(minOrder : int, maxOrder : int, cellTopos : set(int))
   {
+    use Time;
     use Parameters.ParamMesh;
     use Polynomials;
+
+    writeln();
+    writeln("Initializing SP -> SP' Differentiation matrices");
+    writeln("    Cell Topologies: ", cellTopos);
+    writeln("    Minimum Polynomial Degree: ", minOrder);
+    writeln("    Maximum Polynomial Degree: ", maxOrder);
+    var stopwatch : Timer;
+    stopwatch.start();
 
     // Add all combination of cell topology and interpolation order to the domain
     for cellTopo in cellTopos do
@@ -107,6 +127,8 @@ prototype module Interpolation
         otherwise do writeln("Unsupported mesh element found at interpolation initialization.");
       }
     }
+
+    writef("    Initialized in  %6.1dr ms\n", stopwatch.elapsed(TimeUnits.milliseconds));
   }
 
   //////////////////////////////////////////
