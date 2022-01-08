@@ -28,6 +28,7 @@ prototype module Quadrature
     use Set;
     use Parameters.ParamMesh;
     use Polynomials;
+    use LinearAlgebra;
 
     writeln();
     writeln("Initializing Quadrature Weight matrices");
@@ -52,10 +53,18 @@ prototype module Quadrature
 
           quadratureWeights[(elemTopo, quadratureDegree)] = new quadrature_weights_t({1..nodeCnt})!;
 
-          quadratureWeights[(elemTopo, quadratureDegree)]!.weights = weights_legendre_gauss(nodeCnt);
+          quadratureWeights[(elemTopo, quadratureDegree)]!.weights = weights_legendre_gauss(quadratureDegree+1);
         }
         when TOPO_TRIA {}
-        when TOPO_QUAD {}
+        when TOPO_QUAD
+        {
+          var nodeCnt : int = (quadratureDegree+1)**2;
+
+          quadratureWeights[(elemTopo, quadratureDegree)] = new quadrature_weights_t({1..nodeCnt})!;
+
+          quadratureWeights[(elemTopo, quadratureDegree)]!.weights = reshape(
+              outer(weights_legendre_gauss(quadratureDegree+1), weights_legendre_gauss(quadratureDegree+1)), {1..nodeCnt});
+        }
         when TOPO_TETR {}
         when TOPO_PYRA {}
         when TOPO_PRIS {}
@@ -231,27 +240,35 @@ prototype module Quadrature
     // Create a set with the cell topologies contained in the hypothetical test mesh
     var cellTopos : set(int);
     cellTopos.add(TOPO_LINE);
+    cellTopos.add(TOPO_QUAD);
 
     // Intitialize quadrature matrix structure
     writeln();
-    writeln("Quadrature initialized structure for FR (quadratureWeights)");
-    writeln();
+    writeln("Initializing quadrature module for FR (quadratureWeights):");
     init_quadratureWeights(minQuadratureDegree, maxQuadratureDegree, cellTopos);
-    writeln(quadratureWeights);
-    writef("\n");
 
+    // Dump Initialized structure
+    writeln();
+    writeln("Quadrature initialized structure for FR (quadratureWeights)");
+    writeln(quadratureWeights);
+
+    writeln();
+    writeln("Test integrating randomly generated polynomials");
+
+    writeln();
+    writeln("Topo Line");
     writef("Poly Degree | Algebraic Integral |  Simple Quadrature, Abs Error, Rel Error | Gauss Quadrature  , Abs Error, Rel Error\n");
     for testPolyDegree in minQuadratureDegree..maxQuadratureDegree
     {
       // Generate random polynomial coefficients
-      var testPoly : [0..testPolyDegree] real;
-      randStreamSeeded.fillRandom(testPoly);
+      var xTestPoly : [0..testPolyDegree] real;
+      randStreamSeeded.fillRandom(xTestPoly);
       writef("%11i", testPolyDegree);
 
       // Algebraic Integration
       var algebraicIntegral : real = 0.0;
       for i in 0..testPolyDegree do
-        algebraicIntegral += (testPoly[i]/(i+1)*1.0**(i+1)) - (testPoly[i]/(i+1)*(-1.0)**(i+1));
+        algebraicIntegral += (xTestPoly[i]/(i+1)*1.0**(i+1)) - (xTestPoly[i]/(i+1)*(-1.0)**(i+1));
 
       writef(" | %{18.11er}", algebraicIntegral);
 
@@ -262,7 +279,7 @@ prototype module Quadrature
         var nodalTestPoly : [1..nodeCnt] real = 0.0;
         for i in 1..nodeCnt do
           for j in 0..testPolyDegree do
-            nodalTestPoly[i] += testPoly[j]*nodes[i]**j;
+            nodalTestPoly[i] += xTestPoly[j]*nodes[i]**j;
         writef(" | %{18.11er}, %{9.2er}, %{9.2er}", integrate(nodalTestPoly, TOPO_LINE, nodeCnt-1),
                            error(algebraicIntegral, integrate(nodalTestPoly, TOPO_LINE, nodeCnt-1)),
                   relative_error(algebraicIntegral, integrate(nodalTestPoly, TOPO_LINE, nodeCnt-1)));
@@ -275,10 +292,69 @@ prototype module Quadrature
         var nodalTestPoly : [1..nodeCnt] real = 0.0;
         for i in 1..nodeCnt do
           for j in 0..testPolyDegree do
-            nodalTestPoly[i] += testPoly[j]*nodes[i]**j;
+            nodalTestPoly[i] += xTestPoly[j]*nodes[i]**j;
         writef(" | %{18.11er}, %{9.2er}, %{9.2er}", integrate(nodalTestPoly, TOPO_LINE, nodeCnt-1),
                            error(algebraicIntegral, integrate(nodalTestPoly, TOPO_LINE, nodeCnt-1)),
                   relative_error(algebraicIntegral, integrate(nodalTestPoly, TOPO_LINE, nodeCnt-1)));
+      }
+      writef("\n");
+    }
+
+    writeln();
+    writeln("Topo Quad");
+    writef("Poly Degree | Algebraic Integral |  Simple Quadrature, Abs Error, Rel Error | Gauss Quadrature  , Abs Error, Rel Error\n");
+    for testPolyDegree in minQuadratureDegree..maxQuadratureDegree
+    {
+      // Generate random polynomial coefficients
+      var xTestPoly : [0..testPolyDegree] real;
+      var yTestPoly : [0..testPolyDegree] real;
+      randStreamSeeded.fillRandom(xTestPoly);
+      randStreamSeeded.fillRandom(yTestPoly);
+      writef("%11i", testPolyDegree);
+
+      // Algebraic Integration
+      var algebraicIntegral : real = 0.0;
+      for i in 0..testPolyDegree do
+        for j in 0..testPolyDegree do
+          algebraicIntegral += xTestPoly[i]*yTestPoly[j]/(i+1)/(j+1)*(+1.0)**(i+1)*(+1.0)**(j+1)
+                              -xTestPoly[i]*yTestPoly[j]/(i+1)/(j+1)*(+1.0)**(i+1)*(-1.0)**(j+1)
+                              -xTestPoly[i]*yTestPoly[j]/(i+1)/(j+1)*(-1.0)**(i+1)*(+1.0)**(j+1)
+                              +xTestPoly[i]*yTestPoly[j]/(i+1)/(j+1)*(-1.0)**(i+1)*(-1.0)**(j+1);
+
+      writef(" | %{18.11er}", algebraicIntegral);
+
+      // Simple Quadrature
+      {
+        var nodeCnt : int = (testPolyDegree+1)**2;
+        var nodeDistLine  : [1..testPolyDegree+1] real = nodes_legendre_gauss(testPolyDegree+1);
+        var nodalTestPoly : [1..nodeCnt] real = 0.0;
+
+        for n in 1..nodeCnt do
+          for i in 0..testPolyDegree do
+            for j in 0..testPolyDegree do
+              nodalTestPoly[n] += xTestPoly[i]*nodeDistLine[(n-1)/(testPolyDegree+1)+1]**i
+                                 *yTestPoly[j]*nodeDistLine[(n-1)%(testPolyDegree+1)+1]**j;
+
+        writef(" | %{18.11er}, %{9.2er}, %{9.2er}", integrate(nodalTestPoly, TOPO_QUAD, testPolyDegree),
+                           error(algebraicIntegral, integrate(nodalTestPoly, TOPO_QUAD, testPolyDegree)),
+                  relative_error(algebraicIntegral, integrate(nodalTestPoly, TOPO_QUAD, testPolyDegree)));
+      }
+
+      // Gauss quadrature
+      {
+        var nodeCnt : int = (testPolyDegree/2+1)**2;
+        var nodeDistLine  : [1..testPolyDegree/2+1] real = nodes_legendre_gauss(testPolyDegree/2+1);
+        var nodalTestPoly : [1..nodeCnt] real = 0.0;
+
+        for n in 1..nodeCnt do
+          for i in 0..testPolyDegree do
+            for j in 0..testPolyDegree do
+              nodalTestPoly[n] += xTestPoly[i]*nodeDistLine[(n-1)/(testPolyDegree/2+1)+1]**i
+                                 *yTestPoly[j]*nodeDistLine[(n-1)%(testPolyDegree/2+1)+1]**j;
+
+        writef(" | %{18.11er}, %{9.2er}, %{9.2er}", integrate(nodalTestPoly, TOPO_QUAD, testPolyDegree/2),
+                           error(algebraicIntegral, integrate(nodalTestPoly, TOPO_QUAD, testPolyDegree/2)),
+                  relative_error(algebraicIntegral, integrate(nodalTestPoly, TOPO_QUAD, testPolyDegree/2)));
       }
       writef("\n");
     }
