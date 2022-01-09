@@ -1,12 +1,23 @@
 #!/bin/bash
 
+echo
+echo "------------------------------------------------------------"
+
 if [ ! -d "build" ]; then
+    echo
+    echo "Creating build directory"
     mkdir build
+    echo
+    echo "------------------------------------------------------------"
 fi
 
 ##################################################
 ###   Debug Build                              ###
 ##################################################
+
+echo
+echo "Building debug version of Frei..."
+echo
 
 PATH_TO_CBLAS_DIR="/usr/include"
 PATH_TO_BLAS_LIBS="/usr/lib64"
@@ -53,10 +64,21 @@ chpl -o build/frei_dbg                           \
                           src/parameters.chpl    \
                           src/testing.chpl       |
     tee build/frei_dbg-build.log
+if [ $? -eq 0 ]; then
+  echo -e "\nSuccess"
+else
+  echo -e "\nFailed"
+fi
+echo
+echo "------------------------------------------------------------"
 
 ##################################################
 ###   Optimized / Production Build             ###
 ##################################################
+
+echo
+echo "Building Optimized version of Frei..."
+echo
 
 PATH_TO_CBLAS_DIR="/usr/include"
 PATH_TO_BLAS_LIBS="/usr/lib64"
@@ -67,6 +89,7 @@ PATH_TO_LAPACK_BINARIES="/usr/lib64"
 if test -f "build/frei_opt-build.log" ; then
     mv build/frei_opt-build.log build/frei_opt-build.log.old
 fi
+
 chpl -o build/frei_opt                           \
      --fast                                      \
      -I$PATH_TO_CBLAS_DIR                        \
@@ -98,20 +121,32 @@ chpl -o build/frei_opt                           \
                           src/parameters.chpl    \
                           src/testing.chpl       |
     tee build/frei_opt-build.log
+if [ $? -eq 0 ]; then
+  echo -e "\nSuccess"
+else
+  echo -e "\nFailed"
+fi
+echo
+echo "------------------------------------------------------------"
 
 ##################################################
 ###   Optimized / Production Build             ###
 ##################################################
 
-PATH_TO_CBLAS_DIR="/opt/intel/oneapi/mkl/latest/include"
-PATH_TO_BLAS_LIBS="/opt/intel/oneapi/mkl/latest/lib/intel64"
-PATH_TO_LAPACKE_INCLUDE_DIR="/opt/intel/oneapi/mkl/latest/include"
-PATH_TO_LIBGFORTRAN="/opt/intel/oneapi/mkl/latest/lib/intel64"
-PATH_TO_LAPACK_BINARIES="/opt/intel/oneapi/mkl/latest/lib/intel64"
-
+#echo
+#echo "Building Optimized Intel MKL version of Frei..."
+#echo
+#
+#PATH_TO_CBLAS_DIR="/opt/intel/oneapi/mkl/latest/include"
+#PATH_TO_BLAS_LIBS="/opt/intel/oneapi/mkl/latest/lib/intel64"
+#PATH_TO_LAPACKE_INCLUDE_DIR="/opt/intel/oneapi/mkl/latest/include"
+#PATH_TO_LIBGFORTRAN="/opt/intel/oneapi/mkl/latest/lib/intel64"
+#PATH_TO_LAPACK_BINARIES="/opt/intel/oneapi/mkl/latest/lib/intel64"
+#
 #if test -f "frei_opt_mkl-build.log" ; then
 #    mv frei_opt_mkl-build.log frei_opt_mkl-build.log.old
 #fi
+#
 #chpl -o build/frei_opt_mkl                       \
 #     --fast                                      \
 #     -I$PATH_TO_CBLAS_DIR                        \
@@ -142,3 +177,10 @@ PATH_TO_LAPACK_BINARIES="/opt/intel/oneapi/mkl/latest/lib/intel64"
 #                          src/parameters.chpl    \
 #                          src/testing.chpl       |
 #    tee build/frei_opt-build.log
+#if [ $? -eq 0 ]; then
+#  echo -e "\nSuccess"
+#else
+#  echo -e "\nFailed"
+#fi
+#echo
+#echo "------------------------------------------------------------"

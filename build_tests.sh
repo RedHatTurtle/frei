@@ -7,88 +7,175 @@ PATH_TO_LIBGFORTRAN="/usr/lib64"
 PATH_TO_LAPACK_BINARIES="/usr/lib64"
 
 # Build all tests and save log
-echo "Building Polynomials Tests:"
-chpl -o tests/polynomials_tests                          \
-     --warnings                                    \
-     --warn-unstable                               \
-     --main-module Polynomials src/polynomials.chpl src/testing.chpl src/parameters.chpl |
+echo
+echo "------------------------------------------------------------"
+echo
+echo -e "Building Polynomials Tests:"
+chpl -o tests/polynomials_tests                         \
+     --warnings                                         \
+     --warn-unstable                                    \
+     --main-module Polynomials src/polynomials.chpl     \
+                                src/testing.chpl        \
+                                src/parameters.chpl     |
     tee tests/polynomials_build.log
-echo "done"
+if [ $? -eq 0 ]; then
+  echo -e "\nSuccess"
+else
+  echo -e "\nFailed"
+fi
 echo
-echo "Building Quadrature Tests:"
-chpl -o tests/quadrature_tests                           \
-     --warnings                                    \
-     --warn-unstable                               \
-     --main-module Quadrature src/quadrature.chpl src/polynomials.chpl src/testing.chpl src/parameters.chpl |
+echo "------------------------------------------------------------"
+echo
+echo -e "Building Quadrature Tests:"
+chpl -o tests/quadrature_tests                          \
+     --warnings                                         \
+     --warn-unstable                                    \
+     --main-module Quadrature src/quadrature.chpl       \
+                              src/polynomials.chpl      \
+                              src/testing.chpl          \
+                              src/parameters.chpl       |
     tee tests/quadrature_build.log
-echo "done"
+if [ $? -eq 0 ]; then
+  echo -e "\nSuccess"
+else
+  echo -e "\nFailed"
+fi
 echo
-echo "Building Interpolation Tests:"
-chpl -o tests/interpolation_tests                        \
-     --warnings                                    \
-     --warn-unstable                               \
-     --main-module Interpolation src/interpolation.chpl src/polynomials.chpl src/parameters.chpl src/testing.chpl |
+echo "------------------------------------------------------------"
+echo
+echo -e "Building Interpolation Tests:"
+chpl -o tests/interpolation_tests                       \
+     --warnings                                         \
+     --warn-unstable                                    \
+     --main-module Interpolation src/interpolation.chpl \
+                                 src/polynomials.chpl   \
+                                 src/parameters.chpl    \
+                                 src/testing.chpl       |
     tee tests/interpolation_build.log
-echo "done"
+if [ $? -eq 0 ]; then
+  echo -e "\nSuccess"
+else
+  echo -e "\nFailed"
+fi
 echo
-echo "Building Projection Tests:"
-chpl -o tests/projection_tests                           \
-     --warnings                                    \
-     --warn-unstable                               \
-     -I/usr/include                                \
-     -L/usr/lib64 -lcblas                          \
-     -I/usr/include                                \
-     -L/usr/lib64 -lgfortran                       \
-     -L/usr/lib64 -llapacke -llapack -lcblas       \
-     --main-module Projection src/projection.chpl  \
-                              src/quadrature.chpl  \
-                              src/polynomials.chpl \
-                              src/testing.chpl     \
-                              src/parameters.chpl  |
+echo "------------------------------------------------------------"
+echo
+echo -e "Building Projection Tests:"
+chpl -o tests/projection_tests                          \
+     --warnings                                         \
+     --warn-unstable                                    \
+     -I/usr/include                                     \
+     -L/usr/lib64 -lcblas                               \
+     -I/usr/include                                     \
+     -L/usr/lib64 -lgfortran                            \
+     -L/usr/lib64 -llapacke -llapack -lcblas            \
+     --main-module Projection src/projection.chpl       \
+                              src/quadrature.chpl       \
+                              src/polynomials.chpl      \
+                              src/testing.chpl          \
+                              src/parameters.chpl       |
     tee tests/projection_build.log
-echo "done"
+if [ $? -eq 0 ]; then
+  echo -e "\nSuccess"
+else
+  echo -e "\nFailed"
+fi
 echo
-echo "Building Correction Tests:"
-chpl -o tests/correction_tests                           \
-     --warnings                                    \
-     --warn-unstable                               \
-     --main-module Correction src/correction.chpl src/polynomials.chpl src/testing.chpl src/input.chpl src/mesh.chpl src/gmesh.chpl src/config.chpl src/parameters.chpl |
+echo "------------------------------------------------------------"
+echo
+echo -e "Building Correction Tests:"
+chpl -o tests/correction_tests                          \
+     --warnings                                         \
+     --warn-unstable                                    \
+     --main-module Correction src/correction.chpl       \
+                              src/polynomials.chpl      \
+                              src/testing.chpl          \
+                              src/input.chpl            \
+                              src/mesh.chpl             \
+                              src/gmesh.chpl            \
+                              src/config.chpl           \
+                              src/parameters.chpl       |
     tee tests/correction_build.log
-echo "done"
+if [ $? -eq 0 ]; then
+  echo -e "\nSuccess"
+else
+  echo -e "\nFailed"
+fi
 echo
-echo "Building Gmesh Tests:"
-chpl -o tests/gmesh_tests                                \
-     --warnings                                    \
-     --warn-unstable                               \
-     --main-module Gmesh src/gmesh.chpl src/parameters.chpl |
+echo "------------------------------------------------------------"
+echo
+echo -e "Building Gmesh Tests:"
+chpl -o tests/gmesh_tests                               \
+     --warnings                                         \
+     --warn-unstable                                    \
+     --main-module Gmesh src/gmesh.chpl                 \
+                         src/parameters.chpl            |
     tee tests/gmesh_build.log
-echo "done"
+if [ $? -eq 0 ]; then
+  echo -e "\nSuccess"
+else
+  echo -e "\nFailed"
+fi
 echo
-echo "Building Mesh Tests:"
-chpl -o tests/mesh_tests                                 \
-     --warnings                                    \
-     --warn-unstable                               \
-     --main-module Mesh src/mesh.chpl src/gmesh.chpl src/testing.chpl src/parameters.chpl |
+echo "------------------------------------------------------------"
+echo
+echo -e "Building Mesh Tests:"
+chpl -o tests/mesh_tests                                \
+     --warnings                                         \
+     --warn-unstable                                    \
+     --main-module Mesh src/mesh.chpl                   \
+                        src/gmesh.chpl                  \
+                        src/testing.chpl                \
+                        src/parameters.chpl             |
     tee tests/mesh_build.log
-echo "done"
+if [ $? -eq 0 ]; then
+  echo -e "\nSuccess"
+else
+  echo -e "\nFailed"
+fi
 echo
-echo "Building FRMesh Tests:"
-chpl -o tests/frmesh_tests                         \
-     --warnings                                    \
-     --warn-unstable                               \
-     --main-module FRMesh src/frmesh.chpl src/polynomials.chpl src/mesh.chpl src/gmesh.chpl src/testing.chpl src/config.chpl src/input.chpl src/parameters.chpl |
+echo "------------------------------------------------------------"
+echo
+echo -e "Building FRMesh Tests:"
+chpl -o tests/frmesh_tests                              \
+     --warnings                                         \
+     --warn-unstable                                    \
+     --main-module FRMesh src/frmesh.chpl               \
+                          src/polynomials.chpl          \
+                          src/mesh.chpl                 \
+                          src/gmesh.chpl                \
+                          src/testing.chpl              \
+                          src/config.chpl               \
+                          src/input.chpl                \
+                          src/parameters.chpl           |
     tee tests/frmesh_build.log
-echo "done"
+if [ $? -eq 0 ]; then
+  echo -e "\nSuccess"
+else
+  echo -e "\nFailed"
+fi
 echo
-echo "Building Flux Tests:"
-chpl -o tests/flux_tests                                 \
-     --warnings                                    \
-     --warn-unstable                               \
-     --main-module Flux src/flux.chpl src/input.chpl src/mesh.chpl src/gmesh.chpl src/parameters.chpl |
+echo "------------------------------------------------------------"
+echo
+echo -e "Building Flux Tests:"
+chpl -o tests/flux_tests                                \
+     --warnings                                         \
+     --warn-unstable                                    \
+     --main-module Flux src/flux.chpl                   \
+                        src/input.chpl                  \
+                        src/mesh.chpl                   \
+                        src/gmesh.chpl                  \
+                        src/parameters.chpl             |
     tee tests/flux_build.log
-echo "done"
+if [ $? -eq 0 ]; then
+  echo -e "\nSuccess"
+else
+  echo -e "\nFailed"
+fi
 echo
-echo "Building Riemann Tests:"
+echo "------------------------------------------------------------"
+echo
+echo -e "Building Riemann Tests:"
 chpl -o tests/riemann_tests                             \
      --warnings                                         \
      --warn-unstable                                    \
@@ -104,7 +191,13 @@ chpl -o tests/riemann_tests                             \
                            src/gmesh.chpl               \
                            src/parameters.chpl          |
     tee tests/riemann_build.log
-echo "done"
+if [ $? -eq 0 ]; then
+  echo -e "\nSuccess"
+else
+  echo -e "\nFailed"
+fi
+echo
+echo "------------------------------------------------------------"
 echo
 echo "Building Ringleb Tests:"
 chpl -o tests/ringleb_tests                             \
@@ -117,47 +210,95 @@ chpl -o tests/ringleb_tests                             \
                            src/testing.chpl             \
                            src/parameters.chpl          |
    tee tests/ringleb_build.log
-echo "done"
+if [ $? -eq 0 ]; then
+  echo -e "\nSuccess"
+else
+  echo -e "\nFailed"
+fi
 echo
-echo "Building Init Tests:"
-chpl -o tests/init_tests                                 \
-     --warnings                                    \
-     --warn-unstable                               \
-     --main-module Init src/init.chpl src/flux.chpl src/config.chpl src/input.chpl src/mesh.chpl src/gmesh.chpl src/parameters.chpl |
+echo "------------------------------------------------------------"
+echo
+echo -e "Building Init Tests:"
+chpl -o tests/init_tests                                \
+     --warnings                                         \
+     --warn-unstable                                    \
+     --main-module Init src/init.chpl                   \
+                        src/flux.chpl                   \
+                        src/config.chpl                 \
+                        src/input.chpl                  \
+                        src/mesh.chpl                   \
+                        src/gmesh.chpl                  \
+                        src/parameters.chpl             |
     tee tests/init_build.log
-echo "done"
+if [ $? -eq 0 ]; then
+  echo -e "\nSuccess"
+else
+  echo -e "\nFailed"
+fi
 echo
-echo "Building Boundary Tests:"
-chpl -o tests/boundary_tests                             \
-     --warnings                                    \
-     --warn-unstable                               \
-     --main-module Boundary src/boundary.chpl src/init.chpl src/flux.chpl src/mesh.chpl src/gmesh.chpl src/config.chpl src/input.chpl src/parameters.chpl |
+echo "------------------------------------------------------------"
+echo
+echo -e "Building Boundary Tests:"
+chpl -o tests/boundary_tests                            \
+     --warnings                                         \
+     --warn-unstable                                    \
+     --main-module Boundary src/boundary.chpl           \
+                            src/init.chpl               \
+                            src/flux.chpl               \
+                            src/mesh.chpl               \
+                            src/gmesh.chpl              \
+                            src/config.chpl             \
+                            src/input.chpl              \
+                            src/parameters.chpl         |
     tee tests/boundary_build.log
-echo "done"
+if [ $? -eq 0 ]; then
+  echo -e "\nSuccess"
+else
+  echo -e "\nFailed"
+fi
 echo
-echo "Building Limiter Tests:"
-chpl -o tests/limiter_tests                              \
-     --warnings                                    \
-     --warn-unstable                               \
-     -I/usr/include                                \
-     -L/usr/lib64 -lcblas                          \
-     -I/usr/include                                \
-     -L/usr/lib64 -lgfortran                       \
-     -L/usr/lib64 -llapacke -llapack -lcblas       \
-     --main-module Limiter src/limiter.chpl src/projection.chpl src/quadrature.chpl src/polynomials.chpl src/parameters.chpl src/testing.chpl |
+echo "------------------------------------------------------------"
+echo
+echo -e "Building Limiter Tests:"
+chpl -o tests/limiter_tests                             \
+     --warnings                                         \
+     --warn-unstable                                    \
+     -I/usr/include                                     \
+     -L/usr/lib64 -lcblas                               \
+     -I/usr/include                                     \
+     -L/usr/lib64 -lgfortran                            \
+     -L/usr/lib64 -llapacke -llapack -lcblas            \
+     --main-module Limiter src/limiter.chpl             \
+                           src/projection.chpl          \
+                           src/quadrature.chpl          \
+                           src/polynomials.chpl         \
+                           src/parameters.chpl          \
+                           src/testing.chpl             |
     tee tests/limiter_build.log
-echo "done"
+if [ $? -eq 0 ]; then
+  echo -e "\nSuccess"
+else
+  echo -e "\nFailed"
+fi
 echo
-echo "Building FR Tests:"
-chpl -o tests/fr_tests                                   \
-     --warnings                                    \
-     --warn-unstable                               \
-     --main-module FR src/fr.chpl |
+echo "------------------------------------------------------------"
+echo
+echo -e "Building FR Tests:"
+chpl -o tests/fr_tests                                  \
+     --warnings                                         \
+     --warn-unstable                                    \
+     --main-module FR src/fr.chpl                       |
     tee tests/fr_build.log
-echo "done"
+if [ $? -eq 0 ]; then
+  echo -e "\nSuccess"
+else
+  echo -e "\nFailed"
+fi
 echo
-
-echo "Running Tests"
+echo "------------------------------------------------------------"
+echo
+echo -e "Running Tests..."
+echo
 # Run tests and output to file
 ./tests/polynomials_tests   &> tests/polynomials_tests.log
 ./tests/quadrature_tests    &> tests/quadrature_tests.log
@@ -179,4 +320,7 @@ echo "Running Tests"
 ./tests/limiter_tests       &> tests/limiter_tests.log
 
 ./tests/fr_tests            &> tests/fr_tests.log
-echo "Done"
+echo -e "Done"
+echo
+echo "------------------------------------------------------------"
+echo
