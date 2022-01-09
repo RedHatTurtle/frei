@@ -68,25 +68,79 @@ prototype module Correction
           // Need to build an appropriate way to query the point location for each element.
           // Initially assume the whole mesh uses the same base distribution specified in input file.
           // Even more initially assume the whole mesh uses has SPs on Legendre roots. xD
-          var spLoc : [1..spCnt] real = nodes_legendre_gauss(spCnt);
+          var spDistLine : [1..interpOrder] real = nodes_legendre_gauss(interpOrder);
+
+          var correctionCoefsLine : [1..interpOrder] real;
+          select frScheme
+          {
+            when FR_DG do
+              correctionCoefsLine = correction_dg_deriv(interpOrder, spDistLine);
+            when FR_GA do
+              correctionCoefsLine = correction_ga_deriv(interpOrder, spDistLine);
+            when FR_G2 do
+              correctionCoefsLine = correction_g2_deriv(interpOrder, spDistLine);
+          }
 
           for (fp,sp) in {1..fpCnt, 1..spCnt} do
-            select frScheme
-            {
-                when FR_DG do
-                  flux_correction[(cellTopo, interpOrder)]!.correction[fp,sp] = correction_dg_deriv(interpOrder, spLoc[sp]);
-                when FR_GA do
-                  flux_correction[(cellTopo, interpOrder)]!.correction[fp,sp] = correction_ga_deriv(interpOrder, spLoc[sp]);
-                when FR_G2 do
-                  flux_correction[(cellTopo, interpOrder)]!.correction[fp,sp] = correction_g2_deriv(interpOrder, spLoc[sp]);
-            }
+            flux_correction[(cellTopo, interpOrder)]!.correction[fp,sp] = correctionCoefsLine[sp];
 
           // Invert the correction derivative for right side FP
           flux_correction[(cellTopo, interpOrder)]!.correction[2,..].reverse();
           flux_correction[(cellTopo, interpOrder)]!.correction[2,..] *= -1;
         }
         when TOPO_TRIA {}
-        when TOPO_QUAD {}
+        when TOPO_QUAD
+        {
+          var spCnt : int = (interpOrder)**2;
+          var fpCnt : int = (interpOrder)*4;
+
+          flux_correction[(cellTopo, interpOrder)] = new flux_correction_t({1..fpCnt, 1..spCnt})!;
+
+          // Need to build an appropriate way to query the point location for each element.
+          // Initially assume the whole mesh uses the same base distribution specified in input file.
+          // Even more initially assume the whole mesh uses has SPs on Legendre roots.
+          var spDistLine : [1..interpOrder] real = nodes_legendre_gauss(interpOrder);
+
+          var correctionCoefsLine : [1..interpOrder] real;
+          select frScheme
+          {
+            when FR_DG do
+              correctionCoefsLine = correction_dg_deriv(interpOrder, spDistLine);
+            when FR_GA do
+              correctionCoefsLine = correction_ga_deriv(interpOrder, spDistLine);
+            when FR_G2 do
+              correctionCoefsLine = correction_g2_deriv(interpOrder, spDistLine);
+          }
+
+          for (cellFace, faceFP, lineSP) in {1..4, 1..interpOrder, 1..interpOrder}
+          {
+            var cellFP : int = faceFP+(cellFace-1)*(interpOrder);
+
+            select cellFace
+            {
+              when 1
+              {
+                var cellSP : int = (lineSP-1)*(interpOrder) + faceFP;
+                flux_correction[(cellTopo, interpOrder)]!.correction[cellFP,cellSP] = +correctionCoefsLine[lineSP];
+              }
+              when 2
+              {
+                var cellSP : int = faceFP*(interpOrder) - (lineSP-1);
+                flux_correction[(cellTopo, interpOrder)]!.correction[cellFP,cellSP] = -correctionCoefsLine[lineSP];
+              }
+              when 3
+              {
+                var cellSP : int = (spCnt+1)-faceFP - (lineSP-1)*(interpOrder);
+                flux_correction[(cellTopo, interpOrder)]!.correction[cellFP,cellSP] = -correctionCoefsLine[lineSP];
+              }
+              when 4
+              {
+                var cellSP : int = (spCnt+1)-faceFP*(interpOrder) + (lineSP-1);
+                flux_correction[(cellTopo, interpOrder)]!.correction[cellFP,cellSP] = +correctionCoefsLine[lineSP];
+              }
+            }
+          }
+        }
         when TOPO_TETR {}
         when TOPO_PYRA {}
         when TOPO_PRIS {}
@@ -228,6 +282,7 @@ prototype module Correction
     // Create a set with the cell topologies contained in the hypothetics test mesh
     var cellTopos : set(int);
     cellTopos.add(TOPO_LINE);
+    cellTopos.add(TOPO_QUAD);
 
     var minOrder : int = 0;
     var maxOrder : int = 9;
