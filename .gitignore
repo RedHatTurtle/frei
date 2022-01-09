@@ -1,3 +1,6 @@
+# Anything in the build folder
+build/
+
 # Ignore most common executable names
 frei
 FREI
@@ -20,19 +23,32 @@ Mason.lock
 
 # Test executables
 test_frei.sh
-
 *_tests
 
 # Output files and images
 *.dat
 *.svg
 
+# Tecplot files
+*.lay
+*.lpk
+*.sty
+
+# Image files
+*.png
+*.jpg
+*.jpeg
+*.eps
+
 # Text editor swap/temp files
 *~
+*.bak
 *.old
 *.swp
 *.swo
 *.kate*
+*.backup
 
-# Anything in the build folder
-/build/
+# Explicit ignore tag
+*.ignore
+
