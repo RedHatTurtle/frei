@@ -1,0 +1,77 @@
+[parPhysics]
+  nDims  =  2
+  eqSet  =  6
+
+[parFluid]
+  fGamma =    1.4
+  fCp    = 1004.5
+  fCv    =  717.5
+  fR     =  287.0
+
+[parMesh]
+  meshFormat    = 1
+  meshFile      = "meshfiles/ringleb1-q1.msh"
+
+[parSpatial]
+  spatialScheme     = 1
+  dissipationScheme = 2
+
+[parFR]
+  iOrder   = 1
+  minOrder = 1
+  maxOrder = 1
+  distSP   = 2
+  frScheme = 1
+
+[parTime]
+  timeScheme = 4
+  timeStep   = 0.001
+
+[parOutput]
+  ioIter  =   2000
+  maxIter = 100000
+  ioTime  = 0.00
+  maxTime = 1.00
+
+[parRef]
+  rhoRef  = 1.0
+  pRef    = 1.0
+
+[parFamilies]
+  nFamilies = 5
+
+[parFamilies.1]
+  familyName = "MeshInterior"
+  familyDimension = 2
+  familyType = 0
+  familySubType = 62
+  familyParameters = []
+
+[parFamilies.2]
+  familyName = "Inner"
+  familyDimension = 1
+  familyType = 9
+  familySubType = 97
+  familyParameters = []
+
+[parFamilies.3]
+  familyName = "Outer"
+  familyDimension = 1
+  familyType = 9
+  familySubType = 97
+  familyParameters = []
+
+[parFamilies.4]
+  familyName = "Inflow"
+  familyDimension = 1
+  familyType = 9
+  familySubType = 97
+  familyParameters = []
+
+[parFamilies.5]
+  familyName = "Outflow"
+  familyDimension = 1
+  familyType = 9
+  familySubType = 97
+  familyParameters = []
+
