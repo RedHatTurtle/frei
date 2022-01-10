@@ -17,6 +17,79 @@ prototype module Parameters
     param EQ_NAVIERSTOKES   : int = 7;    // Navier-Stokes Eq
     param EQ_QUASI_1D_EULER : int = 8;    // Euler equations for the Quasi 1D Nozzle flow
 
+    // Parametric internal 1D meshing methods
+    param MESH_GENERATE    : int = 0;
+    param MESH_GMESH       : int = 1;
+    param MESH_CGNS        : int = 2;
+
+    param MESH_GEN_UNIFORM : int = 1;
+    param MESH_GEN_RANDOM  : int = 2;
+
+    // Spatial Schemes
+    param SPATIAL_BEAMWARMING       : int =  1;
+    param SPATIAL_LAXWENDROFF       : int =  2;
+    param SPATIAL_MACCORMAK         : int =  3;
+
+    param SPATIAL_STEGERWARMING_O1  : int =  4;
+    param SPATIAL_STEGERWARMING_O2  : int =  5;
+
+    param SPATIAL_STEGERWARMINGO1   : int =  4;
+    param SPATIAL_STEGERWARMINGO2   : int =  5;
+
+    param SPATIAL_STEGER_WARMING_O1 : int =  4;
+    param SPATIAL_STEGER_WARMING_O2 : int =  5;
+
+    param SPATIAL_VANLEER_O1        : int =  6;
+    param SPATIAL_VANLEER_O2        : int =  7;
+    param SPATIAL_AUSM_O1           : int =  8;
+    param SPATIAL_AUSMPLUS_O1       : int =  9;
+    param SPATIAL_ROE               : int = 10;
+    param SPATIAL_FR                : int = 11;
+
+    // FR correction functions
+    param FR_DG  : int = 1;
+    param FR_GA  : int = 2; // Lumping at Gauss Points. Similar to SD with internal FPs at Gauss Points.
+    param FR_G2  : int = 3;
+    param FR_SD  : int = 4; // Lumping at SomeOther Points. Similar to SD with internal FPs at Gauss Points.
+    param FR_G3  : int = 5;
+
+    // Inviscid Numerical Flux Schemes
+    param FLUX_RUSANOV : int = 1;
+    param FLUX_ROE     : int = 2;
+    param FLUX_HLL     : int = 3;
+    param FLUX_HLLC    : int = 4;
+    param FLUX_RHLL    : int = 5;
+
+    // Viscou Numerical Flux Scheme
+    param VISC_BR1 : int = 1;
+    param VISC_BR2 : int = 2;
+    param VISC_LDG : int = 3;
+
+    // Dissipation Scheme
+    param DISS_NONE    : int = 0;
+    param DISS_SECOND  : int = 1;
+    param DISS_FOURTH  : int = 2;
+    param DISS_JAMESON : int = 3;
+
+    // Solution Point distributions
+    param PTS_UNIFORM          : int = 1;    // Uniform
+    param PTS_LEGENDRE         : int = 2;    // Gauss-Legendre
+    param PTS_LEGENDRELOBATTO  : int = 3;    // Gauss-Legendre-Lobatto
+    param PTS_CHEBYSHEV        : int = 4;    // Gauss-Chebyshev
+    param PTS_CHEBYSHEVLOBATTO : int = 5;    // Gauss-Chebyshev-Lobatto
+
+    // Time Schemes
+    param TIME_EULER      : int = 0;
+    param TIME_RK_CLASSIC : int = 1;
+    param TIME_TVDRK_O2S2 : int = 2;
+    param TIME_TVDRK_O2S3 : int = 3;
+    param TIME_TVDRK_O2S4 : int = 4;
+    param TIME_TVDRK_O2SN : int = 5;
+    param TIME_TVDRK_O3S3 : int = 6;
+    param TIME_TVDRK_O3S4 : int = 7;
+    param TIME_TVDRK_O3S5 : int = 8;
+    param TIME_TVDRK_O4S5 : int = 9;
+
     //////////////////////
     //   Family Types   //
     //////////////////////
@@ -94,75 +167,6 @@ prototype module Parameters
     param BC_SUBTYPE_1D_NOZZLE_SUBSONIC_INFLOW : int = 95;
     param BC_SUBTYPE_1D_NOZZLE_SHOCKED_INFLOW  : int = 96;
     param BC_SUBTYPE_MMS_DIRICHLET    : int = 99;
-
-    // Parametric internal 1D meshing methods
-    param MESH_UNIFORM    : int = 1;
-    param MESH_RANDOM     : int = 2;
-
-    // Spatial Schemes
-    param SPATIAL_BEAMWARMING       : int =  1;
-    param SPATIAL_LAXWENDROFF       : int =  2;
-    param SPATIAL_MACCORMAK         : int =  3;
-
-    param SPATIAL_STEGERWARMING_O1  : int =  4;
-    param SPATIAL_STEGERWARMING_O2  : int =  5;
-
-    param SPATIAL_STEGERWARMINGO1   : int =  4;
-    param SPATIAL_STEGERWARMINGO2   : int =  5;
-
-    param SPATIAL_STEGER_WARMING_O1 : int =  4;
-    param SPATIAL_STEGER_WARMING_O2 : int =  5;
-
-    param SPATIAL_VANLEER_O1        : int =  6;
-    param SPATIAL_VANLEER_O2        : int =  7;
-    param SPATIAL_AUSM_O1           : int =  8;
-    param SPATIAL_AUSMPLUS_O1       : int =  9;
-    param SPATIAL_ROE               : int = 10;
-    param SPATIAL_FR                : int = 11;
-
-    // Time Schemes
-    param TIME_EULER      : int = 0;
-    param TIME_RK_CLASSIC : int = 1;
-    param TIME_TVDRK_O2S2 : int = 2;
-    param TIME_TVDRK_O2S3 : int = 3;
-    param TIME_TVDRK_O2S4 : int = 4;
-    param TIME_TVDRK_O2SN : int = 5;
-    param TIME_TVDRK_O3S3 : int = 6;
-    param TIME_TVDRK_O3S4 : int = 7;
-    param TIME_TVDRK_O3S5 : int = 8;
-    param TIME_TVDRK_O4S5 : int = 9;
-
-    // Inviscid Numerical Flux Schemes
-    param FLUX_RUSANOV : int = 1;
-    param FLUX_ROE     : int = 2;
-    param FLUX_HLL     : int = 3;
-    param FLUX_HLLC    : int = 4;
-    param FLUX_RHLL    : int = 5;
-
-    // Viscou Numerical Flux Scheme
-    param VISC_BR1 : int = 1;
-    param VISC_BR2 : int = 2;
-    param VISC_LDG : int = 3;
-
-    // Dissipation Scheme
-    param DISS_NONE    : int = 0;
-    param DISS_SECOND  : int = 1;
-    param DISS_FOURTH  : int = 2;
-    param DISS_JAMESON : int = 3;
-
-    // Solution Point distributions
-    param PTS_UNIFORM          : int = 1;    // Uniform
-    param PTS_LEGENDRE         : int = 2;    // Gauss-Legendre
-    param PTS_LEGENDRELOBATTO  : int = 3;    // Gauss-Legendre-Lobatto
-    param PTS_CHEBYSHEV        : int = 4;    // Gauss-Chebyshev
-    param PTS_CHEBYSHEVLOBATTO : int = 5;    // Gauss-Chebyshev-Lobatto
-
-    // FR correction functions
-    param FR_DG  : int = 1;
-    param FR_GA  : int = 2; // Lumping at Gauss Points. Similar to SD with internal FPs at Gauss Points.
-    param FR_G2  : int = 3;
-    param FR_SD  : int = 4; // Lumping at SomeOther Points. Similar to SD with internal FPs at Gauss Points.
-    param FR_G3  : int = 5;
   }
 
   prototype module ParamConstants

@@ -193,6 +193,7 @@ prototype module Gmesh
 
       // Open the mesh file for reading only
       try {
+        writeln();
         writeln("Opening Gmesh2 formated mesh file");
         meshFile = open(meshFileName, iomode.r);
       } catch e : FileNotFoundError {
@@ -423,11 +424,22 @@ prototype module Gmesh
       writeln();
       writeln("Families found:");
       for family in this.families do
-        writef("   %s, %1i-D Elements, Tag: %2i\n", family.name, family.nDim, family.tag);
+        writef("   %1i-D Elements, Tag: %2i, Name: %s\n", family.nDim, family.tag, family.name);
       writeln();
     }
 
     proc write_gmesh_file() {}
+
+    proc mesh_dimension()
+    {
+      var meshDim : int = 0;
+
+      for family in this.families do
+        if family.nDim > meshDim then
+          meshDim = family.nDim;
+
+      return meshDim;
+    }
   }
 
   class gmesh4_c

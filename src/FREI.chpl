@@ -3,6 +3,7 @@ prototype module FREI
 {
   //Runtime constants
   config const inputFile : string = "input.toml";
+  config const inputMesh : string = "mesh.mesh";
 
   proc main() {
     use IO;
@@ -72,25 +73,35 @@ prototype module FREI
 
     // 3. Read / define mesh
     var gmesh2 = new unmanaged gmesh2_c();
-
-    select Input.meshingScheme
+    select Input.meshFormat
     {
-      when MESH_UNIFORM do
-        gmesh2.uniform1D(Input.nCells, Input.xMin, Input.xMax);
-      when MESH_RANDOM do
-        gmesh2.random1D(Input.nCells, Input.xMin, Input.xMax);
+      when MESH_GENERATE
+      {
+        select Input.meshingScheme
+        {
+          when MESH_GEN_UNIFORM do
+            gmesh2.uniform1D(Input.nCells, Input.xMin, Input.xMax);
+          when MESH_GEN_RANDOM do
+            gmesh2.random1D(Input.nCells, Input.xMin, Input.xMax);
+        }
+      }
+      when MESH_GMESH do
+        gmesh2.read_gmesh_file(Input.meshFileName);
+      when MESH_CGNS {}
     }
 
-    // 5. Convert input mesh to solver mesh
-    var frMesh = new unmanaged fr_mesh_c(nDims=1, nVars=Input.nEqs, solOrder=Input.iOrder);
+    // 4. Convert input mesh to solver mesh
+    var frMesh = new unmanaged fr_mesh_c(nDims=gmesh2.mesh_dimension(), nVars=Input.nEqs, solOrder=Input.iOrder);
     frMesh.import_gmesh2(gmesh2);   // Convert mesh to native format
     frMesh.set_families(famlList);  // Get families data from input file and write to mesh
+
+    // 5. Initialize FR mesh
     frMesh.allocate_fr_vars();      // Allocate SP and FP solution/flux/residue arrays
-    frMesh.set_points_locations();  // Calculate coordinate trasnformations and point coordinates
+    frMesh.set_points_locations();  // Calculate coordinate transformations and point coordinates
 
-    // Save mesh file in internal format
+    // 6. Save mesh file in internal format
 
-    // 4. Initialize the solver, pre calculate stuff
+    // 7. Initialize the FR solver, pre calculate coefficients and stuff
     init_sp2fpInterp(Input.minOrder, Input.maxOrder, frMesh.cellTopos);
     init_sp2spDeriv(Input.minOrder, Input.maxOrder, frMesh.cellTopos);
     init_quadratureWeights(Input.minOrder, Input.maxOrder, frMesh.cellTopos);

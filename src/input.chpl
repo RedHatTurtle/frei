@@ -22,11 +22,12 @@ prototype module Input
   var fR     : real =  287.0;        // Set the specific gas constant J/(kg*K)
 
   //parMesh
-  var meshGen       : bool = false;
+  var meshFormat    : int = MESH_GENERATE;
+  var meshFileName  : string = "mesh.msh";
   var xMin          : real = -1.0;
   var xMax          : real =  1.0;
   var nCells        : int = 1000;
-  var meshingScheme : int = MESH_UNIFORM;        // How to divide the domain into cells
+  var meshingScheme : int = MESH_GEN_UNIFORM;        // How to divide the domain into cells
 
   //parSpatial
   var spatialScheme     : int = SPATIAL_FR;
@@ -109,6 +110,7 @@ prototype module Input
       writeln("Configuring solver");
 
       // parPhysics
+      nDims             = tomlData!["parPhysics"]!["nDims"]!.i : int;
       eqSet             = tomlData!["parPhysics"]!["eqSet"]!.i : int;
 
       if eqSet == EQ_CONVECTION then
@@ -127,10 +129,18 @@ prototype module Input
       }
 
       // parMesh
-      xMin          = tomlData!["parMesh"]!["xMin"]!.re : real;
-      xMax          = tomlData!["parMesh"]!["xMax"]!.re : real;
-      nCells        = tomlData!["parMesh"]!["nCells"]!.i : int;
-      meshingScheme = tomlData!["parMesh"]!["meshingScheme"]!.i : int;
+      meshFormat    = tomlData!["parMesh"]!["meshFormat"]!.i : int;
+      if meshFormat == MESH_GENERATE
+      {
+        xMin          = tomlData!["parMesh"]!["xMin"]!.re : real;
+        xMax          = tomlData!["parMesh"]!["xMax"]!.re : real;
+        nCells        = tomlData!["parMesh"]!["nCells"]!.i : int;
+        meshingScheme = tomlData!["parMesh"]!["meshingScheme"]!.i : int;
+      }
+      else
+      {
+        meshFileName = tomlData!["parMesh"]!["meshFile"]!.s : string;
+      }
 
       // parSpacial
       spatialScheme     = tomlData!["parSpatial"]!["spatialScheme"]!.i : int;
