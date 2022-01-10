@@ -69,16 +69,12 @@ prototype module Projection
         when TOPO_LINE
         {
           var spCnt : int = polyDegree+1;
-          var nodes   : [1..spCnt] real = nodes_legendre_gauss(spCnt);
           var weights : [1..spCnt] real = weights_legendre_gauss(spCnt);
 
           polyProj[(cellTopo, polyDegree)] = new projection_coefficients_t({0..polyDegree, 1..spCnt, 1..spCnt})!;
 
           // Evaluate each component "n" of the polynomial basis at the interpolation points "i"
-          var nodalBasis : [1..spCnt, 1..spCnt] real;
-          for i in 1..spCnt do
-            for j in 1..spCnt do
-              nodalBasis[i,j] = eval_legendre_poly(j-1, nodes[i]);
+          var nodalBasis : [1..spCnt, 1..spCnt] real = nodal_basis_line(polyDegree, polyDegree);
 
           for projDegree in 0..polyDegree by -1 do
             polyProj[(cellTopo, polyDegree)]!.coefs[projDegree, .., ..] = proj_matrix(nodalBasis[.., 1..projDegree+1], weights);
@@ -95,6 +91,41 @@ prototype module Projection
 
     writef("    Initialized in  %6.1dr ms\n", stopwatch.elapsed(TimeUnits.milliseconds));
   }
+
+  //////////////////////////
+  //   Projection Basis   //
+  //////////////////////////
+
+  proc nodal_basis_line(polyDegree : int, interpDegree : int)
+  {
+    // Calculate nodal values in several points for each component of the basis
+    use Polynomials;
+
+    var nodeCnt : int = interpDegree+1;
+    var modeCnt : int = polyDegree+1;
+
+    var nodeDistLine : [1..polyDegree+1] real = nodes_legendre_gauss(polyDegree+1);
+
+    var nodalBasis : [1..nodeCnt, 0..modeCnt-1] real;
+
+    // Calculate nodal values in several points for each component of the basis
+    for nodeIdx in 1..nodeCnt do // Loop through nodes
+      for modeIdx in 0..polyDegree do // Loop through modes
+        nodalBasis[nodeIdx, modeIdx] = eval_legendre_poly(modeIdx, nodeDistLine[nodeIdx]);
+
+    return nodalBasis;
+  }
+
+  proc nodal_basis_tria(polyDegree : int, interpDegree : int) {}
+  proc nodal_basis_quad(polyDegree : int, interpDegree : int) {}
+  proc nodal_basis_tetr(polyDegree : int, interpDegree : int) {}
+  proc nodal_basis_pyra(polyDegree : int, interpDegree : int) {}
+  proc nodal_basis_pris(polyDegree : int, interpDegree : int) {}
+  proc nodal_basis_hexa(polyDegree : int, interpDegree : int) {}
+
+  ///////////////////////////
+  //   Projection Matrix   //
+  ///////////////////////////
 
   proc proj_matrix(basis : [] real, weights : [] real, normalizedBasis : bool = false)
   {
@@ -138,7 +169,7 @@ prototype module Projection
   //   Projection Function   //
   /////////////////////////////
 
-  proc project_poly(nodalPoly : [1..polyDegree+1] real, cellTopo : int, polyDegree : int, projDegree : int)
+  proc project_poly(nodalPoly : [] real, cellTopo : int, polyDegree : int, projDegree : int)
   {
     use Parameters.ParamMesh;
     use LinearAlgebra;
@@ -194,6 +225,8 @@ prototype module Projection
     cellTopos.add(TOPO_LINE);
 
     // Initialize projection matrix structure
+    writeln();
+    writeln("Initializing projection module for FR (polyProj):");
     init_polyProj(minPolyDegree, maxPolyDegree, cellTopos);
 
     // Print initialized projection structure
@@ -202,64 +235,71 @@ prototype module Projection
     writeln(polyProj);
     writeln();
 
+    writeln();
+    writeln("Test projecting randomly generated polynomials");
+
     // Define test polynomial parameters
     var polyDegree : int = 9;
-    var spCnt : int = polyDegree+1;
 
-    var nodes   : [1..spCnt] real = nodes_legendre_gauss(spCnt);
-    var weights : [1..spCnt] real = weights_legendre_gauss(spCnt);
+    var nodeCnt : int = polyDegree+1;
+    var nodes   : [1..nodeCnt] real = nodes_legendre_gauss(nodeCnt);
 
     // Generate random polynomial in modal form
     var modalPoly : [0..polyDegree] real;
     randStreamSeeded.fillRandom(modalPoly);
 
     // Calculate nodal values in several points for each component of the basis
-    var nodalBasis : [1..spCnt, 0..polyDegree] real;
-    for i in 1..spCnt do
-      for j in 0..polyDegree do
-        nodalBasis[i,j] = eval_legendre_poly(j, nodes[i]);
+    var nodalBasis : [1..nodeCnt, 0..polyDegree] real;
+    nodalBasis = nodal_basis_line(polyDegree, polyDegree);
 
     // Calculate the nodal representation of the random test polynomial
-    var nodalPoly : [1..spCnt] real = dot(nodalBasis, modalPoly);
+    var nodalPoly : [1..nodeCnt] real = dot(nodalBasis, modalPoly);
 
     // Write out test parameters
-    writef("Nodes: ");
-    for i in 1..spCnt do
-      writef(" %{13.6er}", nodes[i]);
-    writef("\n");
-
-    writef("Modes: ");
-    for i in 0..polyDegree do
-      writef(" %{13.6er}", modalPoly[i]);
-    writef("\n\n");
-
-    writef("Nodal basis:\n");
-    for j in 0..polyDegree
     {
-      writef("   Legendre(%2i): ", j);
-      for i in 1..spCnt do
-        writef(" %{13.6er}", nodalBasis[i,j]);
+      writeln();
+      writef("Nodes: ");
+      for i in 1..nodeCnt do
+        writef(" %{13.6er}", nodes[i]);
       writef("\n");
+
+      writef("Modes: ");
+      for i in 0..polyDegree do
+        writef(" %{13.6er}", modalPoly[i]);
+      writef("\n");
+
+      writeln();
+      writef("Nodal basis:\n");
+      for j in 0..polyDegree
+      {
+        writef("   Legendre(%2i): ", j);
+        for i in 1..nodeCnt do
+          writef(" %{13.6er}", nodalBasis[i,j]);
+        writef("\n");
+      }
     }
-    writef("\n");
 
     // Test projections to every degree down to 0
     for projDegree in (0..polyDegree by -1)
     {
-      var nodalSum : [1..spCnt] real = dot(nodalBasis[1..spCnt, 0..projDegree], modalPoly[0..projDegree]);
-
-      var nodalProj : [1..spCnt] real = project_poly(nodalPoly = nodalPoly,
-                                                     cellTopo = TOPO_LINE,
-                                                     polyDegree = polyDegree,
-                                                     projDegree = projDegree);
-
       // Print nodal values of projected polynomial
-      writef("Projection of a degree %i polynomial to %i degree\n", polyDegree, projDegree);
-      writef("Node |   Sum of modes   | Nodal Projection | Absolute Error | Relative Error\n");
-      for i in 1..spCnt do
-        writef("%4i | %{16.8er} | %{16.8er} | %{14.6er} | %{14.6er}\n", i, nodalSum[i], nodalProj[i],
-            error(nodalSum[i], nodalProj[i]), relative_error(nodalSum[i], nodalProj[i]));
-      writef("\n");
+      writeln();
+      writef("Projection of a degree %i polynomial to %i degree:\n", polyDegree, projDegree);
+
+      {
+        var nodalSum : [1..polyDegree+1] real = dot(nodalBasis[1..polyDegree+1, 0..projDegree], modalPoly[0..projDegree]);
+
+        var nodalProj : [1..polyDegree+1] real = project_poly(nodalPoly = nodalPoly,
+                                                       cellTopo  = TOPO_LINE,
+                                                       polyDegree = polyDegree,
+                                                       projDegree = projDegree);
+
+        writef("   Node | Sum of modes     | Nodal Projection | Absolute Error | Relative Error\n");
+
+        for i in 1..polyDegree+1 do
+          writef("   %4i | %{16.8er} | %{16.8er} | %{14.6er} | %{14.6er}\n", i, nodalSum[i], nodalProj[i],
+              error(nodalSum[i], nodalProj[i]), relative_error(nodalSum[i], nodalProj[i]));
+      }
     }
   }
 }
