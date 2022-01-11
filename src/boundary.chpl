@@ -4,9 +4,10 @@ prototype module Boundary
   use UnitTest;
   import Mesh.faml_r;
 
-  proc boundary(hostConsVars : [] real, faml : faml_r) : [hostConsVars.domain] real
+  proc boundary(hostConsVars : [] real, faml : faml_r, xyz : [] real, nrm : [] real) : [hostConsVars.domain] real
   {
     use Parameters.ParamInput;
+    import Ringleb.ringleb_sol;
 
     var ghstConsVars : [hostConsVars.domain] real = 0;
 
@@ -63,6 +64,8 @@ prototype module Boundary
             ghstConsVars = nozzle_subsonic_inflow(hostConsVars, faml.bocoProperties);
           when BC_SUBTYPE_1D_NOZZLE_SHOCKED_INFLOW do
             ghstConsVars = nozzle_shocked_inflow(hostConsVars, faml.bocoProperties);
+          when BC_SUBTYPE_RINGLEB do
+            ghstConsVars = 2*ringleb_sol(xyz[1..2]) - hostConsVars;
           when BC_SUBTYPE_MMS_DIRICHLET {}
         }
     }

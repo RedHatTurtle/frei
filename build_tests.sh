@@ -278,6 +278,7 @@ chpl -o tests/boundary_tests                            \
      --warn-unstable                                    \
      --main-module Boundary src/boundary.chpl           \
                             src/init.chpl               \
+                            src/ringleb.chpl            \
                             src/flux.chpl               \
                             src/mesh.chpl               \
                             src/gmesh.chpl              \

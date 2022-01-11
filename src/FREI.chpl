@@ -312,8 +312,9 @@ prototype module FREI
                 // Iterate through the FPs on this face
                 for meshFP in faceFPini.. #faceFPcnt
                 {
-                  // Calculate the Boundary Condition using the solution at the left neighbor´s corresponding FP
-                  frMesh.solFP[meshFP, 2, ..] = Boundary.boundary(frMesh.solFP[meshFP, 1, ..], thisFaml);
+                  // Calculate the boundary condition using the solution at the left neighbor´s corresponding FP
+                  frMesh.solFP[meshFP, 2, ..] = Boundary.boundary(frMesh.solFP[meshFP, 1, ..], thisFaml,
+                                                                  frMesh.xyzFP[meshFP, ..], frMesh.nrmFP[meshFP, ..]);
                 }
               }
             }
