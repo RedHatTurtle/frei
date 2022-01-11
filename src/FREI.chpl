@@ -1,7 +1,7 @@
 /* Documentation for FREI */
 prototype module FREI
 {
-  //Runtime constants
+  // Run-time constants
   config const inputFile : string = "input.toml";
   config const inputMesh : string = "mesh.mesh";
 
@@ -9,6 +9,7 @@ prototype module FREI
     use IO;
     use Time;
     use Parameters.ParamInput;
+    use Parameters.ParamMesh;
     use Config;
     use Input;
     use Flux;
@@ -29,7 +30,7 @@ prototype module FREI
     use SourceTerm;
     use Temporal_Methods;
 
-    // Timing variables
+    // Declare timing variables
     var initTime : real = 0.0;
     var iterTime : real = 0.0;
     var srcTermTime : real = 0.0;
@@ -452,10 +453,23 @@ prototype module FREI
                   // Multiply the flux vector by the inverse Jacobian matrix and by the Jacobian determinant
                   jump[..] = jump[..] * norm(frMesh.nrmFP[meshFP, ..], normType.norm2);
 
-                  if faceSide == 1 && cellFace == 1 then
-                    jump = -jump;
-                  if faceSide == 2 && cellFace == 2 then
-                    jump = -jump;
+                  select thisCell.elemTopo()
+                  {
+                    when TOPO_LINE
+                    {
+                      if faceSide == 1 && cellFace == 1 then
+                        jump = -jump;
+                      if faceSide == 2 && cellFace == 2 then
+                        jump = -jump;
+                    }
+                    when TOPO_QUAD
+                    {
+                      if faceSide == 1 && (cellFace == 1 || cellFace == 4) then
+                        jump = -jump;
+                      if faceSide == 2 && (cellFace == 2 || cellFace == 3) then
+                        jump = -jump;
+                    }
+                  }
 
                   // The correction function was calculated in the computational domain already, therefore no
                   // transformation is required.
@@ -499,7 +513,7 @@ prototype module FREI
         }
 
         // Stabilize Solution
-        {
+          {
           stopwatch.clear();
 
           // Loop through cells
@@ -542,12 +556,13 @@ prototype module FREI
         // Calculate solution delta from previous iteration
         for varIdx in 1..frMesh.nVars
         {
-          l1Delta[varIdx]           = + reduce (frMesh.oldSolSP[.., varIdx] - frMesh.solSP[.., varIdx]);
-          l2Delta[varIdx]           = sqrt(+ reduce (frMesh.oldSolSP[.., varIdx] - frMesh.solSP[.., varIdx])**2);
-          lInfDelta[varIdx]         = max reduce abs(frMesh.oldSolSP[.., varIdx] - frMesh.solSP[.., varIdx]);
-          l1RelativeDelta[varIdx]   = + reduce (frMesh.oldSolSP[.., varIdx] - frMesh.solSP[.., varIdx]);
-          l2RelativeDelta[varIdx]   = sqrt(+ reduce (frMesh.oldSolSP[.., varIdx] - frMesh.solSP[.., varIdx])**2);
-          lInfRelativeDelta[varIdx] = max reduce abs((frMesh.oldSolSP[.., varIdx] - frMesh.solSP[.., varIdx])/frMesh.oldSolSP[.., varIdx]);
+          l1Delta[varIdx]           =      + reduce     (frMesh.oldSolSP[.., varIdx] - frMesh.solSP[.., varIdx]);
+          l2Delta[varIdx]           = sqrt(+ reduce     (frMesh.oldSolSP[.., varIdx] - frMesh.solSP[.., varIdx])**2);
+          lInfDelta[varIdx]         = max    reduce  abs(frMesh.oldSolSP[.., varIdx] - frMesh.solSP[.., varIdx]);
+          l1RelativeDelta[varIdx]   =      + reduce     (frMesh.oldSolSP[.., varIdx] - frMesh.solSP[.., varIdx]);
+          l2RelativeDelta[varIdx]   = sqrt(+ reduce     (frMesh.oldSolSP[.., varIdx] - frMesh.solSP[.., varIdx])**2);
+          lInfRelativeDelta[varIdx] = max    reduce abs((frMesh.oldSolSP[.., varIdx] - frMesh.solSP[.., varIdx])
+                                                         /frMesh.oldSolSP[.., varIdx]);
         }
 
         // Save values from first iterations as reference
