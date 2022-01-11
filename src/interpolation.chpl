@@ -21,12 +21,27 @@ prototype module Interpolation
   type derivation_coefficients_t    = unmanaged derivation_coefficients_c?;
 
   // Domains
-  var sp2fpInterp_d : domain(2*int);
-  var sp2spDeriv_d  : domain(2*int);
+  var sp2fpInterp_d   : domain(2*int);
+  var sp2spDeriv_d    : domain(2*int);
+  var sp2nodeInterp_d : domain(2*int);
 
   // Coefficient structures
-  var sp2fpInterp : [sp2fpInterp_d] interpolation_coefficients_t; // Cell to face interpolation
-  var sp2spDeriv  : [sp2spDeriv_d]  derivation_coefficients_t;    // Cell to cell derivative
+  var sp2fpInterp   : [sp2fpInterp_d] interpolation_coefficients_t; // Cell to face interpolation
+  var sp2spDeriv    : [sp2spDeriv_d]  derivation_coefficients_t;    // Cell to face derivative
+  var sp2nodeInterp : [sp2spDeriv_d]  interpolation_coefficients_t; // Cell to node interpolation
+
+  // Alternative coefficient structures.
+  //    1- It's assumed interpolation is always from the cellTopo SPs to somewhere else.
+  //    2- Interpolating to a lower order is possible but obviously does not preserve order of accuracy.
+  //    3- fromPtIdx is typically the cell SP index
+  //    4-   toPtIdx can be either the cell vertices, the face FPs, or an arbitrary distribution of points in the edge.
+  //
+  //interpolate[(cellTopo, spDistribution, spSolOrder)].toCell[          solOrder ].coefs[toPtIdx, fromPtIdx]
+  //interpolate[(cellTopo, spDistribution, spSolOrder)].toFace[(faceIdx, solOrder)].coefs[toPtIdx, fromPtIdx]
+  //interpolate[(cellTopo, spDistribution, spSolOrder)].toEdge[(edgeIdx, solOrder)].coefs[toPtIdx, fromPtidx]
+  //interpolate[(cellTopo, spDistribution, spSolOrder)].toNode[(nodeIdx, solOrder)].coefs[toPtIdx, fromPtidx]
+  //
+  // Ex: interpolate[(TOPO_PRIS, 4)].toFace[(1, 4)].
 
   //////////////////////////////////
   //   Initialization Procedure   //
@@ -208,6 +223,111 @@ prototype module Interpolation
                                                                              *eval_DLagrangeDx(eta, j, spDistLine);
               }
             }
+        }
+        when TOPO_TETR {}
+        when TOPO_PYRA {}
+        when TOPO_PRIS {}
+        when TOPO_HEXA {}
+        otherwise do writeln("Unsupported mesh element found at interpolation initialization.");
+      }
+    }
+
+    writef("    Initialized in  %6.1dr ms\n", stopwatch.elapsed(TimeUnits.milliseconds));
+  }
+
+  proc init_sp2nodeInterp(minOrder : int, maxOrder : int, cellTopos : set(int))
+  {
+    use Time;
+    use Parameters.ParamMesh;
+    use Polynomials;
+
+    writeln();
+    writeln("Initializing SP -> Node Differentiation matrices");
+    writeln("    Cell Topologies: ", cellTopos);
+    writeln("    Minimum Polynomial Degree: ", minOrder);
+    writeln("    Maximum Polynomial Degree: ", maxOrder);
+    var stopwatch : Timer;
+    stopwatch.start();
+
+    // Add all combination of cell topology and interpolation order to the domain
+    for cellTopo in cellTopos do
+      for interpOrder in minOrder..maxOrder do
+        sp2nodeInterp_d.add((cellTopo, interpOrder));
+
+    // Calculate all relevant coefficients
+    for (cellTopo, interpOrder) in sp2nodeInterp.domain
+    {
+      select cellTopo
+      {
+        when TOPO_LINE
+        {
+          var spCnt : int = interpOrder+1;
+          var nodeCnt : int = 2;//elem_vertices(cellTopo);
+
+          sp2nodeInterp[(cellTopo, interpOrder)] = new interpolation_coefficients_t({1..nodeCnt, 1..spCnt})!;
+
+          // Need to build an appropriate way to query the point location for each element.
+          // Initially assume the whole mesh uses the same base distribution specified in input file.
+          // Even more initially assume the whole mesh has SPs on Legendre roots. xD
+          var spDistLine : [1..spCnt] real = nodes_legendre_gauss(spCnt);
+          var nodeDistLine : [1..nodeCnt] real = [-1.0, 1.0];
+
+          for node in 1..nodeCnt do
+            sp2nodeInterp[(cellTopo, interpOrder)]!.coefs[{node..#1, 1..spCnt}] = reshape(
+                eval_LagrangePoly1D_array(nodeDistLine[node], spDistLine), {node..#1, 1..spCnt});
+        }
+        when TOPO_TRIA {}
+        when TOPO_QUAD
+        {
+          var spCnt : int = (interpOrder+1)**2;
+          var nodeCnt : int = 4;//elem_vertices(cellTopo);
+
+          sp2nodeInterp[(cellTopo, interpOrder)] = new interpolation_coefficients_t({1..nodeCnt, 1..spCnt})!;
+
+          // Need to build an appropriate way to query the point location for each element.
+          // Initially assume the whole mesh uses the same base distribution specified in input file.
+          // Even more initially assume the whole mesh has SPs on Legendre roots.
+          var spDistLine : [1..interpOrder+1] real = nodes_legendre_gauss(interpOrder+1);
+          var nodeDistLine : [1..2] real = [-1.0, 1.0];
+
+          for cellNode in 1..nodeCnt
+          {
+            var  xiFP : real;
+            var etaFP : real;
+
+            select cellNode
+            {
+              when 1
+              {
+                xiFP  = nodeDistLine[1];
+                etaFP = nodeDistLine[1];
+              }
+              when 2
+              {
+                xiFP  = nodeDistLine[2];
+                etaFP = nodeDistLine[1];
+              }
+              when 3
+              {
+                xiFP  = nodeDistLine[2];
+                etaFP = nodeDistLine[2];
+              }
+              when 4
+              {
+                xiFP  = nodeDistLine[1];
+                etaFP = nodeDistLine[2];
+              }
+            }
+
+            for sp in 1..spCnt
+            {
+              var i : int = (sp-1)%(interpOrder+1)+1;
+              var j : int = (sp-1)/(interpOrder+1)+1;
+
+              sp2nodeInterp[(cellTopo, interpOrder)]!.coefs[cellNode, sp] = eval_LagrangePoly1D( xiFP, i, spDistLine)
+                                                                           *eval_LagrangePoly1D(etaFP, j, spDistLine);
+            }
+          }
         }
         when TOPO_TETR {}
         when TOPO_PYRA {}
@@ -510,6 +630,14 @@ prototype module Interpolation
 
     init_sp2spDeriv(minOrder, maxOrder, cellTopos);
     writeln(sp2spDeriv);
+    writeln();
+
+    writeln();
+    writeln("Node interpolation initialized structure for FR (sp2nodeInterp):");
+    writeln();
+
+    init_sp2nodeInterp(minOrder, maxOrder, cellTopos);
+    writeln(sp2nodeInterp);
     writeln();
 
     // Test the FR structures

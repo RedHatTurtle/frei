@@ -104,6 +104,7 @@ prototype module FREI
     // 7. Initialize the FR solver, pre calculate coefficients and stuff
     init_sp2fpInterp(Input.minOrder, Input.maxOrder, frMesh.cellTopos);
     init_sp2spDeriv(Input.minOrder, Input.maxOrder, frMesh.cellTopos);
+    init_sp2nodeInterp(Input.minOrder, Input.maxOrder, frMesh.cellTopos);
     init_quadratureWeights(Input.minOrder, Input.maxOrder, frMesh.cellTopos);
     init_polyProj(Input.minOrder, Input.maxOrder, frMesh.cellTopos);
     init_correction(Input.minOrder+1, Input.maxOrder+1, frMesh.cellTopos);
