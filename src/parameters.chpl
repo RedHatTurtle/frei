@@ -350,13 +350,14 @@ prototype module Parameters
     //---------------------------------------------------------------------------------------------------------------------------
     //  1-D     |   Line        |   LIN_2   |   LIN_3             |   LIN_4                      |   LIN_5
     //  2-D     |   Triangle    |   TRI_3   |   TRI_6             |   TRI_9    TRI_10            |   TRI_12     TRI_15
-    //          |   Quadrangle  |   QUAD_4  |   QUAD_8   QUAD_9   |   QUAD_12  QUAD_16           |   QUAD_P4_16 QUAD_25
-    //  3-D     |   Tetrahedron |   TETRA_4 |   TETRA_10          |   TETRA_16 TETRA_20          |   TETRA_22   TETRA_34 TETRA_35
-    //          |   Pyramid     |   PYRA_5  |   PYRA_13  PYRA_14  |   PYRA_21  PYRA_29  PYRA_30  |   PYRA_P4_29 PYRA_50  PYRA_55
-    //          |   Pentahedron |   PENTA_6 |   PENTA_15 PENTA_18 |   PENTA_24 PENTA_38 PENTA_40 |   PENTA_33   PENTA_66 PENTA_75
-    //          |   Hexahedron  |   HEXA_8  |   HEXA_20  HEXA_27  |   HEXA_32  HEXA_56  HEXA_64  |   HEXA_44    HEXA_98  HEXA_125
+    //          |   Quadrangle  |   QUA_4   |   QUA_8    QUA_9    |   QUA_12   QUA_16            |   QUA_16I    QUAD_25
+    //  3-D     |   Tetrahedron |   TET_4   |   TET_10            |   TET_16   TET_20            |   TET_22     TET_34   TET_35
+    //          |   Pyramid     |   PYR_5   |   PYR_13   PYR_14   |   PYR_21   PYR_29   PYR_30   |   PYR_29I    PYR_50   PYR_55
+    //          |   Prism       |   PRI_6   |   PRI_15   PRI_18   |   PRI_24   PRI_38   PRI_40   |   PRI_33     PRI_66   PRI_75
+    //          |   Hexahedron  |   HEX_8   |   HEX_20   HEX_27   |   HEX_32   HEX_56   HEX_64   |   HEX_44     HEX_98   HEX_125
 
     param GMESH_PNT_1    : int = 15;
+    param GMESH_TRIH_4   : int = 140; // Trihedron
 
     //     Line:                 Line3:          Line4:
     //
@@ -366,7 +367,9 @@ prototype module Parameters
     //       |
     // 0-----+-----1 --> u   0----2----1     0---2---3---1
 
+    // First order element
     param GMESH_LIN_2    : int =   1;
+    // Complete high-order elements
     param GMESH_LIN_3    : int =   8;
     param GMESH_LIN_4    : int =  26;
     param GMESH_LIN_5    : int =  27;
@@ -376,9 +379,11 @@ prototype module Parameters
     param GMESH_LIN_9    : int =  64;
     param GMESH_LIN_10   : int =  65;
     param GMESH_LIN_11   : int =  66;
+    // 0th order elements
+    param GMESH_LIN_1    : int =  84;
+    // Exotic elements
     param GMESH_LIN_B    : int =  67;
     param GMESH_LIN_C    : int =  70;
-    param GMESH_LIN_1    : int =  84;
     param GMESH_LIN_SUB  : int = 134;
 
     // Triangle:               Triangle6:          Triangle9/10:          Triangle12/15:
@@ -394,29 +399,33 @@ prototype module Parameters
     // |        `\             |        `\          |         \            |             \
     // 0----------1 --> u      0-----3----1         0---3---4---1          0---3---4---5---1
 
+    // First order element
     param GMESH_TRI_3    : int =   2;
+    // Complete high-order elements
     param GMESH_TRI_6    : int =   9;
-    param GMESH_TRI_9    : int =  20;
     param GMESH_TRI_10   : int =  21;
-    param GMESH_TRI_12   : int =  22;
     param GMESH_TRI_15   : int =  23;
-    param GMESH_TRI_15I  : int =  24;
     param GMESH_TRI_21   : int =  25;
     param GMESH_TRI_28   : int =  42;
     param GMESH_TRI_36   : int =  43;
     param GMESH_TRI_45   : int =  44;
     param GMESH_TRI_55   : int =  45;
     param GMESH_TRI_66   : int =  46;
+    // Edge based high-order elements
+    param GMESH_TRI_9    : int =  20;
+    param GMESH_TRI_12   : int =  22;
+    param GMESH_TRI_15I  : int =  24;
     param GMESH_TRI_18   : int =  52;
     param GMESH_TRI_21I  : int =  53;
     param GMESH_TRI_24   : int =  54;
     param GMESH_TRI_27   : int =  55;
     param GMESH_TRI_30   : int =  56;
-    param GMESH_TRI_B    : int =  68;
+    // 0th order elements
     param GMESH_TRI_1    : int =  85;
+    // Exotic elements
+    param GMESH_TRI_B    : int =  68;
     param GMESH_TRI_SUB  : int = 135;
     param GMESH_TRI_MINI : int = 138;
-    param GMESH_TRIH_4   : int = 140;
 
     // Quadrangle:            Quadrangle8:            Quadrangle9:
     //
@@ -431,25 +440,29 @@ prototype module Parameters
     // |           |          |           |           |           |
     // 0-----------1          0-----4-----1           0-----4-----1
 
+    // First order element
     param GMESH_QUA_4    : int =  3;
+    // Complete high-order elements
     param GMESH_QUA_9    : int = 10;
-    param GMESH_QUA_8    : int = 16;
     param GMESH_QUA_16   : int = 36;
     param GMESH_QUA_25   : int = 37;
     param GMESH_QUA_36   : int = 38;
-    param GMESH_QUA_12   : int = 39;
-    param GMESH_QUA_16I  : int = 40;
-    param GMESH_QUA_20   : int = 41;
     param GMESH_QUA_49   : int = 47;
     param GMESH_QUA_64   : int = 48;
     param GMESH_QUA_81   : int = 49;
     param GMESH_QUA_100  : int = 50;
     param GMESH_QUA_121  : int = 51;
+    // Edge based high-order elements
+    param GMESH_QUA_8    : int = 16;
+    param GMESH_QUA_12   : int = 39;
+    param GMESH_QUA_16I  : int = 40;
+    param GMESH_QUA_20   : int = 41;
     param GMESH_QUA_24   : int = 57;
     param GMESH_QUA_28   : int = 58;
     param GMESH_QUA_32   : int = 59;
     param GMESH_QUA_36I  : int = 60;
     param GMESH_QUA_40   : int = 61;
+    // 0th order elements
     param GMESH_QUA_1    : int = 86;
 
     // Tetrahedron:                          Tetrahedron10:
@@ -473,26 +486,32 @@ prototype module Parameters
     //                 `\.
     //                    ` w
 
+    // First order element
     param GMESH_TET_4    : int =   4;
+    // Complete high-order elements
     param GMESH_TET_10   : int =  11;
     param GMESH_TET_20   : int =  29;
+    param GMESH_TET_35   : int =  30;
     param GMESH_TET_56   : int =  31;
-    param GMESH_TET_22   : int =  32;
-    param GMESH_TET_28   : int =  33;
     param GMESH_TET_84   : int =  71;
     param GMESH_TET_120  : int =  72;
     param GMESH_TET_165  : int =  73;
     param GMESH_TET_220  : int =  74;
     param GMESH_TET_286  : int =  75;
+    // Edge based high-order elements
+    // 2nd order edge based element is identical to complete element
+    param GMESH_TET_16   : int = 137;
+    param GMESH_TET_22   : int =  32;
+    param GMESH_TET_28   : int =  33;
     param GMESH_TET_34   : int =  79;
-    param GMESH_TET_35   : int =  30;
     param GMESH_TET_40   : int =  80;
     param GMESH_TET_46   : int =  81;
     param GMESH_TET_52   : int =  82;
     param GMESH_TET_58   : int =  83;
+    // 0th order elements
     param GMESH_TET_1    : int =  87;
+    // Exotic elements
     param GMESH_TET_SUB  : int = 136;
-    param GMESH_TET_16   : int = 137;
     param GMESH_TET_MINI : int = 139;
 
     // Pyramid:                     Pyramid13:                   Pyramid14:
@@ -514,9 +533,10 @@ prototype module Parameters
     //                     `\
     //                       u
 
+    // First order element
     param GMESH_PYR_5    : int =   7;
+    // Complete high-order elements
     param GMESH_PYR_14   : int =  14;
-    param GMESH_PYR_13   : int =  19;
     param GMESH_PYR_30   : int = 118;
     param GMESH_PYR_55   : int = 119;
     param GMESH_PYR_91   : int = 120;
@@ -524,13 +544,16 @@ prototype module Parameters
     param GMESH_PYR_204  : int = 122;
     param GMESH_PYR_285  : int = 123;
     param GMESH_PYR_385  : int = 124;
+    // Edge based high-order elements
+    param GMESH_PYR_13   : int =  19;
+    param GMESH_PYR_21   : int = 125;
     param GMESH_PYR_29   : int = 126;
     param GMESH_PYR_37   : int = 127;
-    param GMESH_PYR_21   : int = 125;
     param GMESH_PYR_45   : int = 128;
     param GMESH_PYR_53   : int = 129;
     param GMESH_PYR_61   : int = 130;
     param GMESH_PYR_69   : int = 131;
+    // 0th order elements
     param GMESH_PYR_1    : int = 132;
 
     // Prism:                      Prism15:               Prism18:
@@ -554,10 +577,10 @@ prototype module Parameters
     //     |,/         `\|         |,/         `\|        |,/         `\|
     //     1-------------2         1------9------2        1------9------2
 
+    // First order element
     param GMESH_PRI_6    : int =   6;
+    // Complete high-order elements
     param GMESH_PRI_18   : int =  13;
-    param GMESH_PRI_15   : int =  18;
-    param GMESH_PRI_1    : int =  89;
     param GMESH_PRI_40   : int =  90;
     param GMESH_PRI_75   : int =  91;
     param GMESH_PRI_126  : int = 106;
@@ -565,6 +588,8 @@ prototype module Parameters
     param GMESH_PRI_288  : int = 108;
     param GMESH_PRI_405  : int = 109;
     param GMESH_PRI_550  : int = 110;
+    // Edge based high-order elements
+    param GMESH_PRI_15   : int =  18;
     param GMESH_PRI_24   : int = 111;
     param GMESH_PRI_33   : int = 112;
     param GMESH_PRI_42   : int = 113;
@@ -572,6 +597,8 @@ prototype module Parameters
     param GMESH_PRI_60   : int = 115;
     param GMESH_PRI_69   : int = 116;
     param GMESH_PRI_78   : int = 117;
+    // 0th order elements
+    param GMESH_PRI_1    : int =  89;
 
     // Hexahedron:             Hexahedron20:          Hexahedron27:
     //
@@ -588,10 +615,10 @@ prototype module Parameters
     //    \|      w  \|           \|         \|          \|         \|
     //     4----------5            4----16----5           4----16----5
 
+    // First order element
     param GMESH_HEX_8    : int =   5;
+    // Complete high-order elements
     param GMESH_HEX_27   : int =  12;
-    param GMESH_HEX_20   : int =  17;
-    param GMESH_HEX_1    : int =  88;
     param GMESH_HEX_64   : int =  92;
     param GMESH_HEX_125  : int =  93;
     param GMESH_HEX_216  : int =  94;
@@ -599,6 +626,8 @@ prototype module Parameters
     param GMESH_HEX_512  : int =  96;
     param GMESH_HEX_729  : int =  97;
     param GMESH_HEX_1000 : int =  98;
+    // Edge based high-order elements
+    param GMESH_HEX_20   : int =  17;
     param GMESH_HEX_32   : int =  99;
     param GMESH_HEX_44   : int = 100;
     param GMESH_HEX_56   : int = 101;
@@ -606,5 +635,7 @@ prototype module Parameters
     param GMESH_HEX_80   : int = 103;
     param GMESH_HEX_92   : int = 104;
     param GMESH_HEX_104  : int = 105;
+    // 0th order elements
+    param GMESH_HEX_1    : int =  88;
   }
 }
