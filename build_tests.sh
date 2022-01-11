@@ -49,6 +49,8 @@ chpl -o tests/interpolation_tests                       \
      --warn-unstable                                    \
      --main-module Interpolation src/interpolation.chpl \
                                  src/polynomials.chpl   \
+                                 src/mesh.chpl          \
+                                 src/gmesh.chpl         \
                                  src/parameters.chpl    \
                                  src/testing.chpl       \
     2>&1 | tee tests/interpolation_build.log

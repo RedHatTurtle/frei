@@ -108,7 +108,7 @@ prototype module FREI
     init_polyProj(Input.minOrder, Input.maxOrder, frMesh.cellTopos);
     init_correction(Input.minOrder+1, Input.maxOrder+1, frMesh.cellTopos);
 
-    // Initialize solution
+    // 8. Initialize solution
     for cellIdx in frMesh.cellList.domain
     {
       ref familyIdx = frMesh.cellList[cellIdx].family;
@@ -125,10 +125,10 @@ prototype module FREI
                                                                 frMesh.xyzSP[cellSPini.. #cellSPcnt, ..]);
     }
 
-    // Output initial state
+    // 9. Output initial solution
     iterOutput(iteration, frMesh);
 
-    // Stabilize Solution
+    // 10. Stabilize initial solution
     {
       // Loop through cells
       for cellIdx in frMesh.cellList.domain
@@ -151,9 +151,9 @@ prototype module FREI
       }
     }
 
-    // Save restart file
+    // 11. Save first restart file
 
-    // Initialize convergence monitoring variables
+    // 12. Initialize convergence monitoring variables
     var l2DeltaIni           : [1..frMesh.nVars] real;
     var l2RelativeDeltaIni   : [1..frMesh.nVars] real;
     var convergenceLog : file;
@@ -165,11 +165,12 @@ prototype module FREI
     }
     var convergenceLogChan = convergenceLog.writer();
 
+    writeln();
     initTime = stopwatch.elapsed(TimeUnits.milliseconds);
     writef("Stopwatch - Init    : %10.2dr ms\n", initTime);
     writef("Start Iterating\n");
 
-    // Solve flow
+    // Main: Solve flow
     iterTimer.start();
     for iteration in 1..Input.maxIter
     {
@@ -181,6 +182,7 @@ prototype module FREI
       // Save initial solution
       frMesh.oldSolSP = frMesh.solSP;
 
+      // Iterate RK stages
       for stage in 1..timeStepStages
       {
         // Calculate residue for this iteration
@@ -209,7 +211,7 @@ prototype module FREI
           {
             stopwatch.clear();
 
-            // Calculate flux at SPs and it´s divergence
+            // Calculate flux at SPs and it's divergence
             for cellIdx in frMesh.cellList.domain
             {
               // Get loop variables
@@ -218,48 +220,87 @@ prototype module FREI
               var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
 
               // Allocate temporary flux array
-              var flxSP : [cellSPini.. #cellSPcnt, 1..frMesh.nVars] real;
+              var flxSP : [cellSPini.. #cellSPcnt, 1..frMesh.nDims, 1..frMesh.nVars] real;
 
               // Calculate fluxes
               for meshSP in cellSPini.. #cellSPcnt do
                 select Input.eqSet
                 {
                   when EQ_CONVECTION do
-                    flxSP[meshSP, ..] = convection_flux_cv_1d(frMesh.solSP[meshSP, ..]);
+                    flxSP[meshSP, 1, ..] = convection_flux_cv_1d(frMesh.solSP[meshSP, ..]);
                   when EQ_INVBURGERS do
-                    flxSP[meshSP, ..] = burgers_flux_cv_1d(frMesh.solSP[meshSP, ..]);
-                  when EQ_EULER do
-                    flxSP[meshSP, ..] = euler_flux_cv_1d(frMesh.solSP[meshSP, ..]);
+                    flxSP[meshSP, 1, ..] = burgers_flux_cv_1d(frMesh.solSP[meshSP, ..]);
                   when EQ_QUASI_1D_EULER do
-                    flxSP[meshSP, ..] = euler_flux_cv_1d(frMesh.solSP[meshSP, ..]);
+                    flxSP[meshSP, 1, ..] = euler_flux_cv_1d(frMesh.solSP[meshSP, ..]);
+                  when EQ_EULER do
+                    flxSP[meshSP, .., ..] = euler_flux_cv(frMesh.solSP[meshSP, ..]);
                 }
 
-              // Interpolate fluxes to FPs
+              // Interpolate fluxes to FPs and save the FP normal flux
               for cellFace in thisCell.faces.domain
               {
                 var faceIdx  = thisCell.faces[cellFace];
                 var thisFace = frMesh.faceList[faceIdx];
                 var faceSide = thisCell.sides[cellFace];
 
+                var flx : [1..frMesh.faceFPidx[faceIdx, 2], 1..2, 1..frMesh.nVars] real;
+
                 for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
                 {
-                  var cellFP = cellFace;
-                  frMesh.flxFP[meshFP, faceSide, ..] = dot(sp2fpInterp[(thisCell.elemTopo(), iOrder)]!.coefs(cellFP, ..),
-                                                           flxSP[cellSPini..#cellSPcnt,..]                              );
+                  var cellFP : int;
+                  if faceSide == 1 then
+                    cellFP = (cellFace-1)*(frMesh.solOrder+1) +  meshFP - frMesh.faceFPidx[faceIdx, 1] + 1;
+                  else
+                    cellFP = (cellFace-1)*(frMesh.solOrder+1) + (frMesh.faceFPidx[faceIdx, 2] - (meshFP - frMesh.faceFPidx[faceIdx, 1]));
+
+                  var uniNrm : [frMesh.nrmFP[meshFP, ..].domain] real = frMesh.nrmFP[meshFP, ..]/norm(frMesh.nrmFP[meshFP, ..]);
+
+                  for varIdx in 1..frMesh.nVars
+                  {
+                    flx[meshFP+1-frMesh.faceFPidx[faceIdx, 1], 1, varIdx] =
+                        dot( sp2fpInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellFP, ..],
+                             flxSP[cellSPini..#cellSPcnt, 1, varIdx]                               );
+                    flx[meshFP+1-frMesh.faceFPidx[faceIdx, 1], 2, varIdx] =
+                        dot( sp2fpInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellFP, ..],
+                             flxSP[cellSPini..#cellSPcnt, 2, varIdx]                   );
+
+                    frMesh.flxFP[meshFP, faceSide, varIdx] = dot(uniNrm, flx[meshFP+1-frMesh.faceFPidx[faceIdx, 1], .., varIdx]);
+                  }
                 }
               }
 
-              // Convert fluxes from physical to computational domain.
-              // Multiply the flux vector by the inverse Jacobian matrix and by the Jacobian determiant
-              for meshSP in cellSPini.. #cellSPcnt do
-                flxSP[meshSP, ..] = dot(flxSP[meshSP, ..], frMesh.metSP[meshSP, 1, 1]**(-1))*frMesh.jacSP[meshSP];
+              // Convert fluxes from physical to computational domain
+              //writeln("         Convert fluxes from physical to computational domain");
+              for meshSP in cellSPini.. #cellSPcnt
+              {
+                // Multiply the flux vector by the inverse Jacobian matrix and by the Jacobian determinant
+                var jInv : [frMesh.metSP[meshSP, .., ..].domain] real = frMesh.metSP[meshSP, .., ..]**(-1);
+
+                if frMesh.nDims == 2
+                {
+                  jInv[1,1] =  frMesh.metSP[meshSP, 2, 2];
+                  jInv[1,2] = -frMesh.metSP[meshSP, 1, 2];
+                  jInv[2,1] = -frMesh.metSP[meshSP, 2, 1];
+                  jInv[2,2] =  frMesh.metSP[meshSP, 1, 1];
+                }
+
+                flxSP[meshSP, .., ..] = dot(jInv, reshape(flxSP[meshSP, .., ..], flxSP[meshSP, .., ..].domain));
+              }
 
               // Calculate flux divergence
               for cellSP in 1..cellSPcnt
               {
                 var meshSP = cellSPini + cellSP - 1;
-                frMesh.resSP[meshSP,..] += dot(sp2spDeriv[(thisCell.elemTopo(), iOrder)]!.coefs(cellSP, ..),
-                                               flxSP[cellSPini..#cellSPcnt,..]                             );
+
+                for dimIdx in 1..frMesh.nDims
+                {
+                  var coefs : [sp2spDeriv[(thisCell.elemTopo(), iOrder)]!.coefs[cellSP, dimIdx, ..].domain] real
+                             = sp2spDeriv[(thisCell.elemTopo(), iOrder)]!.coefs[cellSP, dimIdx, ..];
+                  var flxsp : [flxSP[cellSPini..#cellSPcnt, dimIdx, ..].domain] real
+                             = flxSP[cellSPini..#cellSPcnt, dimIdx, ..];
+
+                  frMesh.resSP[meshSP, ..] += dot(coefs, flxsp);
+                }
               }
             }
             dscFluxTime += stopwatch.elapsed(TimeUnits.milliseconds);
@@ -284,8 +325,13 @@ prototype module FREI
 
                 for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
                 {
-                  var cellFP = cellFace;
-                  frMesh.solFP[meshFP, faceSide, ..] = dot(sp2fpInterp[(thisCell.elemTopo(), iOrder)]!.coefs(cellFP, ..),
+                  var cellFP : int;
+                  if faceSide == 1 then
+                    cellFP = (cellFace-1)*(frMesh.solOrder+1) +  meshFP - frMesh.faceFPidx[faceIdx, 1] + 1;
+                  else
+                    cellFP = (cellFace-1)*(frMesh.solOrder+1) + (frMesh.faceFPidx[faceIdx, 2] - (meshFP - frMesh.faceFPidx[faceIdx, 1]));
+
+                  frMesh.solFP[meshFP, faceSide, ..] = dot(sp2fpInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellFP, ..],
                                                            frMesh.solSP[cellSPini..#cellSPcnt,..]                       );
                 }
               }
@@ -337,7 +383,12 @@ prototype module FREI
                 {
                   // For 1D each face has 1 FP therefore the FP and the Face have the same index Relative to it's
                   // position in the cell
-                  var cellFP = cellFace;
+                  var cellFP : int;
+                  var faceFP : int = meshFP - frMesh.faceFPidx[faceIdx, 1] + 1;
+                  if faceSide == 1 then
+                    cellFP = (cellFace-1)*(frMesh.solOrder+1) +  meshFP - frMesh.faceFPidx[faceIdx, 1] + 1;
+                  else
+                    cellFP = (cellFace-1)*(frMesh.solOrder+1) + (frMesh.faceFPidx[faceIdx, 2] - (meshFP - frMesh.faceFPidx[faceIdx, 1]));
 
                   // Calculate the flux jump = -1*(local_flux) + numerical_flux
                   var jump : [1..frMesh.nVars] real = -frMesh.flxFP[meshFP, faceSide, ..];
