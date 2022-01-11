@@ -257,6 +257,7 @@ chpl -o tests/init_tests                                \
      --warnings                                         \
      --warn-unstable                                    \
      --main-module Init src/init.chpl                   \
+                        src/ringleb.chpl                \
                         src/flux.chpl                   \
                         src/config.chpl                 \
                         src/input.chpl                  \

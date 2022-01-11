@@ -15,6 +15,8 @@ prototype module Init
 
   proc flow_condition(familySubType : int, familyParameters : [] real, xyz : [] real) : [] real
   {
+    use Ringleb;
+
     var flowVars : [xyz.domain.dim(0), 1..Input.nEqs] real;
 
     select familySubType
@@ -207,7 +209,8 @@ prototype module Init
       }
       when IC_RINGLEB
       {
-
+        for i in xyz.domain.dim(0) do
+          flowVars[i,1..4] = ringleb_sol(xyz[i,1..2]);
       }
     }
 
@@ -292,49 +295,59 @@ prototype module Init
     var xyz : [1..nNodes, 1..3] real;
     var sol : [1..nNodes, 1..3] real;
 
+    writeln();
     writeln("1D Meshes");
-
-    for i in xyz.domain.dim(0)
     {
-      xyz[i, 1] = (i-1.0)/(nNodes-1.0);
-      xyz[i, 2] = 0.0;
-      xyz[i, 3] = 0.0;
+      // Generate a 1D mesh
+      for i in xyz.domain.dim(0)
+      {
+        xyz[i, 1] = (i-1.0)/(nNodes-1.0);
+        xyz[i, 2] = 0.0;
+        xyz[i, 3] = 0.0;
+      }
+
+      writeln();
+      writeln("1D Shock Tube");
+      Input.nEqs = 3;
+      var famlParameters : [1..4] real = [1.0, 1.0, 0.1, 0.1];
+      sol = flow_condition(IC_SHOCKTUBE, famlParameters, xyz);
+      writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3]");
+      for i in xyz.domain.dim(0) do
+        writeln("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er".format(i, xyz[i, 1], xyz[i, 2], xyz[i, 3],
+                                                                                      sol[i, 1], sol[i, 2], sol[i, 3]));
+
+      writeln();
+      writeln("1D Nozzle Flow - Subsonic");
+      Input.nEqs = 3;
+      sol = flow_condition(IC_1D_NOZZLE_SUBSONIC, [0.0], xyz);
+      writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3],   Pressure,       Mach");
+      for i in xyz.domain.dim(0) do
+        writeln("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er".format(i, xyz[i, 1],
+              xyz[i, 2], xyz[i, 3], sol[i, 1], sol[i, 2], sol[i, 3], pressure_cv(sol[i,..]), mach_cv(sol[i,..])));
+
+      writeln();
+      writeln("1D Nozzle Flow - Smooth Transonic");
+      Input.nEqs = 3;
+      sol = flow_condition(IC_1D_NOZZLE_SMOOTH_TRANSONIC, [0.0], xyz);
+      writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3],   Pressure,       Mach");
+      for i in xyz.domain.dim(0) do
+        writeln("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er".format(i, xyz[i, 1],
+              xyz[i, 2], xyz[i, 3], sol[i, 1], sol[i, 2], sol[i, 3], pressure_cv(sol[i,..]), mach_cv(sol[i,..])));
+
+      writeln();
+      writeln("1D Nozzle Flow - Shocked Transonic");
+      Input.nEqs = 3;
+      sol = flow_condition(IC_1D_NOZZLE_SHOCKED_TRANSONIC, [0.0], xyz);
+      writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3],   Pressure,       Mach");
+      for i in xyz.domain.dim(0) do
+        writeln("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er".format(i, xyz[i, 1],
+              xyz[i, 2], xyz[i, 3], sol[i, 1], sol[i, 2], sol[i, 3], pressure_cv(sol[i,..]), mach_cv(sol[i,..])));
     }
 
     writeln();
-    writeln("1D Shock Tube");
-    Input.nEqs = 3;
-    sol = flow_condition(IC_SHOCKTUBE, [1.0, 1.0, 0.1, 0.1], xyz);
-    writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3]");
-    for i in xyz.domain.dim(0) do
-      writeln("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er".format(i, xyz[i, 1], xyz[i, 2], xyz[i, 3],
-                                                                                    sol[i, 1], sol[i, 2], sol[i, 3]));
-
-    writeln();
-    writeln("1D Nozzle Flow - Subsonic");
-    Input.nEqs = 3;
-    sol = flow_condition(IC_1D_NOZZLE_SUBSONIC, [0.0], xyz);
-    writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3],   Pressure,       Mach");
-    for i in xyz.domain.dim(0) do
-      writeln("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er".format(i, xyz[i, 1],
-            xyz[i, 2], xyz[i, 3], sol[i, 1], sol[i, 2], sol[i, 3], pressure_cv(sol[i,..]), mach_cv(sol[i,..])));
-
-    writeln();
-    writeln("1D Nozzle Flow - Smooth Transonic");
-    Input.nEqs = 3;
-    sol = flow_condition(IC_1D_NOZZLE_SMOOTH_TRANSONIC, [0.0], xyz);
-    writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3],   Pressure,       Mach");
-    for i in xyz.domain.dim(0) do
-      writeln("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er".format(i, xyz[i, 1],
-            xyz[i, 2], xyz[i, 3], sol[i, 1], sol[i, 2], sol[i, 3], pressure_cv(sol[i,..]), mach_cv(sol[i,..])));
-
-    writeln();
-    writeln("1D Nozzle Flow - Shocked Transonic");
-    Input.nEqs = 3;
-    sol = flow_condition(IC_1D_NOZZLE_SHOCKED_TRANSONIC, [0.0], xyz);
-    writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3],   Pressure,       Mach");
-    for i in xyz.domain.dim(0) do
-      writeln("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er".format(i, xyz[i, 1],
-            xyz[i, 2], xyz[i, 3], sol[i, 1], sol[i, 2], sol[i, 3], pressure_cv(sol[i,..]), mach_cv(sol[i,..])));
+    writeln("2D Meshes");
+    {
+      // Generate Ringleb Mesh
+    }
   }
 }
