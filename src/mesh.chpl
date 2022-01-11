@@ -548,25 +548,51 @@ prototype module Mesh
     }
   }
 
-  private proc elem_type_gmsh2mesh(in elemTypeGmsh : int) : int
+  proc elem_type_gmsh2mesh(in elemTypeGmsh : int) : int
   {
     use Parameters.ParamGmesh;
     use Parameters.ParamMesh;
 
     select elemTypeGmsh {
-      when GMESH_PNT_1 do return TYPE_NODE;
-      when GMESH_LIN_2 do return TYPE_LINE_2;
-      when GMESH_TRI_3 do return TYPE_TRIA_3;
-      when GMESH_QUA_4 do return TYPE_QUAD_4;
-      when GMESH_TET_4 do return TYPE_TETR_4;
-      when GMESH_PYR_5 do return TYPE_PYRA_5;
-      when GMESH_PRI_6 do return TYPE_PRIS_6;
-      when GMESH_HEX_8 do return TYPE_HEXA_8;
-      otherwise return -1;
+      when GMESH_PNT_1   do return TYPE_NODE;
+      when GMESH_LIN_2   do return TYPE_LINE_2;
+      when GMESH_LIN_3   do return TYPE_LINE_2;
+      when GMESH_LIN_4   do return TYPE_LINE_2;
+      when GMESH_LIN_5   do return TYPE_LINE_2;
+      when GMESH_TRI_3   do return TYPE_TRIA_3;
+      when GMESH_TRI_6   do return TYPE_TRIA_3;
+      when GMESH_TRI_10  do return TYPE_TRIA_3;
+      when GMESH_TRI_15  do return TYPE_TRIA_3;
+      when GMESH_QUA_4   do return TYPE_QUAD_4;
+      when GMESH_QUA_9   do return TYPE_QUAD_4;
+      when GMESH_QUA_16  do return TYPE_QUAD_4;
+      when GMESH_QUA_25  do return TYPE_QUAD_4;
+      when GMESH_TET_4   do return TYPE_TETR_4;
+      when GMESH_TET_10  do return TYPE_TETR_4;
+      when GMESH_TET_20  do return TYPE_TETR_4;
+      when GMESH_TET_35  do return TYPE_TETR_4;
+      when GMESH_PYR_5   do return TYPE_PYRA_5;
+      when GMESH_PYR_14  do return TYPE_PYRA_5;
+      when GMESH_PYR_30  do return TYPE_PYRA_5;
+      when GMESH_PYR_55  do return TYPE_PYRA_5;
+      when GMESH_PRI_6   do return TYPE_PRIS_6;
+      when GMESH_PRI_18  do return TYPE_PRIS_6;
+      when GMESH_PRI_40  do return TYPE_PRIS_6;
+      when GMESH_PRI_75  do return TYPE_PRIS_6;
+      when GMESH_HEX_8   do return TYPE_HEXA_8;
+      when GMESH_HEX_27  do return TYPE_HEXA_8;
+      when GMESH_HEX_64  do return TYPE_HEXA_8;
+      when GMESH_HEX_125 do return TYPE_HEXA_8;
+      otherwise
+      {
+        writeln("Error converting element types from Gmesh to Native");
+        writeln("   Gmesh Type: ", elemTypeGmsh);
+        return -1;
+      }
     }
   }
 
-  private proc elem_dimension(in elemTopo : int) : int
+  proc elem_dimension(in elemTopo : int) : int
   {
     use Parameters.ParamMesh;
 
@@ -583,24 +609,121 @@ prototype module Mesh
     }
   }
 
-  private proc elem_topology(in elemType : int) : int
+  proc elem_dimension_type(in elemType : int) : int
   {
     use Parameters.ParamMesh;
 
     select elemType {
-      when TYPE_NODE   do return TOPO_NODE;
-      when TYPE_LINE_2 do return TOPO_LINE;
-      when TYPE_TRIA_3 do return TOPO_TRIA;
-      when TYPE_QUAD_4 do return TOPO_QUAD;
-      when TYPE_TETR_4 do return TOPO_TETR;
-      when TYPE_PYRA_5 do return TOPO_PYRA;
-      when TYPE_PRIS_6 do return TOPO_PRIS;
-      when TYPE_HEXA_8 do return TOPO_HEXA;
+      when TYPE_NODE     do return 0;
+      when TYPE_LINE_2   do return 1;
+      when TYPE_LINE_3   do return 1;
+      when TYPE_LINE_4   do return 1;
+      when TYPE_LINE_5   do return 1;
+      when TYPE_TRIA_3   do return 2;
+      when TYPE_TRIA_6   do return 2;
+      when TYPE_TRIA_10  do return 2;
+      when TYPE_TRIA_15  do return 2;
+      when TYPE_QUAD_4   do return 2;
+      when TYPE_QUAD_9   do return 2;
+      when TYPE_QUAD_16  do return 2;
+      when TYPE_QUAD_25  do return 2;
+      when TYPE_TETR_4   do return 3;
+      when TYPE_TETR_10  do return 3;
+      when TYPE_TETR_20  do return 3;
+      when TYPE_TETR_35  do return 3;
+      when TYPE_PYRA_5   do return 3;
+      when TYPE_PYRA_14  do return 3;
+      when TYPE_PYRA_30  do return 3;
+      when TYPE_PYRA_55  do return 3;
+      when TYPE_PRIS_6   do return 3;
+      when TYPE_PRIS_18  do return 3;
+      when TYPE_PRIS_40  do return 3;
+      when TYPE_PRIS_75  do return 3;
+      when TYPE_HEXA_8   do return 3;
+      when TYPE_HEXA_27  do return 3;
+      when TYPE_HEXA_64  do return 3;
+      when TYPE_HEXA_125 do return 3;
       otherwise return -1;
     }
   }
 
-  private proc elem_vertices(in elemTopo : int) : int
+  proc elem_topology(in elemType : int) : int
+  {
+    use Parameters.ParamMesh;
+
+    select elemType {
+      when TYPE_NODE     do return TOPO_NODE;
+      when TYPE_LINE_2   do return TOPO_LINE;
+      when TYPE_LINE_3   do return TOPO_LINE;
+      when TYPE_LINE_4   do return TOPO_LINE;
+      when TYPE_LINE_5   do return TOPO_LINE;
+      when TYPE_TRIA_3   do return TOPO_TRIA;
+      when TYPE_TRIA_6   do return TOPO_TRIA;
+      when TYPE_TRIA_10  do return TOPO_TRIA;
+      when TYPE_TRIA_15  do return TOPO_TRIA;
+      when TYPE_QUAD_4   do return TOPO_QUAD;
+      when TYPE_QUAD_9   do return TOPO_QUAD;
+      when TYPE_QUAD_16  do return TOPO_QUAD;
+      when TYPE_QUAD_25  do return TOPO_QUAD;
+      when TYPE_TETR_4   do return TOPO_TETR;
+      when TYPE_TETR_10  do return TOPO_TETR;
+      when TYPE_TETR_20  do return TOPO_TETR;
+      when TYPE_TETR_35  do return TOPO_TETR;
+      when TYPE_PYRA_5   do return TOPO_PYRA;
+      when TYPE_PYRA_14  do return TOPO_PYRA;
+      when TYPE_PYRA_30  do return TOPO_PYRA;
+      when TYPE_PYRA_55  do return TOPO_PYRA;
+      when TYPE_PRIS_6   do return TOPO_PRIS;
+      when TYPE_PRIS_18  do return TOPO_PRIS;
+      when TYPE_PRIS_40  do return TOPO_PRIS;
+      when TYPE_PRIS_75  do return TOPO_PRIS;
+      when TYPE_HEXA_8   do return TOPO_HEXA;
+      when TYPE_HEXA_27  do return TOPO_HEXA;
+      when TYPE_HEXA_64  do return TOPO_HEXA;
+      when TYPE_HEXA_125 do return TOPO_HEXA;
+      otherwise return -1;
+    }
+  }
+
+  proc elem_order(in elemType : int) : int
+  {
+    use Parameters.ParamMesh;
+
+    select elemType {
+      when TYPE_NODE     do return  1; // Vertex
+      when TYPE_LINE_2   do return  1; // 1st order Edge
+      when TYPE_LINE_3   do return  2; // 2nd order Edge
+      when TYPE_LINE_4   do return  3; // 3rd order Edge
+      when TYPE_LINE_5   do return  4; // 4th order Edge
+      when TYPE_TRIA_3   do return  1; // 1st order Triangle
+      when TYPE_TRIA_6   do return  2; // 2nd order Triangle
+      when TYPE_TRIA_10  do return  3; // 3rd order Triangle
+      when TYPE_TRIA_15  do return  4; // 4th order Triangle
+      when TYPE_QUAD_4   do return  1; // 1st order Quadrilateral
+      when TYPE_QUAD_9   do return  2; // 2nd order Quadrilateral
+      when TYPE_QUAD_16  do return  3; // 3rd order Quadrilateral
+      when TYPE_QUAD_25  do return  4; // 4th order Quadrilateral
+      when TYPE_TETR_4   do return  1; // 1st order Tetrahedron
+      when TYPE_TETR_10  do return  2; // 2nd order Tetrahedron
+      when TYPE_TETR_20  do return  3; // 3rd order Tetrahedron
+      when TYPE_TETR_35  do return  4; // 4th order Tetrahedron
+      when TYPE_PYRA_5   do return  1; // 1st order Pyramid
+      when TYPE_PYRA_14  do return  2; // 2nd order Pyramid
+      when TYPE_PYRA_30  do return  3; // 3rd order Pyramid
+      when TYPE_PYRA_55  do return  4; // 4th order Pyramid
+      when TYPE_PRIS_6   do return  1; // 1st order Prism
+      when TYPE_PRIS_18  do return  2; // 2nd order Prism
+      when TYPE_PRIS_40  do return  3; // 3rd order Prism
+      when TYPE_PRIS_75  do return  4; // 4th order Prism
+      when TYPE_HEXA_8   do return  1; // 1st order Hexahedron
+      when TYPE_HEXA_27  do return  2; // 2nd order Hexahedron
+      when TYPE_HEXA_64  do return  3; // 3rd order Hexahedron
+      when TYPE_HEXA_125 do return  4; // 4th order Hexahedron
+      otherwise return -1;
+    }
+  }
+
+  proc elem_vertices(in elemTopo : int) : int
   {
     use Parameters.ParamMesh;
 
@@ -617,24 +740,45 @@ prototype module Mesh
     }
   }
 
-  private proc elem_nodes(in elemTopo : int) : int
+  proc elem_nodes(in elemType : int) : int
   {
     use Parameters.ParamMesh;
 
-    select elemTopo {
-      when TOPO_NODE do return 1; // Vertex
-      when TOPO_LINE do return 2; // Edge
-      when TOPO_TRIA do return 3; // Triangle
-      when TOPO_QUAD do return 4; // Quadrilateral
-      when TOPO_TETR do return 4; // Tetrahedron
-      when TOPO_PYRA do return 5; // Pyramid
-      when TOPO_PRIS do return 6; // Prism
-      when TOPO_HEXA do return 8; // Hexahedron
+    select elemType {
+      when TYPE_NODE     do return   1; // Vertex
+      when TYPE_LINE_2   do return   2; // 1st order Edge
+      when TYPE_LINE_3   do return   3; // 2nd order Edge
+      when TYPE_LINE_4   do return   4; // 3rd order Edge
+      when TYPE_LINE_5   do return   5; // 4th order Edge
+      when TYPE_TRIA_3   do return   3; // 1st order Triangle
+      when TYPE_TRIA_6   do return   6; // 2nd order Triangle
+      when TYPE_TRIA_10  do return  10; // 3rd order Triangle
+      when TYPE_TRIA_15  do return  15; // 4th order Triangle
+      when TYPE_QUAD_4   do return   4; // 1st order Quadrilateral
+      when TYPE_QUAD_9   do return   9; // 2nd order Quadrilateral
+      when TYPE_QUAD_16  do return  16; // 3rd order Quadrilateral
+      when TYPE_QUAD_25  do return  25; // 4th order Quadrilateral
+      when TYPE_TETR_4   do return   4; // 1st order Tetrahedron
+      when TYPE_TETR_10  do return  10; // 2nd order Tetrahedron
+      when TYPE_TETR_20  do return  20; // 3rd order Tetrahedron
+      when TYPE_TETR_35  do return  35; // 4th order Tetrahedron
+      when TYPE_PYRA_5   do return   5; // 1st order Pyramid
+      when TYPE_PYRA_14  do return  14; // 2nd order Pyramid
+      when TYPE_PYRA_30  do return  30; // 3rd order Pyramid
+      when TYPE_PYRA_55  do return  55; // 4th order Pyramid
+      when TYPE_PRIS_6   do return   6; // 1st order Prism
+      when TYPE_PRIS_18  do return  18; // 2nd order Prism
+      when TYPE_PRIS_40  do return  40; // 3rd order Prism
+      when TYPE_PRIS_75  do return  75; // 4th order Prism
+      when TYPE_HEXA_8   do return   8; // 1st order Hexahedron
+      when TYPE_HEXA_27  do return  27; // 2nd order Hexahedron
+      when TYPE_HEXA_64  do return  64; // 3rd order Hexahedron
+      when TYPE_HEXA_125 do return 125; // 4th order Hexahedron
       otherwise return -1;
     }
   }
 
-  private proc elem_edges(in elemTopo : int) : int
+  proc elem_edges(in elemTopo : int) : int
   {
     use Parameters.ParamMesh;
 
@@ -651,7 +795,7 @@ prototype module Mesh
     }
   }
 
-  private proc elem_faces(in elemTopo : int) : int
+  proc elem_faces(in elemTopo : int) : int
   {
     use Parameters.ParamMesh;
 
@@ -668,7 +812,7 @@ prototype module Mesh
     }
   }
 
-  private proc sort_tuple(in tuple : 4*int) : 4*int
+  proc sort_tuple(in tuple : 4*int) : 4*int
   {
     if tuple[0] < tuple[2] then tuple[0] <=> tuple[2];
     if tuple[1] < tuple[3] then tuple[1] <=> tuple[3];

@@ -199,34 +199,54 @@ prototype module Parameters
 
     // Mesh element types
     param TYPE_NODE     : int = 10;
-    param TYPE_LINE_2   : int = 21;
-    param TYPE_LINE_3   : int = 22;
-    param TYPE_LINE_4   : int = 23;
-    param TYPE_LINE_5   : int = 24;
-    param TYPE_TRIA_3   : int = 31;
-    param TYPE_TRIA_6   : int = 32;
-    param TYPE_TRIA_10  : int = 33;
-    param TYPE_TRIA_15  : int = 34;
-    param TYPE_QUAD_4   : int = 41;
-    param TYPE_QUAD_9   : int = 42;
-    param TYPE_QUAD_16  : int = 43;
-    param TYPE_QUAD_25  : int = 44;
-    param TYPE_TETR_4   : int = 51;
-    param TYPE_TETR_10  : int = 52;
-    param TYPE_TETR_20  : int = 53;
-    param TYPE_TETR_35  : int = 54;
-    param TYPE_PYRA_5   : int = 61;
-    param TYPE_PYRA_14  : int = 62;
-    param TYPE_PYRA_30  : int = 63;
-    param TYPE_PYRA_55  : int = 64;
-    param TYPE_PRIS_6   : int = 71;
-    param TYPE_PRIS_18  : int = 72;
-    param TYPE_PRIS_40  : int = 73;
-    param TYPE_PRIS_75  : int = 74;
-    param TYPE_HEXA_8   : int = 81;
-    param TYPE_HEXA_27  : int = 82;
-    param TYPE_HEXA_64  : int = 83;
-    param TYPE_HEXA_125 : int = 84;
+    param TYPE_LINE_2   : int = 21; // 1st Order Line
+    param TYPE_LINE_3   : int = 22; // 2nd Order Line
+    param TYPE_LINE_4   : int = 23; // 3rd Order Line
+    param TYPE_LINE_5   : int = 24; // 4th Order Line
+    param TYPE_TRIA_3   : int = 31; // 1st Order Triangle
+    param TYPE_TRIA_6   : int = 32; // 2nd Order Triangle
+    param TYPE_TRIA_10  : int = 33; // 3rd Order Triangle
+    param TYPE_TRIA_15  : int = 34; // 4th Order Triangle
+    param TYPE_QUAD_4   : int = 41; // 1st Order Quadrilateral
+    param TYPE_QUAD_9   : int = 42; // 2nd Order Quadrilateral
+    param TYPE_QUAD_16  : int = 43; // 3rd Order Quadrilateral
+    param TYPE_QUAD_25  : int = 44; // 4th Order Quadrilateral
+    param TYPE_TETR_4   : int = 51; // 1st Order Tetrahedra
+    param TYPE_TETR_10  : int = 52; // 2nd Order Tetrahedra
+    param TYPE_TETR_20  : int = 53; // 3rd Order Tetrahedra
+    param TYPE_TETR_35  : int = 54; // 4th Order Tetrahedra
+    param TYPE_PYRA_5   : int = 61; // 1st Order Pyramid
+    param TYPE_PYRA_14  : int = 62; // 2nd Order Pyramid
+    param TYPE_PYRA_30  : int = 63; // 3rd Order Pyramid
+    param TYPE_PYRA_55  : int = 64; // 4th Order Pyramid
+    param TYPE_PRIS_6   : int = 71; // 1st Order Prism
+    param TYPE_PRIS_18  : int = 72; // 2nd Order Prism
+    param TYPE_PRIS_40  : int = 73; // 3rd Order Prism
+    param TYPE_PRIS_75  : int = 74; // 4th Order Prism
+    param TYPE_HEXA_8   : int = 81; // 1st Order Hexahedron
+    param TYPE_HEXA_27  : int = 82; // 2nd Order Hexahedron
+    param TYPE_HEXA_64  : int = 83; // 3rd Order Hexahedron
+    param TYPE_HEXA_125 : int = 84; // 4th Order Hexahedron
+
+    {
+      const NODE_ORDER_QUAD_4   : [1..4] int = [1,2,
+                                                4,3];
+
+      const NODE_ORDER_QUAD_9   : [1..9] int = [1,5,2,
+                                                8,9,6,
+                                                4,7,3];
+
+      const NODE_ORDER_QUAD_16  : [1..16] int = [ 1, 5, 6, 2,
+                                                 12,13,14, 7,
+                                                 11,16,15, 8,
+                                                  4,10, 9, 3];
+
+      const NODE_ORDER_QUAD_25  : [1..25] int = [ 1, 5, 6, 7, 2,
+                                                 16,17,21,18, 8,
+                                                 15,24,25,22, 9,
+                                                 14,20,23,19,10,
+                                                  4,13,12,11, 3];
+    }
   }
 
   prototype module ParamCGNS

@@ -46,6 +46,7 @@ chpl -o build/frei_dbg                           \
                           src/output.chpl        \
                           src/boundary.chpl      \
                           src/frmesh.chpl        \
+                          src/mapping.chpl       \
                           src/mesh.chpl          \
                           src/gmesh.chpl         \
                           src/riemann.chpl       \
@@ -103,6 +104,7 @@ chpl -o build/frei_opt                           \
                           src/output.chpl        \
                           src/boundary.chpl      \
                           src/frmesh.chpl        \
+                          src/mapping.chpl       \
                           src/mesh.chpl          \
                           src/gmesh.chpl         \
                           src/riemann.chpl       \
@@ -162,6 +164,7 @@ echo "------------------------------------------------------------"
 #                          src/output.chpl        \
 #                          src/boundary.chpl      \
 #                          src/frmesh.chpl        \
+#                          src/mapping.chpl       \
 #                          src/mesh.chpl          \
 #                          src/gmesh.chpl         \
 #                          src/riemann.chpl       \

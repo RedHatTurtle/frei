@@ -353,8 +353,8 @@ prototype module FREI
                   }
 
                   // Convert fluxes from physical to computational domain.
-                  // Multiply the flux vector by the inverse Jacobian matrix and by the Jacobian determiant
-                  jump[..] = dot(jump[..], frMesh.metFP[meshFP, faceSide, 1, 1]**(-1))*frMesh.jacFP[meshFP, faceSide];
+                  // Multiply the flux vector by the inverse Jacobian matrix and by the Jacobian determinant
+                  jump[..] = jump[..] * norm(frMesh.nrmFP[meshFP, ..], normType.norm2);
 
                   if faceSide == 1 && cellFace == 1 then
                     jump = -jump;

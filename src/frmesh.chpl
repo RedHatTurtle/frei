@@ -12,9 +12,7 @@ prototype module FRMesh {
     var  xyzFP_d : domain(rank=2, idxType=int);    // {1..nFPs, 1..nDims}
 
     var  metSP_d : domain(rank=3, idxType=int);    // {1..nSPs, 1..nDims, 1..nDims}       nDims+1 if moving mesh
-    var  metFP_d : domain(rank=4, idxType=int);    // {1..nFPs, 1..2, 1..nDims, 1..nDims} nDims+1 if moving mesh
     var  jacSP_d : domain(rank=1, idxType=int);    // {1..nSPs}                           nDims+1 if moving mesh
-    var  jacFP_d : domain(rank=2, idxType=int);    // {1..nFPs, 1..2}                     nDims+1 if moving mesh
 
     var  solSP_d : domain(rank=2, idxType=int);    // {1..nSPs, 1..nVars}
     var  solFP_d : domain(rank=3, idxType=int);    // {1..nFPs, 1..2, 1..nVars}
@@ -30,11 +28,8 @@ prototype module FRMesh {
     var xyzFP : [xyzFP_d] real;
 
     var metSP : [metSP_d] real;   // First degree metric terms, Jacobian matrix
-    var metFP : [metFP_d] real;   // First degree metric terms, Jacobian matrix
     var jacSP : [jacSP_d] real;   // Jacobian
-    var jacFP : [jacFP_d] real;   // Jacobian
-
-    var nrmFP : [xyzFP_d] real;   // Unit normal vector from left (1) to right (2) cell
+    var nrmFP : [xyzFP_d] real;   // Face normal vector pointing from the left (side 1) to the right (side 2) cell
 
     var oldSolSP : [ solSP_d] real;     // Backup of the solution at the beginning of residue calculation
     var    solSP : [ solSP_d] real;     // Conserved variables at SPs
@@ -61,7 +56,7 @@ prototype module FRMesh {
 
         // Build the Cell -> SP map
         cellSPidx[cell, 1] = nSPs+1;    // First SP of this cell
-        cellSPidx[cell, 2] = cellSPcnt; // Number of SPs on this cell (redundant info but convenient for programing)
+        cellSPidx[cell, 2] = cellSPcnt; // Number of SPs on this cell (redundant info but convenient for programming)
 
         // Update the mesh total SP count
         nSPs += cellSPcnt;
@@ -80,14 +75,12 @@ prototype module FRMesh {
 
         // Build the Face -> FP map
         faceFPidx[face, 1] = nFPs+1;    // First FP of this face
-        faceFPidx[face, 2] = faceFPcnt; // Number of FPs on this face (redundant info but convenient for programing)
+        faceFPidx[face, 2] = faceFPcnt; // Number of FPs on this face (redundant info but convenient for programming)
 
         nFPs += faceFPcnt;
 
         // Resize the FP data arrays
         xyzFP_d  = {1..nFPs, 1..this.nDims};
-        metFP_d  = {1..nFPs, 1..2, 1..this.nDims, 1..this.nDims};
-        jacFP_d  = {1..nFPs, 1..2};
         solFP_d  = {1..nFPs, 1..2, 1..this.nVars};
         flxFP_d  = {1..nFPs, 1..2, 1..this.nVars};
         dSolFP_d = {1..nFPs, 1..2, 1..this.nVars, 1..this.nDims};
@@ -99,189 +92,119 @@ prototype module FRMesh {
       use Parameters.ParamMesh;
       use Polynomials;
       use LinearAlgebra;
+      use Mapping;
+      use Set;
 
-      for cell in this.cellList_d
+      init_mapping(minOrder=this.solOrder, maxOrder=this.solOrder, this.cellTypes|this.faceTypes);
+      init_mapping_metrics(minOrder=this.solOrder, maxOrder=this.solOrder, this.cellTypes|this.faceTypes);
+
+      for cellIdx in this.cellList_d
       {
-        var nodes_d : domain(rank=1, idxType=int) = this.cellList[cell].nodes_d;
-        var nodes : [nodes_d] int = this.cellList[cell].nodes;          // List of nodes that define this cell
-        var xyzStdSPs   : [1..this.nDims, 1..cellSPidx[cell, 2]] real;  // List of SPs that belong to this cell
+        // Get the list of nodes that define this cell
+        var elemNodes : [this.cellList[cellIdx].nodes_d] int = this.cellList[cellIdx].nodes;
 
-        var xyzMshNodes : [1..this.nDims, nodes_d.dim(0)] real; // Physical coordinates of the nodes
-        var xyzStdNodes : [1..this.nDims, nodes_d.dim(0)] real; // Computational coordinates of the nodes
+        // Get the coordinates of these nodes
+        var xyzMshNodes : [1..this.nDims, 1..elem_nodes(this.cellList[cellIdx].elemType)] real;
+        for nodeIdx in elemNodes.domain do
+          xyzMshNodes[.., nodeIdx] = this.nodeList[elemNodes[nodeIdx]].xyz[1..this.nDims];
 
-        var coefficients : [1..this.nDims, nodes_d.dim(0)] real; // Coefficients of the transformation polynomial
-        var exponents    : [1..this.nDims, nodes_d.dim(0)] int;  // Exponents of the transformation polynomial
-        var mat : [nodes_d.dim(0), nodes_d.dim(0)] real = 1; // Coordinate transformation eq system matrix
+        var cellType : 2*int = (this.cellList[cellIdx].elemType, this.solOrder);
 
-        // The B vector holds one of the physical coordinates in the physical domain of each of the mesh reference points.
-        // Ex: B_x = { x[p_1], x[p_2], x[p_3], ... , x[p_n] }
-        for i in nodes_d do
-            xyzMshNodes[1..this.nDims,i] = this.nodeList[nodes[i]].xyz[1..this.nDims];
+        //////////////////////////
+        ///   SP coordinates   ///
+        //////////////////////////
 
-        // The matrix M is composed of lines with the powers of the computational (reference) domain coordinates of a
-        //    given reference point.
-        // Each line of the matrix has the powers of the computational coordinates of a reference point
+        for spIdx in 1..#cellSPidx[cellIdx, 2] do
+          this.xyzSP[cellSPidx[cellIdx, 1]+spIdx-1, ..] = dot( mapping[cellType]!.coefs[spIdx, ..],
+                                                               xyzMshNodes[..,..].T               );
 
-        select this.cellList[cell].elemTopo()
-        {
-          when TOPO_LINE
-          {
-            //    A_x = { coef_x[xi^0], coef_x[xi^1], coef_x[xi^2], ... , coef_x[xi^n] }
-            //    B_x = {      x[p_1] ,      x[p_2] ,      x[p_3] , ... ,      x[p_n]  }
-            //
-            // In 1D M degenerates into a Vandermonde matrix
-            //    M_x = {   xi[p_1]^0 ,   xi[p_1]^1 ,   xi[p_1]^2 , ... ,    xi[p_1]^n
-            //              xi[p_2]^0 ,   xi[p_2]^1 ,   xi[p_2]^2 , ... ,    xi[p_2]^n
-            //              xi[p_3]^0 ,   xi[p_3]^1 ,   xi[p_3]^2 , ... ,    xi[p_3]^n
-            //                 ...    ,      ...    ,      ...    , ... ,       ...
-            //              xi[p_n]^0 ,   xi[p_n]^1 ,   xi[p_n]^2 , ... ,    xi[p_n]^n }
+        /////////////////////////////////////
+        ///   Calculate mapping metrics   ///
+        /////////////////////////////////////
 
-            // Get the coordinates of the standard/reference/computational domain nodes
-            // Vertices
-            xyzStdNodes[1, 1] = -1;
-            xyzStdNodes[1, 2] = +1;
-            // Edge nodes
-            for node in nodes_d do
-              xyzStdNodes[1, 2..nodes_d.high-2] = nodes_uniform(nodes_d.high-2);
+        for rstDim in 1..this.nDims do
+          for spIdx in 1..#cellSPidx[cellIdx, 2] do
+            this.metSP[cellSPidx[cellIdx, 1]+spIdx-1, .., rstDim] = dot( mappingMetrics[cellType]!.coefs[rstDim, spIdx, ..],
+                                                                         xyzMshNodes[..,..].T                              );
 
-            // Get the exponents
-            for j in nodes_d do exponents[1, j] = j-1;
-
-            // SP locations
-            xyzStdSPs[1, 1..n_cell_sps(TOPO_LINE, solOrder)] = nodes_legendre_gauss(n_cell_sps(TOPO_LINE, solOrder));
-          }
-          when TOPO_TRIA {}
-          when TOPO_QUAD
-          {
-            // Get the coordinates of the standard/reference/computational domain nodes
-            // Vertices
-            xyzStdNodes[1, 1] = -1;
-            xyzStdNodes[2, 1] = +1;
-            xyzStdNodes[1, 2] = -1;
-            xyzStdNodes[2, 2] = +1;
-            xyzStdNodes[1, 3] = -1;
-            xyzStdNodes[2, 3] = +1;
-            xyzStdNodes[1, 4] = -1;
-            xyzStdNodes[2, 4] = +1;
-            // Edge nodes
-            for node in nodes_d do
-              xyzStdNodes[1, 2..nodes_d.high-2] = nodes_uniform(nodes_d.high-2);
-
-            // Get the exponents
-            for node in nodes_d
-            {
-              exponents[1, node] = (node-1) / nodes_d.high**0.5:int; // Xi  exponent
-              exponents[2, node] = (node-1) % nodes_d.high**0.5:int; // Eta exponent
-            }
-          }
-          when TOPO_TETR {}
-          when TOPO_PYRA {}
-          when TOPO_PRIS {}
-          when TOPO_HEXA {}
-          otherwise {}
-        }
-
-        // Build the matrix
-        for (i, j) in mat.domain do
-          for k in 1..this.nDims do
-            mat[i, j] *= xyzStdNodes[k, i]**exponents[k, j];
-
-        //////////////////////
-        // Solve the system //
-        //////////////////////
-
-        // Using Chapel Linear Algebra Library
-        for dim in 1..this.nDims do
-          coefficients[dim, ..] = solve(reshape(mat,{nodes_d.dim(0)-1, nodes_d.dim(0)-1}),
-                                        reshape(xyzMshNodes[1,..], {nodes_d.dim(0)-1})  );
-
-        // Future 1: Using Lapack QR factorization
-        //geqrf(matrix_order: lapack_memory_order = 101, a: [] real(32), tau: [] real(32));
-
-        // Future 2: Using interpolation and Lagrange derivative
-
-        /////////////////////////////////////////////////////////
-        ///   Calculate transformation Metrics and Jacobian   ///
-        /////////////////////////////////////////////////////////
-
-        // Calculate metric terms for SPs
-        for (sp, mshDim, stdDim) in {1..#cellSPidx[cell, 2], 1..this.nDims, 1..this.nDims} do
-            this.metSP[cellSPidx[cell, 1]+sp-1, mshDim, stdDim] = coefficients[mshDim, 2];
-
-        // Get faces from this cell
-        for face in this.cellList[cell].faces do
-          // Get FPs from this face
-          for fp in faceFPidx[face,1]..#faceFPidx[face,2] do
-            // Find out the position of the cell relative to the face 1 = left, 2 = right
-            if this.faceList[face].cells[1] == cell then
-              this.metFP[fp, 1, .., ..] = coefficients[1, 2];
-            else if this.faceList[face].cells[2] == cell then
-              this.metFP[fp, 2, .., ..] = coefficients[1, 2];
-            else
-              writeln("Error: Inconsistent mesh data found");
+        //////////////////////////////
+        ///   Calculate Jacobian   ///
+        //////////////////////////////
 
         // Calculate the Jacobian at SPs
-        for sp in 1..#cellSPidx[cell, 2] do
-          this.jacSP[cellSPidx[cell, 1]+sp-1] = this.metSP[cellSPidx[cell, 1]+sp-1, 1, 1];
+        for spIdx in 1..#cellSPidx[cellIdx, 2] do
+          this.jacSP[cellSPidx[cellIdx, 1]+spIdx-1] = determinant(this.metSP[cellSPidx[cellIdx, 1]+spIdx-1, .., ..]);
+      }
 
-        // Calculate the Jacobian at FPs
-        for face in this.cellList[cell].faces do
-          for fp in faceFPidx[face,1]..#faceFPidx[face,2] do
-              if this.faceList[face].cells[1] == cell then
-                this.jacFP[fp, 1] = this.metFP[fp, 1, 1, 1];
-              else if this.faceList[face].cells[2] == cell then
-                this.jacFP[fp, 2] = this.metFP[fp, 2, 1, 1];
+      for faceIdx in this.faceList_d
+      {
+        // Get the list of nodes that define this face
+        var elemNodes : [this.faceList[faceIdx].nodes_d] int = this.faceList[faceIdx].nodes;
 
-        //////////////////////////////
-        ///   Points coordinates   ///
-        //////////////////////////////
+        // Get the coordinates of these nodes
+        var xyzMshNodes : [1..this.nDims, 1..elem_nodes(this.faceList[faceIdx].elemType)] real;
+        for nodeIdx in elemNodes.domain do
+          xyzMshNodes[.., nodeIdx] = this.nodeList[elemNodes[nodeIdx]].xyz[1..this.nDims];
 
-        // Calculate the coordinates of the SPs
-        for sp in 1.. #cellSPidx[cell, 2] do
-          this.xyzSP[cellSPidx[cell, 1]+sp-1, 1] = coefficients[1,1]+xyzStdSPs[1,sp]*coefficients[1,2];
+        var faceType : 2*int = (this.faceList[faceIdx].elemType, this.solOrder);
 
-        // Calculate the coordinates of the FPs
-        for face in this.cellList[cell].faces do
-          for fp in faceFPidx[face,1]..#faceFPidx[face,2] do
-              if this.cellList[cell].faces[1] == face then
-                this.xyzFP[fp, 1] = coefficients[1,1]-1*coefficients[1,2];
-              else if this.cellList[cell].faces[2] == face then
-                this.xyzFP[fp, 1] = coefficients[1,1]+1*coefficients[1,2];
+        //////////////////////////
+        ///   FP coordinates   ///
+        //////////////////////////
+
+        for faceFPIdx in 1..faceFPidx[faceIdx, 2] do
+          this.xyzFP[faceFPidx[faceIdx, 1]+faceFPIdx-1, ..] = dot( mapping[faceType]!.coefs[faceFPIdx, ..],
+                                                                   xyzMshNodes[..,..].T               );
 
         //////////////////////
         ///   FP normals   ///
         //////////////////////
 
-        // Iterate through this cell's faces to see if we are the left cell of any face
-        for cellFace in this.cellList[cell].faces.domain
-        {
-          var meshFace : int = this.cellList[cell].faces[cellFace];
+        // For node faces in 1D meshes check if normal needs to be reversed
+        var leftCell : int = this.faceList[faceIdx].cells[1];
 
-          if this.faceList[meshFace].cells[1] == cell
-          {
-            // Get the face normal from this cell's metric terms
-            for fp in faceFPidx[meshFace,1].. #faceFPidx[meshFace,2] do
-              select this.cellList[cell].elemTopo()
-              {
-                when TOPO_LINE do
-                  select cellFace
-                  {
-                    when 1 do
-                      this.nrmFP[fp, 1] = -1.0;
-                    when 2 do
-                      this.nrmFP[fp, 1] = +1.0;
-                  }
-                when TOPO_TRIA {}
-                when TOPO_QUAD {}
-                when TOPO_TETR {}
-                when TOPO_PYRA {}
-                when TOPO_PRIS {}
-                when TOPO_HEXA {}
-              }
-          }
+        // Check in which position relative to the left cell this face is on
+        var reverse  : real = 1.0;
+        var leftFace : int = this.cellList[leftCell].faces[1];
+        if (this.nDims == 1) && (faceIdx == leftFace) then
+          reverse = -1.0;
+
+        for faceFPIdx in 1..faceFPidx[faceIdx, 2]
+        {
+          // Initialize metrics so that for 1D and 2D meshes the cross product results in a correct normal
+          var metricsFP : [1..2, 1..3] real = reshape([0, 1, 0,
+                                                       0, 0, 1], {1..2, 1..3});
+
+          for rstDim in 1..elem_dimension_type(this.faceList[faceIdx].elemType) do
+            metricsFP[rstDim, 1..this.nDims] = dot( mappingMetrics[faceType]!.coefs[rstDim, faceFPIdx, ..],
+                                                    xyzMshNodes[..,..].T                               );
+
+          // Get face normal through the cross product and slice it to the appropriate dimension vector
+          this.nrmFP[faceFPidx[faceIdx, 1]+faceFPIdx-1, ..] = reverse * cross( reshape(metricsFP[1, 1..3], {1..3}),
+                                                                               reshape(metricsFP[2, 1..3], {1..3}) )[1..this.nDims];
         }
       }
     }
+  }
+
+  proc determinant(metrics : [] real) : real
+  {
+    use LinearAlgebra;
+
+    var jacobian : real;
+
+    if metrics.size == 1 then
+      jacobian = metrics[1,1];
+    else if metrics.size == 4 then
+      jacobian = metrics[1,1]*metrics[2,2] - metrics[1,2]*metrics[2,1];
+    else if metrics.size == 9 then
+      jacobian = metrics[1,1]*(metrics[2,2]*metrics[3,3] - metrics[2,3]*metrics[3,2])
+                +metrics[1,2]*(metrics[2,3]*metrics[3,1] - metrics[2,1]*metrics[3,3])
+                +metrics[1,3]*(metrics[2,1]*metrics[3,2] - metrics[2,2]*metrics[3,1]);
+    else
+      jacobian = det(metrics);
+
+    return jacobian;
   }
 
   proc n_cell_sps(in elemTopo : int, in solOrder) : int
@@ -290,6 +213,7 @@ prototype module FRMesh {
 
     select elemTopo
     {
+      when TOPO_NODE do return 1;
       when TOPO_LINE do return (solOrder+1);
       when TOPO_TRIA do return (solOrder+1)*(solOrder+2)/2;
       when TOPO_QUAD do return (solOrder+1)**2;
@@ -359,9 +283,8 @@ prototype module FRMesh {
     writeln("SP Coordinates     ", test_frmesh.xyzSP.domain);
     writeln("FP Coordinates     ", test_frmesh.xyzFP.domain);
     writeln("SP Metric Terms    ", test_frmesh.metSP.domain);
-    writeln("FP Metric Terms    ", test_frmesh.metFP.domain);
     writeln("SP Jacobian        ", test_frmesh.jacSP.domain);
-    writeln("FP Jacobian        ", test_frmesh.jacFP.domain);
+    writeln("FP Normal          ", test_frmesh.nrmFP.domain);
     writeln("SP Solution (old)  ", test_frmesh.oldSolSP.domain);
     writeln("SP Solution        ", test_frmesh.solSP.domain);
     writeln("FP Solution        ", test_frmesh.solFP.domain);

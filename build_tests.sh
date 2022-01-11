@@ -140,7 +140,14 @@ echo -e "Building FRMesh Tests:"
 chpl -o tests/frmesh_tests                              \
      --warnings                                         \
      --warn-unstable                                    \
+     -I/usr/include                                     \
+     -L/usr/lib64 -lcblas                               \
+     -I/usr/include                                     \
+     -L/usr/lib64 -lgfortran                            \
+     -L/usr/lib64 -llapacke -llapack -lcblas            \
      --main-module FRMesh src/frmesh.chpl               \
+                          src/mapping.chpl              \
+                          src/interpolation.chpl        \
                           src/polynomials.chpl          \
                           src/mesh.chpl                 \
                           src/gmesh.chpl                \
@@ -149,6 +156,33 @@ chpl -o tests/frmesh_tests                              \
                           src/input.chpl                \
                           src/parameters.chpl           |
     tee tests/frmesh_build.log
+if [ $? -eq 0 ]; then
+  echo -e "\nSuccess"
+else
+  echo -e "\nFailed"
+fi
+echo
+echo "------------------------------------------------------------"
+echo
+echo -e "Building Mapping Tests:"
+chpl -o tests/mapping_tests                             \
+     --warnings                                         \
+     --warn-unstable                                    \
+     -I/usr/include                                     \
+     -L/usr/lib64 -lcblas                               \
+     -I/usr/include                                     \
+     -L/usr/lib64 -lgfortran                            \
+     -L/usr/lib64 -llapacke -llapack -lcblas            \
+     --main-module Mapping src/mapping.chpl             \
+                           src/interpolation.chpl       \
+                           src/polynomials.chpl         \
+                           src/frmesh.chpl              \
+                           src/mesh.chpl                \
+                           src/gmesh.chpl               \
+                           src/input.chpl               \
+                           src/testing.chpl             \
+                           src/parameters.chpl          |
+     tee tests/mapping_build.log
 if [ $? -eq 0 ]; then
   echo -e "\nSuccess"
 else
@@ -310,6 +344,7 @@ echo
 ./tests/gmesh_tests         &> tests/gmesh_tests.log
 ./tests/mesh_tests          &> tests/mesh_tests.log
 ./tests/frmesh_tests        &> tests/frmesh_tests.log
+./tests/mapping_tests       &> tests/mapping_tests.log
 
 ./tests/flux_tests          &> tests/flux_tests.log
 ./tests/riemann_tests       &> tests/riemann_tests.log
