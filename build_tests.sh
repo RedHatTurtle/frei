@@ -16,8 +16,8 @@ chpl -o tests/polynomials_tests                         \
      --warn-unstable                                    \
      --main-module Polynomials src/polynomials.chpl     \
                                 src/testing.chpl        \
-                                src/parameters.chpl     |
-    tee tests/polynomials_build.log
+                                src/parameters.chpl     \
+    2>&1 | tee tests/polynomials_build.log
 if [ $? -eq 0 ]; then
   echo -e "\nSuccess"
 else
@@ -33,8 +33,8 @@ chpl -o tests/quadrature_tests                          \
      --main-module Quadrature src/quadrature.chpl       \
                               src/polynomials.chpl      \
                               src/testing.chpl          \
-                              src/parameters.chpl       |
-    tee tests/quadrature_build.log
+                              src/parameters.chpl       \
+    2>&1 | tee tests/quadrature_build.log
 if [ $? -eq 0 ]; then
   echo -e "\nSuccess"
 else
@@ -50,8 +50,8 @@ chpl -o tests/interpolation_tests                       \
      --main-module Interpolation src/interpolation.chpl \
                                  src/polynomials.chpl   \
                                  src/parameters.chpl    \
-                                 src/testing.chpl       |
-    tee tests/interpolation_build.log
+                                 src/testing.chpl       \
+    2>&1 | tee tests/interpolation_build.log
 if [ $? -eq 0 ]; then
   echo -e "\nSuccess"
 else
@@ -73,8 +73,8 @@ chpl -o tests/projection_tests                          \
                               src/quadrature.chpl       \
                               src/polynomials.chpl      \
                               src/testing.chpl          \
-                              src/parameters.chpl       |
-    tee tests/projection_build.log
+                              src/parameters.chpl       \
+    2>&1 | tee tests/projection_build.log
 if [ $? -eq 0 ]; then
   echo -e "\nSuccess"
 else
@@ -94,8 +94,8 @@ chpl -o tests/correction_tests                          \
                               src/mesh.chpl             \
                               src/gmesh.chpl            \
                               src/config.chpl           \
-                              src/parameters.chpl       |
-    tee tests/correction_build.log
+                              src/parameters.chpl       \
+    2>&1 | tee tests/correction_build.log
 if [ $? -eq 0 ]; then
   echo -e "\nSuccess"
 else
@@ -109,8 +109,8 @@ chpl -o tests/gmesh_tests                               \
      --warnings                                         \
      --warn-unstable                                    \
      --main-module Gmesh src/gmesh.chpl                 \
-                         src/parameters.chpl            |
-    tee tests/gmesh_build.log
+                         src/parameters.chpl            \
+    2>&1 | tee tests/gmesh_build.log
 if [ $? -eq 0 ]; then
   echo -e "\nSuccess"
 else
@@ -126,8 +126,8 @@ chpl -o tests/mesh_tests                                \
      --main-module Mesh src/mesh.chpl                   \
                         src/gmesh.chpl                  \
                         src/testing.chpl                \
-                        src/parameters.chpl             |
-    tee tests/mesh_build.log
+                        src/parameters.chpl             \
+    2>&1 | tee tests/mesh_build.log
 if [ $? -eq 0 ]; then
   echo -e "\nSuccess"
 else
@@ -154,8 +154,8 @@ chpl -o tests/frmesh_tests                              \
                           src/testing.chpl              \
                           src/config.chpl               \
                           src/input.chpl                \
-                          src/parameters.chpl           |
-    tee tests/frmesh_build.log
+                          src/parameters.chpl           \
+    2>&1 | tee tests/frmesh_build.log
 if [ $? -eq 0 ]; then
   echo -e "\nSuccess"
 else
@@ -181,8 +181,8 @@ chpl -o tests/mapping_tests                             \
                            src/gmesh.chpl               \
                            src/input.chpl               \
                            src/testing.chpl             \
-                           src/parameters.chpl          |
-     tee tests/mapping_build.log
+                           src/parameters.chpl          \
+     2>&1 | tee tests/mapping_build.log
 if [ $? -eq 0 ]; then
   echo -e "\nSuccess"
 else
@@ -199,8 +199,8 @@ chpl -o tests/flux_tests                                \
                         src/input.chpl                  \
                         src/mesh.chpl                   \
                         src/gmesh.chpl                  \
-                        src/parameters.chpl             |
-    tee tests/flux_build.log
+                        src/parameters.chpl             \
+    2>&1 | tee tests/flux_build.log
 if [ $? -eq 0 ]; then
   echo -e "\nSuccess"
 else
@@ -223,8 +223,8 @@ chpl -o tests/riemann_tests                             \
                            src/input.chpl               \
                            src/mesh.chpl                \
                            src/gmesh.chpl               \
-                           src/parameters.chpl          |
-    tee tests/riemann_build.log
+                           src/parameters.chpl          \
+    2>&1 | tee tests/riemann_build.log
 if [ $? -eq 0 ]; then
   echo -e "\nSuccess"
 else
@@ -242,8 +242,8 @@ chpl -o tests/ringleb_tests                             \
                            src/mesh.chpl                \
                            src/gmesh.chpl               \
                            src/testing.chpl             \
-                           src/parameters.chpl          |
-   tee tests/ringleb_build.log
+                           src/parameters.chpl          \
+   2>&1 | tee tests/ringleb_build.log
 if [ $? -eq 0 ]; then
   echo -e "\nSuccess"
 else
@@ -262,8 +262,8 @@ chpl -o tests/init_tests                                \
                         src/input.chpl                  \
                         src/mesh.chpl                   \
                         src/gmesh.chpl                  \
-                        src/parameters.chpl             |
-    tee tests/init_build.log
+                        src/parameters.chpl             \
+    2>&1 | tee tests/init_build.log
 if [ $? -eq 0 ]; then
   echo -e "\nSuccess"
 else
@@ -284,8 +284,8 @@ chpl -o tests/boundary_tests                            \
                             src/gmesh.chpl              \
                             src/config.chpl             \
                             src/input.chpl              \
-                            src/parameters.chpl         |
-    tee tests/boundary_build.log
+                            src/parameters.chpl         \
+    2>&1 | tee tests/boundary_build.log
 if [ $? -eq 0 ]; then
   echo -e "\nSuccess"
 else
@@ -308,8 +308,8 @@ chpl -o tests/limiter_tests                             \
                            src/quadrature.chpl          \
                            src/polynomials.chpl         \
                            src/parameters.chpl          \
-                           src/testing.chpl             |
-    tee tests/limiter_build.log
+                           src/testing.chpl             \
+    2>&1 | tee tests/limiter_build.log
 if [ $? -eq 0 ]; then
   echo -e "\nSuccess"
 else
@@ -322,8 +322,8 @@ echo -e "Building FR Tests:"
 chpl -o tests/fr_tests                                  \
      --warnings                                         \
      --warn-unstable                                    \
-     --main-module FR src/fr.chpl                       |
-    tee tests/fr_build.log
+     --main-module FR src/fr.chpl                       \
+    2>&1 | tee tests/fr_build.log
 if [ $? -eq 0 ]; then
   echo -e "\nSuccess"
 else
