@@ -530,6 +530,11 @@ prototype module Gmesh
     var nodes_d  : domain(rank=1, idxType=int);
     var nodes    : [nodes_d] int;
 
+    proc elemDim() : int
+    {
+      return elem_dimension(this.elemType);
+    }
+
     proc setNodes()
     {
       use Parameters.ParamGmesh;
@@ -616,6 +621,73 @@ prototype module Gmesh
     var tag  : int;
     var nDim : int;
     var name : string;
+  }
+
+  proc elem_dimension(in elemType : int) : int
+  {
+    use Parameters.ParamGmesh;
+
+    select elemType {
+      when GMESH_PNT_1    do return 0;
+      when GMESH_LIN_2    do return 1;
+      when GMESH_LIN_3    do return 1;
+      when GMESH_LIN_4    do return 1;
+      when GMESH_LIN_5    do return 1;
+      when GMESH_LIN_6    do return 1;
+      when GMESH_LIN_7    do return 1;
+      when GMESH_LIN_8    do return 1;
+      when GMESH_LIN_9    do return 1;
+      when GMESH_LIN_10   do return 1;
+      when GMESH_LIN_11   do return 1;
+      when GMESH_TRI_3    do return 2;
+      when GMESH_TRI_6    do return 2;
+      when GMESH_TRI_10   do return 2;
+      when GMESH_TRI_15   do return 2;
+      when GMESH_TRI_21   do return 2;
+      when GMESH_TRI_28   do return 2;
+      when GMESH_TRI_36   do return 2;
+      when GMESH_TRI_45   do return 2;
+      when GMESH_TRI_55   do return 2;
+      when GMESH_TRI_66   do return 2;
+      when GMESH_QUA_4    do return 2;
+      when GMESH_QUA_9    do return 2;
+      when GMESH_QUA_16   do return 2;
+      when GMESH_QUA_25   do return 2;
+      when GMESH_QUA_36   do return 2;
+      when GMESH_QUA_49   do return 2;
+      when GMESH_QUA_64   do return 2;
+      when GMESH_QUA_81   do return 2;
+      when GMESH_QUA_100  do return 2;
+      when GMESH_QUA_121  do return 2;
+      when GMESH_PYR_5    do return 3;
+      when GMESH_PYR_14   do return 3;
+      when GMESH_PYR_30   do return 3;
+      when GMESH_PYR_55   do return 3;
+      when GMESH_PYR_91   do return 3;
+      when GMESH_PYR_140  do return 3;
+      when GMESH_PYR_204  do return 3;
+      when GMESH_PYR_285  do return 3;
+      when GMESH_PYR_385  do return 3;
+      when GMESH_PRI_6    do return 3;
+      when GMESH_PRI_18   do return 3;
+      when GMESH_PRI_40   do return 3;
+      when GMESH_PRI_75   do return 3;
+      when GMESH_PRI_126  do return 3;
+      when GMESH_PRI_196  do return 3;
+      when GMESH_PRI_288  do return 3;
+      when GMESH_PRI_405  do return 3;
+      when GMESH_PRI_550  do return 3;
+      when GMESH_HEX_8    do return 3;
+      when GMESH_HEX_27   do return 3;
+      when GMESH_HEX_64   do return 3;
+      when GMESH_HEX_125  do return 3;
+      when GMESH_HEX_216  do return 3;
+      when GMESH_HEX_343  do return 3;
+      when GMESH_HEX_512  do return 3;
+      when GMESH_HEX_729  do return 3;
+      when GMESH_HEX_1000 do return 3;
+      otherwise return -1;
+    }
   }
 
   proc main()

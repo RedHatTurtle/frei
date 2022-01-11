@@ -61,7 +61,7 @@ prototype module Mesh
     var nodes : [nodes_d] int;
     //var edges : [edges_d] int;
     var faces : [faces_d] int;
-    var sides : [faces_d] int;
+    var sides : [faces_d] int; // Side of the face this cell is on (1-Left / 2-Right)
 
     var family : int;
 
@@ -159,8 +159,18 @@ prototype module Mesh
       // Sort elements into cells and boundaries and copy them
       for element in gmesh.elements.domain
       {
-        // Get the elements dimension from family
-        var elemDim : int = gmesh.families[gmesh.elements[element].tags[1]].nDim;
+        var elemDim     : int;
+        var elemFamlIdx : int;
+
+        // Search families for tag and get the elements dimension from family.
+        // Gmesh family tags are not globally unique, they are unique within families with the same number of spacial dimensions.
+        for famlIdx in gmesh.families.domain do
+          if gmesh.elements[element].tags[1] == gmesh.families[famlIdx].tag
+          && gmesh.elements[element].elemDim() == gmesh.families[famlIdx].nDim
+          {
+            elemDim = gmesh.families[famlIdx].nDim;
+            elemFamlIdx = famlIdx;
+          }
 
         // Add to cell or boco list depending on the element dimension
         select elemDim
@@ -172,10 +182,10 @@ prototype module Mesh
             // Resize domain to expand the array
             this.cellList_d = {1..this.nCells};
             // Fill up the cell properties. Maybe this should be an initializer?
-            this.cellList[this.nCells].nodes_d = gmesh.elements[element].nodes_d;
-            this.cellList[this.nCells].nodes = gmesh.elements[element].nodes;
+            this.cellList[this.nCells].nodes_d  = gmesh.elements[element].nodes_d;
+            this.cellList[this.nCells].nodes    = gmesh.elements[element].nodes;
             this.cellList[this.nCells].elemType = elem_type_gmsh2mesh(gmesh.elements[element].elemType);
-            this.cellList[this.nCells].family = gmesh.elements[element].tags[1];
+            this.cellList[this.nCells].family   = elemFamlIdx;
           }
           when bocoDim
           {
@@ -184,19 +194,19 @@ prototype module Mesh
             // Resize domain to expand the array
             this.bocoList_d = {1..this.nBocos};
             // Fill up the boco properties. Maybe this should be an initializer?
-            this.bocoList[this.nBocos].nodes_d = gmesh.elements[element].nodes_d;
-            this.bocoList[this.nBocos].nodes = gmesh.elements[element].nodes;
+            this.bocoList[this.nBocos].nodes_d  = gmesh.elements[element].nodes_d;
+            this.bocoList[this.nBocos].nodes    = gmesh.elements[element].nodes;
             this.bocoList[this.nBocos].elemType = elem_type_gmsh2mesh(gmesh.elements[element].elemType);
-            this.bocoList[this.nBocos].family = gmesh.elements[element].tags[1];
+            this.bocoList[this.nBocos].family   = elemFamlIdx;
           }
           otherwise do
           {
             writeln("Found element of unexpected dimension in mesh.");
-            writeln("   Maximum dimension element foun: ", cellDim);
+            writeln("   Maximum dimension element found: ", cellDim);
             writeln("   Assumed cell dimension: ", cellDim);
             writeln("   Assumed boco dimension: ", bocoDim);
-            writeln();
             writeln("Problematic element dimension: ", elemDim, " ID: ", element);
+            writeln();
           }
         }
       }
@@ -225,11 +235,11 @@ prototype module Mesh
         select elem_topology(this.bocoList[boco].elemType)
         {
           when TOPO_NODE do faceNodes[1] = (this.bocoList[boco].nodes[1], 0, 0, 0);
-          when TOPO_LINE do faceNodes[1] = (this.cellList[boco].nodes[1], this.cellList[boco].nodes[2], 0, 0);
-          when TOPO_TRIA do faceNodes[1] = (this.cellList[boco].nodes[1], this.cellList[boco].nodes[2],
-                                            this.cellList[boco].nodes[3], 0);
-          when TOPO_QUAD do faceNodes[1] = (this.cellList[boco].nodes[1], this.cellList[boco].nodes[2],
-                                            this.cellList[boco].nodes[3], this.cellList[boco].nodes[4]);
+          when TOPO_LINE do faceNodes[1] = (this.bocoList[boco].nodes[1], this.bocoList[boco].nodes[2], 0, 0);
+          when TOPO_TRIA do faceNodes[1] = (this.bocoList[boco].nodes[1], this.bocoList[boco].nodes[2],
+                                            this.bocoList[boco].nodes[3], 0);
+          when TOPO_QUAD do faceNodes[1] = (this.bocoList[boco].nodes[1], this.bocoList[boco].nodes[2],
+                                            this.bocoList[boco].nodes[3], this.bocoList[boco].nodes[4]);
           otherwise {}
         }
 
@@ -280,7 +290,7 @@ prototype module Mesh
 
         // Store the face ID with for when we find the left side neighbor
         faceMap_d.add(sort_tuple(faceNodes[1]));
-        faceMap[faceNodes[1]] = this.nFaces;
+        faceMap[sort_tuple(faceNodes[1])] = this.nFaces;
       }
 
       // Add faces from cells to the face map and perform the matching
@@ -365,19 +375,19 @@ prototype module Mesh
           otherwise {}
         }
 
-        for face in this.cellList[cell].faces.domain
+        for cellFaceIdx in this.cellList[cell].faces.domain
         {
           // Check if this face is already in the map
-          if faceMap_d.contains(sort_tuple(faceNodes[face]))
+          if faceMap_d.contains(sort_tuple(faceNodes[cellFaceIdx]))
           {
             // This a mapped face
 
             // Save the face ID to the cell element
-            this.cellList[cell].faces[face] = faceMap[faceNodes[face]];
+            this.cellList[cell].faces[cellFaceIdx] = faceMap[sort_tuple(faceNodes[cellFaceIdx])];
             // Save the side of the face this cell is on
-            this.cellList[cell].sides[face] = 1;
+            this.cellList[cell].sides[cellFaceIdx] = 1;
             // Save the cell ID as the left neighbor of the face
-            this.faceList[faceMap[faceNodes[face]]].cells[1] = cell;
+            this.faceList[faceMap[sort_tuple(faceNodes[cellFaceIdx])]].cells[1] = cell;
           }
           else
           {
@@ -389,9 +399,9 @@ prototype module Mesh
             this.faceList_d = {1..this.nFaces};
 
             // Save the face ID in the cell
-            this.cellList[cell].faces[face] = this.nFaces;
+            this.cellList[cell].faces[cellFaceIdx] = this.nFaces;
             // Save the side of the face this cell is on
-            this.cellList[cell].sides[face] = 2;
+            this.cellList[cell].sides[cellFaceIdx] = 2;
 
             // Fill up the face properties. Maybe this should be an initializer?
             select elem_topology(this.cellList[cell].elemType)
@@ -400,15 +410,25 @@ prototype module Mesh
               {
                 this.faceList[this.nFaces].elemType = TYPE_NODE;
                 this.faceList[this.nFaces].nodes_d = {1..1};
-                this.faceList[this.nFaces].nodes[1] = faceNodes[face][0];
+                this.faceList[this.nFaces].nodes[1] = faceNodes[cellFaceIdx][0];
               }
-              when TOPO_TRIA | TOPO_QUAD
+              when TOPO_TRIA
               {
                 this.faceList[this.nFaces].elemType = TYPE_LINE_2;
 
+                // Reverse the order of the face nodes since this node set is from the right side cell
                 this.faceList[this.nFaces].nodes_d = {1..2};
-                this.faceList[this.nFaces].nodes[1] = faceNodes[face][0];
-                this.faceList[this.nFaces].nodes[2] = faceNodes[face][1];
+                this.faceList[this.nFaces].nodes[1] = faceNodes[cellFaceIdx][1];
+                this.faceList[this.nFaces].nodes[2] = faceNodes[cellFaceIdx][0];
+              }
+              when TOPO_QUAD
+              {
+                this.faceList[this.nFaces].elemType = TYPE_LINE_2;
+
+                // Reverse the order of the face nodes since this node set is from the right side cell
+                this.faceList[this.nFaces].nodes_d = {1..2};
+                this.faceList[this.nFaces].nodes[1] = faceNodes[cellFaceIdx][1];
+                this.faceList[this.nFaces].nodes[2] = faceNodes[cellFaceIdx][0];
               }
               when TOPO_TETR {}
               otherwise {}
@@ -416,8 +436,8 @@ prototype module Mesh
             this.faceList[this.nFaces].cells[2] = cell;
 
             // Save nodes that define it in the map
-            faceMap_d.add(sort_tuple(faceNodes[face]));
-            faceMap[faceNodes[face]] = this.nFaces;
+            faceMap_d.add(sort_tuple(faceNodes[cellFaceIdx]));
+            faceMap[sort_tuple(faceNodes[cellFaceIdx])] = this.nFaces;
           }
         }
       }
