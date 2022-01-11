@@ -118,12 +118,55 @@ prototype module FREI
       ref familySubType = frMesh.famlList[familyIdx].bocoSubType;
       ref familyParameters = frMesh.famlList[familyIdx].bocoProperties;
 
+      var thisCell = frMesh.cellList[cellIdx];
       ref cellSPini = frMesh.cellSPidx[cellIdx, 1];
       ref cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
 
       frMesh.solSP[cellSPini.. #cellSPcnt, ..] = flow_condition(familySubType,
                                                                 familyParameters,
                                                                 frMesh.xyzSP[cellSPini.. #cellSPcnt, ..]);
+
+      // Interpolate solution to FPs
+      for cellFace in thisCell.faces.domain
+      {
+        var faceIdx  = thisCell.faces[cellFace];
+        var thisFace = frMesh.faceList[faceIdx];
+        var faceSide = thisCell.sides[cellFace];
+
+        for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
+        {
+          var cellFP : int;
+          if faceSide == 1 then
+            cellFP = (cellFace-1)*(frMesh.solOrder+1) +  meshFP - frMesh.faceFPidx[faceIdx, 1] + 1;
+          else
+            cellFP = (cellFace-1)*(frMesh.solOrder+1) + (frMesh.faceFPidx[faceIdx, 2] - (meshFP - frMesh.faceFPidx[faceIdx, 1]));
+
+          frMesh.solFP[meshFP, faceSide, ..] = dot(sp2fpInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellFP, ..],
+                                                   frMesh.solSP[cellSPini..#cellSPcnt,..]                       );
+        }
+
+        // Check if the face's right neighbor is a Boundary Condition
+        if frMesh.faceList[faceIdx].cells[2] < 0
+        {
+          // Yep, it is, lets get some local iteration variables
+          var bocoIdx = -frMesh.faceList[faceIdx].cells[2];
+          var thisBoco = frMesh.bocoList[bocoIdx];
+
+          var famlIdx = thisBoco.family;
+          var thisFaml = frMesh.famlList[famlIdx];
+
+          var faceFPini = frMesh.faceFPidx[faceIdx, 1];
+          var faceFPcnt = frMesh.faceFPidx[faceIdx, 2];
+
+          // Iterate through the FPs on this face
+          for meshFP in faceFPini.. #faceFPcnt
+          {
+            // Calculate the boundary condition using the solution at the left neighbor´s corresponding FP
+            frMesh.solFP[meshFP, 2, ..] = Boundary.boundary(frMesh.solFP[meshFP, 1, ..], thisFaml,
+                                                            frMesh.xyzFP[meshFP, ..], frMesh.nrmFP[meshFP, ..]);
+          }
+        }
+      }
     }
 
     // 9. Output initial solution
