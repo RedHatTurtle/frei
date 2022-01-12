@@ -46,6 +46,16 @@ prototype module Parameters
     param SPATIAL_ROE               : int = 10;
     param SPATIAL_FR                : int = 11;
 
+    // Dissipation Scheme
+    param DISS_NONE    : int = 0;
+    param DISS_SECOND  : int = 1;
+    param DISS_FOURTH  : int = 2;
+    param DISS_JAMESON : int = 3;
+
+    // Limiter Implementation
+    param LIMITER_NONE              : int = 0;
+    param LIMITER_PROJECTION        : int = 1;
+
     // FR correction functions
     param FR_DG  : int = 1;
     param FR_GA  : int = 2; // Lumping at Gauss Points. Similar to SD with internal FPs at Gauss Points.
@@ -64,12 +74,6 @@ prototype module Parameters
     param VISC_BR1 : int = 1;
     param VISC_BR2 : int = 2;
     param VISC_LDG : int = 3;
-
-    // Dissipation Scheme
-    param DISS_NONE    : int = 0;
-    param DISS_SECOND  : int = 1;
-    param DISS_FOURTH  : int = 2;
-    param DISS_JAMESON : int = 3;
 
     // Solution Point distributions
     param PTS_UNIFORM          : int = 1;    // Uniform

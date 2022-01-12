@@ -11,8 +11,9 @@
   meshingScheme = 2
 
 [parSpatial]
-  spatialScheme     = 1
-  dissipationScheme = 2
+  spatialScheme     = 11
+  dissipationScheme = 0
+  limiterScheme     = 0
 
 [parFR]
   iOrder   = 2

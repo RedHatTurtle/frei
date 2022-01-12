@@ -38,9 +38,11 @@ prototype module FREI
     var cntFluxTime : real = 0.0;
     var timeStepTime : real = 0.0;
     var stabilizeTime : real = 0.0;
-    var stopwatch : Timer;
-    var iterTimer : Timer;
+    var stopwatch  : Timer;
+    var iterTimer  : Timer;
+    var totalTimer : Timer;
     stopwatch.start();
+    totalTimer.start();
 
     var iteration : int = 0;
 
@@ -221,9 +223,6 @@ prototype module FREI
     {
       iterTimer.clear();
 
-      // Zero out residue
-      frMesh.resSP = 0.0;
-
       // Save initial solution
       frMesh.oldSolSP = frMesh.solSP;
 
@@ -243,11 +242,12 @@ prototype module FREI
           {
             stopwatch.clear();
 
-            for spIdx in frMesh.resSP.domain.dim(0) do
-              frMesh.resSP[spIdx..#1, ..] = -source_term(frMesh.xyzSP[spIdx..#1, ..],
-                                                         frMesh.solSP[spIdx..#1, ..],
-                                                         Input.eqSet                )
-                                            * frMesh.jacSP[spIdx];
+            if Input.eqSet == EQ_QUASI_1D_EULER then
+              for spIdx in frMesh.resSP.domain.dim(0) do
+                frMesh.resSP[spIdx..#1, ..] += -source_term(frMesh.xyzSP[spIdx..#1, ..],
+                                                           frMesh.solSP[spIdx..#1, ..],
+                                                           Input.eqSet                )
+                                              * frMesh.jacSP[spIdx];
 
             srcTermTime += stopwatch.elapsed(TimeUnits.milliseconds);
           }
@@ -479,6 +479,7 @@ prototype module FREI
                 }
               }
             }
+
             cntFluxTime += stopwatch.elapsed(TimeUnits.milliseconds);
           }
         }
@@ -508,31 +509,38 @@ prototype module FREI
                                                                     frMesh.solSP[cellSPini.. #cellSPcnt, ..],
                                                                     frMesh.resSP[cellSPini.. #cellSPcnt, ..],
                                                                     dt, stage, Input.timeScheme);
+
+            // Zero out residue
+            frMesh.resSP = 0.0;
           }
+
           timeStepTime += stopwatch.elapsed(TimeUnits.milliseconds);
         }
 
         // Stabilize Solution
-          {
+        {
           stopwatch.clear();
 
-          // Loop through cells
-          for cellIdx in frMesh.cellList.domain
+          if Input.limiterScheme != LIMITER_NONE
           {
-            var cellSPini = frMesh.cellSPidx[cellIdx, 1];
-            var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
-
-            for varIdx in 1..frMesh.nVars
+            // Loop through cells
+            for cellIdx in frMesh.cellList.domain
             {
-              var stableDegree : int = troubled_cell_marker(solPoly = frMesh.solSP[cellSPini.. #cellSPcnt, varIdx],
-                                                            cellTopo = frMesh.cellList[cellIdx].elemTopo(),
-                                                            solDegree = iOrder);
+              var cellSPini = frMesh.cellSPidx[cellIdx, 1];
+              var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
 
-              if stableDegree < iOrder then
-                frMesh.solSP[cellSPini.. #cellSPcnt, varIdx] = projection_limiter(solPoly = frMesh.solSP[cellSPini.. #cellSPcnt, varIdx],
-                                                                                  cellTopo = frMesh.cellList[cellIdx].elemTopo(),
-                                                                                  solDegree = iOrder,
-                                                                                  projDegree = stableDegree);
+              for varIdx in 1..frMesh.nVars
+              {
+                var stableDegree : int = troubled_cell_marker(solPoly = frMesh.solSP[cellSPini.. #cellSPcnt, varIdx],
+                                                              cellTopo = frMesh.cellList[cellIdx].elemTopo(),
+                                                              solDegree = iOrder);
+
+                if stableDegree < iOrder then
+                  frMesh.solSP[cellSPini.. #cellSPcnt, varIdx] = projection_limiter(solPoly = frMesh.solSP[cellSPini.. #cellSPcnt, varIdx],
+                                                                                    cellTopo = frMesh.cellList[cellIdx].elemTopo(),
+                                                                                    solDegree = iOrder,
+                                                                                    projDegree = stableDegree);
+              }
             }
           }
 
@@ -595,14 +603,19 @@ prototype module FREI
     // Output the final solution
     //iterOutput(iteration, frMesh);
 
+    var totalTime : real = totalTimer.elapsed(TimeUnits.milliseconds);
     writeln();
     writef("Time splits:\n");
-    writef("  Stopwatch - Init    : %11.2dr ms\n", initTime);
-    writef("  Stopwatch - Src Term: %11.2dr ms\n", srcTermTime);
-    writef("  Stopwatch - Dsc Flux: %11.2dr ms\n", dscFluxTime);
-    writef("  Stopwatch - Cnt Flux: %11.2dr ms\n", cntFluxTime);
-    writef("  Stopwatch - Stabiliz: %11.2dr ms\n", stabilizeTime);
-    writef("  Stopwatch - Timestep: %11.2dr ms\n", timeStepTime);
+    writef("  Stopwatch - Init    : %11.2dr ms - %4.1dr%% of runtime\n",      initTime,      initTime/totalTime*100);
+    writef("  Stopwatch - Src Term: %11.2dr ms - %4.1dr%% of runtime\n",   srcTermTime,   srcTermTime/totalTime*100);
+    writef("  Stopwatch - Dsc Flux: %11.2dr ms - %4.1dr%% of runtime\n",   dscFluxTime,   dscFluxTime/totalTime*100);
+    writef("  Stopwatch - Cnt Flux: %11.2dr ms - %4.1dr%% of runtime\n",   cntFluxTime,   cntFluxTime/totalTime*100);
+    writef("  Stopwatch - Stabiliz: %11.2dr ms - %4.1dr%% of runtime\n", stabilizeTime, stabilizeTime/totalTime*100);
+    writef("  Stopwatch - Timestep: %11.2dr ms - %4.1dr%% of runtime\n",  timeStepTime,  timeStepTime/totalTime*100);
+    writef("---------------------------------------------------------\n");
+    var sumTime : real = initTime + srcTermTime + dscFluxTime + cntFluxTime + stabilizeTime + timeStepTime;
+    writef("  Stopwatch - Total   : %11.2dr ms - %4.1dr%% of runtime\n",  sumTime,  sumTime/totalTime*100);
+    writef("  Total Run-time      : %11.2dr ms\n", totalTime);
 
     writeln();
     writeln("Fin");

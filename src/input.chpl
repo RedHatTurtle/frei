@@ -32,6 +32,7 @@ prototype module Input
   //parSpatial
   var spatialScheme     : int = SPATIAL_FR;
   var dissipationScheme : int = DISS_NONE;    // Type of numerical dissipation added
+  var limiterScheme     : int = LIMITER_NONE; // Select limiter implementation
 
   //parFR
   var iOrder   : int = 3;                // Solution polynomial interpolation order
@@ -142,9 +143,10 @@ prototype module Input
         meshFileName = tomlData!["parMesh"]!["meshFile"]!.s : string;
       }
 
-      // parSpacial
+      // parSpatial
       spatialScheme     = tomlData!["parSpatial"]!["spatialScheme"]!.i : int;
       dissipationScheme = tomlData!["parSpatial"]!["dissipationScheme"]!.i : int;
+      limiterScheme     = tomlData!["parSpatial"]!["limiterScheme"]!.i : int;
 
       // parFR
       iOrder   = tomlData!["parFR"]!["iOrder"]!.i : int;

@@ -163,7 +163,7 @@ prototype module Mesh
         var elemFamlIdx : int;
 
         // Search families for tag and get the elements dimension from family.
-        // Gmesh family tags are not globally unique, they are unique within families with the same number of spacial dimensions.
+        // Gmesh family tags are not globally unique, they are unique within families with the same number of spatial dimensions.
         for famlIdx in gmesh.families.domain do
           if gmesh.elements[element].tags[1] == gmesh.families[famlIdx].tag
           && gmesh.elements[element].elemDim() == gmesh.families[famlIdx].nDim

@@ -283,7 +283,7 @@ prototype module Output
         {
           outputChan.writef(pointIdxFormat, spIdx);
 
-          // Loop through spacial coordinates
+          // Loop through spatial coordinates
           for dimIdx in 1..frMesh.nDims do
             outputChan.writef(realFormat, frMesh.xyzSP[spIdx, dimIdx]);
 
@@ -304,7 +304,7 @@ prototype module Output
         {
           outputChan.writef(pointIdxFormat, spCnt + fpIdx);
 
-          // Loop through spacial coordinates
+          // Loop through spatial coordinates
           for dimIdx in 1..frMesh.nDims do
             outputChan.writef(realFormat, frMesh.xyzFP[fpIdx, dimIdx]);
 
@@ -343,7 +343,7 @@ prototype module Output
 
           solNode[nodeIdx, ..] = solNode[nodeIdx, ..]/cellCnt[nodeIdx];
 
-          // Loop through spacial coordinates
+          // Loop through spatial coordinates
           for dimIdx in 1..frMesh.nDims do
             outputChan.writef(realFormat, frMesh.nodeList[nodeIdx].xyz[dimIdx]);
 
