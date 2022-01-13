@@ -121,9 +121,9 @@ prototype module FREI
       ref familySubType = frMesh.famlList[familyIdx].bocoSubType;
       ref familyParameters = frMesh.famlList[familyIdx].bocoProperties;
 
-      var thisCell = frMesh.cellList[cellIdx];
       ref cellSPini = frMesh.cellSPidx[cellIdx, 1];
       ref cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
+      ref thisCell = frMesh.cellList[cellIdx];
 
       frMesh.solSP[cellSPini.. #cellSPcnt, ..] = flow_condition(familySubType,
                                                                 familyParameters,
@@ -132,9 +132,9 @@ prototype module FREI
       // Interpolate solution to FPs
       for cellFace in thisCell.faces.domain
       {
-        var faceIdx  = thisCell.faces[cellFace];
-        var thisFace = frMesh.faceList[faceIdx];
-        var faceSide = thisCell.sides[cellFace];
+        ref faceIdx  : int = thisCell.faces[cellFace];
+        ref faceSide : int = thisCell.sides[cellFace];
+        ref thisFace = frMesh.faceList[faceIdx];
 
         for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
         {
@@ -152,14 +152,11 @@ prototype module FREI
         if frMesh.faceList[faceIdx].cells[2] < 0
         {
           // Yep, it is, lets get some local iteration variables
-          var bocoIdx = -frMesh.faceList[faceIdx].cells[2];
-          var thisBoco = frMesh.bocoList[bocoIdx];
+          ref faceFPini : int = frMesh.faceFPidx[faceIdx, 1];
+          ref faceFPcnt : int = frMesh.faceFPidx[faceIdx, 2];
 
-          var famlIdx = thisBoco.family;
-          var thisFaml = frMesh.famlList[famlIdx];
-
-          var faceFPini = frMesh.faceFPidx[faceIdx, 1];
-          var faceFPcnt = frMesh.faceFPidx[faceIdx, 2];
+          ref thisBoco = frMesh.bocoList[-frMesh.faceList[faceIdx].cells[2]];
+          ref thisFaml = frMesh.famlList[thisBoco.family];
 
           // Iterate through the FPs on this face
           for meshFP in faceFPini.. #faceFPcnt
@@ -180,8 +177,8 @@ prototype module FREI
       // Loop through cells
       for cellIdx in frMesh.cellList.domain
       {
-        var cellSPini = frMesh.cellSPidx[cellIdx, 1];
-        var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
+        ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
+        ref cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
 
         for varIdx in 1..frMesh.nVars
         {
@@ -260,14 +257,14 @@ prototype module FREI
             for cellIdx in frMesh.cellList.domain
             {
               // Get loop variables
-              var thisCell = frMesh.cellList[cellIdx];
-              var cellSPini = frMesh.cellSPidx[cellIdx, 1];
-              var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
+              ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
+              ref cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
+              ref thisCell = frMesh.cellList[cellIdx];
 
               // Allocate temporary flux array
               var flxSP : [cellSPini.. #cellSPcnt, 1..frMesh.nDims, 1..frMesh.nVars] real;
 
-              // Calculate fluxes
+              // Step 1: Calculate fluxes
               for meshSP in cellSPini.. #cellSPcnt do
                 select Input.eqSet
                 {
@@ -281,15 +278,18 @@ prototype module FREI
                     flxSP[meshSP, .., ..] = euler_flux_cv(frMesh.solSP[meshSP, ..]);
                 }
 
-              // Interpolate fluxes to FPs and save the FP normal flux
+              // Step 2: Interpolate fluxes to FPs and save the FP normal flux
               for cellFace in thisCell.faces.domain
               {
-                var faceIdx  = thisCell.faces[cellFace];
-                var thisFace = frMesh.faceList[faceIdx];
-                var faceSide = thisCell.sides[cellFace];
+                // Get loop variables
+                ref faceIdx  : int = thisCell.faces[cellFace];
+                ref faceSide : int = thisCell.sides[cellFace];
+                ref thisFace = frMesh.faceList[faceIdx];
 
+                // Allocate temporary flux array
                 var flx : [1..frMesh.faceFPidx[faceIdx, 2], 1..2, 1..frMesh.nVars] real;
 
+                // Iterate though all FPs on this face
                 for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
                 {
                   var cellFP : int;
@@ -314,8 +314,7 @@ prototype module FREI
                 }
               }
 
-              // Convert fluxes from physical to computational domain
-              //writeln("         Convert fluxes from physical to computational domain");
+              // Step 3: Convert fluxes from physical to computational domain
               for meshSP in cellSPini.. #cellSPcnt
               {
                 // Multiply the flux vector by the inverse Jacobian matrix and by the Jacobian determinant
@@ -332,7 +331,7 @@ prototype module FREI
                 flxSP[meshSP, .., ..] = dot(jInv, reshape(flxSP[meshSP, .., ..], flxSP[meshSP, .., ..].domain));
               }
 
-              // Calculate flux divergence
+              // Step 4: Calculate flux divergence
               for cellSP in 1..cellSPcnt
               {
                 var meshSP = cellSPini + cellSP - 1;
@@ -358,19 +357,20 @@ prototype module FREI
             // Interpolate solution to FPs
             for cellIdx in frMesh.cellList.domain
             {
-              var thisCell = frMesh.cellList[cellIdx];
-              var cellSPini = frMesh.cellSPidx[cellIdx, 1];
-              var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
+              ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
+              ref cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
+              ref thisCell = frMesh.cellList[cellIdx];
 
               for cellFace in thisCell.faces.domain
               {
-                var faceIdx  = thisCell.faces[cellFace];
-                var thisFace = frMesh.faceList[faceIdx];
-                var faceSide = thisCell.sides[cellFace];
+                ref faceIdx  : int = thisCell.faces[cellFace];
+                ref faceSide : int = thisCell.sides[cellFace];
+                ref thisFace = frMesh.faceList[faceIdx];
 
                 for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
                 {
                   var cellFP : int;
+
                   if faceSide == 1 then
                     cellFP = (cellFace-1)*(frMesh.solOrder+1) +  meshFP - frMesh.faceFPidx[faceIdx, 1] + 1;
                   else
@@ -386,19 +386,16 @@ prototype module FREI
             for faceIdx in frMesh.faceList.domain
             {
               // Get loop variables
-              var thisFace = frMesh.faceList[faceIdx];
-              var faceFPini = frMesh.faceFPidx[faceIdx, 1];
-              var faceFPcnt = frMesh.faceFPidx[faceIdx, 2];
+              ref faceFPini : int = frMesh.faceFPidx[faceIdx, 1];
+              ref faceFPcnt : int = frMesh.faceFPidx[faceIdx, 2];
+              ref thisFace = frMesh.faceList[faceIdx];
 
               // Check if the face´s right neighbor is a Boundary Condition
               if frMesh.faceList[faceIdx].cells[2] < 0
               {
                 // Yep, it is, lets get some local iteration variables
-                var bocoIdx = -frMesh.faceList[faceIdx].cells[2];
-                var thisBoco = frMesh.bocoList[bocoIdx];
-
-                var famlIdx = thisBoco.family;
-                var thisFaml = frMesh.famlList[famlIdx];
+                ref thisBoco = frMesh.bocoList[-frMesh.faceList[faceIdx].cells[2]];
+                ref thisFaml = frMesh.famlList[thisBoco.family];
 
                 // Iterate through the FPs on this face
                 for meshFP in faceFPini.. #faceFPcnt
@@ -414,15 +411,15 @@ prototype module FREI
             for cellIdx in frMesh.cellList.domain
             {
               // Get loop variables
-              var thisCell = frMesh.cellList[cellIdx];
-              var cellSPini = frMesh.cellSPidx[cellIdx, 1];
-              var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
+              ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
+              ref cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
+              ref thisCell = frMesh.cellList[cellIdx];
 
               for cellFace in thisCell.faces.domain
               {
-                var faceIdx  = thisCell.faces[cellFace];
-                var thisFace = frMesh.faceList[faceIdx];
-                var faceSide = thisCell.sides[cellFace];
+                ref faceIdx  : int = thisCell.faces[cellFace];
+                ref faceSide : int = thisCell.sides[cellFace];
+                ref thisFace = frMesh.faceList[faceIdx];
 
                 for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
                 {
@@ -491,8 +488,8 @@ prototype module FREI
           // Loop through cells
           for cellIdx in frMesh.cellList.domain
           {
-            var cellSPini = frMesh.cellSPidx[cellIdx, 1];
-            var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
+            ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
+            ref cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
 
             // Calculate dt for this cell
             var dt : real = Input.timeStep;
@@ -526,8 +523,8 @@ prototype module FREI
             // Loop through cells
             for cellIdx in frMesh.cellList.domain
             {
-              var cellSPini = frMesh.cellSPidx[cellIdx, 1];
-              var cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
+              ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
+              ref cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
 
               for varIdx in 1..frMesh.nVars
               {
