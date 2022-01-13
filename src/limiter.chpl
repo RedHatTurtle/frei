@@ -35,11 +35,11 @@ prototype module Limiter
                                    elemTopo = cellTopo,
                                    nodeCnt = solDegree);
 
-    // Calculate the Log10 of the ratio between the quatities above
+    // Calculate the Log10 of the ratio between the quantities above
     //marker(nc) = log10( l2_pm1 / l2_p )
     var marker : real = log10(l2_pm1 / l2_p);
 
-    // Apply a sigmoid tranformation to this value and calculate a "scaled" marker
+    // Apply a sigmoid transformation to this value and calculate a "scaled" marker
     //psi0 = -one*(c1 + c2*log10(real(cutoff_order,kind=wp)))
     param dpsi : real = 0.5;
     param c1 : real = 4.0;
@@ -47,7 +47,7 @@ prototype module Limiter
     var psi0 : real = -1.0*(c1 + c2*log10((solDegree-1):real));
     var scaledMarker : real;
 
-    // If the scaled marker is over a threshhold then mark the cell as problematic
+    // If the scaled marker is over a threshold then mark the cell as problematic
     if (marker <= psi0-dpsi) then
       scaledMarker = 0.0;
     else if (marker >= psi0+dpsi) then
@@ -95,11 +95,11 @@ prototype module Limiter
                                      elemTopo = cellTopo,
                                      nodeCnt = solDegree);
 
-      // Calculate the Log10 of the ratio between the quatities above
+      // Calculate the Log10 of the ratio between the quantities above
       //marker(nc) = log10( l2_pm1 / l2_p )
       var marker : real = log10(l2_diff / l2_ref);
 
-      // Apply a sigmoid tranformation to this value and calculate a "scaled" marker
+      // Apply a sigmoid transformation to this value and calculate a "scaled" marker
       //psi0 = -one*(c1 + c2*log10(real(cutoff_order,kind=wp)))
       param dpsi : real = 0.5;
       param c1 : real = 4.0;
@@ -107,7 +107,7 @@ prototype module Limiter
       var psi0 : real = -1.0*(c1 + c2*log10((projDegree):real));
       var scaledMarker : real;
 
-      // If the scaled marker is over a threshhold then mark the cell as problematic
+      // If the scaled marker is over a threshold then mark the cell as problematic
       if (marker <= psi0-dpsi) then
         scaledMarker = 0.0;
       else if (marker >= psi0+dpsi) then
@@ -115,7 +115,7 @@ prototype module Limiter
       else
         scaledMarker = 0.5*(1.0 + sin(half_pi*(marker-psi0)/dpsi));
 
-      // Check if the reference solution is stable and either stop and output the stable degree or keep projectiong down
+      // Check if the reference solution is stable and either stop and output the stable degree or keep projecting down
       if scaledMarker <= 1.0e-8
       {
         stableDegree = projDegree+1;
@@ -132,8 +132,9 @@ prototype module Limiter
 
   proc projection_limiter(solPoly : [] real, cellTopo : int, solDegree : int, projDegree : int)
   {
+    use Projection;
     /*
-       Project problematic soulution interpolation to to a lower order
+       Project problematic solution interpolation to to a lower order
     */
 
     return project_poly(nodalPoly = solPoly, cellTopo = cellTopo, polyDegree = solDegree, projDegree = projDegree);
@@ -150,44 +151,123 @@ prototype module Limiter
     use Projection;
     use Quadrature;
 
-    // Create a set with the cell topologies contained in the hypothetics test mesh
+    // Create a set with the cell topologies contained in the hypothetical test mesh
     var cellTopos : set(int);
-    cellTopos.add(TOPO_LINE);  // Add Line element to the set
+    cellTopos.add(TOPO_LINE);
+    cellTopos.add(TOPO_QUAD);
 
     init_polyProj(1, 9, cellTopos);
     init_quadratureWeights(1, 9, cellTopos);
 
     var randStreamSeeded = new RandomStream(real, RANDOM_SEED);
 
-    for nodeCnt in 2..4
+    // Line Mode
+    writeln();
+    writeln("------------------------------------------------------------");
+    writeln();
+    writeln("Line Element");
+    for polyDegree in 0..9
     {
-      writef("%i Node Interpolation\n", nodeCnt);
+      writeln();
+      writef("%i-Degree Interpolation:\n", polyDegree);
 
-      var nodes     : [1..nodeCnt] real = nodes_legendre_gauss(nodeCnt);
+      var nodeDistLine : [1..polyDegree+1] real = nodes_legendre_gauss(polyDegree+1);
+
+      var nodeCnt   : int = polyDegree+1;
       var nodalSin  : [1..nodeCnt] real;
       var nodalExp  : [1..nodeCnt] real;
       var nodalLog  : [1..nodeCnt] real;
       var nodalStep : [1..nodeCnt] real;
 
-      var cellSize : real = 0.1;
-
-      for i in nodes.domain
+      for nodeIdx in 1..nodeCnt
       {
-        nodalSin[i] = sin(((randStreamSeeded.getNth(0)-0.5) + nodes[i]*cellSize/2.0)*half_pi);
-        nodalExp[i] = exp(((randStreamSeeded.getNth(1)-0.5) + nodes[i]*cellSize/2.0));
-        nodalLog[i] = log((randStreamSeeded.getNth(2) + nodes[i]*cellSize/2.0));
-        if nodes[i] < 0.0 then nodalStep[i] = 0.0; else nodalStep[i] = 1.0;
+        var xi  : real = nodeDistLine[nodeIdx];
+
+        nodalSin[nodeIdx] = sin(xi*half_pi);
+        nodalExp[nodeIdx] = exp(xi);
+        nodalLog[nodeIdx] = log(1.0+xi);
+
+        if xi > 0.0 then
+          nodalStep[nodeIdx] = 1.0;
+        else
+          nodalStep[nodeIdx] = 0.0;
       }
 
-      writef("   Limiter: %{8.4dr}  | Sin:  %{ ht}\n", troubled_cell_marker(nodalSin, TOPO_LINE, nodeCnt-1), nodalSin);
-      writef("   Limited Polynomial         %{ ht}\n", projection_limiter(nodalSin, TOPO_LINE, nodeCnt-1, nodeCnt-2));
-      writef("   Limiter: %{8.4dr}  | Exp:  %{ ht}\n", troubled_cell_marker(nodalExp, TOPO_LINE, nodeCnt-1), nodalExp);
-      writef("   Limited Polynomial:        %{ ht}\n", projection_limiter(nodalExp, TOPO_LINE, nodeCnt-1, nodeCnt-2));
-      writef("   Limiter: %{8.4dr}  | Log:  %{ ht}\n", troubled_cell_marker(nodalLog, TOPO_LINE, nodeCnt-1), nodalLog);
-      writef("   Limited Polynomial         %{ ht}\n", projection_limiter(nodalLog, TOPO_LINE, nodeCnt-1, nodeCnt-2));
-      writef("   Limiter: %{8.4dr}  | Step: %{ ht}\n", troubled_cell_marker(nodalStep, TOPO_LINE, nodeCnt-1), nodalStep);
-      writef("   Limited Polynomial         %{ ht}\n", projection_limiter(nodalStep, TOPO_LINE, nodeCnt-1, troubled_cell_marker(nodalStep, TOPO_LINE, nodeCnt-1)));
-      writef("\n");
+      writeln();
+      writef("  Sin Stable degree: %2i\n", troubled_cell_marker( nodalSin , TOPO_LINE, polyDegree));
+      writef("  Original Solution: %{ ht}\n", nodalSin);
+      writef("  Limited Solution:  %{ ht}\n", projection_limiter(   nodalSin , TOPO_LINE, polyDegree ,
+                                                  troubled_cell_marker( nodalSin , TOPO_LINE, polyDegree)));
+      writeln();
+      writef("  Exp Stable degree: %2i\n", troubled_cell_marker( nodalExp , TOPO_LINE, polyDegree));
+      writef("  Original Solution: %{ ht}\n", nodalExp);
+      writef("  Limited Solution:  %{ ht}\n", projection_limiter(   nodalExp , TOPO_LINE, polyDegree ,
+                                                  troubled_cell_marker( nodalExp , TOPO_LINE, polyDegree)));
+      writeln();
+      writef("  Log Stable degree: %2i\n", troubled_cell_marker( nodalLog , TOPO_LINE, polyDegree));
+      writef("  Original Solution: %{+ht}\n", nodalLog);
+      writef("  Limited Solution:  %{ ht}\n", projection_limiter(   nodalLog , TOPO_LINE, polyDegree ,
+                                                  troubled_cell_marker( nodalLog , TOPO_LINE, polyDegree)));
+      writeln();
+      writef("  Step Stable degree: %2i\n", troubled_cell_marker( nodalStep , TOPO_LINE, polyDegree));
+      writef("  Original Solution: %{ ht}\n", nodalStep);
+      writef("  Limited Solution:  %{ ht}\n", projection_limiter(   nodalStep, TOPO_LINE, polyDegree ,
+                                                   troubled_cell_marker(nodalStep, TOPO_LINE, polyDegree)));
+    }
+
+    // Quad Mode
+    writeln();
+    writeln("------------------------------------------------------------");
+    writeln();
+    writeln("Quad Element");
+    for polyDegree in 1..2
+    {
+      writeln();
+      writef("%i-Degree Interpolation:\n", polyDegree);
+
+      var nodeDistLine : [1..polyDegree+1] real = nodes_legendre_gauss(polyDegree+1);
+
+      var nodeCnt   : int = (polyDegree+1)**2;
+      var nodalSin  : [1..nodeCnt] real;
+      var nodalExp  : [1..nodeCnt] real;
+      var nodalLog  : [1..nodeCnt] real;
+      var nodalStep : [1..nodeCnt] real;
+
+      for nodeIdx in 1..nodeCnt
+      {
+        var xi  : real = nodeDistLine[(nodeIdx-1)/(polyDegree+1)+1];
+        var eta : real = nodeDistLine[(nodeIdx-1)%(polyDegree+1)+1];
+
+        nodalSin[nodeIdx] = sin(xi*half_pi) * sin(eta*half_pi);
+        nodalExp[nodeIdx] = exp(xi) * exp(eta);
+        nodalLog[nodeIdx] = log(1.0+xi) * log(1.0+eta);
+
+        if xi+2*eta > 0.0 then
+          nodalStep[nodeIdx] = 1.0;
+        else
+          nodalStep[nodeIdx] = 0.0;
+      }
+
+      writeln();
+      writef("  Sin Stable degree: %2i\n", troubled_cell_marker( nodalSin , TOPO_QUAD, polyDegree));
+      writef("  Original Solution: %{ ht}\n", nodalSin);
+      writef("  Limited Solution:  %{ ht}\n", projection_limiter(   nodalSin , TOPO_QUAD, polyDegree ,
+                                                  troubled_cell_marker( nodalSin , TOPO_QUAD, polyDegree)));
+      writeln();
+      writef("  Exp Stable degree: %2i\n", troubled_cell_marker( nodalExp , TOPO_QUAD, polyDegree));
+      writef("  Original Solution: %{ ht}\n", nodalExp);
+      writef("  Limited Solution:  %{ ht}\n", projection_limiter(   nodalExp , TOPO_QUAD, polyDegree ,
+                                                  troubled_cell_marker( nodalExp , TOPO_QUAD, polyDegree)));
+      writeln();
+      writef("  Log Stable degree: %2i\n", troubled_cell_marker( nodalLog , TOPO_QUAD, polyDegree));
+      writef("  Original Solution: %{ ht}\n", nodalLog);
+      writef("  Limited Solution:  %{ ht}\n", projection_limiter(   nodalLog , TOPO_QUAD, polyDegree ,
+                                                  troubled_cell_marker( nodalLog , TOPO_QUAD, polyDegree)));
+      writeln();
+      writef("  Step Stable degree: %2i\n", troubled_cell_marker( nodalStep , TOPO_QUAD, polyDegree));
+      writef("  Original Solution:  %{ ht}\n", nodalStep);
+      writef("  Limited Solution:   %{ ht}\n", projection_limiter(   nodalStep, TOPO_QUAD, polyDegree ,
+                                                   troubled_cell_marker(nodalStep, TOPO_QUAD, polyDegree)));
     }
   }
 }
