@@ -44,6 +44,20 @@ prototype module FREI
     stopwatch.start();
     totalTimer.start();
 
+    var dscFluxWatch : Timer;
+    var dscFluxTime1 : real = 0;
+    var dscFluxTime2 : real = 0;
+    var dscFluxTime3 : real = 0;
+    var dscFluxTime4 : real = 0;
+    dscFluxWatch.start();
+
+    var cntFluxWatch : Timer;
+    var cntFluxTime1 : real = 0;
+    var cntFluxTime2 : real = 0;
+    var cntFluxTime3 : real = 0;
+    var cntFluxTime4 : real = 0;
+    cntFluxWatch.start();
+
     var iteration : int = 0;
 
     // 1. Read input data
@@ -265,6 +279,7 @@ prototype module FREI
               var flxSP : [cellSPini.. #cellSPcnt, 1..frMesh.nDims, 1..frMesh.nVars] real;
 
               // Step 1: Calculate fluxes
+              dscFluxWatch.clear();
               for meshSP in cellSPini.. #cellSPcnt do
                 select Input.eqSet
                 {
@@ -277,8 +292,10 @@ prototype module FREI
                   when EQ_EULER do
                     flxSP[meshSP, .., ..] = euler_flux_cv(frMesh.solSP[meshSP, ..]);
                 }
+              dscFluxTime1 += dscFluxWatch.elapsed(TimeUnits.milliseconds);
 
               // Step 2: Interpolate fluxes to FPs and save the FP normal flux
+              dscFluxWatch.clear();
               for cellFace in thisCell.faces.domain
               {
                 // Get loop variables
@@ -313,8 +330,10 @@ prototype module FREI
                   }
                 }
               }
+              dscFluxTime2 += dscFluxWatch.elapsed(TimeUnits.milliseconds);
 
               // Step 3: Convert fluxes from physical to computational domain
+              dscFluxWatch.clear();
               for meshSP in cellSPini.. #cellSPcnt
               {
                 // Multiply the flux vector by the inverse Jacobian matrix and by the Jacobian determinant
@@ -330,8 +349,10 @@ prototype module FREI
 
                 flxSP[meshSP, .., ..] = dot(jInv, reshape(flxSP[meshSP, .., ..], flxSP[meshSP, .., ..].domain));
               }
+              dscFluxTime3 += dscFluxWatch.elapsed(TimeUnits.milliseconds);
 
               // Step 4: Calculate flux divergence
+              dscFluxWatch.clear();
               for cellSP in 1..cellSPcnt
               {
                 var meshSP = cellSPini + cellSP - 1;
@@ -346,6 +367,7 @@ prototype module FREI
                   frMesh.resSP[meshSP, ..] += dot(coefs, flxsp);
                 }
               }
+              dscFluxTime4 += dscFluxWatch.elapsed(TimeUnits.milliseconds);
             }
             dscFluxTime += stopwatch.elapsed(TimeUnits.milliseconds);
           }
@@ -355,6 +377,7 @@ prototype module FREI
             stopwatch.clear();
 
             // Interpolate solution to FPs
+            cntFluxWatch.clear();
             for cellIdx in frMesh.cellList.domain
             {
               ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
@@ -381,8 +404,10 @@ prototype module FREI
                 }
               }
             }
+            cntFluxTime1 += cntFluxWatch.elapsed(TimeUnits.milliseconds);
 
             // Apply boundary conditions
+            cntFluxWatch.clear();
             for faceIdx in frMesh.faceList.domain
             {
               // Get loop variables
@@ -406,8 +431,10 @@ prototype module FREI
                 }
               }
             }
+            cntFluxTime2 += cntFluxWatch.elapsed(TimeUnits.milliseconds);
 
             // Calculate interface correction
+            cntFluxWatch.clear();
             for cellIdx in frMesh.cellList.domain
             {
               // Get loop variables
@@ -476,6 +503,7 @@ prototype module FREI
                 }
               }
             }
+            cntFluxTime3 += cntFluxWatch.elapsed(TimeUnits.milliseconds);
 
             cntFluxTime += stopwatch.elapsed(TimeUnits.milliseconds);
           }
@@ -606,7 +634,14 @@ prototype module FREI
     writef("  Init    : %11.2dr ms - %4.1dr%% of Run-Time\n",      initTime,      initTime/totalTime*100);
     writef("  Src Term: %11.2dr ms - %4.1dr%% of Run-Time\n",   srcTermTime,   srcTermTime/totalTime*100);
     writef("  Dsc Flux: %11.2dr ms - %4.1dr%% of Run-Time\n",   dscFluxTime,   dscFluxTime/totalTime*100);
+    writef("    Step 1: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime1,  dscFluxTime1/dscFluxTime*100);
+    writef("    Step 2: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime2,  dscFluxTime2/dscFluxTime*100);
+    writef("    Step 3: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime3,  dscFluxTime3/dscFluxTime*100);
+    writef("    Step 4: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime4,  dscFluxTime4/dscFluxTime*100);
     writef("  Cnt Flux: %11.2dr ms - %4.1dr%% of Run-Time\n",   cntFluxTime,   cntFluxTime/totalTime*100);
+    writef("    Step 1: %11.2dr ms - %4.1dr%% of Cnt Flux\n",  cntFluxTime1,  cntFluxTime1/cntFluxTime*100);
+    writef("    Step 2: %11.2dr ms - %4.1dr%% of Cnt Flux\n",  cntFluxTime2,  cntFluxTime2/cntFluxTime*100);
+    writef("    Step 3: %11.2dr ms - %4.1dr%% of Cnt Flux\n",  cntFluxTime3,  cntFluxTime3/cntFluxTime*100);
     writef("  Stabiliz: %11.2dr ms - %4.1dr%% of Run-Time\n", stabilizeTime, stabilizeTime/totalTime*100);
     writef("  Timestep: %11.2dr ms - %4.1dr%% of Run-Time\n",  timeStepTime,  timeStepTime/totalTime*100);
     writef("---------------------------------------------------------\n");
