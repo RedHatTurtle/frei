@@ -184,12 +184,12 @@ prototype module FREI
         {
           var stableDegree : int = troubled_cell_marker(solPoly = frMesh.solSP[cellSPini.. #cellSPcnt, varIdx],
                                                         cellTopo = frMesh.cellList[cellIdx].elemTopo(),
-                                                        solDegree = iOrder);
+                                                        solDegree = Input.iOrder);
 
-          if stableDegree < iOrder then
+          if stableDegree < Input.iOrder then
             frMesh.solSP[cellSPini.. #cellSPcnt, varIdx] = projection_limiter(solPoly = frMesh.solSP[cellSPini.. #cellSPcnt, varIdx],
                                                                               cellTopo = frMesh.cellList[cellIdx].elemTopo(),
-                                                                              solDegree = iOrder,
+                                                                              solDegree = Input.iOrder,
                                                                               projDegree = stableDegree);
         }
       }
@@ -338,8 +338,8 @@ prototype module FREI
 
                 for dimIdx in 1..frMesh.nDims
                 {
-                  var coefs : [sp2spDeriv[(thisCell.elemTopo(), iOrder)]!.coefs[cellSP, dimIdx, ..].domain] real
-                             = sp2spDeriv[(thisCell.elemTopo(), iOrder)]!.coefs[cellSP, dimIdx, ..];
+                  var coefs : [sp2spDeriv[(thisCell.elemTopo(), Input.iOrder)]!.coefs[cellSP, dimIdx, ..].domain] real
+                             = sp2spDeriv[(thisCell.elemTopo(), Input.iOrder)]!.coefs[cellSP, dimIdx, ..];
                   var flxsp : [flxSP[cellSPini..#cellSPcnt, dimIdx, ..].domain] real
                              = flxSP[cellSPini..#cellSPcnt, dimIdx, ..];
 
@@ -471,7 +471,7 @@ prototype module FREI
                   // The correction function was calculated in the computational domain already, therefore no
                   // transformation is required.
                   frMesh.resSP[cellSPini.. #cellSPcnt, ..] += outer(
-                      flux_correction[(thisCell.elemTopo(), iOrder+1)]!.correction[cellFP, 1..cellSPcnt],
+                      flux_correction[(thisCell.elemTopo(), Input.iOrder+1)]!.correction[cellFP, 1..cellSPcnt],
                       jump[..]);
                 }
               }
@@ -530,12 +530,12 @@ prototype module FREI
               {
                 var stableDegree : int = troubled_cell_marker(solPoly = frMesh.solSP[cellSPini.. #cellSPcnt, varIdx],
                                                               cellTopo = frMesh.cellList[cellIdx].elemTopo(),
-                                                              solDegree = iOrder);
+                                                              solDegree = Input.iOrder);
 
-                if stableDegree < iOrder then
+                if stableDegree < Input.iOrder then
                   frMesh.solSP[cellSPini.. #cellSPcnt, varIdx] = projection_limiter(solPoly = frMesh.solSP[cellSPini.. #cellSPcnt, varIdx],
                                                                                     cellTopo = frMesh.cellList[cellIdx].elemTopo(),
-                                                                                    solDegree = iOrder,
+                                                                                    solDegree = Input.iOrder,
                                                                                     projDegree = stableDegree);
               }
             }
