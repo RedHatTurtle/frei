@@ -603,16 +603,16 @@ prototype module FREI
     var totalTime : real = totalTimer.elapsed(TimeUnits.milliseconds);
     writeln();
     writef("Time splits:\n");
-    writef("  Stopwatch - Init    : %11.2dr ms - %4.1dr%% of runtime\n",      initTime,      initTime/totalTime*100);
-    writef("  Stopwatch - Src Term: %11.2dr ms - %4.1dr%% of runtime\n",   srcTermTime,   srcTermTime/totalTime*100);
-    writef("  Stopwatch - Dsc Flux: %11.2dr ms - %4.1dr%% of runtime\n",   dscFluxTime,   dscFluxTime/totalTime*100);
-    writef("  Stopwatch - Cnt Flux: %11.2dr ms - %4.1dr%% of runtime\n",   cntFluxTime,   cntFluxTime/totalTime*100);
-    writef("  Stopwatch - Stabiliz: %11.2dr ms - %4.1dr%% of runtime\n", stabilizeTime, stabilizeTime/totalTime*100);
-    writef("  Stopwatch - Timestep: %11.2dr ms - %4.1dr%% of runtime\n",  timeStepTime,  timeStepTime/totalTime*100);
+    writef("  Init    : %11.2dr ms - %4.1dr%% of Run-Time\n",      initTime,      initTime/totalTime*100);
+    writef("  Src Term: %11.2dr ms - %4.1dr%% of Run-Time\n",   srcTermTime,   srcTermTime/totalTime*100);
+    writef("  Dsc Flux: %11.2dr ms - %4.1dr%% of Run-Time\n",   dscFluxTime,   dscFluxTime/totalTime*100);
+    writef("  Cnt Flux: %11.2dr ms - %4.1dr%% of Run-Time\n",   cntFluxTime,   cntFluxTime/totalTime*100);
+    writef("  Stabiliz: %11.2dr ms - %4.1dr%% of Run-Time\n", stabilizeTime, stabilizeTime/totalTime*100);
+    writef("  Timestep: %11.2dr ms - %4.1dr%% of Run-Time\n",  timeStepTime,  timeStepTime/totalTime*100);
     writef("---------------------------------------------------------\n");
     var sumTime : real = initTime + srcTermTime + dscFluxTime + cntFluxTime + stabilizeTime + timeStepTime;
-    writef("  Stopwatch - Total   : %11.2dr ms - %4.1dr%% of runtime\n",  sumTime,  sumTime/totalTime*100);
-    writef("  Total Run-time      : %11.2dr ms\n", totalTime);
+    writef("  Sum     : %11.2dr ms - %4.1dr%% of Run-Time\n",  sumTime,  sumTime/totalTime*100);
+    writef("  Run-time: %11.2dr ms\n", totalTime);
 
     writeln();
     writeln("Fin");
