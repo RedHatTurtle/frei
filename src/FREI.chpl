@@ -31,18 +31,21 @@ prototype module FREI
     use Temporal_Methods;
 
     // Declare timing variables
+    const timeUnit = TimeUnits.milliseconds;
     var initTime : real = 0.0;
     var iterTime : real = 0.0;
+    var residueTime : real = 0.0;
+    var timeStepTime : real = 0.0;
+    var stabilizeTime : real = 0.0;
+    var iterTimer  : Timer;
+    var totalTimer : Timer;
+    totalTimer.start();
+
+    var stopwatch  : Timer;
     var srcTermTime : real = 0.0;
     var dscFluxTime : real = 0.0;
     var cntFluxTime : real = 0.0;
-    var timeStepTime : real = 0.0;
-    var stabilizeTime : real = 0.0;
-    var stopwatch  : Timer;
-    var iterTimer  : Timer;
-    var totalTimer : Timer;
     stopwatch.start();
-    totalTimer.start();
 
     var dscFluxWatch : Timer;
     var dscFluxTime1 : real = 0;
@@ -224,7 +227,7 @@ prototype module FREI
     var convergenceLogChan = convergenceLog.writer();
 
     writeln();
-    initTime = stopwatch.elapsed(TimeUnits.milliseconds);
+    initTime = stopwatch.elapsed(timeUnit);
     writef("Stopwatch - Init    : %10.2dr ms\n", initTime);
     writef("Start Iterating\n");
 
@@ -260,7 +263,7 @@ prototype module FREI
                                                            Input.eqSet                )
                                               * frMesh.jacSP[spIdx];
 
-            srcTermTime += stopwatch.elapsed(TimeUnits.milliseconds);
+            srcTermTime += stopwatch.elapsed(timeUnit);
           }
 
           // Component 2: Discontinuous Flux
@@ -292,7 +295,7 @@ prototype module FREI
                   when EQ_EULER do
                     flxSP[meshSP, .., ..] = euler_flux_cv(frMesh.solSP[meshSP, ..]);
                 }
-              dscFluxTime1 += dscFluxWatch.elapsed(TimeUnits.milliseconds);
+              dscFluxTime1 += dscFluxWatch.elapsed(timeUnit);
 
               // Step 2: Interpolate fluxes to FPs and save the FP normal flux
               dscFluxWatch.clear();
@@ -330,7 +333,7 @@ prototype module FREI
                   }
                 }
               }
-              dscFluxTime2 += dscFluxWatch.elapsed(TimeUnits.milliseconds);
+              dscFluxTime2 += dscFluxWatch.elapsed(timeUnit);
 
               // Step 3: Convert fluxes from physical to computational domain
               dscFluxWatch.clear();
@@ -349,7 +352,7 @@ prototype module FREI
 
                 flxSP[meshSP, .., ..] = dot(jInv, reshape(flxSP[meshSP, .., ..], flxSP[meshSP, .., ..].domain));
               }
-              dscFluxTime3 += dscFluxWatch.elapsed(TimeUnits.milliseconds);
+              dscFluxTime3 += dscFluxWatch.elapsed(timeUnit);
 
               // Step 4: Calculate flux divergence
               dscFluxWatch.clear();
@@ -367,9 +370,9 @@ prototype module FREI
                   frMesh.resSP[meshSP, ..] += dot(coefs, flxsp);
                 }
               }
-              dscFluxTime4 += dscFluxWatch.elapsed(TimeUnits.milliseconds);
+              dscFluxTime4 += dscFluxWatch.elapsed(timeUnit);
             }
-            dscFluxTime += stopwatch.elapsed(TimeUnits.milliseconds);
+            dscFluxTime += stopwatch.elapsed(timeUnit);
           }
 
           // Component 3: Continuous Flux
@@ -404,7 +407,7 @@ prototype module FREI
                 }
               }
             }
-            cntFluxTime1 += cntFluxWatch.elapsed(TimeUnits.milliseconds);
+            cntFluxTime1 += cntFluxWatch.elapsed(timeUnit);
 
             // Apply boundary conditions
             cntFluxWatch.clear();
@@ -431,7 +434,7 @@ prototype module FREI
                 }
               }
             }
-            cntFluxTime2 += cntFluxWatch.elapsed(TimeUnits.milliseconds);
+            cntFluxTime2 += cntFluxWatch.elapsed(timeUnit);
 
             // Calculate interface correction
             cntFluxWatch.clear();
@@ -503,10 +506,12 @@ prototype module FREI
                 }
               }
             }
-            cntFluxTime3 += cntFluxWatch.elapsed(TimeUnits.milliseconds);
+            cntFluxTime3 += cntFluxWatch.elapsed(timeUnit);
 
-            cntFluxTime += stopwatch.elapsed(TimeUnits.milliseconds);
+            cntFluxTime += stopwatch.elapsed(timeUnit);
           }
+
+          residueTime += iterTimer.elapsed(timeUnit);
         }
 
         // Advance RK Stage
@@ -539,7 +544,7 @@ prototype module FREI
             frMesh.resSP = 0.0;
           }
 
-          timeStepTime += stopwatch.elapsed(TimeUnits.milliseconds);
+          timeStepTime += stopwatch.elapsed(timeUnit);
         }
 
         // Stabilize Solution
@@ -569,7 +574,7 @@ prototype module FREI
             }
           }
 
-          stabilizeTime += stopwatch.elapsed(TimeUnits.milliseconds);
+          stabilizeTime += stopwatch.elapsed(timeUnit);
         }
       }
 
@@ -607,7 +612,7 @@ prototype module FREI
 
         // Output summarized convergence metrics to stdOut
         writef("Iteration %9i | Time %{ 10.2dr}ms | Log10(L2(ΔSol)/L2(ΔSol0)) = %{ 7.4dr}", iteration,
-            iterTimer.elapsed(TimeUnits.milliseconds), log10(norm(l2Delta)/norm(l2DeltaIni)));
+            iterTimer.elapsed(timeUnit), log10(norm(l2Delta)/norm(l2DeltaIni)));
 
         // Output full state to log file
         log_convergence(convergenceLogChan, iteration, l1Delta, l2Delta, lInfDelta, l1RelativeDelta, l2RelativeDelta, lInfRelativeDelta);
@@ -628,26 +633,27 @@ prototype module FREI
     // Output the final solution
     //iterOutput(iteration, frMesh);
 
-    var totalTime : real = totalTimer.elapsed(TimeUnits.milliseconds);
+    var totalTime : real = totalTimer.elapsed(timeUnit);
     writeln();
     writef("Time splits:\n");
-    writef("  Init    : %11.2dr ms - %4.1dr%% of Run-Time\n",      initTime,      initTime/totalTime*100);
-    writef("  Src Term: %11.2dr ms - %4.1dr%% of Run-Time\n",   srcTermTime,   srcTermTime/totalTime*100);
-    writef("  Dsc Flux: %11.2dr ms - %4.1dr%% of Run-Time\n",   dscFluxTime,   dscFluxTime/totalTime*100);
-    writef("    Step 1: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime1,  dscFluxTime1/dscFluxTime*100);
-    writef("    Step 2: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime2,  dscFluxTime2/dscFluxTime*100);
-    writef("    Step 3: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime3,  dscFluxTime3/dscFluxTime*100);
-    writef("    Step 4: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime4,  dscFluxTime4/dscFluxTime*100);
-    writef("  Cnt Flux: %11.2dr ms - %4.1dr%% of Run-Time\n",   cntFluxTime,   cntFluxTime/totalTime*100);
-    writef("    Step 1: %11.2dr ms - %4.1dr%% of Cnt Flux\n",  cntFluxTime1,  cntFluxTime1/cntFluxTime*100);
-    writef("    Step 2: %11.2dr ms - %4.1dr%% of Cnt Flux\n",  cntFluxTime2,  cntFluxTime2/cntFluxTime*100);
-    writef("    Step 3: %11.2dr ms - %4.1dr%% of Cnt Flux\n",  cntFluxTime3,  cntFluxTime3/cntFluxTime*100);
-    writef("  Stabiliz: %11.2dr ms - %4.1dr%% of Run-Time\n", stabilizeTime, stabilizeTime/totalTime*100);
-    writef("  Timestep: %11.2dr ms - %4.1dr%% of Run-Time\n",  timeStepTime,  timeStepTime/totalTime*100);
+    writef("- Init      : %11.2dr ms - %4.1dr%% of Run-Time\n",      initTime,      initTime/totalTime*100);
+    writef("- Residue   : %11.2dr ms - %4.1dr%% of Run-Time\n",   residueTime,   residueTime/totalTime*100);
+    writef("  - Src Term: %11.2dr ms - %4.1dr%% of Run-Time\n",   srcTermTime,   srcTermTime/totalTime*100);
+    writef("  - Dsc Flux: %11.2dr ms - %4.1dr%% of Run-Time\n",   dscFluxTime,   dscFluxTime/totalTime*100);
+    writef("    - Step 1: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime1,  dscFluxTime1/dscFluxTime*100);
+    writef("    - Step 2: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime2,  dscFluxTime2/dscFluxTime*100);
+    writef("    - Step 3: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime3,  dscFluxTime3/dscFluxTime*100);
+    writef("    - Step 4: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime4,  dscFluxTime4/dscFluxTime*100);
+    writef("  - Cnt Flux: %11.2dr ms - %4.1dr%% of Run-Time\n",   cntFluxTime,   cntFluxTime/totalTime*100);
+    writef("    - Step 1: %11.2dr ms - %4.1dr%% of Cnt Flux\n",  cntFluxTime1,  cntFluxTime1/cntFluxTime*100);
+    writef("    - Step 2: %11.2dr ms - %4.1dr%% of Cnt Flux\n",  cntFluxTime2,  cntFluxTime2/cntFluxTime*100);
+    writef("    - Step 3: %11.2dr ms - %4.1dr%% of Cnt Flux\n",  cntFluxTime3,  cntFluxTime3/cntFluxTime*100);
+    writef("- Stabilize : %11.2dr ms - %4.1dr%% of Run-Time\n", stabilizeTime, stabilizeTime/totalTime*100);
+    writef("- Time-Step : %11.2dr ms - %4.1dr%% of Run-Time\n",  timeStepTime,  timeStepTime/totalTime*100);
     writef("---------------------------------------------------------\n");
     var sumTime : real = initTime + srcTermTime + dscFluxTime + cntFluxTime + stabilizeTime + timeStepTime;
-    writef("  Sum     : %11.2dr ms - %4.1dr%% of Run-Time\n",  sumTime,  sumTime/totalTime*100);
-    writef("  Run-time: %11.2dr ms\n", totalTime);
+    writef("  Sum       : %11.2dr ms - %4.1dr%% of Run-Time\n",  sumTime,  sumTime/totalTime*100);
+    writef("  Run-time  : %11.2dr ms\n", totalTime);
 
     writeln();
     writeln("Fin");
