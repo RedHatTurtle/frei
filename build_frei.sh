@@ -32,11 +32,11 @@ fi
 chpl -o build/frei_dbg                                     \
      --warnings                                            \
      --warn-unstable                                       \
-     -I/usr/include                                        \
-     -L/usr/lib64 -lcblas                                  \
-     -I/usr/include                                        \
-     -L/usr/lib64 -lgfortran                               \
-     -L/usr/lib64 -llapacke -llapack -lcblas               \
+     -I$PATH_TO_CBLAS_DIR                                  \
+     -L$PATH_TO_BLAS_LIBS -lcblas                          \
+     -I$PATH_TO_LAPACKE_INCLUDE_DIR                        \
+     -L$PATH_TO_LIBGFORTRAN -lgfortran                     \
+     -L$PATH_TO_LAPACK_BINARIES -llapacke -llapack -lcblas \
      --main-module "FREI" src/FREI.chpl                    \
                           src/fr.chpl                      \
                           src/temporal.chpl                \

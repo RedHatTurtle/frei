@@ -17,18 +17,27 @@ compile_dbg:
   artifacts:
     untracked: true
   script:
+    - export PATH_TO_CBLAS_DIR="/usr/include"
+    - export PATH_TO_BLAS_LIBS="/usr/lib64"
+    - export PATH_TO_LAPACKE_INCLUDE_DIR="/usr/include"
+    - export PATH_TO_LIBGFORTRAN="/usr/lib64"
+    - export PATH_TO_LAPACK_BINARIES="/usr/lib64"
     - echo "Building single locale debug version of FREI."
-    - chpl --set lapackImpl=off
-           --set blasImpl=off
+    - chpl -o frei_dbg
            --warnings
            --warn-unstable
-           -o frei_dbg
+           -I$PATH_TO_CBLAS_DIR
+           -L$PATH_TO_BLAS_LIBS -lcblas
+           -I$PATH_TO_LAPACKE_INCLUDE_DIR
+           -L$PATH_TO_LIBGFORTRAN -lgfortran
+           -L$PATH_TO_LAPACK_BINARIES -llapacke -llapack -lcblas
            --main-module "FREI" src/FREI.chpl
                                 src/fr.chpl
                                 src/temporal.chpl
                                 src/output.chpl
                                 src/boundary.chpl
                                 src/frmesh.chpl
+                                src/mapping.chpl
                                 src/mesh.chpl
                                 src/gmesh.chpl
                                 src/riemann.chpl
@@ -41,6 +50,7 @@ compile_dbg:
                                 src/polynomials.chpl
                                 src/sourceterm.chpl
                                 src/init.chpl
+                                src/ringleb.chpl
                                 src/config.chpl
                                 src/input.chpl
                                 src/parameters.chpl
@@ -52,16 +62,17 @@ compile_opt:
     untracked: true
   script:
     - echo "Building single locale release version of FREI."
-    - chpl --set lapackImpl=off
-           --set blasImpl=off
+    - chpl -o frei_opt
            --fast
-           -o frei_opt
+           --set lapackImpl=off
+           --set blasImpl=off
            --main-module "FREI" src/FREI.chpl
                                 src/fr.chpl
                                 src/temporal.chpl
                                 src/output.chpl
                                 src/boundary.chpl
                                 src/frmesh.chpl
+                                src/mapping.chpl
                                 src/mesh.chpl
                                 src/gmesh.chpl
                                 src/riemann.chpl
@@ -74,6 +85,7 @@ compile_opt:
                                 src/polynomials.chpl
                                 src/sourceterm.chpl
                                 src/init.chpl
+                                src/ringleb.chpl
                                 src/config.chpl
                                 src/input.chpl
                                 src/parameters.chpl
