@@ -34,12 +34,15 @@ prototype module FREI
     const timeUnit = TimeUnits.milliseconds;
     var initTime : real = 0.0;
     var iterTime : real = 0.0;
-    var residueTime : real = 0.0;
     var timeStepTime : real = 0.0;
     var stabilizeTime : real = 0.0;
     var iterTimer  : Timer;
     var totalTimer : Timer;
     totalTimer.start();
+
+    var residueTimer : Timer;
+    var residueTime : real = 0.0;
+    residueTimer.start();
 
     var stopwatch  : Timer;
     var srcTermTime : real = 0.0;
@@ -251,6 +254,7 @@ prototype module FREI
           //   3. Source terms
           //
           // The residual array is reset in the time stepping procedure
+          residueTimer.clear();
 
           // Component 1: Source Term
           {
@@ -511,7 +515,7 @@ prototype module FREI
             cntFluxTime += stopwatch.elapsed(timeUnit);
           }
 
-          residueTime += iterTimer.elapsed(timeUnit);
+          residueTime += residueTimer.elapsed(timeUnit);
         }
 
         // Advance RK Stage
