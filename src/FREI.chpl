@@ -281,9 +281,10 @@ prototype module FREI
               ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
               ref cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
               ref thisCell = frMesh.cellList[cellIdx];
+              var cellTopo : int = thisCell.elemTopo();
 
               // Allocate temporary flux array
-              var flxSP : [cellSPini.. #cellSPcnt, 1..frMesh.nDims, 1..frMesh.nVars] real;
+              var flxSP : [1..frMesh.nDims, 1..frMesh.nVars, cellSPini.. #cellSPcnt] real;
 
               // Step 1: Calculate fluxes
               dscFluxWatch.clear();
@@ -291,13 +292,13 @@ prototype module FREI
                 select Input.eqSet
                 {
                   when EQ_CONVECTION do
-                    flxSP[meshSP, 1, ..] = convection_flux_cv_1d(frMesh.solSP[meshSP, ..]);
+                    flxSP[ 1, .., meshSP] = convection_flux_cv_1d(frMesh.solSP[meshSP, ..]);
                   when EQ_INVBURGERS do
-                    flxSP[meshSP, 1, ..] = burgers_flux_cv_1d(frMesh.solSP[meshSP, ..]);
+                    flxSP[ 1, .., meshSP] = burgers_flux_cv_1d(frMesh.solSP[meshSP, ..]);
                   when EQ_QUASI_1D_EULER do
-                    flxSP[meshSP, 1, ..] = euler_flux_cv_1d(frMesh.solSP[meshSP, ..]);
+                    flxSP[ 1, .., meshSP] = euler_flux_cv_1d(frMesh.solSP[meshSP, ..]);
                   when EQ_EULER do
-                    flxSP[meshSP, .., ..] = euler_flux_cv(frMesh.solSP[meshSP, ..]);
+                    flxSP[.., .., meshSP] = euler_flux_cv(frMesh.solSP[meshSP, ..]);
                 }
               dscFluxTime1 += dscFluxWatch.elapsed(timeUnit);
 
@@ -311,11 +312,12 @@ prototype module FREI
                 ref thisFace = frMesh.faceList[faceIdx];
 
                 // Allocate temporary flux array
-                var flx : [1..frMesh.faceFPidx[faceIdx, 2], 1..2, 1..frMesh.nVars] real;
+                var flx : [1..2, 1..frMesh.faceFPidx[faceIdx, 2]] real;
 
                 // Iterate though all FPs on this face
                 for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
                 {
+                  var faceFP : int = meshFP+1-frMesh.faceFPidx[faceIdx, 1];
                   var cellFP : int;
                   if faceSide == 1 then
                     cellFP = (cellFace-1)*(frMesh.solOrder+1) +  meshFP - frMesh.faceFPidx[faceIdx, 1] + 1;
@@ -326,14 +328,12 @@ prototype module FREI
 
                   for varIdx in 1..frMesh.nVars
                   {
-                    flx[meshFP+1-frMesh.faceFPidx[faceIdx, 1], 1, varIdx] =
-                        dot( sp2fpInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellFP, ..],
-                             flxSP[cellSPini..#cellSPcnt, 1, varIdx]                               );
-                    flx[meshFP+1-frMesh.faceFPidx[faceIdx, 1], 2, varIdx] =
-                        dot( sp2fpInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellFP, ..],
-                             flxSP[cellSPini..#cellSPcnt, 2, varIdx]                   );
+                    flx[1, faceFP] = dot( flxSP[ 1, varIdx, cellSPini..#cellSPcnt]                   ,
+                                          sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, ..]);
+                    flx[2, faceFP] = dot( flxSP[ 2, varIdx, cellSPini..#cellSPcnt]                   ,
+                                          sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, ..]);
 
-                    frMesh.flxFP[meshFP, faceSide, varIdx] = dot(uniNrm, flx[meshFP+1-frMesh.faceFPidx[faceIdx, 1], .., varIdx]);
+                    frMesh.flxFP[meshFP, faceSide, varIdx] = dot(uniNrm, flx[.., faceFP]);
                   }
                 }
               }
@@ -354,7 +354,7 @@ prototype module FREI
                   jInv[2,2] =  frMesh.metSP[meshSP, 1, 1];
                 }
 
-                flxSP[meshSP, .., ..] = dot(jInv, reshape(flxSP[meshSP, .., ..], flxSP[meshSP, .., ..].domain));
+                flxSP[.., .., meshSP] = dot(jInv, reshape(flxSP[.., .., meshSP], flxSP[.., .., meshSP].domain));
               }
               dscFluxTime3 += dscFluxWatch.elapsed(timeUnit);
 
@@ -366,12 +366,12 @@ prototype module FREI
 
                 for dimIdx in 1..frMesh.nDims
                 {
-                  var coefs : [sp2spDeriv[(thisCell.elemTopo(), Input.iOrder)]!.coefs[cellSP, dimIdx, ..].domain] real
-                             = sp2spDeriv[(thisCell.elemTopo(), Input.iOrder)]!.coefs[cellSP, dimIdx, ..];
-                  var flxsp : [flxSP[cellSPini..#cellSPcnt, dimIdx, ..].domain] real
-                             = flxSP[cellSPini..#cellSPcnt, dimIdx, ..];
+                  var coefs : [sp2spDeriv[(cellTopo, Input.iOrder)]!.coefs[cellSP, dimIdx, ..].domain] real
+                             = sp2spDeriv[(cellTopo, Input.iOrder)]!.coefs[cellSP, dimIdx, ..];
+                  var flxsp : [flxSP[dimIdx, .., cellSPini..#cellSPcnt].domain] real
+                             = flxSP[dimIdx, .., cellSPini..#cellSPcnt];
 
-                  frMesh.resSP[meshSP, ..] += dot(coefs, flxsp);
+                  frMesh.resSP[meshSP, ..] += dot(flxsp, coefs);
                 }
               }
               dscFluxTime4 += dscFluxWatch.elapsed(timeUnit);
