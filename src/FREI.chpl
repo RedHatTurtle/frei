@@ -489,19 +489,19 @@ prototype module FREI
 
                   select cellTopo
                   {
-                    when TOPO_LINE
-                    {
-                      if faceSide == 1 && cellFace == 1 then
-                        jump = -jump;
-                      if faceSide == 2 && cellFace == 2 then
-                        jump = -jump;
-                    }
                     when TOPO_QUAD
                     {
                       if faceSide == 1 && (cellFace == 1 || cellFace == 4) then
-                        jump = -jump;
-                      if faceSide == 2 && (cellFace == 2 || cellFace == 3) then
-                        jump = -jump;
+                        jump *= -1;
+                      else if faceSide == 2 && (cellFace == 2 || cellFace == 3) then
+                        jump *= -1;
+                    }
+                    when TOPO_LINE
+                    {
+                      if faceSide == 1 && cellFace == 1 then
+                        jump *= -1;
+                      else if faceSide == 2 && cellFace == 2 then
+                        jump *= -1;
                     }
                   }
 
