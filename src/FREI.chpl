@@ -312,7 +312,7 @@ prototype module FREI
                 ref thisFace = frMesh.faceList[faceIdx];
 
                 // Allocate temporary flux array
-                var flx : [1..2, 1..frMesh.faceFPidx[faceIdx, 2]] real;
+                var flx : [1..frMesh.faceFPidx[faceIdx, 2], 1..2] real;
 
                 // Iterate though all FPs on this face
                 for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
@@ -328,12 +328,14 @@ prototype module FREI
 
                   for varIdx in 1..frMesh.nVars
                   {
-                    flx[1, faceFP] = dot( flxSP[ 1, varIdx, cellSPini..#cellSPcnt]                   ,
+                    flx[faceFP, 1] = dot( flxSP[ 1, varIdx, cellSPini..#cellSPcnt]                   ,
                                           sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, ..]);
-                    flx[2, faceFP] = dot( flxSP[ 2, varIdx, cellSPini..#cellSPcnt]                   ,
+                    flx[faceFP, 2] = dot( flxSP[ 2, varIdx, cellSPini..#cellSPcnt]                   ,
                                           sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, ..]);
+                    //flx[faceFP,..] = dot( flxSP[.., varIdx, cellSPini..#cellSPcnt]                   ,
+                    //                       sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, ..]);
 
-                    frMesh.flxFP[meshFP, faceSide, varIdx] = dot(uniNrm, flx[.., faceFP]);
+                    frMesh.flxFP[meshFP, faceSide, varIdx] = dot(flx[faceFP, ..], uniNrm);
                   }
                 }
               }
