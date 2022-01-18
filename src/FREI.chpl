@@ -317,8 +317,8 @@ prototype module FREI
                   // Allocate temporary flux array
                   var flx : [1..2] real;
 
-                  var faceFP : int = meshFP+1-frMesh.faceFPidx[faceIdx, 1];
-                  var uniNrm : [1..frMesh.nDims] real = frMesh.nrmFP[meshFP, ..]/norm(frMesh.nrmFP[meshFP, ..]);
+                  var faceFP = meshFP+1-frMesh.faceFPidx[faceIdx, 1];
+                  var uniNrm = frMesh.nrmFP[meshFP, ..]/norm(frMesh.nrmFP[meshFP, ..]);
 
                   var cellFP : int;
                   if faceSide == 1 then
@@ -346,7 +346,7 @@ prototype module FREI
               for meshSP in cellSPini.. #cellSPcnt
               {
                 // Multiply the flux vector by the inverse Jacobian matrix and by the Jacobian determinant
-                var jInv : [frMesh.metSP[meshSP, .., ..].domain] real = frMesh.metSP[meshSP, .., ..]**(-1);
+                var jInv : [1..frMesh.nDims, 1..frMesh.nDims] real;
 
                 if frMesh.nDims == 2
                 {
@@ -355,6 +355,8 @@ prototype module FREI
                   jInv[2,1] = -frMesh.metSP[meshSP, 2, 1];
                   jInv[2,2] =  frMesh.metSP[meshSP, 1, 1];
                 }
+                else if frMesh.nDims == 1 then
+                  jInv[1,1] = 1/frMesh.metSP[meshSP, 1, 1];
 
                 flxSP[.., .., meshSP] = dot(jInv, reshape(flxSP[.., .., meshSP], flxSP[.., .., meshSP].domain));
               }
@@ -368,12 +370,10 @@ prototype module FREI
 
                 for dimIdx in 1..frMesh.nDims
                 {
-                  var coefs : [sp2spDeriv[(cellTopo, Input.iOrder)]!.coefs[cellSP, dimIdx, ..].domain] real
-                             = sp2spDeriv[(cellTopo, Input.iOrder)]!.coefs[cellSP, dimIdx, ..];
-                  var flxsp : [flxSP[dimIdx, .., cellSPini..#cellSPcnt].domain] real
-                             = flxSP[dimIdx, .., cellSPini..#cellSPcnt];
+                  var flxsp = flxSP[dimIdx, .., cellSPini..#cellSPcnt];
 
-                  frMesh.resSP[meshSP, ..] += dot(flxsp, coefs);
+                  frMesh.resSP[meshSP, ..] += dot(flxsp                                                          ,
+                                                  sp2spDeriv[(cellTopo, Input.iOrder)]!.coefs[cellSP, dimIdx, ..]);
                 }
               }
               dscFluxTime4 += dscFluxWatch.elapsed(timeUnit);
@@ -450,6 +450,7 @@ prototype module FREI
               ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
               ref cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
               ref thisCell = frMesh.cellList[cellIdx];
+              var cellTopo : int = thisCell.elemTopo();
 
               for cellFace in thisCell.faces.domain
               {
@@ -469,7 +470,7 @@ prototype module FREI
                     cellFP = (cellFace-1)*(frMesh.solOrder+1) + (frMesh.faceFPidx[faceIdx, 2] - (meshFP - frMesh.faceFPidx[faceIdx, 1]));
 
                   // Calculate the flux jump = -1*(local_flux) + numerical_flux
-                  var jump : [1..frMesh.nVars] real = -frMesh.flxFP[meshFP, faceSide, ..];
+                  var jump = -frMesh.flxFP[meshFP, faceSide, ..];
                   select Input.eqSet
                   {
                     when EQ_CONVECTION do
@@ -486,7 +487,7 @@ prototype module FREI
                   // Multiply the flux vector by the inverse Jacobian matrix and by the Jacobian determinant
                   jump[..] = jump[..] * norm(frMesh.nrmFP[meshFP, ..], normType.norm2);
 
-                  select thisCell.elemTopo()
+                  select cellTopo
                   {
                     when TOPO_LINE
                     {
@@ -507,7 +508,7 @@ prototype module FREI
                   // The correction function was calculated in the computational domain already, therefore no
                   // transformation is required.
                   frMesh.resSP[cellSPini.. #cellSPcnt, ..] += outer(
-                      flux_correction[(thisCell.elemTopo(), Input.iOrder+1)]!.correction[cellFP, 1..cellSPcnt],
+                      flux_correction[(cellTopo, Input.iOrder+1)]!.correction[cellFP, 1..cellSPcnt],
                       jump[..]);
                 }
               }
