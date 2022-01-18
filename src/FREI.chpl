@@ -311,31 +311,31 @@ prototype module FREI
                 ref faceSide : int = thisCell.sides[cellFace];
                 ref thisFace = frMesh.faceList[faceIdx];
 
-                // Allocate temporary flux array
-                var flx : [1..frMesh.faceFPidx[faceIdx, 2], 1..2] real;
-
                 // Iterate though all FPs on this face
                 for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
                 {
+                  // Allocate temporary flux array
+                  var flx : [1..2] real;
+
                   var faceFP : int = meshFP+1-frMesh.faceFPidx[faceIdx, 1];
+                  var uniNrm : [1..frMesh.nDims] real = frMesh.nrmFP[meshFP, ..]/norm(frMesh.nrmFP[meshFP, ..]);
+
                   var cellFP : int;
                   if faceSide == 1 then
                     cellFP = (cellFace-1)*(frMesh.solOrder+1) +  meshFP - frMesh.faceFPidx[faceIdx, 1] + 1;
                   else
                     cellFP = (cellFace-1)*(frMesh.solOrder+1) + (frMesh.faceFPidx[faceIdx, 2] - (meshFP - frMesh.faceFPidx[faceIdx, 1]));
 
-                  var uniNrm : [frMesh.nrmFP[meshFP, ..].domain] real = frMesh.nrmFP[meshFP, ..]/norm(frMesh.nrmFP[meshFP, ..]);
-
                   for varIdx in 1..frMesh.nVars
                   {
-                    flx[faceFP, 1] = dot( flxSP[ 1, varIdx, cellSPini..#cellSPcnt]                   ,
-                                          sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, ..]);
-                    flx[faceFP, 2] = dot( flxSP[ 2, varIdx, cellSPini..#cellSPcnt]                   ,
-                                          sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, ..]);
-                    //flx[faceFP,..] = dot( flxSP[.., varIdx, cellSPini..#cellSPcnt]                   ,
+                    flx[1] = dot( flxSP[ 1, varIdx, cellSPini..#cellSPcnt]                   ,
+                                  sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, ..]);
+                    flx[2] = dot( flxSP[ 2, varIdx, cellSPini..#cellSPcnt]                   ,
+                                  sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, ..]);
+                    //flx[faceFP, ..] = dot( flxSP[.., varIdx, cellSPini..#cellSPcnt]                  ,
                     //                       sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, ..]);
 
-                    frMesh.flxFP[meshFP, faceSide, varIdx] = dot(flx[faceFP, ..], uniNrm);
+                    frMesh.flxFP[meshFP, faceSide, varIdx] = dot(flx, uniNrm);
                   }
                 }
               }
