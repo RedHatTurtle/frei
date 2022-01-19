@@ -332,8 +332,8 @@ prototype module FREI
                                   sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, ..]);
                     flx[2] = dot( flxSP[ 2, varIdx, cellSPini..#cellSPcnt]                   ,
                                   sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, ..]);
-                    //flx[faceFP, ..] = dot( flxSP[.., varIdx, cellSPini..#cellSPcnt]                  ,
-                    //                       sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, ..]);
+                    //flx = dot( flxSP[.., varIdx, cellSPini..#cellSPcnt]                  ,
+                    //           sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, ..]);
 
                     frMesh.flxFP[meshFP, faceSide, varIdx] = dot(flx, uniNrm);
                   }
@@ -346,19 +346,8 @@ prototype module FREI
               for meshSP in cellSPini.. #cellSPcnt
               {
                 // Multiply the flux vector by the inverse Jacobian matrix and by the Jacobian determinant
-                var jInv : [1..frMesh.nDims, 1..frMesh.nDims] real;
-
-                if frMesh.nDims == 2
-                {
-                  jInv[1,1] =  frMesh.metSP[meshSP, 2, 2];
-                  jInv[1,2] = -frMesh.metSP[meshSP, 1, 2];
-                  jInv[2,1] = -frMesh.metSP[meshSP, 2, 1];
-                  jInv[2,2] =  frMesh.metSP[meshSP, 1, 1];
-                }
-                else if frMesh.nDims == 1 then
-                  jInv[1,1] = 1/frMesh.metSP[meshSP, 1, 1];
-
-                flxSP[.., .., meshSP] = dot(jInv, reshape(flxSP[.., .., meshSP], flxSP[.., .., meshSP].domain));
+                var flxsp = flxSP[.., .., meshSP];
+                flxSP[.., .., meshSP] = dot( frMesh.metSP[meshSP, .., ..], flxsp)*frMesh.jacSP[meshSP];
               }
               dscFluxTime3 += dscFluxWatch.elapsed(timeUnit);
 
@@ -371,9 +360,7 @@ prototype module FREI
                 for dimIdx in 1..frMesh.nDims
                 {
                   var flxsp = flxSP[dimIdx, .., cellSPini..#cellSPcnt];
-
-                  frMesh.resSP[meshSP, ..] += dot(flxsp                                                          ,
-                                                  sp2spDeriv[(cellTopo, Input.iOrder)]!.coefs[cellSP, dimIdx, ..]);
+                  frMesh.resSP[meshSP, ..] += dot(flxsp, sp2spDeriv[(cellTopo, Input.iOrder)]!.coefs[cellSP, dimIdx, ..]);
                 }
               }
               dscFluxTime4 += dscFluxWatch.elapsed(timeUnit);

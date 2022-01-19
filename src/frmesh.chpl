@@ -100,6 +100,10 @@ prototype module FRMesh {
 
       for cellIdx in this.cellList_d
       {
+        // Get loop variables
+        ref cellSPini = this.cellSPidx[cellIdx, 1];
+        ref cellSPcnt = this.cellSPidx[cellIdx, 2];
+
         // Get the list of nodes that define this cell
         var elemNodes : [this.cellList[cellIdx].nodes_d] int = this.cellList[cellIdx].nodes;
 
@@ -110,30 +114,31 @@ prototype module FRMesh {
 
         var cellType : 2*int = (this.cellList[cellIdx].elemType, this.solOrder);
 
-        //////////////////////////
-        ///   SP coordinates   ///
-        //////////////////////////
+        for cellSP in 1..cellSPcnt
+        {
+          var meshSP = cellSPini + cellSP - 1;
 
-        for spIdx in 1..#cellSPidx[cellIdx, 2] do
-          this.xyzSP[cellSPidx[cellIdx, 1]+spIdx-1, ..] = dot( mapping[cellType]!.coefs[spIdx, ..],
-                                                               xyzMshNodes[..,..].T               );
+          // Calculate the physical coordinates of this cell's SPs
+          this.xyzSP[meshSP, ..] = dot( mapping[cellType]!.coefs[cellSP, ..],
+                                        xyzMshNodes[..,..].T               );
 
-        /////////////////////////////////////
-        ///   Calculate mapping metrics   ///
-        /////////////////////////////////////
+          // Calculate the derivatives of the physical coordinates by the computational coordinates
+          // {{x_xi, x_eta, x_zeta},
+          //  {y_xi, y_eta, y_zeta},
+          //  {z_xi, z_eta, z_zeta}}
+          for rstDim in 1..this.nDims do
+            this.metSP[meshSP, .., rstDim] = dot( mappingMetrics[cellType]!.coefs[rstDim, cellSP, ..],
+                                                  xyzMshNodes[..,..].T                              );
 
-        for rstDim in 1..this.nDims do
-          for spIdx in 1..#cellSPidx[cellIdx, 2] do
-            this.metSP[cellSPidx[cellIdx, 1]+spIdx-1, .., rstDim] = dot( mappingMetrics[cellType]!.coefs[rstDim, spIdx, ..],
-                                                                         xyzMshNodes[..,..].T                              );
+          // Calculate the Jacobian at SPs
+          this.jacSP[meshSP] = determinant(this.metSP[meshSP, .., ..]);
 
-        //////////////////////////////
-        ///   Calculate Jacobian   ///
-        //////////////////////////////
-
-        // Calculate the Jacobian at SPs
-        for spIdx in 1..#cellSPidx[cellIdx, 2] do
-          this.jacSP[cellSPidx[cellIdx, 1]+spIdx-1] = determinant(this.metSP[cellSPidx[cellIdx, 1]+spIdx-1, .., ..]);
+          // Invert the metric matrix since we only use that
+          // {{  xi_x,   xi_y,   xi_z},
+          //  { eta_x,  eta_y,  eta_z},
+          //  {zeta_x, zeta_y, zeta_z}}
+          this.metSP[meshSP, .., ..] = inv(this.metSP[meshSP, .., ..]);
+        }
       }
 
       for faceIdx in this.faceList_d

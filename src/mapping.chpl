@@ -206,13 +206,13 @@ prototype module Mapping
     var nodeOrder : [1..elemNodeCnt] int = node_order_elem(elemType);
 
     // Build mapping matrix
-    for nodeIdx in 1..elemNodeCnt
+    for ptIdx in 1..interpPtCnt
     {
-      for ptIdx in 1..interpPtCnt
-      {
-        // Computational coordinate of the SP spIdx
-        var xi  : real = spLoc[ptIdx];
+      // Computational coordinate of the SP spIdx
+      var xi  : real = spLoc[ptIdx];
 
+      for nodeIdx in 1..elemNodeCnt
+      {
         // Relative position of the mesh element's node
         var i : int = nodeOrder[nodeIdx];
 
@@ -250,14 +250,14 @@ prototype module Mapping
     var nodeOrder : [1..elemNodeCnt] int = node_order_elem(elemType);
 
     // Build mapping matrix
-    for nodeIdx in 1..elemNodeCnt
+    for ptIdx in 1..interpPtCnt
     {
-      for ptIdx in 1..interpPtCnt
-      {
-        // Computational coordinate of the SP spIdx
-        var xi  : real = spLoc[(ptIdx-1)%(interpOrder+1)+1];
-        var eta : real = spLoc[(ptIdx-1)/(interpOrder+1)+1];
+      // Computational coordinate of the SP spIdx
+      var xi  : real = spLoc[(ptIdx-1)%(interpOrder+1)+1];
+      var eta : real = spLoc[(ptIdx-1)/(interpOrder+1)+1];
 
+      for nodeIdx in 1..elemNodeCnt
+      {
         // Relative position of the mesh element's node
         var i : int = (nodeOrder[nodeIdx]-1)%(elemOrder+1)+1;
         var j : int = (nodeOrder[nodeIdx]-1)/(elemOrder+1)+1;
@@ -298,16 +298,16 @@ prototype module Mapping
     var nodeOrder : [1..elemNodeCnt] int = node_order_elem(elemType);
 
     // Build mapping matrix
-    for nodeIdx in 1..elemNodeCnt
+    for ptIdx in 1..interpPtCnt
     {
-      for ptIdx in 1..interpPtCnt
-      {
-        // Computational coordinate of the SP spIdx
-        //var rst[i] : real = spLoc[((ptIdx-1)/(interpOrder+1)**(i-1))%(interpOrder+1) + 1];
-        var xi   : real = spLoc[((ptIdx-1)/(interpOrder+1)**0)%(interpOrder+1) + 1];
-        var eta  : real = spLoc[((ptIdx-1)/(interpOrder+1)**1)%(interpOrder+1) + 1];
-        var zeta : real = spLoc[((ptIdx-1)/(interpOrder+1)**2)%(interpOrder+1) + 1];
+      // Computational coordinate of the SP spIdx
+      //var rst[i] : real = spLoc[((ptIdx-1)/(interpOrder+1)**(i-1))%(interpOrder+1) + 1];
+      var xi   : real = spLoc[((ptIdx-1)/(interpOrder+1)**0)%(interpOrder+1) + 1];
+      var eta  : real = spLoc[((ptIdx-1)/(interpOrder+1)**1)%(interpOrder+1) + 1];
+      var zeta : real = spLoc[((ptIdx-1)/(interpOrder+1)**2)%(interpOrder+1) + 1];
 
+      for nodeIdx in 1..elemNodeCnt
+      {
         // Relative position of the mesh element's node
         var i : int = ((nodeOrder[nodeIdx]-1)/(interpOrder+1)**0)%(elemOrder+1)+1;
         var j : int = ((nodeOrder[nodeIdx]-1)/(interpOrder+1)**1)%(elemOrder+1)+1;
@@ -368,13 +368,13 @@ prototype module Mapping
     var nodeOrder : [1..elemNodeCnt] int = node_order_elem(elemType);
 
     // Build mapping matrix
-    for nodeIdx in 1..elemNodeCnt
+    for ptIdx in 1..interpPtCnt
     {
-      for ptIdx in 1..interpPtCnt
-      {
-        // Computational coordinate of the SP spIdx
-        var xi  : real = spLoc[ptIdx];
+      // Computational coordinate of the SP spIdx
+      var xi  : real = spLoc[ptIdx];
 
+      for nodeIdx in 1..elemNodeCnt
+      {
         // Relative position of the mesh element's node
         var i : int = nodeOrder[nodeIdx];
 
@@ -413,14 +413,14 @@ prototype module Mapping
     var nodeOrder : [1..elemNodeCnt] int = node_order_elem(elemType);
 
     // Build mapping matrix
-    for nodeIdx in 1..elemNodeCnt
+    for ptIdx in 1..interpPtCnt
     {
-      for ptIdx in 1..interpPtCnt
-      {
-        // Computational coordinate of the SP spIdx
-        var xi  : real = spLoc[(ptIdx-1)%(interpOrder+1)+1];
-        var eta : real = spLoc[(ptIdx-1)/(interpOrder+1)+1];
+      // Computational coordinate of the SP spIdx
+      var xi  : real = spLoc[(ptIdx-1)%(interpOrder+1)+1];
+      var eta : real = spLoc[(ptIdx-1)/(interpOrder+1)+1];
 
+      for nodeIdx in 1..elemNodeCnt
+      {
         // Relative position of the mesh element's node
         var i : int = (nodeOrder[nodeIdx]-1)%(elemOrder+1)+1;
         var j : int = (nodeOrder[nodeIdx]-1)/(elemOrder+1)+1;
@@ -465,16 +465,16 @@ prototype module Mapping
     var nodeOrder : [1..elemNodeCnt] int = node_order_elem(elemType);
 
     // Build mapping matrix
-    for nodeIdx in 1..elemNodeCnt
+    for ptIdx in 1..interpPtCnt
     {
-      for ptIdx in 1..interpPtCnt
-      {
-        // Computational coordinate of the SP spIdx
-        //var rst[i] : real = spLoc[((ptIdx-1)/(interpOrder+1)**(i-1))%(interpOrder+1) + 1];
-        var xi   : real = spLoc[((ptIdx-1)/(interpOrder+1)**0)%(interpOrder+1) + 1];
-        var eta  : real = spLoc[((ptIdx-1)/(interpOrder+1)**1)%(interpOrder+1) + 1];
-        var zeta : real = spLoc[((ptIdx-1)/(interpOrder+1)**2)%(interpOrder+1) + 1];
+      // Computational coordinate of the SP spIdx
+      //var rst[i] : real = spLoc[((ptIdx-1)/(interpOrder+1)**(i-1))%(interpOrder+1) + 1];
+      var xi   : real = spLoc[((ptIdx-1)/(interpOrder+1)**0)%(interpOrder+1) + 1];
+      var eta  : real = spLoc[((ptIdx-1)/(interpOrder+1)**1)%(interpOrder+1) + 1];
+      var zeta : real = spLoc[((ptIdx-1)/(interpOrder+1)**2)%(interpOrder+1) + 1];
 
+      for nodeIdx in 1..elemNodeCnt
+      {
         // Relative position of the mesh element's node
         var i : int = ((nodeOrder[nodeIdx]-1)/(interpOrder+1)**0)%(elemOrder+1)+1;
         var j : int = ((nodeOrder[nodeIdx]-1)/(interpOrder+1)**1)%(elemOrder+1)+1;
