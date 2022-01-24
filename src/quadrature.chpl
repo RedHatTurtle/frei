@@ -1,4 +1,4 @@
-prototype module Quadrature
+module Quadrature
 {
   use UnitTest;
   use Set;

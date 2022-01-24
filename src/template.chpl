@@ -1,4 +1,4 @@
-prototype module Template
+module Template
 {
   use Random;
   use UnitTest;

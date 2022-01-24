@@ -1,4 +1,4 @@
-prototype module Flux
+module Flux
 {
   proc pressure_cv(cons : [] real) : real
   {

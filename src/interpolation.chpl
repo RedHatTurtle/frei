@@ -1,4 +1,4 @@
-prototype module Interpolation
+module Interpolation
 {
   use Random;
   use UnitTest;
@@ -570,7 +570,7 @@ prototype module Interpolation
     writeln("Interpolation Basis");
     for i in 0..9 {
       basis[i,..] = eval_LagrangePoly1D_array(x[i], node);
-      writeln("For x_%i = %8.5dr : ".format(i, x[i]), basis[i,..]);
+      writef("For x_%i = %7.4dr : %.4t\n", i, x[i], basis[i,..]);
     }
     writeln();
 
@@ -582,8 +582,8 @@ prototype module Interpolation
         interpolation = 0.0;
         for k in 0..9 do
           interpolation += basis[j,k]*y_node[k];
-        writeln( "y_%i (%6.3dr): %7.4dr   Interpolation: %7.4dr   Error: %11.3er   Relative: %11.3er".format(i, x[j],
-              y_x[j], interpolation, error(y_x(j), interpolation), relative_error(y_x(j), interpolation)) );
+        writef( "y_%i (%7.4dr): %7.4dr   Interpolation: %7.4dr   Error: %10.3er   Relative: %10.3er\n", i, x[j], y_x[j],
+            interpolation, error(y_x(j), interpolation), relative_error(y_x(j), interpolation) );
       }
       writeln();
     }
@@ -592,7 +592,7 @@ prototype module Interpolation
     writeln("Interpolation Derivative Basis");
     for i in 0..9 {
       basisDeriv[i,..] = eval_DLagrangeDx_array(x[i], node);
-      writeln("For x_%i = %8.5dr : ".format(i, x[i]), basisDeriv[i,..]);
+      writef("For x_%i = %7.4dr : %.4t", i, x[i], basisDeriv[i,..]);
     }
     writeln();
 
@@ -606,8 +606,8 @@ prototype module Interpolation
         interpDeriv = 0.0;
         for k in 0..9 do
           interpDeriv += basisDeriv[j,k]*y_node[k];
-        writeln( "y_%i' (%6.3dr): %7.4dr   Interpolation Deriv: %7.4dr   Error: %11.3er   Relative: %11.3er".format(i,
-              x[j], y_x[j], interpDeriv, error(y_x(j), interpDeriv), relative_error(y_x(j), interpDeriv)) );
+        writef( "y_%i' (%7.4dr): %7.4dr   Interpolation Deriv: %7.4dr   Error: %10.3er   Relative: %10.3er\n", i, x[j], y_x[j],
+            interpDeriv, error(y_x(j), interpDeriv), relative_error(y_x(j), interpDeriv) );
       }
       writeln();
     }
@@ -677,9 +677,9 @@ prototype module Interpolation
           yInterpFP += sp2fpInterp[(2, interpOrder)]!.coefs[fpIdx, k+1] * yDirectSP[k+1];
         }
 
-        writeln("Degree %2i interpolation | y(%7.4dr) = %7.4dr | interp(%7.4dr) = %7.4dr | Abs Erro = %11.3er | Rel Error = %11.3er".format(
-              interpOrder, fpLoc[fpIdx], yDirectFP, fpLoc[fpIdx], yInterpFP, error(yDirectFP, yInterpFP), relative_error(yDirectFP, yInterpFP) )
-        );
+        writef("Degree %2i interpolation | y(%7.4dr) = %7.4dr | interp(%7.4dr) = %7.4dr | Abs Erro = %10.3er | Rel Error = %10.3er\n",
+            interpOrder, fpLoc[fpIdx], yDirectFP, fpLoc[fpIdx], yInterpFP,
+            error(yDirectFP, yInterpFP), relative_error(yDirectFP, yInterpFP));
       }
       writeln();
     }
@@ -718,10 +718,9 @@ prototype module Interpolation
           dyInterpSP += sp2spDeriv[(2, interpOrder)]!.coefs[spIdx, 1, k+1] * yDirectSP[k+1];
         }
 
-        writeln("Degree %2i interpolation | y(%7.4dr) = %7.4dr | interp(%7.4dr) = %7.4dr | Abs Erro = %11.3er | Rel Error = %11.3er".format(
-              interpOrder, spLoc[spIdx], dyDirectSP, spLoc[spIdx], dyInterpSP, error(dyDirectSP, dyInterpSP),
-              relative_error(dyDirectSP, dyInterpSP) )
-        );
+        writef("Degree %2i interpolation | y(%7.4dr) = %6.4dr | interp(%7.4dr) = %7.4dr | Abs Erro = %10.3er | Rel Error = %10.3er\n",
+            interpOrder, spLoc[spIdx], dyDirectSP, spLoc[spIdx], dyInterpSP,
+            error(dyDirectSP, dyInterpSP), relative_error(dyDirectSP, dyInterpSP));
       }
       writeln();
     }

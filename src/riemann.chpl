@@ -1,4 +1,4 @@
-prototype module Riemann
+module Riemann
 {
   proc upwind_1d(consL : [1..3] real, consR : [1..3] real, nrm : [1..1] real) : [1..3] real
   {

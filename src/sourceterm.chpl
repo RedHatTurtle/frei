@@ -1,4 +1,4 @@
-prototype module SourceTerm
+module SourceTerm
 {
   use Random;
   use UnitTest;

@@ -1,4 +1,4 @@
-prototype module Polynomials
+module Polynomials
 {
   use Random;
   use UnitTest;
@@ -430,27 +430,27 @@ prototype module Polynomials
     b = -0.5;
 
     for order in 1..9 by 1 {
-      writeln( "Jacobi: n=%3i a=%5.2dr b=%5.2dr".format(order, a, b));
+      writef( "Jacobi: n=%2i a=%5.2dr b=%5.2dr\n", order, a, b);
       for i in 0..order+2 by 1 {
         x = (i/(order+2):real)*2-1;
         eval_jacobi_poly(order, a, b, x, y, dy, ddy);
-        writeln( "x=%7.4dr   y=%24.20dr   dy=%25.20dr   ddy=%26.20dr".format(x, y, dy, ddy) );
+        writef("x=%7.4dr   y=%24.20dr   dy=%25.20dr   ddy=%26.20dr\n", x, y, dy, ddy);
       }
       writeln();
 
-      writeln( "Legendre: n=%3i".format(order));
+      writef( "Legendre: n=%2i\n", order);
       for i in 0..order+2 by 1 {
         x = (i/(order+2):real)*2-1;
         eval_legendre_poly(order, x, y, dy, ddy);
-        writeln( "x=%7.4dr   y=%24.20dr   dy=%25.20dr   ddy=%26.20dr".format(x, y, dy, ddy) );
+        writef("x=%7.4dr   y=%24.20dr   dy=%25.20dr   ddy=%26.20dr\n", x, y, dy, ddy);
       }
       writeln();
 
-      writeln( "Radau: n=%3i".format(order));
+      writef( "Radau: n=%2i\n", order);
       for i in 0..order+2 by 1 {
         x = (i/(order+2):real)*2-1;
         eval_radau_poly(order, x, y, dy, ddy);
-        writeln( "x=%7.4dr   y=%24.20dr   dy=%25.20dr   ddy=%26.20dr".format(x, y, dy, ddy) );
+        writef("x=%7.4dr   y=%24.20dr   dy=%25.20dr   ddy=%26.20dr\n", x, y, dy, ddy);
       }
       writeln();
 

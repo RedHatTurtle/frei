@@ -1,4 +1,4 @@
-prototype module Gmesh
+module Gmesh
 {
   use Random;
   use UnitTest;
@@ -201,14 +201,17 @@ prototype module Gmesh
       } catch {
         writeln("Unknown Error opening mesh file.");
       }
-      var meshReadingChannel = meshFile.reader();
+
+      // Open reader channel to gmesh file
+      var meshReaderChannel = try! meshFile.reader();
 
       // Set initial state
       var state = section.Main;
       var nLines : int = 0;
       var lineIdx : int = 1;
 
-      for line in meshReadingChannel.lines()
+      // Start reading and parsing file
+      for line in meshReaderChannel.lines()
       {
         select state
         {
@@ -263,7 +266,8 @@ prototype module Gmesh
             else if line != "2.2 0 8\n"
             {
               // Validate if gmesh format is compatible with this class
-              writeln("Unsuported mesh format version");
+              writeln("Unsuported gmesh format version");
+              writeln("Expected '2.2 0 8'");
             }
           }
           when section.PhysicalNames
@@ -279,7 +283,12 @@ prototype module Gmesh
             else if nLines == 0
             {
               // If it's the first line of the section get the number of Physical Namas and allocate families
-              nLines = line : int;
+              try! {
+                nLines = line : int;
+              }
+              catch {
+                writeln("Failed to cast `Physical Names Count` to int");
+              }
               this.families_d = {1..nLines};
             }
             else
@@ -292,11 +301,11 @@ prototype module Gmesh
               for value in line.split()
               {
                  if valueIdx == 1 then
-                    this.families[lineIdx].nDim = value:int;
+                    try! this.families[lineIdx].nDim = value:int;
                  if valueIdx == 2 then
-                    this.families[lineIdx].tag = value:int;
+                    try! this.families[lineIdx].tag = value:int;
                  if valueIdx == 3 then
-                    this.families[lineIdx].name = value.strip("\"");
+                    try! this.families[lineIdx].name = value.strip("\"");
 
                  valueIdx += 1;
               }
@@ -317,7 +326,12 @@ prototype module Gmesh
             else if nLines == 0
             {
               // If it's the first line of the section get the number of Physical Namas and allocate families
-              nLines = line : int;
+              try! {
+                nLines = line : int;
+              }
+              catch {
+                writeln("Failed to cast `Node Count` to int");
+              }
               this.nodes_d = {1..nLines, 1..3};
             }
             else
@@ -329,13 +343,13 @@ prototype module Gmesh
               for value in line.split()
               {
                  if valueIdx == 1 then
-                    nodeIdx = value : int;
+                    try! nodeIdx = value : int;
                  if valueIdx == 2 then
-                    nodeCoord[1] = value : real;
+                    try! nodeCoord[1] = value : real;
                  if valueIdx == 3 then
-                    nodeCoord[2] = value : real;
+                    try! nodeCoord[2] = value : real;
                  if valueIdx == 4 then
-                    nodeCoord[3] = value : real;
+                    try! nodeCoord[3] = value : real;
 
                  valueIdx += 1;
               }
@@ -358,7 +372,12 @@ prototype module Gmesh
             else if nLines == 0
             {
               // If it's the first line of the section get the number of Physical Namas and allocate families
-              nLines = line : int;
+              try! {
+                nLines = line : int;
+              }
+              catch {
+                writeln("Failed to cast `Number of Elements` to int");
+              }
               this.elements_d = {1..nLines};
             }
             else
@@ -370,22 +389,22 @@ prototype module Gmesh
               {
                  // Element Number
                  if valueIdx == 1 then
-                    elemIdx = value : int;
+                    try! elemIdx = value : int;
                  // Element Type
                  if valueIdx == 2
                  {
-                    this.elements[elemIdx].elemType = value : int;
+                    try! this.elements[elemIdx].elemType = value : int;
                     this.elements[elemIdx].setNodes();
                  }
                  // Number of Tags
                  if valueIdx == 3 then
-                    this.elements[elemIdx].tags_d = {1..value:int};
+                    try! this.elements[elemIdx].tags_d = {1..value:int};
                  // Tags
                  if ((valueIdx > 3) && (valueIdx < 4+this.elements[elemIdx].tags.domain.dim(0).high)) then
-                    this.elements[elemIdx].tags[valueIdx-3] = value : int;
+                    try! this.elements[elemIdx].tags[valueIdx-3] = value : int;
                  // Node List
                  if valueIdx >= 4+this.elements[elemIdx].tags.domain.dim(0).high then
-                   this.elements[elemIdx].nodes[valueIdx-(3+this.elements[elemIdx].tags_d.dim(0).high)] = value : int;
+                   try! this.elements[elemIdx].nodes[valueIdx-(3+this.elements[elemIdx].tags_d.dim(0).high)] = value : int;
 
                  valueIdx += 1;
               }

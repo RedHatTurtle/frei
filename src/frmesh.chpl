@@ -1,4 +1,4 @@
-prototype module FRMesh {
+module FRMesh {
   use Input;
   use Mesh;
 

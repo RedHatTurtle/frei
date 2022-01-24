@@ -1,4 +1,4 @@
-prototype module Correction
+module Correction
 {
   // In GFR there is correction structure initialization procedure that then calls individual procedures for each cell
   //    geometry. Ex: CorrectionMatrix_Edge, CorrectionMatrix_Quad, CorrectionMatrix_Tri.
@@ -259,9 +259,9 @@ prototype module Correction
       x[i+2] = 1;
       x[1..i+1] = nodes_uniform(i+1);
       for j in 0..i+2 {
-        writeln( "n: %2i,  x = %7.4dr,  g_dg = %9.5dr,  g'_dg = %9.5dr,  g_ga = %9.5dr,  g'_ga = %9.5dr,  g_2 = %9.5dr,  g'_2 = %9.5dr"
-                  .format(i, x[j], correction_dg(i, x[j]), correction_dg_deriv(i, x[j]), correction_ga(i, x[j]),
-                            correction_ga_deriv(i, x[j]), correction_g2(i, x[j]), correction_g2_deriv(i, x[j])) );
+        writef( "n: %2i, x = %7.4dr, g_dg = %9.5dr, g'_dg = %9.5dr, g_ga = %9.5dr, g'_ga = %9.5dr, g_2 = %9.5dr, g'_2 = %9.5dr\n",
+            i, x[j], correction_dg(i, x[j]), correction_dg_deriv(i, x[j]), correction_ga(i, x[j]), correction_ga_deriv(i, x[j]),
+            correction_g2(i, x[j]), correction_g2_deriv(i, x[j]) );
       }
       writeln();
     }
@@ -272,9 +272,9 @@ prototype module Correction
       x[i+1] = 1;
       x[1..i] = nodes_legendre_gauss(i);
       for j in 0..i+1 {
-        writeln( "n: %2i,  x = %7.4dr,  g_dg = %9.5dr,  g'_dg = %9.5dr,  g_ga = %9.5dr,  g'_ga = %9.5dr,  g_2 = %9.5dr,  g'_2 = %9.5dr"
-                  .format(i, x[j], correction_dg(i, x[j]), correction_dg_deriv(i, x[j]), correction_ga(i, x[j]),
-                            correction_ga_deriv(i, x[j]), correction_g2(i, x[j]), correction_g2_deriv(i, x[j])) );
+        writef( "n: %2i, x = %7.4dr, g_dg = %9.5dr, g'_dg = %9.5dr, g_ga = %9.5dr, g'_ga = %9.5dr, g_2 = %9.5dr, g'_2 = %9.5dr\n",
+            i, x[j], correction_dg(i, x[j]), correction_dg_deriv(i, x[j]), correction_ga(i, x[j]), correction_ga_deriv(i, x[j]),
+            correction_g2(i, x[j]), correction_g2_deriv(i, x[j]) );
       }
       writeln();
     }

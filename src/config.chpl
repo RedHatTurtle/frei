@@ -1,4 +1,4 @@
-prototype module Config
+module Config
 {
   use Input;
   use Parameters;

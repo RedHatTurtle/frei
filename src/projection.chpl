@@ -1,7 +1,7 @@
 /*
   This module initializes and manages the tools required to project orthogonal polynomials to lower orders
 */
-prototype module Projection
+module Projection
 {
   use UnitTest;
   use Set;

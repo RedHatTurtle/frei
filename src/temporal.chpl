@@ -1,4 +1,4 @@
-prototype module Temporal_Methods
+module Temporal_Methods
 {
   /*
     This module contains the time iterating functions.

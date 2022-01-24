@@ -1,4 +1,4 @@
-prototype module Mesh
+module Mesh
 {
   use Gmesh;
   use Random;

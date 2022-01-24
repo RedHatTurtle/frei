@@ -1,4 +1,4 @@
-prototype module Testing
+module Testing
 {
   proc error( in reference : real, in value : real) : real
   {

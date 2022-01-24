@@ -1,4 +1,4 @@
-prototype module Limiter
+module Limiter
 {
   use UnitTest;
   use Set;

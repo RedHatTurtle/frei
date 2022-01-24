@@ -1,4 +1,4 @@
-prototype module Input
+module Input
 {
   use Random;
   use UnitTest;
@@ -79,6 +79,7 @@ prototype module Input
     var tomlFile : file;
     var tomlData : unmanaged Toml?;
 
+    // Open input config file
     try {
       writeln("Opening input file");
       tomlFile = open(fileName, iomode.r);
@@ -90,6 +91,7 @@ prototype module Input
       writeln("Stopping Execution immediately.");
     }
 
+    // Parse input config file contents into TOML object
     try {
       writeln("Parsing input file");
       tomlData = parseToml(tomlFile);
@@ -97,16 +99,20 @@ prototype module Input
       writeln("Critical Error: Invalid TOML data");
     }
 
-    writeln();
-    writeln("################################################################################");
-    writeln("###   Input file dump                                                        ###");
-    writeln("################################################################################");
-    writeln(tomlData);
-    writeln("################################################################################");
-    writeln("###   End of input file                                                      ###");
-    writeln("################################################################################");
-    writeln();
+    // Dump parsed input config file
+    {
+      writeln();
+      writeln("################################################################################");
+      writeln("###   Input file dump                                                        ###");
+      writeln("################################################################################");
+      writeln(tomlData);
+      writeln("################################################################################");
+      writeln("###   End of input file                                                      ###");
+      writeln("################################################################################");
+      writeln();
+    }
 
+    // Copy configuration from TOML object to module variables
     try {
       writeln("Configuring solver");
 
@@ -187,8 +193,8 @@ prototype module Input
       write("Critical Error: Invalid solver configuration");
     }
 
+    // Calculate some basic derived configurations
     nPoints = nCells + 1;
-
     select eqSet {
       when EQ_CONVECTION     do nEqs=nDims;
       when EQ_INVBURGERS     do nEqs=1;

@@ -1,4 +1,4 @@
-prototype module Mapping
+module Mapping
 {
   use Random;
   use UnitTest;

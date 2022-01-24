@@ -1,4 +1,4 @@
-prototype module Init
+module Init
 {
   use Parameters.ParamInput;
   use Input;
@@ -313,8 +313,8 @@ prototype module Init
       sol = flow_condition(IC_SHOCKTUBE, famlParameters, xyz);
       writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3]");
       for i in xyz.domain.dim(0) do
-        writeln("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er".format(i, xyz[i, 1], xyz[i, 2], xyz[i, 3],
-                                                                                      sol[i, 1], sol[i, 2], sol[i, 3]));
+        writef("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er\n", i, xyz[i, 1], xyz[i, 2], xyz[i, 3],
+            sol[i, 1], sol[i, 2], sol[i, 3]);
 
       writeln();
       writeln("1D Nozzle Flow - Subsonic");
@@ -322,8 +322,8 @@ prototype module Init
       sol = flow_condition(IC_1D_NOZZLE_SUBSONIC, [0.0], xyz);
       writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3],   Pressure,       Mach");
       for i in xyz.domain.dim(0) do
-        writeln("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er".format(i, xyz[i, 1],
-              xyz[i, 2], xyz[i, 3], sol[i, 1], sol[i, 2], sol[i, 3], pressure_cv(sol[i,..]), mach_cv(sol[i,..])));
+        writef("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er\n", i, xyz[i, 1], xyz[i, 2],
+            xyz[i, 3], sol[i, 1], sol[i, 2], sol[i, 3], pressure_cv(sol[i,..]), mach_cv(sol[i,..]));
 
       writeln();
       writeln("1D Nozzle Flow - Smooth Transonic");
@@ -331,8 +331,8 @@ prototype module Init
       sol = flow_condition(IC_1D_NOZZLE_SMOOTH_TRANSONIC, [0.0], xyz);
       writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3],   Pressure,       Mach");
       for i in xyz.domain.dim(0) do
-        writeln("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er".format(i, xyz[i, 1],
-              xyz[i, 2], xyz[i, 3], sol[i, 1], sol[i, 2], sol[i, 3], pressure_cv(sol[i,..]), mach_cv(sol[i,..])));
+        writef("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er\n", i, xyz[i, 1], xyz[i, 2],
+            xyz[i, 3], sol[i, 1], sol[i, 2], sol[i, 3], pressure_cv(sol[i,..]), mach_cv(sol[i,..]));
 
       writeln();
       writeln("1D Nozzle Flow - Shocked Transonic");
@@ -340,8 +340,8 @@ prototype module Init
       sol = flow_condition(IC_1D_NOZZLE_SHOCKED_TRANSONIC, [0.0], xyz);
       writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3],   Pressure,       Mach");
       for i in xyz.domain.dim(0) do
-        writeln("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er".format(i, xyz[i, 1],
-              xyz[i, 2], xyz[i, 3], sol[i, 1], sol[i, 2], sol[i, 3], pressure_cv(sol[i,..]), mach_cv(sol[i,..])));
+        writef("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er\n", i, xyz[i, 1], xyz[i, 2],
+            xyz[i, 3], sol[i, 1], sol[i, 2], sol[i, 3], pressure_cv(sol[i,..]), mach_cv(sol[i,..]));
     }
 
     writeln();

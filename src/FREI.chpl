@@ -1,5 +1,5 @@
 /* Documentation for FREI */
-prototype module FREI
+module FREI
 {
   // Run-time constants
   config const inputFile : string = "input.toml";
@@ -220,14 +220,14 @@ prototype module FREI
     // 12. Initialize convergence monitoring variables
     var l2DeltaIni           : [1..frMesh.nVars] real;
     var l2RelativeDeltaIni   : [1..frMesh.nVars] real;
-    var convergenceLog : file;
-    try {
-      convergenceLog = open("convengence.dat" , iomode.cw);
+    var convergenceLogFile   : file;
+    try! {
+      convergenceLogFile = open("convengence.dat" , iomode.cw);
     } catch {
-      stdout.writeln("Unknown Error opening convergence log file.");
-      stderr.writeln("Unknown Error opening convergence log file.");
+      try! stdout.writeln("Unknown Error opening convergence log file.");
+      try! stderr.writeln("Unknown Error opening convergence log file.");
     }
-    var convergenceLogChan = convergenceLog.writer();
+
 
     writeln();
     initTime = stopwatch.elapsed(timeUnit);
@@ -609,7 +609,7 @@ prototype module FREI
             iterTimer.elapsed(timeUnit), log10(norm(l2Delta)/norm(l2DeltaIni)));
 
         // Output full state to log file
-        log_convergence(convergenceLogChan, iteration, l1Delta, l2Delta, lInfDelta, l1RelativeDelta, l2RelativeDelta, lInfRelativeDelta);
+        log_convergence(convergenceLogFile, iteration, l1Delta, l2Delta, lInfDelta, l1RelativeDelta, l2RelativeDelta, lInfRelativeDelta);
 
         if iteration % ioIter == 0 then
           writef(" | Saving solution file\n");

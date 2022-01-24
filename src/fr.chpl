@@ -1,4 +1,4 @@
-prototype module FR
+module FR
 {
   proc main()
   {}

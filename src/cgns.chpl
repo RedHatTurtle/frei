@@ -1,4 +1,4 @@
-prototype module CGNS
+module CGNS
 {
   use Random;
   use UnitTest;

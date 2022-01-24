@@ -1,4 +1,4 @@
-prototype module Boundary
+module Boundary
 {
   use Random;
   use UnitTest;

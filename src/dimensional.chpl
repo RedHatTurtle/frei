@@ -1,4 +1,4 @@
-prototype module Dimensional
+module Dimensional
 {
   proc dim2nondim
   {
