@@ -10,7 +10,7 @@
 
 [parMesh]
   meshFormat    = 1
-  meshFile      = "meshfiles/ringleb1-q1.msh"
+  meshFile      = "meshfiles/ringleb3-q1.msh"
 
 [parSpatial]
   spatialScheme     = 11
@@ -18,19 +18,19 @@
   limiterScheme     = 0
 
 [parFR]
-  iOrder   = 1
-  minOrder = 1
-  maxOrder = 1
+  iOrder   = 3
+  minOrder = 0
+  maxOrder = 9
   distSP   = 2
   frScheme = 1
 
 [parTime]
-  timeScheme = 4
-  timeStep   = 0.001
+  timeScheme = 3
+  timeStep   = 0.005
 
 [parOutput]
-  ioIter  =   2000
-  maxIter = 100000
+  ioIter  = 1000
+  maxIter = 100
   ioTime  = 0.00
   maxTime = 1.00
 
