@@ -31,11 +31,16 @@ module FREI
     use LinearAlgebra;
     use SourceTerm;
     use Temporal;
+    use VisualDebug;
     import Math.log10;
+
+    // Start VisualDebug here
+    startVdebug ("ChplVis_Frei");
 
     /////////////////////////////////
     // Declare profiling variables //
     /////////////////////////////////
+    tagVdebug("Timers");
 
     // Main program stowatch
     var programWatch  : stopwatch;
@@ -87,6 +92,7 @@ module FREI
     ///////////////////////////
     // Solver Initialization //
     ///////////////////////////
+    tagVdebug("Init");
 
     // 0. Initialize iteration count and stopwatch
     var iterWatch : stopwatch;
@@ -281,6 +287,7 @@ module FREI
     ///////////////////////////
     // Main Solver Iteration //
     ///////////////////////////
+    tagVdebug("Solver");
 
     // Residue debug additions
     use IO;
@@ -323,6 +330,7 @@ module FREI
           writef("   RK-Stage %1i\n", rkStage);
 
           // Component 1: Source Term
+          tagVdebug("Res1: Src Term");
           {
             residueWatch.restart();
 
@@ -346,6 +354,7 @@ module FREI
             output_gnuplot(outputDir, "res_src_gnuplt", stringIter, frMesh.xyzSP, res1);
 
           // Component 2: Discontinuous Flux
+          tagVdebug("Res2: Dsc Flux");
           {
             residueWatch.restart();
 
@@ -474,6 +483,7 @@ module FREI
           }
 
           // Component 3: Continuous Flux
+          tagVdebug("Res3: Cnt Flux");
           {
             residueWatch.restart();
 
@@ -639,6 +649,7 @@ module FREI
         }
 
         // Advance RK Stage
+        tagVdebug("RK Step");
         {
           solveWatch.restart();
 
@@ -694,6 +705,7 @@ module FREI
         }
 
         // Stabilize Solution
+        tagVdebug("Stabilize Sol");
         {
           solveWatch.restart();
 
@@ -730,6 +742,7 @@ module FREI
       }
 
       // IO
+      tagVdebug("Iter IO");
       {
         solveWatch.restart();
 
@@ -829,6 +842,7 @@ module FREI
     /////////////////////////////
     // Output and Finalization //
     /////////////////////////////
+    tagVdebug("Finalization");
 
     // Output the final solution
     totalWatch.restart();
