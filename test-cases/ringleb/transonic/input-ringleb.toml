@@ -30,7 +30,7 @@
 
 [parOutput]
   ioIter  = 1000
-  maxIter = 100
+  maxIter = 10
   ioTime  = 0.00
   maxTime = 1.00
 
