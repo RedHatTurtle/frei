@@ -533,10 +533,10 @@ module FREI
                                                                     frMesh.solSP[cellSPini.. #cellSPcnt, ..],
                                                                     frMesh.resSP[cellSPini.. #cellSPcnt, ..],
                                                                     dt, stage, Input.timeScheme);
-
-            // Zero out residue
-            frMesh.resSP = 0.0;
           }
+
+          // Zero out residue
+          frMesh.resSP = 0.0;
 
           timeStepTime += stopwatch.elapsed(timeUnit);
         }
