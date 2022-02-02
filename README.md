@@ -106,7 +106,7 @@ It seems like a good rule of thumb to try to use 4 letter abbreviations.
 
 ### Mesh related terms
 - `node`, `line`, `tria`, `quad`, `tetr`, `pyra`, `pris`, `hexa` : Mesh element topologies/geometries
-- `node`, `edge`, `face`, `cell` : Mesh Elements
+- `node`, `edge`, `face`, `cell` : Mesh Elements Hierarchy
 - `boco`, `bc` : Boundary Condition
 - `faml` : Family
 - `ghst` : Ghost cell/FP
@@ -142,6 +142,10 @@ It seems like a good rule of thumb to try to use 4 letter abbreviations.
 - `SolPnt`, `SP` : Solution Point
 - `FlxPnt`, `FP` : Flux Point
 - `Point` , `PT` : Generic interpolation point
+
+- `meshSP`, `meshFP` : Global mesh index of a mesh element (SP, FP, etc)
+- `faceFP`, `faceNode` : Local cell index/position of a mesh element (SP, FP, Node, etc)
+- `cellSP`, `cellFP` : Local cell index/position of a mesh element (SP, FP, etc)
 
 - `Phys` : Physical domain
 - `Comp` : Computational domain
