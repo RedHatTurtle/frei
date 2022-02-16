@@ -126,13 +126,15 @@ It seems like a good rule of thumb to try to use 4 letter abbreviations.
 - `Ener`   : Energy
 - `Pres`   : Static Pressure
 - `Temp`   : Temperature
-- `Vel`    : Velocity
-- `Mom`    : Momentum
+- `VelV`, `VelX`, `VelY`, `VelZ` : Velocity vector and it's components
+- `MomV`, `MomX`, `MomY`, `MomZ` : Momentum vector and it's components
+- `Vel`    : Velocity magnitude
 - `Mach`   : Mach Number
 - `A`      : Speed of Sound
 - `EneK`, `EneKin`, `ek` : Kinetic Energy / Dynamic Pressure
 - `EneI`, `EneInt`, `ei` : Internal Energy
 - `Enth`, `H` : Enthalpy
+- `Entr`, `S` : Entropy
 
 ### FR Specific terms
 - `Sol`, `Con`, `Cons`, `cv` : Conserved variables

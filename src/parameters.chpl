@@ -153,7 +153,7 @@ module Parameters
     param BC_SUBTYPE_SUP_OUTFLOW      : int = 23;
     param BC_SUBTYPE_MDOT_OUTFLOW     : int = 24;
     // Generic Inflow/Outflow BCs
-    param BC_SUBTYPE_CHARACTERISTIC   : int = 31;
+    param BC_SUBTYPE_RIEMANN          : int = 31;
     param BC_SUBTYPE_GENERIC_FREEFLOW : int = 32;
     param BC_SUBTYPE_FREESTREAM       : int = 33;
     param BC_SUBTYPE_FIXED            : int = 34;
