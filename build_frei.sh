@@ -37,6 +37,7 @@ else
 fi
 
 EXTENSION="$GIT_HASH_SHORT$CHANGES"
+GIT_BRANCH=${GIT_BRANCH/\//-}
 
 if [ ! -d "build" ]; then
     echo "Creating build directory"
