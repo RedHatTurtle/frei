@@ -84,7 +84,7 @@ module Boundary
   proc symmetry(hostConsVars : [] real, nrm : [] real) : [hostConsVars.domain] real
   {
     var idxDens : int   = hostConsVars.domain.dim(0).low;        // First element is density
-    var idxMom  : range = hostConsVars.domain.dim(0).expand(-1); // Intermediary elements are the velocities
+    var idxMom  : range = hostConsVars.domain.dim(0).expand(-1); // Intermediary elements are the momentum vector
     var idxEner : int   = hostConsVars.domain.dim(0).high;       // Last element is energy
 
     var uniNrm : [nrm.domain] real = nrm/norm(nrm);
@@ -96,7 +96,7 @@ module Boundary
     ghstConsVars[idxEner] = hostConsVars[idxEner];
 
     // Reflect momentum relative to the face normal
-    ghstConsVars[idxMom]  = hostConsVars - 2.0*dot(hostConsVars[idxMom], uniNrm)*uniNrm;
+    ghstConsVars[idxMom]  = hostConsVars[idxMom] - 2.0*dot(hostConsVars[idxMom], uniNrm)*uniNrm;
 
     return ghstConsVars;
   }
