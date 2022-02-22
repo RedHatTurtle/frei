@@ -212,6 +212,11 @@ module Init
         for i in xyz.domain.dim(0) do
           flowVars[i,1..4] = ringleb_sol(xyz[i,1..2]);
       }
+      when IC_GENERIC_MEANFLOW
+      {
+        for ptIdx in xyz.domain.dim(0) do
+          flowVars[ptIdx, 1..Input.nEqs] = familyParameters[1..Input.nEqs];
+      }
     }
 
     return flowVars;
@@ -284,6 +289,16 @@ module Init
 
   proc entropy_wave_1d(x : real) : real
   {}
+
+  proc freestream(familyParameters : [] real) : real
+  {
+    // Calculate the conserved varaibles given:
+    // - Mach
+    // - Alpha (Angle of Attack)
+    // - Beta (Sideslip)
+    // - Pressure
+    // - Temperature
+  }
 
   proc main()
   {

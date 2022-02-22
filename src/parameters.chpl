@@ -128,7 +128,7 @@ module Parameters
     param IC_1D_NOZZLE_SHOCKED_TRANSONIC : int = 83;    // Quasi 1D Nozzle
 
     // High-Order Workshop test cases
-    param IC_GENERIC_MEANFLOW        : int;
+    param IC_GENERIC_MEANFLOW        : int = 60;
     param IC_CHANNEL_FLOW            : int;
     param IC_INVISCID_GAUSSIAN_BUMP  : int;
     param IC_LAMINAR_BNDLYR          : int;
