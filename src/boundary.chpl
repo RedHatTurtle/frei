@@ -238,6 +238,9 @@ module Boundary
 
   proc riemann(hostConsVars : [] real, bocoProperties : [] real, nrm : [] real) : [hostConsVars.domain] real
   {
+    import Flux.density;
+    import Flux.sound_speed;
+
     var idxDens : int   = hostConsVars.domain.dim(0).low;        // First element is density
     var idxMom  : range = hostConsVars.domain.dim(0).expand(-1); // Intermediary elements are the velocities
     var idxEner : int   = hostConsVars.domain.dim(0).high;       // Last element is energy
@@ -259,15 +262,23 @@ module Boundary
     var riemannP  : real = velNrmInt + 2.0*aInt/(fGamma-1);
 
     // External boundary condition
-    var presExt : real = bocoProperties[idxDens];
-    var  velExt : [idxMom] real = bocoProperties[idxMom];
-    var tempExt : real = bocoProperties[idxEner];
+    var  machExt = bocoProperties[1];
+    var alphaExt = bocoProperties[2];
+    var  betaExt = bocoProperties[3];
+    var  presExt = bocoProperties[4];
+    var  tempExt = bocoProperties[5];
 
-    var densExt : real = presExt / ( fR * tempExt );
-    var    aExt : real = sqrt( fGamma * fR * tempExt );
+    var densExt : real = density(presExt, tempExt);
+    var    aExt : real = sound_speed(densExt, presExt);
+
+    var velVExt : [nrm.domain] real;
+    velVExt[1] = machExt*aExt*cos(betaExt)*cos(alphaExt);
+    velVExt[2] = machExt*aExt*cos(betaExt)*sin(alphaExt);
+    if nrm.domain.high == 3 then
+      velVExt[3] = machExt*aExt*sin(betaExt);
 
     // Compute the external invariants
-    var velNrmExt : real = dot(velExt, uniNrm);
+    var velNrmExt : real = dot(velVExt, uniNrm);
     var riemannM  : real = velNrmExt - 2.0*aExt/(fGamma-1);
 
     // If the flow is supersonic then use only internal or external variables to calculate the invariants
@@ -286,7 +297,7 @@ module Boundary
     // Calculate the boundary properties based on the normal flow direction
     if ( velNrm < 0.0 )
     { // This is an inflow case
-      vel = velExt + (velNrm-velNrmExt)*uniNrm;
+      vel = velVExt + (velNrm-velNrmExt)*uniNrm;
       entr = (aExt**2)/(fGamma*densExt**(fGamma-1));
     }
     else

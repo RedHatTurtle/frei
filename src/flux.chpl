@@ -63,6 +63,13 @@ module Flux
     return entropy;
   }
 
+  proc sound_speed(dens : real, pres : real) : real
+  {
+    import Input.fGamma;
+
+    return sqrt(fGamma*pres/dens);
+  }
+
   proc sound_speed_cv(cons : [] real) : real
   {
     import Input.fGamma;
@@ -89,6 +96,15 @@ module Flux
     var mach : real = norm(vel) / sound_speed_cv(cons);
 
     return mach;
+  }
+
+  proc density(pres : real, temp : real) : real
+  {
+    import Input.fR;
+
+    var dens : real = pres/(temp*fR);
+
+    return dens;
   }
 
   proc ener_pv(prim : [] real) : real
