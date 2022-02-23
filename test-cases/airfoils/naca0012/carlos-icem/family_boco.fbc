@@ -1,0 +1,13 @@
+# family_boco file written by ICEM HEXA
+"WALL"
+"WALL" "SDSET" 1
+"WALL" "color" 5176627
+"FFIELD.1"
+"FFIELD.1" "color" 8336365
+"FFIELD"
+"FFIELD" "color" 8336360
+"LIVE"
+"LIVE" "color" 13675571
+"METAL"
+"METAL" "color" 3385555
+"CREATED_FACES"

@@ -1,0 +1,15 @@
+# family_boco file written by ICEM CFD by fabio on Tue Oct 21 11:20:48 AM BRST 2014
+## solver Fluent_V6
+"WALL"
+"WALL" "SDSET" 1
+"WALL" "color" 5911550
+"GEOM"
+"GEOM" "color" 13609800
+"FFIELD"
+"FFIELD" "color" 8336360
+"LIVE"
+"LIVE" "color" 3385300
+"METAL"
+"METAL" "color" 15610700
+"CREATED_FACES"
+

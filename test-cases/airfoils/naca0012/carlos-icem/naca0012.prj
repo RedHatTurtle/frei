@@ -1,0 +1,292 @@
+# ICEM CFD Project Settings
+# Saved by fabio on ALA_PC184 on Tue Oct 21 11:20:48 AM BRST 2014
+# ANSYS ICEM CFD Environment - version 14.0 - Release date: Oct 12 2011
+
+array set file_name {
+    catia_dir {/home/fabio/Dropbox/cfd/codes/sd2d (Mallaco)/cases/naca0012/carlos/icem}
+    parts_dir {/home/fabio/Dropbox/cfd/codes/sd2d (Mallaco)/cases/naca0012/carlos/icem}
+    domain_loaded 1
+    cart_file_loaded 0
+    cart_file {}
+    domain_saved naca0012.uns
+    archive {}
+    med_replay {}
+    topology_dir {/home/fabio/Dropbox/cfd/codes/sd2d (Mallaco)/cases/naca0012/carlos/icem}
+    ugparts_dir {/home/fabio/Dropbox/cfd/codes/sd2d (Mallaco)/cases/naca0012/carlos/icem}
+    icons {{$env(ICEM_ACN)/lib/ai_env/icons} {$env(ICEM_ACN)/lib/va/EZCAD/icons} {$env(ICEM_ACN)/lib/icons} {$env(ICEM_ACN)/lib/va/CABIN/icons}}
+    tetin naca0012.tin
+    family_boco naca0012.fbc
+    prism_params naca0012.prism_params
+    iges_dir {/home/fabio/Dropbox/cfd/codes/sd2d (Mallaco)/cases/naca0012/carlos/icem}
+    solver_params_loaded 1
+    attributes_loaded 1
+    project_lock {}
+    attributes naca0012.atr
+    domain naca0012.uns
+    domains_dir {/home/fabio/Dropbox/cfd/codes/sd2d (Mallaco)/cases/naca0012/carlos/icem}
+    settings_loaded 0
+    settings naca0012.prj
+    blocking naca0012.blk
+    hexa_replay {}
+    transfer_dir {/home/fabio/Dropbox/cfd/codes/sd2d (Mallaco)/cases/naca0012/carlos/icem}
+    mesh_dir {/home/fabio/Dropbox/cfd/codes/sd2d (Mallaco)/cases/naca0012/carlos/icem}
+    family_topo {}
+    gemsparts_dir {/home/fabio/Dropbox/cfd/codes/sd2d (Mallaco)/cases/naca0012/carlos/icem}
+    family_boco_loaded 1
+    tetin_loaded 1
+    project_dir {/home/fabio/Dropbox/cfd/codes/sd2d (Mallaco)/cases/naca0012/carlos/icem}
+    topo_mulcad_out {}
+    solver_params naca0012.par
+}
+array set options {
+    expert 1
+    remote_path {}
+    tree_disp_quad 2
+    tree_disp_pyra 0
+    evaluate_diagnostic 0
+    histo_show_default 1
+    select_toggle_corners 0
+    remove_all 0
+    keep_existing_file_names 0
+    record_journal 0
+    edit_wait 0
+    face_mode all
+    select_mode all
+    med_save_emergency_tetin 1
+    user_name fabio
+    diag_which all
+    uns_warn_if_display 500000
+    bubble_delay 1000
+    external_num 1
+    tree_disp_tri 2
+    apply_all 0
+    temporary_directory {}
+    default_solver CGNS
+    auto_save_emergency_tetin 1
+    flood_select_angle 0
+    home_after_load 1
+    project_active 0
+    histo_color_by_quality_default 1
+    undo_logging 1
+    tree_disp_hexa 0
+    histo_solid_default 1
+    host_name ALA_PC184
+    xhidden_full 1
+    editor kate
+    mouse_color orange
+    auto_save_emergency_mesh 1
+    clear_undo 1
+    remote_acn {}
+    remote_sh csh
+    tree_disp_penta 0
+    n_processors 1
+    remote_host {}
+    save_to_new 0
+    quality_info Quality
+    tree_disp_node 0
+    med_save_emergency_mesh 1
+    redtext_color red
+    tree_disp_line 0
+    select_edge_mode 0
+    use_dlremote 0
+    max_mesh_map_size 1024
+    show_tris 1
+    remote_user {}
+    icon_size Normal
+    auto_save_views 1
+    max_cad_map_size 512
+    display_origin 0
+    uns_warn_user_if_display 1000000
+    detail_info 0
+    win_java_help 0
+    show_factor 1
+    boundary_mode all
+    clean_up_tmp_files 1
+    auto_fix_uncovered_faces 1
+    med_save_emergency_blocking 1
+    max_binary_tetin 0
+    tree_disp_tetra 0
+}
+array set disp_options {
+    uns_dualmesh 0
+    uns_warn_if_display 500000
+    uns_normals_colored 0
+    uns_icons 0
+    uns_locked_elements 0
+    uns_shrink_npos 0
+    uns_node_type None
+    uns_icons_normals_vol 0
+    uns_bcfield 0
+    backup Wire
+    uns_nodes 0
+    uns_only_edges 0
+    uns_surf_bounds 0
+    uns_wide_lines 0
+    uns_vol_bounds 0
+    uns_displ_orient Triad
+    uns_orientation 0
+    uns_directions 0
+    uns_thickness 0
+    uns_shell_diagnostic 0
+    uns_normals 0
+    uns_couplings 0
+    uns_periodicity 0
+    uns_single_surfaces 0
+    uns_midside_nodes 1
+    uns_shrink 100
+    uns_multiple_surfaces 0
+    uns_no_inner 0
+    uns_enums 0
+    uns_disp Wire
+    uns_bcfield_name {}
+    uns_color_by_quality 0
+    uns_changes 0
+    uns_cut_delay_count 1000
+}
+array set prism_values {
+    n_triangle_smoothing_steps 5
+    min_smoothing_steps 6
+    first_layer_smoothing_steps 1
+    new_volume {}
+    height 0
+    prism_height_limit 0
+    interpolate_heights 0
+    n_tetra_smoothing_steps 10
+    do_checks {}
+    delete_standalone 1
+    ortho_weight 0.50
+    max_aspect_ratio {}
+    ratio_max {}
+    total_height 0
+    use_prism_v10 0
+    intermediate_write 1
+    delete_base_triangles {}
+    ratio_multiplier {}
+    refine_prism_boundary 1
+    max_size_ratio {}
+    triangle_quality {}
+    max_prism_angle 180
+    tetra_smooth_limit 0.30000001
+    max_jump_factor 5
+    use_existing_quad_layers 0
+    layers 3
+    fillet 0.1
+    into_orphan 0
+    init_dir_from_prev {}
+    blayer_2d 0
+    do_not_allow_sticking {}
+    top_family {}
+    law exponential
+    min_smoothing_val 0.1
+    auto_reduction 0
+    max_prism_height_ratio 0
+    stop_columns 1
+    stair_step 1
+    smoothing_steps 5
+    side_family {}
+    min_prism_quality 0.0099999998
+    ratio 1.2
+}
+array set vid_options {
+    wb_import_cad_att_pre SDFEA
+    wb_import_surface_bodies 1
+    wb_import_mat_points 0
+    wb_NS_to_subset 0
+    auxiliary 0
+    wb_import_mix_res -1
+    wb_import_cad_att_trans 1
+    show_name 0
+    do_intersect_self_part 1
+    wb_import_solid_bodies 1
+    inherit 0
+    default_part GEOM
+    new_srf_topo 1
+    DelPerFlag 0
+    show_item_name 0
+    wb_import_line_bodies 0
+    composite_tolerance 1.0
+    wb_import_en_sym_proc 1
+    wb_import_sel_proc 1
+    wb_import_geom 1
+    wb_import_sel_pre {}
+    wb_import_scale_geo 0
+    replace 0
+    same_pnt_tol 1e-4
+    tdv_axes 1
+    wb_import_mesh 0
+    vid_mode 0
+    DelBlkPerFlag 0
+}
+set savedTreeVisibility {geomNode 1 geom_subsetNode 0 geomPointNode 0 geomCurveNode 0 meshNode 1 mesh_subsetNode 0 meshPointNode 0 meshLineNode 2 meshShellNode 2 meshQuadNode 2 blockingNode 0 block_subsetNode 2 block_vertNode 0 block_edgeNode 0 block_faceNode 0 block_blockNode 0 block_meshNode 0 topoNode 2 topo-root 2 partNode 1 part-FFIELD 0 part-GEOM 2 part-LIVE 2 part-METAL 0 part-VORFN 0 part-WALL 2}
+array set cut_info {
+    active 0
+    whole 1
+}
+array set hex_option {
+    default_bunching_ratio 2.0
+    floating_grid 0
+    n_tetra_smoothing_steps 20
+    sketching_mode 0
+    trfDeg 1
+    wr_hexa7 0
+    smooth_ogrid 0
+    find_worst 1-3
+    hexa_verbose_mode 0
+    old_eparams 0
+    uns_face_mesh_method uniform_quad
+    multigrid_level 0
+    uns_face_mesh all_tris
+    check_blck 1
+    proj_limit 0
+    check_inv 0
+    project_bspline 0
+    hexa_update_mode 1
+    default_bunching_law BiGeometric
+}
+array set saved_views {
+    views {}
+}
+
+#------------- DEZ Data ------------------
+
+namespace eval ::AIEnv::GUIManagement::DEZ {
+    array set meshPrismDEZ_data {
+        this meshPrismDEZ
+        type DEZ
+        n_triangle_smoothing_steps 5
+        triangle_quality {}
+        __meshPrismTriQuality_Last_Index 0
+        n_tetra_smoothing_steps 10
+        smoothing_steps 12
+        first_layer_smoothing_steps 1
+        loadmesh 0
+    }
+    array set hexMeshOptsDEZ_data {
+        this hexMeshOptsDEZ
+        type DEZ
+        mgLevel 0
+        projLimit 0
+        lawList {Uniform Hyperbolic BiGeometric Poisson}
+        meshLaw BiGeometric
+        __hexMeshOptsMLaw_Last_Index 0
+        ratio 2.0
+        floatGrid 0
+        proj 0
+        check_blck 1
+        check_inv 0
+        wr_hexa7 0
+        hexa_verbose_mode 0
+        hexa_update_mode 1
+        trfDeg 1
+        refTopo {}
+        unsTypeList {{Tri (STL like)} {All Tri} {All Quad} {Quad Dominant} {Quad w/one Tri}}
+        unsType {All Tri}
+        __hexMeshOptsUns_Last_Index 0
+        hexEntTypes {"Vertices" "Edges" "Faces" "Struct. & Swept Blocks" "All Blocks"}
+        what_to_mesh {All Blocks}
+        __hexMeshOptsDim_Last_Index 0
+        nTetSmooth 20
+    }
+}
+set geo_cad(use_toptol_userset) 1
+set geo_cad(toler) 0.0001

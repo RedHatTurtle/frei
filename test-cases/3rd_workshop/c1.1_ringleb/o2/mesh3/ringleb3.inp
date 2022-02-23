@@ -1,0 +1,125 @@
+&PAR_eqset
+ equationSet = 0
+ turbModel = 0
+ allspeed = 0
+/
+
+&PAR_mesh
+ ndim = 2
+/
+
+&PAR_fluid
+ F_gamma = 1.4
+ F_Cp = 1004.5
+ F_Cv = 717.5
+ F_R = 287.0
+ F_Pr = 0.72
+ F_Prt = 0.9
+/
+
+&PAR_suth
+ temp_su = 288.203086112494
+ amu_su = 18.27e-06
+ cte_su = 120.0
+/
+
+&PAR_ref
+ rho_ref = 1.225
+ vel_ref = 340.2939905434710
+ amu_ref = 1.0
+ dim_ref = 1.0
+ temp_ref = 288.2030861124940
+/
+
+&PAR_init
+ initType = 6
+ prop_ini = 0.5
+/
+
+&PAR_numerics
+ restart = 0
+ restartFile = "none"
+ backup = 0
+ niterbak = 1000
+ maxIter = 100
+ epsCon = 1.0e-12
+ epsBlow = 1.0e+6
+/
+
+&PAR_time
+ explicit_time = .false.
+ torder = 2
+ tstages = 5
+ implicit_time = .true.
+ tscheme = 0
+ isVariableTimeStep = .true.
+ deltaT = 1.0e-6
+ cfl = 1.0
+ isCFLRamp = .true.
+ cflMin = 1.0
+ cflMax = 1e10
+ rampMaxIter = 1000
+ nStartIncreasing = 10
+/
+
+&PAR_flux
+ ischeme = 1
+ dscheme = 1
+ ak2 = 0.25
+ ak4 = 0.011
+ iorder = 2
+ boundary_order = 4
+ igesFile = "none"
+ isMUSCL = .false.
+ isSFV = .false.
+ isSD = .true.
+ viscousflux = 0
+ viscous_alpha = 1
+ viscous_beta = 0
+ limiter = 0
+ niterlim = 0
+/
+
+&PAR_output
+ calculate_error = .false.
+ debug_mod = .true.
+ output_marker_trigger = .false.
+ output_conserved_gradients = .false.
+ output_primitive_gradients = .false.
+ output_total_flux_contour = .false.
+ output_viscous_flux_contour = .false.
+ output_residue_contour = .false.
+/
+
+&PAR_boco
+ groupBCsize = 4
+/
+
+entrada
+ 7
+ 0
+1
+Inflow
+0.0
+
+saida
+ 7
+ 0
+1
+Outflow
+0.0
+
+paredeout
+ 7
+ 0
+1
+Outer
+0.0
+
+paredein
+ 7
+ 0
+1
+Inner
+0.0
+

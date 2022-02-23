@@ -1,0 +1,19 @@
+----- Message log saved by carbrevi@ALA_PC180 at Thu Sep 18 04:11:38 PM BRT 2014
+
+--- Mesh Info ---
+Element types :
+        NODE : 5
+        LINE_2 : 318
+        QUAD_4 : 4619
+Element parts :
+        FFIELD : 211
+        GEOM : 5
+        LIVE : 4619
+        WALL : 107
+Total elements : 4942
+Total nodes : 4778
+Min : -9.99867 -10 0
+Max : 20 10 0
+
+
+
