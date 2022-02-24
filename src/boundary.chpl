@@ -238,8 +238,10 @@ module Boundary
 
   proc riemann(hostConsVars : [] real, bocoProperties : [] real, nrm : [] real) : [hostConsVars.domain] real
   {
+    import Parameters.ParamConstants.PI;
     import Flux.density;
-    import Flux.sound_speed;
+    import Flux.sound_speed_cv;
+    import Flux.sound_speed_temp;
 
     var idxDens : int   = hostConsVars.domain.dim(0).low;        // First element is density
     var idxMom  : range = hostConsVars.domain.dim(0).expand(-1); // Intermediary elements are the velocities
@@ -255,7 +257,7 @@ module Boundary
     var enerInt : real = hostConsVars[idxEner];
 
     var presInt : real = pressure_cv(hostConsVars);
-    var    aInt : real = sqrt( fGamma * presInt / densInt );
+    var    aInt : real = sound_speed_cv(hostConsVars);
 
     // Compute the internal invariants
     var velNrmInt : real = dot(velInt, uniNrm);
@@ -269,13 +271,13 @@ module Boundary
     var  tempExt = bocoProperties[5];
 
     var densExt : real = density(presExt, tempExt);
-    var    aExt : real = sound_speed(densExt, presExt);
+    var    aExt : real = sound_speed_temp(tempExt);
 
-    var velVExt : [nrm.domain] real;
-    velVExt[1] = machExt*aExt*cos(betaExt)*cos(alphaExt);
-    velVExt[2] = machExt*aExt*cos(betaExt)*sin(alphaExt);
-    if nrm.domain.high == 3 then
-      velVExt[3] = machExt*aExt*sin(betaExt);
+    var velVExt : [idxMom] real;
+    velVExt[idxMom.low] = machExt*aExt*cos(betaExt/180*PI)*cos(alphaExt/180*PI);
+    velVExt[idxMom.low+1] = machExt*aExt*cos(betaExt/180*PI)*sin(alphaExt/180*PI);
+    if idxMom.size == 3 then
+      velVExt[idxMom.high] = machExt*aExt*sin(betaExt);
 
     // Compute the external invariants
     var velNrmExt : real = dot(velVExt, uniNrm);
@@ -309,7 +311,7 @@ module Boundary
     // Compute the ghost variables
     var dens : real = ((a**2)/(fGamma*entr))**(1/(fGamma-1));
     var pres : real = dens*a**2/fGamma;
-    var ener : real = pres/(fGamma-1) + dens*norm(vel)/2.0;
+    var ener : real = pres/(fGamma-1) + dens*dot(vel,vel)/2.0;
 
     ghstConsVars[idxDens] = 2*dens     - densInt;
     ghstConsVars[idxMom ] = 2*dens*vel - densInt*velInt;

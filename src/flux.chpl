@@ -20,9 +20,9 @@ module Flux
 
     var idxRho : int   = cons.domain.dim(0).low;           // First element is density
 
-    var p : real = pressure_cv(cons);
+    var pres : real = pressure_cv(cons);
 
-    var temperature : real = p/(cons[idxRho]*fR);
+    var temperature : real = pres/(cons[idxRho]*fR);
 
     return temperature;
   }
@@ -67,7 +67,19 @@ module Flux
   {
     import Input.fGamma;
 
-    return sqrt(fGamma*pres/dens);
+    var a : real = sqrt(fGamma*pres/dens);
+
+    return a;
+  }
+
+  proc sound_speed_temp(temp : real) : real
+  {
+    import Input.fGamma;
+    import Input.fR;
+
+    var a : real = sqrt(fGamma*fR*temp);
+
+    return a;
   }
 
   proc sound_speed_cv(cons : [] real) : real
