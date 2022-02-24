@@ -1,0 +1,71 @@
+[parPhysics]
+  nDims  =  2
+  eqSet  =  6
+
+[parFluid]
+  fGamma =    1.4
+  fCp    = 1004.5
+  fCv    =  717.5
+  fR     =  287.0
+
+[parMesh]
+  meshFormat    = 1
+  meshFile      = "../../../meshfiles/naca_ref1-q1.msh"
+
+[parSpatial]
+  spatialScheme     = 11
+  dissipationScheme = 0
+  limiterScheme     = 0
+
+[parFR]
+  iOrder   = 2
+  minOrder = 0
+  maxOrder = 9
+  distSP   = 2
+  frScheme = 1
+
+[parTime]
+  timeScheme = 3
+  timeStep   = 0.000012
+
+[parOutput]
+  ioIter  = 2000
+  maxIter = 200000
+  ioTime  = 0.00
+  maxTime = 0.00
+
+[parRef]
+  rhoRef  = 1.0
+  pRef    = 1.0
+
+[parFamilies]
+  nFamilies = 4
+
+[parFamilies.1]
+  familyName = "MeshInterior"
+  familyDimension = 2
+  familyType = 0
+  familySubType = 60
+  familyParameters = [1.225, 208.303099241307, 7.27410451302232, 271044.375]
+
+[parFamilies.2]
+  familyName = "Airfoil"
+  familyDimension = 1
+  familyType = 4
+  familySubType = 42
+  familyParameters = []
+
+[parFamilies.3]
+  familyName = "Inflow"
+  familyDimension = 1
+  familyType = 3
+  familySubType = 31
+  familyParameters = [0.5, 2.0, 0.0, 101325.0, 288.2030861124940]
+
+[parFamilies.4]
+  familyName = "Outflow"
+  familyDimension = 1
+  familyType = 3
+  familySubType = 31
+  familyParameters = [0.5, 2.0, 0.0, 101325.0, 288.2030861124940]
+

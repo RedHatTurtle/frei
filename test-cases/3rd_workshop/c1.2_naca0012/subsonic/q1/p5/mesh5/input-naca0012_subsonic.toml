@@ -10,7 +10,7 @@
 
 [parMesh]
   meshFormat    = 1
-  meshFile      = "../../../meshfiles/naca_ref2-q1.msh"
+  meshFile      = "../../../meshfiles/naca_ref5-q1.msh"
 
 [parSpatial]
   spatialScheme     = 11
@@ -26,7 +26,7 @@
 
 [parTime]
   timeScheme = 3
-  timeStep   = 0.000005
+  timeStep   = 0.000000625
 
 [parOutput]
   ioIter  = 1000
@@ -46,7 +46,7 @@
   familyDimension = 2
   familyType = 0
   familySubType = 60
-  familyParameters = [1.225, 250.116083049451, 0.0, 278846.4]
+  familyParameters = [1.225, 208.303099241307, 7.27410451302232, 271044.375]
 
 [parFamilies.2]
   familyName = "Airfoil"
@@ -60,12 +60,12 @@
   familyDimension = 1
   familyType = 3
   familySubType = 31
-  familyParameters = [0.6, 0.0, 0.0, 101325.0, 288.2030861124940]
+  familyParameters = [0.5, 2.0, 0.0, 101325.0, 288.2030861124940]
 
 [parFamilies.4]
   familyName = "Outflow"
   familyDimension = 1
   familyType = 3
   familySubType = 31
-  familyParameters = [0.6, 0.0, 0.0, 101325.0, 288.2030861124940]
+  familyParameters = [0.5, 2.0, 0.0, 101325.0, 288.2030861124940]
 
