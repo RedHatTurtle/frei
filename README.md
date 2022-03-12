@@ -7,7 +7,7 @@ _Licensed under the GNU Affero General Public License v3.0_
 
 ## Intro
 This code is a prototype version of a full high-order Flux Reconstruction (developed by H.T. Huyhn from NASA Glenn) LES
-solver.
+solver.d
 
 The initial objective is to build an accurate, stable and efficient 1D Euler solver while also providing the basic
 building blocks and structure for future development of the solver. Most of the work done currently is still targeted
@@ -107,6 +107,7 @@ It seems like a good rule of thumb to try to use 4 letter abbreviations.
 ### Mesh related terms
 - `node`, `line`, `tria`, `quad`, `tetr`, `pyra`, `pris`, `hexa` : Mesh element topologies/geometries
 - `node`, `edge`, `face`, `cell` : Mesh Elements Hierarchy
+- `vert` : Vertices, nodes that are in the corner of an edge/face/cell
 - `boco`, `bc` : Boundary Condition
 - `faml` : Family
 - `ghst` : Ghost cell/FP

@@ -191,6 +191,7 @@ module Output
     use Flux;
     use Interpolation;
     use Parameters.ParamMesh;
+    import Mesh.elem_vertices;
 
     //const TecplotIOStyle = new iostyle(min_width_columns=15, showpointzero=0, showplus=1, precision=6, realfmt=2);
     //param fileRoot : string = "sol_gnuplt";
@@ -264,10 +265,36 @@ module Output
         // Zone data
         var spCnt : int = frMesh.xyzSP.domain.dim(0).high;
         var fpCnt : int = frMesh.xyzFP.domain.dim(0).high;
-        var nodeCnt : int = frMesh.nodeList.domain.dim(0).high;
-        var pointCnt : int = spCnt + fpCnt + nodeCnt;
         var elemCnt : int = frMesh.cellList.domain.dim(0).high*(frMesh.solOrder+2)**2;
         var realFormat : string = "  %{ 14.7er}";
+
+        // Calculate the average solution on the vertices and index them
+        var vertCnt : int = 0;
+        var nodeCellCnt : [frMesh.nodeList.domain] int = 0;
+        var nodeVertMap : [frMesh.nodeList.domain] int = 0;
+        var solNode : [frMesh.nodeList.domain.dim(0), 1..frMesh.nVars] real = 0.0;
+        for cellIdx in frMesh.cellList.domain
+        {
+          ref thisCell = frMesh.cellList[cellIdx];
+
+          for cellNodeIdx in 1..elem_vertices(thisCell.elemTopo())
+          {
+            var meshNodeIdx : int = thisCell.nodes[cellNodeIdx];
+
+            nodeCellCnt[meshNodeIdx] += 1;
+
+            // If this is the first time we loop though this vertex then index it
+            if nodeCellCnt[meshNodeIdx] == 1
+            {
+              vertCnt += 1;
+              nodeVertMap[meshNodeIdx] = vertCnt;
+            }
+
+            solNode[meshNodeIdx, ..] += dot(sp2nodeInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellNodeIdx, ..],
+                                            frMesh.solSP[frMesh.cellSPidx[cellIdx, 1]..#frMesh.cellSPidx[cellIdx, 2], ..]);
+          }
+        }
+        var pointCnt : int = spCnt + fpCnt + vertCnt;
 
         // Zone Header
         {
@@ -280,7 +307,7 @@ module Output
           outputChan.writef(", NV = 1"); // Position of the variable with the node index, assumed to be ordered
           outputChan.writef("\n");
 
-          if flagDouble // Defualt is SINGLE
+          if flagDouble // Default is SINGLE
           {
             outputChan.writef("DT = (DOUBLE, DOUBLE, DOUBLE ...)");
             realFormat = "  %{ 22.15er}";
@@ -336,28 +363,15 @@ module Output
             outputChan.writef("\n");
           }
 
-          // Calculate the average solution on the nodes
-          var cellCnt : [frMesh.nodeList.domain] int = 0;
-          var solNode : [frMesh.nodeList.domain.dim(0), 1..frMesh.nVars] real = 0.0;
-          for cellIdx in frMesh.cellList.domain
-          {
-            ref thisCell = frMesh.cellList[cellIdx];
-
-            for cellNodeIdx in thisCell.nodes.domain
-            {
-              var meshNodeIdx : int = thisCell.nodes[cellNodeIdx];
-              cellCnt[meshNodeIdx] += 1;
-              solNode[meshNodeIdx, ..] += dot(sp2nodeInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellNodeIdx, ..],
-                                          frMesh.solSP[frMesh.cellSPidx[cellIdx, 1]..#frMesh.cellSPidx[cellIdx, 2], ..]);
-            }
-          }
-
           // Loop through Nodes
           for nodeIdx in frMesh.nodeList.domain
           {
-            outputChan.writef(pointIdxFormat, spCnt + fpCnt + nodeIdx);
+            // Skip nodes that aren't vertices
+            if nodeCellCnt[nodeIdx] == 0 then continue;
 
-            solNode[nodeIdx, ..] = solNode[nodeIdx, ..]/cellCnt[nodeIdx];
+            outputChan.writef(pointIdxFormat, spCnt + fpCnt + nodeVertMap[nodeIdx]);
+
+            solNode[nodeIdx, ..] = solNode[nodeIdx, ..]/nodeCellCnt[nodeIdx];
 
             // Loop through spatial coordinates
             for dimIdx in 1..frMesh.nDims do
@@ -390,7 +404,7 @@ module Output
                                                  +"\n";
 
                 // Internal sub-cells
-                for subCell in 1..frMesh.solOrder**2
+                for subCell in 1..(frMesh.solOrder)**2
                 {
                   var lin : int = (subCell-1)/(frMesh.solOrder);
                   var col : int = (subCell-1)%(frMesh.solOrder);
@@ -403,7 +417,7 @@ module Output
                   outputChan.writef(connectivityFormat, sp1Idx, sp2Idx, sp3Idx, sp4Idx);
                 }
 
-                // Sub-cells on edges, loop through faces
+                // Sub-cells on edges, loop through quad faces
                 for cellFaceIdx in 1..4
                 {
                   // Get the global mesh index of this face
@@ -461,11 +475,12 @@ module Output
                   }
                 }
 
-                // Sub-cells on corners
+                // Sub-cells on corners, loop through quad vertices
                 for cellNodeIdx in 1..4
                 {
                   // Get the global index of the corner node
                   var meshNodeIdx : int = frMesh.cellList[cellIdx].nodes[cellNodeIdx];
+                  var vertIdx : int = nodeVertMap[meshNodeIdx];
 
                   // Get the global index of the neighboring FP counterclockwise to the node
                   var meshFace1Idx = frMesh.cellList[cellIdx].faces[cellNodeIdx];
@@ -505,7 +520,7 @@ module Output
                     when 4 do spIdx = frMesh.cellSPidx[cellIdx, 1] + (frMesh.solOrder+1)*(frMesh.solOrder);
                   }
 
-                  var nodePntIdx : int = spCnt + fpCnt + meshNodeIdx;
+                  var nodePntIdx : int = spCnt + fpCnt + vertIdx;
                   var fp1PntIdx  : int = spCnt + meshFP1Idx;
                   var spPntIdx   : int = spIdx;
                   var fp2PntIdx  : int = spCnt + meshFP2Idx;
