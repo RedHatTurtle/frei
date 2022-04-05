@@ -49,10 +49,10 @@ echo "------------------------------------------------------------"
 ###   Debug Build                              ###
 ##################################################
 PATH_TO_CBLAS_DIR="/usr/include"
-PATH_TO_BLAS_LIBS="/usr/lib64"
+PATH_TO_BLAS_LIBS="/usr/lib64/lapack"
 PATH_TO_LAPACKE_INCLUDE_DIR="/usr/include"
-PATH_TO_LIBGFORTRAN="/usr/lib64"
-PATH_TO_LAPACK_BINARIES="/usr/lib64"
+PATH_TO_LIBGFORTRAN="/usr/lib64/lapack"
+PATH_TO_LAPACK_BINARIES="/usr/lib64/lapack"
 
 echo "(1/3) Building Debug version of Frei..."
 echo
