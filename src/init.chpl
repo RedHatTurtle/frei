@@ -212,12 +212,17 @@ module Init
         for i in xyz.domain.dim(0) do
           flowVars[i,1..4] = ringleb_sol(xyz[i,1..2]);
       }
+      when IC_GENERIC_MEANFLOW
+      {
+        for ptIdx in xyz.domain.dim(0) do
+          flowVars[ptIdx, 1..Input.nEqs] = familyParameters[1..Input.nEqs];
+      }
     }
 
     return flowVars;
   }
 
-  proc nozzle_area(in x : real) : real
+  proc nozzle_area(x : real) : real
   {
     // Nozzle shape from "i do like cfd", vol 1 by Katate Masatsuka (Hiroaki Nishikawa), page 248
     // a(x) = 25/9(ae-at)(x-xt)^2 + at
@@ -228,7 +233,7 @@ module Init
     return 25.0/9.0*(exitArea-throatArea)*(x-xThroat)**2 + throatArea;
   }
 
-  proc nozzle_area_deriv(in x : real) : real
+  proc nozzle_area_deriv(x : real) : real
   {
     // Nozzle shape from "i do like cfd", vol 1 by Katate Masatsuka (Hiroaki Nishikawa), page 248
     // a(x) = 25/9(ae-at)(x-xt)^2 + at
@@ -240,7 +245,7 @@ module Init
     return 50.0/9.0*(exitArea-throatArea)*(x-xThroat);
   }
 
-  proc nozzle_mach_sub(in areaRatio : real) : real
+  proc nozzle_mach_sub(areaRatio : real) : real
   {
     var machA : real = 1.0;
     var machB : real = 0.0;
@@ -261,7 +266,7 @@ module Init
     return mach;
   }
 
-  proc nozzle_mach_sup(in areaRatio : real) : real
+  proc nozzle_mach_sup(areaRatio : real) : real
   {
     var machA : real =   1.0;
     var machB : real = 100.0;
@@ -284,6 +289,16 @@ module Init
 
   proc entropy_wave_1d(x : real) : real
   {}
+
+  proc freestream(familyParameters : [] real) : real
+  {
+    // Calculate the conserved varaibles given:
+    // - Mach
+    // - Alpha (Angle of Attack)
+    // - Beta (Sideslip)
+    // - Pressure
+    // - Temperature
+  }
 
   proc main()
   {

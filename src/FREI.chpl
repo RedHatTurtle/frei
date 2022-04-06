@@ -227,6 +227,7 @@ module FREI
       try! stdout.writeln("Unknown Error opening convergence log file.");
       try! stderr.writeln("Unknown Error opening convergence log file.");
     }
+    var convergenceLogChan = try! convergenceLogFile.writer();
 
 
     writeln();
@@ -610,7 +611,7 @@ module FREI
             iterTimer.elapsed(timeUnit), log10(norm(l2Delta)/norm(l2DeltaIni)));
 
         // Output full state to log file
-        log_convergence(convergenceLogFile, iteration, l1Delta, l2Delta, lInfDelta, l1RelativeDelta, l2RelativeDelta, lInfRelativeDelta);
+        log_convergence(convergenceLogChan, iteration, l1Delta, l2Delta, lInfDelta, l1RelativeDelta, l2RelativeDelta, lInfRelativeDelta);
 
         if iteration % ioIter == 0 then
           writef(" | Saving solution file\n");

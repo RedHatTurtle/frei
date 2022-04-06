@@ -3,7 +3,7 @@ module Output
   use IO;
   import FRMesh.fr_mesh_c;
 
-  proc log_convergence(convergenceLogFile : file, iteration : int, lInfDelta : [] real, l2Delta : [] real, l1Delta : [] real,
+  proc log_convergence(convergenceLogChan : channel, iteration : int, lInfDelta : [] real, l2Delta : [] real, l1Delta : [] real,
                        lInfRelativeDelta : [] real, l2RelativeDelta : [] real, l1RelativeDelta : [] real)
   {
     use IO;
@@ -13,8 +13,6 @@ module Output
 
     // Open writer channel and write to log
     try {
-      var convergenceLogChan = convergenceLogFile.writer();
-
       // Write header on first iteration
       if iteration == 1
       {
@@ -41,10 +39,9 @@ module Output
       convergenceLogChan.writef("]\n");
 
       convergenceLogChan.flush();
-      convergenceLogChan.close();
     }
     catch {
-      writeln("Failed to write to convegence log");
+      writeln("Failed to write to convergence log");
     }
   }
 

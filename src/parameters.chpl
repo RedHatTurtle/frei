@@ -128,7 +128,7 @@ module Parameters
     param IC_1D_NOZZLE_SHOCKED_TRANSONIC : int = 83;    // Quasi 1D Nozzle
 
     // High-Order Workshop test cases
-    param IC_GENERIC_MEANFLOW        : int;
+    param IC_GENERIC_MEANFLOW        : int = 60;
     param IC_CHANNEL_FLOW            : int;
     param IC_INVISCID_GAUSSIAN_BUMP  : int;
     param IC_LAMINAR_BNDLYR          : int;
@@ -153,7 +153,7 @@ module Parameters
     param BC_SUBTYPE_SUP_OUTFLOW      : int = 23;
     param BC_SUBTYPE_MDOT_OUTFLOW     : int = 24;
     // Generic Inflow/Outflow BCs
-    param BC_SUBTYPE_CHARACTERISTIC   : int = 31;
+    param BC_SUBTYPE_RIEMANN          : int = 31;
     param BC_SUBTYPE_GENERIC_FREEFLOW : int = 32;
     param BC_SUBTYPE_FREESTREAM       : int = 33;
     param BC_SUBTYPE_FIXED            : int = 34;

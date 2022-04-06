@@ -2,7 +2,10 @@ module Boundary
 {
   use Random;
   use UnitTest;
+  import LinearAlgebra.norm;
   import Mesh.faml_r;
+  import Input.fGamma;
+  import Input.fR;
 
   proc boundary(hostConsVars : [] real, faml : faml_r, xyz : [] real, nrm : [] real) : [hostConsVars.domain] real
   {
@@ -36,7 +39,8 @@ module Boundary
       when BC_TYPE_OPENING do
         select faml.bocoSubType
         {
-          when BC_SUBTYPE_CHARACTERISTIC {}
+          when BC_SUBTYPE_RIEMANN do
+            ghstConsVars = riemann(hostConsVars, faml.bocoProperties, nrm);
           when BC_SUBTYPE_GENERIC_FREEFLOW {}
           when BC_SUBTYPE_FREESTREAM {}
           when BC_SUBTYPE_FIXED {}
@@ -44,11 +48,15 @@ module Boundary
       when BC_TYPE_WALL do
         select faml.bocoSubType
         {
-          when BC_SUBTYPE_SLIP_WALL {}
-          when BC_SUBTYPE_EULER_WALL {}
-          when BC_SUBTYPE_ADIABATIC_WALL {}
+          when BC_SUBTYPE_SLIP_WALL do
+            ghstConsVars = symmetry(hostConsVars, nrm);
+          when BC_SUBTYPE_EULER_WALL do
+            ghstConsVars = symmetry(hostConsVars, nrm);
+          when BC_SUBTYPE_ADIABATIC_WALL do
+            ghstConsVars = wall_adiabatic(hostConsVars);
           when BC_SUBTYPE_ISOTHERMAL_WALL {}
-          when BC_SUBTYPE_DEFAULT_WALL {}
+          when BC_SUBTYPE_DEFAULT_WALL do
+            ghstConsVars = symmetry(hostConsVars, nrm);
         }
       when BC_TYPE_SPECIAL do
         select faml.bocoSubType
@@ -73,8 +81,39 @@ module Boundary
     return ghstConsVars;
   }
 
-  proc wall(hostConsVars : [] real, bocoProperties : [] real) : [hostConsVars.domain] real
+  proc symmetry(hostConsVars : [] real, nrm : [] real) : [hostConsVars.domain] real
   {
+    var idxDens : int   = hostConsVars.domain.dim(0).low;        // First element is density
+    var idxMom  : range = hostConsVars.domain.dim(0).expand(-1); // Intermediary elements are the momentum vector
+    var idxEner : int   = hostConsVars.domain.dim(0).high;       // Last element is energy
+
+    var uniNrm : [nrm.domain] real = nrm/norm(nrm);
+
+    var ghstConsVars : [hostConsVars.domain] real;
+
+    // Preserve density and energy
+    ghstConsVars[idxDens] = hostConsVars[idxDens];
+    ghstConsVars[idxEner] = hostConsVars[idxEner];
+
+    // Reflect momentum relative to the face normal
+    ghstConsVars[idxMom]  = hostConsVars[idxMom] - 2.0*dot(hostConsVars[idxMom], uniNrm)*uniNrm;
+
+    return ghstConsVars;
+  }
+
+  proc wall_adiabatic(hostConsVars : [] real) : [hostConsVars.domain] real
+  {
+    var idxDens : int   = hostConsVars.domain.dim(0).low;        // First element is density
+    var idxMom  : range = hostConsVars.domain.dim(0).expand(-1); // Intermediary elements are the velocities
+    var idxEner : int   = hostConsVars.domain.dim(0).high;       // Last element is energy
+
+    var ghstConsVars : [hostConsVars.domain] real;
+
+    ghstConsVars[idxDens] =  hostConsVars[idxDens];
+    ghstConsVars[idxMom]  = -hostConsVars[idxMom] ;
+    ghstConsVars[idxEner] =  hostConsVars[idxEner];
+
+    return ghstConsVars;
   }
 
   proc sub_inflow(hostConsVars : [] real, bocoProperties : [] real) : [hostConsVars.domain] real
@@ -197,8 +236,89 @@ module Boundary
     return ghstConsVars;
   }
 
-  proc opening(hostConsVars : [] real, bocoProperties : [] real) : [hostConsVars.domain] real
-  {}
+  proc riemann(hostConsVars : [] real, bocoProperties : [] real, nrm : [] real) : [hostConsVars.domain] real
+  {
+    import Parameters.ParamConstants.PI;
+    import Flux.density;
+    import Flux.sound_speed_cv;
+    import Flux.sound_speed_temp;
+
+    var idxDens : int   = hostConsVars.domain.dim(0).low;        // First element is density
+    var idxMom  : range = hostConsVars.domain.dim(0).expand(-1); // Intermediary elements are the velocities
+    var idxEner : int   = hostConsVars.domain.dim(0).high;       // Last element is energy
+
+    var uniNrm : [nrm.domain] real = nrm/norm(nrm);
+
+    var ghstConsVars : [hostConsVars.domain] real;
+
+    // Internal mesh condition
+    var densInt : real = hostConsVars[idxDens];
+    var  velInt : [idxMom] real = hostConsVars[idxMom]/densInt;
+    var enerInt : real = hostConsVars[idxEner];
+
+    var presInt : real = pressure_cv(hostConsVars);
+    var    aInt : real = sound_speed_cv(hostConsVars);
+
+    // Compute the internal invariants
+    var velNrmInt : real = dot(velInt, uniNrm);
+    var riemannP  : real = velNrmInt + 2.0*aInt/(fGamma-1);
+
+    // External boundary condition
+    var  machExt = bocoProperties[1];
+    var alphaExt = bocoProperties[2];
+    var  betaExt = bocoProperties[3];
+    var  presExt = bocoProperties[4];
+    var  tempExt = bocoProperties[5];
+
+    var densExt : real = density(presExt, tempExt);
+    var    aExt : real = sound_speed_temp(tempExt);
+
+    var velVExt : [idxMom] real;
+    velVExt[idxMom.low] = machExt*aExt*cos(betaExt/180*PI)*cos(alphaExt/180*PI);
+    velVExt[idxMom.low+1] = machExt*aExt*cos(betaExt/180*PI)*sin(alphaExt/180*PI);
+    if idxMom.size == 3 then
+      velVExt[idxMom.high] = machExt*aExt*sin(betaExt);
+
+    // Compute the external invariants
+    var velNrmExt : real = dot(velVExt, uniNrm);
+    var riemannM  : real = velNrmExt - 2.0*aExt/(fGamma-1);
+
+    // If the flow is supersonic then use only internal or external variables to calculate the invariants
+    if ( abs(velNrmInt/aInt) > 1.0 ) then
+      if ( velNrmInt < 0.0 ) then
+        riemannP = velNrmExt + 2.0*aExt/(fGamma-1);
+      else
+        riemannM = velNrmInt - 2.0*aInt/(fGamma-1);
+
+    // Compute normal velocity component and speed of sound at the interface using the invariants
+    var velNrm : real = (riemannP + riemannM)/2.0;
+    var a      : real = (riemannP - riemannM)*(fGamma-1)/4.0;
+    var vel    : [idxMom] real;
+    var entr   : real;
+
+    // Calculate the boundary properties based on the normal flow direction
+    if ( velNrm < 0.0 )
+    { // This is an inflow case
+      vel = velVExt + (velNrm-velNrmExt)*uniNrm;
+      entr = (aExt**2)/(fGamma*densExt**(fGamma-1));
+    }
+    else
+    { // This is an outflow case
+      vel = velInt + (velNrm-velNrmInt)*uniNrm;
+      entr = (aInt**2)/(fGamma*densInt**(fGamma-1));
+    }
+
+    // Compute the ghost variables
+    var dens : real = ((a**2)/(fGamma*entr))**(1/(fGamma-1));
+    var pres : real = dens*a**2/fGamma;
+    var ener : real = pres/(fGamma-1) + dens*dot(vel,vel)/2.0;
+
+    ghstConsVars[idxDens] = 2*dens     - densInt;
+    ghstConsVars[idxMom ] = 2*dens*vel - densInt*velInt;
+    ghstConsVars[idxEner] = 2*ener     - enerInt;
+
+    return ghstConsVars;
+  }
 
   proc dirichlet(hostConsVars : [] real, bocoProperties : [] real) : [hostConsVars.domain] real
   {
