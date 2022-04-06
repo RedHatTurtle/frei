@@ -1,0 +1,96 @@
+&PAR_eqset
+ equationSet = 0
+ turbModel = 0
+ allspeed = 0
+/
+ 
+&PAR_mesh
+ ndim = 2
+/
+ 
+&PAR_fluid
+ F_gamma = 1.4
+ F_Cp = 1004.5
+ F_Cv = 717.5
+ F_R = 287.0
+ F_Pr = 0.72
+ F_Prt = 0.9
+/
+ 
+&PAR_suth
+ temp_su = 288.203086112494
+ amu_su = 18.27e-06
+ cte_su = 120.0
+/
+ 
+&PAR_ref
+ rho_ref = 1.22711937716262975779
+ vel_ref = 340.0
+ amu_ref = 1.0
+ dim_ref = 1.0
+ temp_ref = 287.70532603285216525635
+/
+ 
+&PAR_init
+ initType = 0
+ prop_ini = 1.22711937716262975779, 0.0, 0.0, 0.0, 253312.5
+/
+ 
+&PAR_numerics
+ restart = 0
+ restartFile = "none"
+ backup = 0
+ niterbak = 1000
+ maxIter = 1000000
+ epsCon = 1.0e-12
+ epsBlow = 1.0e+6
+/
+ 
+&PAR_time
+ explicit_time = .true.
+ torder = 2
+ tstages = 5
+ implicit_time = .false.
+ tscheme = 2
+ isVariableTimeStep = .true.
+ deltaT = 2.0e-3
+ cfl = 2.0
+ isCFLRamp = .false.
+ cflMin = 1.0
+ cflMax = 2.0
+ rampMaxIter = 1000
+/
+ 
+&PAR_flux
+ ischeme = 1
+ dscheme = 1
+ ak2 = 0.25
+ ak4 = 0.011
+ iorder = 3
+ boundary_order = 1
+ igesFile = "none"
+ isMUSCL = .false.
+ isSFV = .false.
+ isSD = .true.
+ limiter = 3
+ niterlim = 0
+/
+ 
+&PAR_boco
+ groupBCsize = 2
+/
+ 
+ farfield
+ 4
+ 1
+ 1
+ FFIELD
+ 247.65858291, 9.99029083, 0.0, 101325.0, 287.70532603285216525635
+ 
+ parede
+ 1
+ 1
+ 1
+ WALL
+ 0.0
+ 

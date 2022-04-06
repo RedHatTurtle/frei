@@ -1,0 +1,177 @@
+// tetin file version 1.1
+// written by ANSYS ICEM CFD/AI*Environment - version 12.0 on Thu May 08 17:33:31 2008
+// written by ICEM CFD - version 12.1 on Mon May 31 16:33:57 2010
+// written by ICEM CFD - version 12.1 on Mon May 31 16:34:57 2010
+// written by ICEM CFD - version 12.1 on Sat Oct 9 14:07:54 2010
+// written by ICEM CFD - version 14.0 on Mon Aug 19 11:02:20 2013
+// written by ICEM CFD - version 14.0 on Mon Aug 26 15:42:19 2013
+// written by ICEM CFD - version 14.0 on Fri Sep 20 13:20:17 2013
+// written by ICEM CFD - version 14.0 on Mon Sep 23 17:35:23 2013
+// written by ICEM CFD - version 15.0 on Wed Aug 27 17:40:37 2014
+// written by ICEM CFD - version 15.0 on Wed Sep 10 17:43:28 2014
+// written by ICEM CFD - version 15.0 on Tue Sep 16 11:23:42 2014
+// written by ICEM CFD - version 15.0 on Tue Sep 16 11:33:22 2014
+// written by ICEM CFD - version 15.0 on Tue Sep 16 15:54:12 2014
+// written by ICEM CFD - version 15.0 on Tue Sep 16 16:12:28 2014
+// written by ICEM CFD - version 15.0 on Tue Sep 16 16:26:46 2014
+// written by ICEM CFD - version 15.0 on Tue Sep 16 17:03:26 2014
+// written by ICEM CFD - version 15.0 on Wed Sep 17 14:17:21 2014
+// written by ICEM CFD - version 15.0 on Wed Sep 17 14:25:43 2014
+// written by ICEM CFD - version 15.0 on Wed Sep 17 14:31:12 2014
+// written by ICEM CFD - version 15.0 on Thu Sep 18 15:35:58 2014
+// written by ICEM CFD - version 15.0 on Thu Sep 18 16:52:38 2014
+// written by ICEM CFD - version 15.0 on Fri Oct 3 17:29:23 2014
+// written by ICEM CFD - version 14.0 on Tue Oct 21 11:20:48 2014
+
+set_triangulation_tolerance 9.9999997e-05
+define_family WALL color 5911546
+define_family GEOM color 13609779
+define_family FFIELD color 8336364
+define_family LIVE color 3385298
+define_family METAL color 15610747
+define_family CREATED_FACES color 11782707
+
+prescribed_point 1 0 0 family GEOM name pnt.00
+prescribed_point 20 -10 0 family GEOM name pnt.04
+prescribed_point 20 10 0 family GEOM name pnt.05
+prescribed_point 0 10 0 family GEOM name pnt.06 dormant
+prescribed_point 7.870815466049e-07 -10 0 family GEOM name pnt.07 dormant
+prescribed_point 20 -10 0 family GEOM name GEOM.9
+prescribed_point 20 10 0 family GEOM name GEOM.10
+prescribed_point 1 -10 0 family GEOM name pnt.08
+prescribed_point 1 10 0 family GEOM name pnt.09
+prescribed_point 1 0.10000000149012 0 family GEOM name pnt.11
+prescribed_point 1 -0.10000000149012 0 family GEOM name pnt.12
+prescribed_point 1.1392620180573e-09 3.6429192995513e-17 0 family GEOM name pnt.02
+define_curve family FFIELD tetra_size 1e+10 name crv.00 vertex1 pnt.07 vertex2 pnt.04
+bspline
+2,2,0
+0,0,1,1
+0,-10,0
+20,-10,0
+define_curve family FFIELD tetra_size 1e+10 name crv.01 vertex1 pnt.04 vertex2 pnt.05
+bspline
+2,2,0
+0,0,1,1
+20,-10,0
+20,10,0
+define_curve family FFIELD tetra_size 1e+10 name crv.02 vertex1 pnt.05 vertex2 pnt.06
+bspline
+2,2,0
+0,0,1,1
+20,10,0
+0,10,0
+define_curve family FFIELD tetra_size 1e+10 name crv.03 vertex1 pnt.06 vertex2 pnt.07
+bspline
+5,3,1
+0,0,0,1.5707963267949,1.5707963267949
+3.1415926535898,3.1415926535898,3.1415926535898
+0,10,0,1
+-7.0710678118655,7.0710678118655,0,0.70710678118655
+-10,6.1232339957368e-16,0,1
+-7.0710678118655,-7.0710678118655,0,0.70710678118655
+-1.2246467991474e-15,-10,0,1
+define_curve family WALL tetra_size 1e+10 name crv.04
+bspline
+57,4,0
+0,0,0,0,0.003983489566325
+0.00796697913265,0.0159339582653,0.02390093739795,0.03983489566325,0.0478018747959
+0.0637358330612,0.0956037495918,0.1115377078571,0.1434056243877,0.159339582653
+0.1912074991836,0.2071414574489,0.2390093739795,0.2549433322448,0.318679165306
+0.3505470818366,0.4142829148978,0.4461508314284,0.5098866644896,0.5736224975508
+0.7010941636732,0.7648299967344,0.8285658297956,0.956037495918,1.0197733289792
+1.0197733289792,1.0197733289792,1.0835091620404,1.2109808281628,1.274716661224
+1.3384524942852,1.4659241604076,1.5296599934688,1.59339582653,1.6252637430606
+1.6889995761218,1.7208674926524,1.7846033257136,1.8005372839789,1.8324052005095
+1.8483391587748,1.8802070753054,1.8961410335707,1.9280089501013,1.9439429083666
+1.9758108248972,1.9917447831625,1.9997117622951,2.0156457205604,2.0236126996931
+2.0315796788258,2.0355631683921,2.0395466579584,2.0395466579584,2.0395466579584
+2.0395466579584
+0,0,0
+-1.0793907809503e-05,0.0013533099149461,0
+0.00033438912171599,0.0039869340521189,0
+0.0023041839150496,0.0089583001682715,0
+0.0064436720158214,0.014250068429273,0
+0.014752581614106,0.020927745590559,0
+0.02415927003342,0.025956401627767,0
+0.036392724405498,0.031119412369318,0
+0.054010777436652,0.037106665119641,0
+0.0746721604376,0.042138607973401,0
+0.10075603759581,0.047130981533874,0
+0.12177926770661,0.050246608243448,0
+0.14815138281361,0.053370324834327,0
+0.16931081640645,0.055314689576342,0
+0.19580050157033,0.057201849444576,0
+0.21701791417851,0.058315637133908,0
+0.25417285145964,0.059681990205212,0
+0.29135384483522,0.060168598060573,0
+0.34446617606646,0.059730766160644,0
+0.38694411321531,0.058584062948943,0
+0.44001143660075,0.056367632885454,0
+0.49304626489395,0.053453337157753,0
+0.57782538037437,0.047566704822034,0
+0.66248912874781,0.040175883956158,0
+0.74703845070059,0.031614637367854,0
+0.83150780932747,0.022293873367135,0
+0.91584859805298,0.011852345812083,0
+0.97897591153374,0.0030576016585387,0
+1,0,0
+0.97897591183819,-0.0030576016248334,0
+0.91584859786353,-0.011852345823734,0
+0.83150780953969,-0.022293873354912,0
+0.74703844973244,-0.031614637463615,0
+0.66248912933495,-0.040175883905727,0
+0.57782537976437,-0.047566704867161,0
+0.49304626454735,-0.053453337188261,0
+0.44001143545809,-0.056367632930067,0
+0.38694411397099,-0.05858406292884,0
+0.34446617516048,-0.059730766174568,0
+0.29135384523969,-0.060168598060856,0
+0.25417285025413,-0.059681990185758,0
+0.21701791422014,-0.058315637120002,0
+0.19580050033962,-0.057201849413645,0
+0.16931081599048,-0.055314689449225,0
+0.14815138354295,-0.053370325090178,0
+0.12177926395859,-0.050246607461637,0
+0.10075603513447,-0.047130981809739,0
+0.074672155277253,-0.042138605550945,0
+0.05401078494472,-0.03710666954678,0
+0.036392715030162,-0.031119406488828,0
+0.024159245804379,-0.025956396553729,0
+0.014752560274565,-0.020927721160746,0
+0.0064436771409366,-0.014250081945108,0
+0.0023041704222882,-0.0089582704762043,0
+0.00033440353608911,-0.0039869724221757,0
+-1.0808084585875e-05,-0.0013532580201915,0
+0,0,0
+affix 0
+define_model 8 reference_size 1
+global_meshing_parameter quadratic "0"
+global_meshing_parameter snorm "0"
+global_meshing_parameter shrinkwrap_projfactor "0.1"
+global_meshing_parameter shrinkwrap_nsmooth "5"
+global_meshing_parameter free_bunch "0"
+global_meshing_parameter mapped_method "1"
+global_meshing_parameter merge_surfs "1"
+global_meshing_parameter max_elements "0"
+global_meshing_parameter max_nodes "0"
+global_meshing_parameter min_angle "0.0"
+global_meshing_parameter max_length "0.0"
+global_meshing_parameter max_area "0.0"
+global_meshing_parameter smooth_dormant "0"
+global_meshing_parameter mesh_dormant "0"
+global_meshing_parameter impr_level "1"
+global_meshing_parameter try_harder "1"
+global_meshing_parameter ign_size "0.01"
+global_meshing_parameter surf_sizes "0"
+global_meshing_parameter proj_surf "1"
+global_meshing_parameter adjust_nodes_max "0.0"
+global_meshing_parameter block_mapping "0.2"
+global_meshing_parameter bound_smooth "0"
+global_meshing_parameter protect_line "0"
+global_meshing_parameter bunch_respect "0"
+global_meshing_parameter simple_offset "0"
+global_meshing_parameter mesh_method "2"
+global_meshing_parameter mesh_type "2"
+define_prism_meshing_parameters law 0 nlay 3 hratio 1.2
+return
