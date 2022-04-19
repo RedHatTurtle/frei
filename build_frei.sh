@@ -45,9 +45,12 @@ if [ ! -d "build" ]; then
 fi
 echo "------------------------------------------------------------"
 
+STD_LIBS="/usr/lib64/gcc/x86_64-suse-linux/11"
+
 ##################################################
 ###   Debug Build                              ###
 ##################################################
+# System BLAS/LAPACK
 PATH_TO_CBLAS_DIR="/usr/include"
 PATH_TO_BLAS_LIBS="/usr/lib64/lapack"
 PATH_TO_LAPACKE_INCLUDE_DIR="/usr/include"
@@ -59,6 +62,7 @@ echo
 chpl -o build/frei_dbg.$EXTENSION                          \
      --warnings                                            \
      --warn-unstable                                       \
+     -L$STD_LIBS                                           \
      -I$PATH_TO_CBLAS_DIR                                  \
      -L$PATH_TO_BLAS_LIBS -lcblas                          \
      -I$PATH_TO_LAPACKE_INCLUDE_DIR                        \
@@ -109,6 +113,7 @@ echo "(2/3) Building Optimized version of Frei..."
 echo
 chpl -o build/frei_opt.$EXTENSION                          \
      --fast                                                \
+     -L$STD_LIBS                                           \
      -I$PATH_TO_CBLAS_DIR                                  \
      -L$PATH_TO_BLAS_LIBS -lcblas                          \
      -I$PATH_TO_LAPACKE_INCLUDE_DIR                        \
@@ -153,8 +158,9 @@ fi
 echo "------------------------------------------------------------"
 
 ##################################################
-###   Optimizes Intel MKL Build                ###
+###   Optimized Intel MKL Build                ###
 ##################################################
+# Intel Libraries
 PATH_TO_CBLAS_DIR="/opt/intel/oneapi/mkl/latest/include"
 PATH_TO_BLAS_LIBS="/opt/intel/oneapi/mkl/latest/lib/intel64"
 PATH_TO_LAPACKE_INCLUDE_DIR="/opt/intel/oneapi/mkl/latest/include"
@@ -165,6 +171,7 @@ echo "(3/3) Building Optimized Intel MKL version of Frei..."
 echo
 chpl -o build/frei_mkl.$EXTENSION                          \
      --fast                                                \
+     -L$STD_LIBS                                           \
      --set blasImpl=mkl                                    \
      --set lapackImpl=mkl                                  \
      -I$PATH_TO_CBLAS_DIR                                  \
@@ -209,3 +216,61 @@ else
     echo "FAILED"
 fi
 echo "------------------------------------------------------------"
+
+##################################################
+###   Optimized AMD AOCL LibM Build            ###
+##################################################
+# AMD Libraries
+#PATH_TO_CBLAS_DIR="/opt/AMD/aocl/aocl-linux-aocc-3.1.0/include"
+#PATH_TO_BLAS_LIBS="/opt/AMD/aocl/aocl-linux-aocc-3.1.0/lib64"
+#PATH_TO_LAPACKE_INCLUDE_DIR="/opt/AMD/aocl/aocl-linux-aocc-3.1.0/include"
+#PATH_TO_LIBGFORTRAN="/opt/AMD/aocl/aocl-linux-aocc-3.1.0/lib"
+#PATH_TO_LAPACK_BINARIES="/opt/AMD/aocl/aocl-linux-aocc-3.1.0/lib"
+#
+#echo "(3/4) Building Optimized AMD AOCL LibM version of Frei..."
+#echo
+#chpl -o build/frei_amd.$EXTENSION                          \
+#     --fast                                                \
+#     -L$STD_LIBS                                           \
+#     -I$PATH_TO_CBLAS_DIR                                  \
+#     -L$PATH_TO_BLAS_LIBS -lblas                           \
+#     -I$PATH_TO_LAPACKE_INCLUDE_DIR                        \
+#     -L$PATH_TO_LIBGFORTRAN -lgfortran                     \
+#     -L$PATH_TO_LAPACK_BINARIES -llapacke -llapack -lcblas \
+#     --main-module "FREI" src/FREI.chpl                    \
+#                          src/fr.chpl                      \
+#                          src/temporal.chpl                \
+#                          src/output.chpl                  \
+#                          src/boundary.chpl                \
+#                          src/frmesh.chpl                  \
+#                          src/mapping.chpl                 \
+#                          src/mesh.chpl                    \
+#                          src/gmesh.chpl                   \
+#                          src/riemann.chpl                 \
+#                          src/flux.chpl                    \
+#                          src/correction.chpl              \
+#                          src/limiter.chpl                 \
+#                          src/projection.chpl              \
+#                          src/quadrature.chpl              \
+#                          src/interpolation.chpl           \
+#                          src/polynomials.chpl             \
+#                          src/sourceterm.chpl              \
+#                          src/init.chpl                    \
+#                          src/ringleb.chpl                 \
+#                          src/config.chpl                  \
+#                          src/input.chpl                   \
+#                          src/parameters.chpl              \
+#                          src/testing.chpl                 \
+#    2>&1 | tee build/frei_amd.$EXTENSION.log
+#if [ ${PIPESTATUS[0]} -eq 0 ]; then
+#    echo "OK"
+#    ln -srf build/frei_amd.$EXTENSION ./build/frei_amd
+#    if [ $SOURCE_CHANGES -eq 0 ] && [ $BUILD_SCRIPT_CHANGES -eq 0 ] ; then
+#        ln -srf build/frei_amd.$EXTENSION ./build/frei_amd.$GIT_BRANCH
+#    else
+#        ln -srf build/frei_amd.$EXTENSION ./build/frei_amd.$GIT_BRANCH-alpha
+#    fi
+#else
+#    echo "FAILED"
+#fi
+#echo "------------------------------------------------------------"

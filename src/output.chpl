@@ -90,7 +90,6 @@ module Output
     use Path;
     use Flux;
 
-    const GNUPlotIOStyle = new iostyle(min_width_columns=15, showpointzero=0, showplus=1, precision=6, realfmt=2);
     //param fileRoot : string = "sol_gnuplt";
     param fileExt  : string = ".dat";
     param nameSep  : string = "-";
@@ -99,7 +98,7 @@ module Output
     var outputFile : file;
 
     try {
-      outputFile = open(outputDir + pathSep + fileName , iomode.cw, style=GNUPlotIOStyle);
+      outputFile = open(outputDir + pathSep + fileName , iomode.cw);
     } catch {
       try! stdout.writeln("Unknown Error creating/opening output file.");
       try! stderr.writeln("Unknown Error creating/opening output file.");
@@ -193,7 +192,6 @@ module Output
     use Parameters.ParamMesh;
     import Mesh.elem_vertices;
 
-    //const TecplotIOStyle = new iostyle(min_width_columns=15, showpointzero=0, showplus=1, precision=6, realfmt=2);
     //param fileRoot : string = "sol_gnuplt";
     param fileExt  : string = ".dat";
     param nameSep  : string = "-";
