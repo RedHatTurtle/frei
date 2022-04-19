@@ -248,7 +248,6 @@ module Mapping
 
     // Get the node ordering for this element type
     var nodeOrder : [1..elemNodeCnt] int = node_order_elem(elemType);
-    writeln(nodeOrder);
 
     // Build mapping matrix
     for ptIdx in 1..interpPtCnt
