@@ -1,11 +1,16 @@
 #!/bin/bash
 
-# System BLAS/LAPACK
-PATH_TO_CBLAS_DIR="/usr/include"
-PATH_TO_BLAS_LIBS="/usr/lib64"
-PATH_TO_LAPACKE_INCLUDE_DIR="/usr/include"
-PATH_TO_LIBGFORTRAN="/usr/lib64"
-PATH_TO_LAPACK_BINARIES="/usr/lib64"
+# Initialise option flags
+BUILD_DBG="true"
+BUILD_OPT="true"
+BUILD_GENERIC="true"
+BUILD_INTEL="false"
+BUILD_AMD="false"
+
+if [[ $* == --no-dbg ]]; then BUILD_DBG="false"; fi
+if [[ $* == --no-opt ]]; then BUILD_OPT="false"; fi
+if [[ $* == --intel  ]]; then BUILD_INTEL="true"; BUILD_GENERIC="false"; fi
+if [[ $* == --amd    ]]; then BUILD_AMD="true"; BUILD_GENERIC="false"; fi
 
 # AMD Libraries
 #PATH_TO_CBLAS_DIR="/opt/AMD/aocl/aocl-linux-aocc-3.1.0/include"
@@ -24,8 +29,16 @@ PATH_TO_LAPACK_BINARIES="/usr/lib64"
 # Build all tests and save log
 echo
 echo "------------------------------------------------------------"
-echo
+
+# System BLAS/LAPACK
+PATH_TO_CBLAS_DIR="/usr/include"
+PATH_TO_BLAS_LIBS="/usr/lib64"
+PATH_TO_LAPACKE_INCLUDE_DIR="/usr/include"
+PATH_TO_LIBGFORTRAN="/usr/lib64"
+PATH_TO_LAPACK_BINARIES="/usr/lib64"
+
 echo -e "Building Interpolation Bench:"
+echo
 chpl -o bench/interpBench.chapel                                  \
      --fast                                                       \
      -L/usr/lib64/gcc/x86_64-suse-linux/11                        \

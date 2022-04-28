@@ -244,6 +244,7 @@ module InterpBench
     try! outputFile = open(fileName, iomode.cw);
     try! outputChan = outputFile.writer();
 
+    // Print input parameters
     try! outputChan.writeln("Input Parameters");
     try! outputChan.writeln("    - nDOF      : ", nDOF);
     try! outputChan.writeln("    - nReps     : ", nReps);
@@ -271,7 +272,6 @@ module InterpBench
       try! outputChan.writef("\n");
     }
 
-    // Print input parameters
     // Print the average result of each test
     try! outputChan.writeln();
     try! outputChan.writeln("Test reps average:");
@@ -306,7 +306,7 @@ module InterpBench
       try! outputChan.writef("\n");
     }
 
-    // Print the standard deviation of each test
+    // Print the ration of the standard deviation by the average duration of each test
     try! outputChan.writeln();
     try! outputChan.writeln("Test reps Std-Dev / Average:");
     for interpDegree in minDegree..maxDegree
