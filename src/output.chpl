@@ -288,8 +288,8 @@ module Output
               nodeVertMap[meshNodeIdx] = vertCnt;
             }
 
-            solNode[meshNodeIdx, ..] += dot(sp2nodeInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellNodeIdx, ..],
-                                            frMesh.solSP[frMesh.cellSPidx[cellIdx, 1]..#frMesh.cellSPidx[cellIdx, 2], ..]);
+            solNode[meshNodeIdx, ..] += dot(frMesh.solSP[.., frMesh.cellSPidx[cellIdx, 1]..#frMesh.cellSPidx[cellIdx, 2]],
+                                            sp2nodeInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellNodeIdx, ..]);
           }
         }
         var pointCnt : int = spCnt + fpCnt + vertCnt;
@@ -330,12 +330,12 @@ module Output
 
             // Loop through conserved variables
             for varIdx in 1..frMesh.nVars do
-              outputChan.writef(realFormat, frMesh.solSP[spIdx, varIdx]);
+              outputChan.writef(realFormat, frMesh.solSP[varIdx, spIdx]);
 
-            if flagPressure    then outputChan.writef(realFormat, pressure_cv(frMesh.solSP[spIdx, ..]));
-            if flagTemperature then outputChan.writef(realFormat, temperature_cv(frMesh.solSP[spIdx, ..]));
-            if flagMach        then outputChan.writef(realFormat, mach_cv(frMesh.solSP[spIdx, ..]));
-            if flagEntropy     then outputChan.writef(realFormat, entropy_cv(frMesh.solSP[spIdx, ..]));
+            if flagPressure    then outputChan.writef(realFormat,    pressure_cv(frMesh.solSP[.., spIdx]));
+            if flagTemperature then outputChan.writef(realFormat, temperature_cv(frMesh.solSP[.., spIdx]));
+            if flagMach        then outputChan.writef(realFormat,        mach_cv(frMesh.solSP[.., spIdx]));
+            if flagEntropy     then outputChan.writef(realFormat,     entropy_cv(frMesh.solSP[.., spIdx]));
 
             outputChan.writef("\n");
           }

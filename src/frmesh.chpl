@@ -15,7 +15,7 @@ module FRMesh {
     var  metSP_d : domain(rank=3, idxType=int);    // {1..nSPs, 1..nDims, 1..nDims}       nDims+1 if moving mesh
     var  jacSP_d : domain(rank=1, idxType=int);    // {1..nSPs}                           nDims+1 if moving mesh
 
-    var  solSP_d : domain(rank=2, idxType=int);    // {1..nSPs, 1..nVars}
+    var  solSP_d : domain(rank=2, idxType=int);    // {1..nVars, 1..nSPs}
     var  solFP_d : domain(rank=3, idxType=int);    // {1..nFPs, 1..2, 1..nVars}
     var  flxFP_d : domain(rank=3, idxType=int);    // {1..nFPs, 1..2, 1..nVars}
     var dSolSP_d : domain(rank=3, idxType=int);    // {1..nSPs, 1..nVars, 1..nVars}
@@ -38,7 +38,7 @@ module FRMesh {
     var    flxFP : [ flxFP_d] real;     // Discontinuous flux at FPs (1-Left / 2-right)
     var   dSolSP : [dSolSP_d] real;     // Gradient, at the SPs, of the discontinuous solution interpolation
     var   dSolFP : [dSolFP_d] real;     // Gradient, at the FPs, of the discontinuous flux reconstruction
-    var    resSP : [ solSP_d] real;     // conserved variables residual
+    var    resSP : [ solSP_d] real;     // Conserved variables residual
 
     var cellSPidx : [cellSPidx_d] int;  // Index of the first SP and number of SPs of a cell
     var faceFPidx : [faceFPidx_d] int;  // Index of the first FP and number of FPs of a face
@@ -321,7 +321,7 @@ module FRMesh {
         xyzSP_d  = {1..nSPs, 1..this.nDims};
         metSP_d  = {1..nSPs, 1..this.nDims, 1..this.nDims};
         jacSP_d  = {1..nSPs};
-        solSP_d  = {1..nSPs, 1..this.nVars};
+        solSP_d  = {1..this.nVars, 1..nSPs};
         dSolSP_d = {1..nSPs, 1..this.nVars, 1..this.nDims};
       }
 

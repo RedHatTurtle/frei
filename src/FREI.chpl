@@ -151,9 +151,9 @@ module FREI
       ref cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
       ref thisCell = frMesh.cellList[cellIdx];
 
-      frMesh.solSP[cellSPini.. #cellSPcnt, ..] = flow_condition(familySubType,
-                                                                familyParameters,
-                                                                frMesh.xyzSP[cellSPini.. #cellSPcnt, ..]);
+      frMesh.solSP[.., cellSPini.. #cellSPcnt] = flow_condition(familySubType                           ,
+                                                                familyParameters                        ,
+                                                                frMesh.xyzSP[cellSPini.. #cellSPcnt, ..]).T;
 
       // Interpolate solution to FPs
       for cellFace in thisCell.faces.domain
@@ -170,8 +170,8 @@ module FREI
           else
             cellFP = (cellFace-1)*(frMesh.solOrder+1) + (frMesh.faceFPidx[faceIdx, 2] - (meshFP - frMesh.faceFPidx[faceIdx, 1]));
 
-          frMesh.solFP[meshFP, faceSide, ..] = dot(sp2fpInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellFP, ..],
-                                                   frMesh.solSP[cellSPini.. #cellSPcnt,..]                       );
+          frMesh.solFP[meshFP, faceSide, ..] = dot(frMesh.solSP[.., cellSPini.. #cellSPcnt]                              ,
+                                                   sp2fpInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellFP, ..]);
         }
 
         // Check if the face's right neighbor is a Boundary Condition
@@ -188,7 +188,7 @@ module FREI
           for meshFP in faceFPini.. #faceFPcnt
           {
             // Calculate the boundary condition using the solution at the left neighbor´s corresponding FP
-            frMesh.solFP[meshFP, 2, ..] = Boundary.boundary(frMesh.solFP[meshFP, 1, ..], thisFaml,
+            frMesh.solFP[meshFP, 2, ..] = Boundary.boundary(frMesh.solFP[meshFP, 1, ..], thisFaml             ,
                                                             frMesh.xyzFP[meshFP, ..], frMesh.nrmFP[meshFP, ..]);
           }
         }
@@ -208,15 +208,15 @@ module FREI
 
         for varIdx in 1..frMesh.nVars
         {
-          var stableDegree : int = troubled_cell_marker(solPoly = frMesh.solSP[cellSPini.. #cellSPcnt, varIdx],
-                                                        cellTopo = frMesh.cellList[cellIdx].elemTopo(),
-                                                        solDegree = frMesh.solOrder);
+          var stableDegree : int = troubled_cell_marker(solPoly = frMesh.solSP[varIdx, cellSPini.. #cellSPcnt],
+                                                        cellTopo = frMesh.cellList[cellIdx].elemTopo()        ,
+                                                        solDegree = frMesh.solOrder                           );
 
           if stableDegree < frMesh.solOrder then
-            frMesh.solSP[cellSPini.. #cellSPcnt, varIdx] = projection_limiter(solPoly = frMesh.solSP[cellSPini.. #cellSPcnt, varIdx],
-                                                                              cellTopo = frMesh.cellList[cellIdx].elemTopo(),
-                                                                              solDegree = frMesh.solOrder,
-                                                                              projDegree = stableDegree);
+            frMesh.solSP[cellSPini.. #cellSPcnt, varIdx] = projection_limiter(solPoly = frMesh.solSP[varIdx, cellSPini.. #cellSPcnt],
+                                                                              cellTopo = frMesh.cellList[cellIdx].elemTopo()        ,
+                                                                              solDegree = frMesh.solOrder                           ,
+                                                                              projDegree = stableDegree                             );
         }
       }
     }
@@ -268,9 +268,9 @@ module FREI
             stopwatch.clear();
 
             if Input.eqSet == EQ_QUASI_1D_EULER then
-              forall spIdx in frMesh.resSP.domain.dim(0) do
-                frMesh.resSP[spIdx.. #1, ..] += -source_term(frMesh.xyzSP[spIdx.. #1, ..],
-                                                             frMesh.solSP[spIdx.. #1, ..],
+              forall spIdx in frMesh.resSP.domain.dim(1) do
+                frMesh.resSP[.., spIdx.. #1] += -source_term(frMesh.xyzSP[spIdx.. #1, ..],
+                                                             frMesh.solSP[.., spIdx.. #1],
                                                              Input.eqSet                 )
                                                * frMesh.jacSP[spIdx];
 
@@ -299,13 +299,13 @@ module FREI
                 select Input.eqSet
                 {
                   when EQ_CONVECTION do
-                    flxSP[ 1, .., meshSP-cellSPini+1] = convection_flux_cv_1d(frMesh.solSP[meshSP, ..]);
+                    flxSP[ 1, .., meshSP-cellSPini+1] = convection_flux_cv_1d(frMesh.solSP[.., meshSP]);
                   when EQ_INVBURGERS do
-                    flxSP[ 1, .., meshSP-cellSPini+1] = burgers_flux_cv_1d(frMesh.solSP[meshSP, ..]);
+                    flxSP[ 1, .., meshSP-cellSPini+1] = burgers_flux_cv_1d(frMesh.solSP[.., meshSP]);
                   when EQ_QUASI_1D_EULER do
-                    flxSP[ 1, .., meshSP-cellSPini+1] = euler_flux_cv_1d(frMesh.solSP[meshSP, ..]);
+                    flxSP[ 1, .., meshSP-cellSPini+1] = euler_flux_cv_1d(frMesh.solSP[.., meshSP]);
                   when EQ_EULER do
-                    flxSP[.., .., meshSP-cellSPini+1] = euler_flux_cv(frMesh.solSP[meshSP, ..]);
+                    flxSP[.., .., meshSP-cellSPini+1] = euler_flux_cv(frMesh.solSP[.., meshSP]);
                 }
               //dscFluxTime1 += dscFluxWatch.elapsed(timeUnit);
 
@@ -335,12 +335,12 @@ module FREI
 
                   for varIdx in 1..frMesh.nVars
                   {
-                    flx[1] = dot( flxSP[ 1, varIdx, 1..cellSPcnt]                   ,
+                    flx[1] = dot( flxSP[ 1, varIdx, 1..cellSPcnt]                            ,
                                   sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, ..]);
-                    flx[2] = dot( flxSP[ 2, varIdx, 1..cellSPcnt]                   ,
+                    flx[2] = dot( flxSP[ 2, varIdx, 1..cellSPcnt]                            ,
                                   sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, ..]);
                     // Doesn't work even though it seems like it should
-                    //flx = dot( flxSP[.., varIdx, 1..cellSPcnt]                  ,
+                    //flx = dot( flxSP[.., varIdx, 1..cellSPcnt]                            ,
                     //           sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, ..]);
 
                     frMesh.flxFP[meshFP, faceSide, varIdx] = dot(flx, uniNrm);
@@ -368,7 +368,7 @@ module FREI
                 for dimIdx in 1..frMesh.nDims
                 {
                   var flxsp = flxSP[dimIdx, .., 1..cellSPcnt];
-                  frMesh.resSP[meshSP, ..] += dot(flxsp, sp2spDeriv[(cellTopo, frMesh.solOrder)]!.coefs[cellSP, dimIdx, ..]);
+                  frMesh.resSP[.., meshSP] += dot(flxsp, sp2spDeriv[(cellTopo, frMesh.solOrder)]!.coefs[cellSP, dimIdx, ..]);
                 }
               }
               //dscFluxTime4 += dscFluxWatch.elapsed(timeUnit);
@@ -380,7 +380,7 @@ module FREI
           {
             stopwatch.clear();
 
-            // Interpolate solution to FPs
+            // Step 1: Interpolate solution to FPs
             cntFluxWatch.clear();
             forall cellIdx in frMesh.cellList.domain
             {
@@ -403,14 +403,14 @@ module FREI
                   else
                     cellFP = (cellFace-1)*(frMesh.solOrder+1) + (frMesh.faceFPidx[faceIdx, 2] - (meshFP - frMesh.faceFPidx[faceIdx, 1]));
 
-                  frMesh.solFP[meshFP, faceSide, ..] = dot(sp2fpInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellFP, ..],
-                                                           frMesh.solSP[cellSPini.. #cellSPcnt,..]                       );
+                  frMesh.solFP[meshFP, faceSide, ..] = dot(frMesh.solSP[.., cellSPini.. #cellSPcnt]                              ,
+                                                           sp2fpInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellFP, ..]);
                 }
               }
             }
             cntFluxTime1 += cntFluxWatch.elapsed(timeUnit);
 
-            // Apply boundary conditions
+            // Step 2: Apply boundary conditions
             cntFluxWatch.clear();
             forall faceIdx in frMesh.faceList.domain
             {
@@ -430,14 +430,14 @@ module FREI
                 forall meshFP in faceFPini.. #faceFPcnt
                 {
                   // Calculate the boundary condition using the solution at the left neighbor´s corresponding FP
-                  frMesh.solFP[meshFP, 2, ..] = Boundary.boundary(frMesh.solFP[meshFP, 1, ..], thisFaml,
+                  frMesh.solFP[meshFP, 2, ..] = Boundary.boundary(frMesh.solFP[meshFP, 1, ..], thisFaml             ,
                                                                   frMesh.xyzFP[meshFP, ..], frMesh.nrmFP[meshFP, ..]);
                 }
               }
             }
             cntFluxTime2 += cntFluxWatch.elapsed(timeUnit);
 
-            // Calculate interface correction
+            // Step 3: Calculate interface correction
             cntFluxWatch.clear();
             forall cellIdx in frMesh.cellList.domain
             {
@@ -516,9 +516,8 @@ module FREI
 
                     // The correction function was calculated in the computational domain already, therefore no
                     // transformation is required.
-                    frMesh.resSP[cellSPini.. #cellSPcnt, ..] += outer(
-                        flux_correction[(cellTopo, frMesh.solOrder+1)]!.correction[cellFP, 1..cellSPcnt],
-                        jump[..]                                                                        );
+                    frMesh.resSP[.., cellSPini.. #cellSPcnt] += outer(jump[..]                          ,
+                        flux_correction[(cellTopo, frMesh.solOrder+1)]!.correction[cellFP, 1..cellSPcnt]);
                   }
                   //corrTime += jumpCorrectionWatch.elapsed(timeUnit);
                 }
@@ -549,13 +548,13 @@ module FREI
 
             // Convert the residual from the computational to the physical domain
             forall meshSP in cellSPini.. #cellSPcnt do
-              frMesh.resSP[meshSP, ..] /= frMesh.jacSP[meshSP];
+              frMesh.resSP[.., meshSP] /= frMesh.jacSP[meshSP];
 
             // Update solution
-            frMesh.solSP[cellSPini.. #cellSPcnt, ..] = time_advance(frMesh.oldSolSP[cellSPini.. #cellSPcnt, ..],
-                                                                    frMesh.solSP[   cellSPini.. #cellSPcnt, ..],
-                                                                    frMesh.resSP[   cellSPini.. #cellSPcnt, ..],
-                                                                    dt, stage, Input.timeScheme);
+            frMesh.solSP[.., cellSPini.. #cellSPcnt] = time_advance(frMesh.oldSolSP[.., cellSPini.. #cellSPcnt],
+                                                                    frMesh.solSP[   .., cellSPini.. #cellSPcnt],
+                                                                    frMesh.resSP[   .., cellSPini.. #cellSPcnt],
+                                                                    dt, stage, Input.timeScheme                );
           }
 
           // Zero out residue
@@ -578,15 +577,15 @@ module FREI
 
               for varIdx in 1..frMesh.nVars
               {
-                var stableDegree : int = troubled_cell_marker(solPoly = frMesh.solSP[cellSPini.. #cellSPcnt, varIdx],
-                                                              cellTopo = frMesh.cellList[cellIdx].elemTopo(),
-                                                              solDegree = frMesh.solOrder);
+                var stableDegree : int = troubled_cell_marker(solPoly = frMesh.solSP[varIdx, cellSPini.. #cellSPcnt],
+                                                              cellTopo = frMesh.cellList[cellIdx].elemTopo()        ,
+                                                              solDegree = frMesh.solOrder                           );
 
                 if stableDegree < frMesh.solOrder then
-                  frMesh.solSP[cellSPini.. #cellSPcnt, varIdx] = projection_limiter(solPoly = frMesh.solSP[cellSPini.. #cellSPcnt, varIdx],
-                                                                                    cellTopo = frMesh.cellList[cellIdx].elemTopo(),
-                                                                                    solDegree = frMesh.solOrder,
-                                                                                    projDegree = stableDegree);
+                  frMesh.solSP[varIdx, cellSPini.. #cellSPcnt] = projection_limiter(solPoly    = frMesh.solSP[varIdx, cellSPini.. #cellSPcnt],
+                                                                                    cellTopo   = frMesh.cellList[cellIdx].elemTopo()         ,
+                                                                                    solDegree  = frMesh.solOrder                             ,
+                                                                                    projDegree = stableDegree                                );
               }
             }
           }
@@ -611,13 +610,13 @@ module FREI
         // Calculate solution delta from previous iteration
         for varIdx in 1..frMesh.nVars
         {
-          l1Delta[varIdx]           =      + reduce     (frMesh.oldSolSP[.., varIdx] - frMesh.solSP[.., varIdx]);
-          l2Delta[varIdx]           = sqrt(+ reduce     (frMesh.oldSolSP[.., varIdx] - frMesh.solSP[.., varIdx])**2);
-          lInfDelta[varIdx]         = max    reduce  abs(frMesh.oldSolSP[.., varIdx] - frMesh.solSP[.., varIdx]);
-          l1RelativeDelta[varIdx]   =      + reduce     (frMesh.oldSolSP[.., varIdx] - frMesh.solSP[.., varIdx]);
-          l2RelativeDelta[varIdx]   = sqrt(+ reduce     (frMesh.oldSolSP[.., varIdx] - frMesh.solSP[.., varIdx])**2);
-          lInfRelativeDelta[varIdx] = max    reduce abs((frMesh.oldSolSP[.., varIdx] - frMesh.solSP[.., varIdx])
-                                                         /frMesh.oldSolSP[.., varIdx]);
+          l1Delta[varIdx]           =      + reduce     (frMesh.oldSolSP[varIdx, ..] - frMesh.solSP[varIdx, ..]);
+          l2Delta[varIdx]           = sqrt(+ reduce     (frMesh.oldSolSP[varIdx, ..] - frMesh.solSP[varIdx, ..])**2);
+          lInfDelta[varIdx]         = max    reduce  abs(frMesh.oldSolSP[varIdx, ..] - frMesh.solSP[varIdx, ..]);
+          l1RelativeDelta[varIdx]   =      + reduce     (frMesh.oldSolSP[varIdx, ..] - frMesh.solSP[varIdx, ..]);
+          l2RelativeDelta[varIdx]   = sqrt(+ reduce     (frMesh.oldSolSP[varIdx, ..] - frMesh.solSP[varIdx, ..])**2);
+          lInfRelativeDelta[varIdx] = max    reduce abs((frMesh.oldSolSP[varIdx, ..] - frMesh.solSP[varIdx, ..])
+                                                        /frMesh.oldSolSP[varIdx, ..]                            );
         }
 
         // Save values from first iterations as reference
