@@ -20,6 +20,9 @@ FREI_opt
 frei_opt_real
 FREI_opt_real
 
+# Ignore built Fortran modules
+*.mod
+
 # I don't remember what this is. Mason is the Chapel package manager
 Mason.lock
 
@@ -31,6 +34,7 @@ test_frei.sh
 *_tests
 
 # Output files and images
+*.out
 *.dat
 *.svg
 
