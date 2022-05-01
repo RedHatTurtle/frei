@@ -64,6 +64,12 @@ module FREI
     var cntFluxTime4 : real = 0;
     cntFluxWatch.start();
 
+    var jumpCorrectionWatch : Timer;
+    var riemTime : real = 0;
+    var jumpTime : real = 0;
+    var corrTime : real = 0;
+    jumpCorrectionWatch.start();
+
     var iteration : int = 0;
 
     // 1. Read input data
@@ -287,7 +293,7 @@ module FREI
               // Allocate temporary flux array
               var flxSP : [1..frMesh.nDims, 1..frMesh.nVars, 1..cellSPcnt] real;
 
-              // Step 1: Calculate fluxes
+              // Step 1: Calculate fluxes at SPs
               //dscFluxWatch.clear();
               for meshSP in cellSPini.. #cellSPcnt do
                 select Input.eqSet
@@ -449,56 +455,72 @@ module FREI
 
                 for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
                 {
-                  // For 1D each face has 1 FP therefore the FP and the Face have the same index Relative to it's
-                  // position in the cell
-                  var cellFP : int;
-                  var faceFP : int = meshFP - frMesh.faceFPidx[faceIdx, 1] + 1;
-                  if faceSide == 1 then
-                    cellFP = (cellFace-1)*(frMesh.solOrder+1) +  meshFP - frMesh.faceFPidx[faceIdx, 1] + 1;
-                  else
-                    cellFP = (cellFace-1)*(frMesh.solOrder+1) + (frMesh.faceFPidx[faceIdx, 2] - (meshFP - frMesh.faceFPidx[faceIdx, 1]));
+                  var jump : [1..frMesh.nVars] real;
 
-                  // Calculate the flux jump = -1*(local_flux) + numerical_flux
-                  var jump = -frMesh.flxFP[meshFP, faceSide, ..];
+                  // Operation 1: Calculate Riemann flux at the FP
+                  //jumpCorrectionWatch.clear();
                   select Input.eqSet
                   {
                     when EQ_CONVECTION do
-                      jump += upwind_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..], frMesh.nrmFP[meshFP, ..]);
+                      jump = upwind_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..], frMesh.nrmFP[meshFP, ..]);
                     when EQ_INVBURGERS do
-                      jump += upwind_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..], frMesh.nrmFP[meshFP, ..]);
+                      jump = upwind_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..], frMesh.nrmFP[meshFP, ..]);
                     when EQ_QUASI_1D_EULER do
-                      jump += roe_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..], frMesh.nrmFP[meshFP, ..]);
+                      jump = roe_1d(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..], frMesh.nrmFP[meshFP, ..]);
                     when EQ_EULER do
-                      jump += roe(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..], frMesh.nrmFP[meshFP, ..]);
+                      jump = roe(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..], frMesh.nrmFP[meshFP, ..]);
                   }
+                  //riemTime += jumpCorrectionWatch.elapsed(timeUnit);
 
-                  // Convert fluxes from physical to computational domain.
-                  // Multiply the flux vector by the inverse Jacobian matrix and by the Jacobian determinant
-                  jump[..] = jump[..] * norm(frMesh.nrmFP[meshFP, ..], normType.norm2);
-
-                  select cellTopo
+                  // Operation 2: Calculate jump at a FP and convert it to the physical domain
+                  //jumpCorrectionWatch.clear();
                   {
-                    when TOPO_QUAD
+                    // Calculate the flux jump = -1*(local_flux) + numerical_flux
+                    jump -= frMesh.flxFP[meshFP, faceSide, ..];
+
+                    // Convert fluxes from physical to computational domain.
+                    // Multiply the flux vector by the inverse Jacobian matrix and by the Jacobian determinant
+                    jump[..] = jump[..] * norm(frMesh.nrmFP[meshFP, ..], normType.norm2);
+
+                    select cellTopo
                     {
-                      if faceSide == 1 && (cellFace == 1 || cellFace == 4) then
-                        jump *= -1;
-                      else if faceSide == 2 && (cellFace == 2 || cellFace == 3) then
-                        jump *= -1;
-                    }
-                    when TOPO_LINE
-                    {
-                      if faceSide == 1 && cellFace == 1 then
-                        jump *= -1;
-                      else if faceSide == 2 && cellFace == 2 then
-                        jump *= -1;
+                      when TOPO_LINE
+                      {
+                        if      faceSide == 1 && cellFace == 1 then
+                          jump *= -1;
+                        else if faceSide == 2 && cellFace == 2 then
+                          jump *= -1;
+                      }
+                      when TOPO_QUAD
+                      {
+                        if      faceSide == 1 && (cellFace == 1 || cellFace == 4) then
+                          jump *= -1;
+                        else if faceSide == 2 && (cellFace == 2 || cellFace == 3) then
+                          jump *= -1;
+                      }
                     }
                   }
+                  //jumpTime += jumpCorrectionWatch.elapsed(timeUnit);
 
-                  // The correction function was calculated in the computational domain already, therefore no
-                  // transformation is required.
-                  frMesh.resSP[cellSPini.. #cellSPcnt, ..] += outer(
-                      flux_correction[(cellTopo, frMesh.solOrder+1)]!.correction[cellFP, 1..cellSPcnt],
-                      jump[..]);
+                  // Operation 3: Apply the correction to the residue matrix
+                  //jumpCorrectionWatch.clear();
+                  {
+                    // For 1D each face has 1 FP therefore the FP and the Face have the same index Relative to it's
+                    // position in the cell
+                    var cellFP : int;
+                    var faceFP : int = meshFP - frMesh.faceFPidx[faceIdx, 1] + 1;
+                    if faceSide == 1 then
+                      cellFP = (cellFace-1)*(frMesh.solOrder+1) +  meshFP - frMesh.faceFPidx[faceIdx, 1] + 1;
+                    else
+                      cellFP = (cellFace-1)*(frMesh.solOrder+1) + (frMesh.faceFPidx[faceIdx, 2] - (meshFP - frMesh.faceFPidx[faceIdx, 1]));
+
+                    // The correction function was calculated in the computational domain already, therefore no
+                    // transformation is required.
+                    frMesh.resSP[cellSPini.. #cellSPcnt, ..] += outer(
+                        flux_correction[(cellTopo, frMesh.solOrder+1)]!.correction[cellFP, 1..cellSPcnt],
+                        jump[..]                                                                        );
+                  }
+                  //corrTime += jumpCorrectionWatch.elapsed(timeUnit);
                 }
               }
             }
@@ -631,20 +653,23 @@ module FREI
     var totalTime : real = totalTimer.elapsed(timeUnit);
     writeln();
     writef("Time splits:\n");
-    writef("- Init      : %11.2dr ms - %4.1dr%% of Run-Time\n",      initTime,      initTime/totalTime*100);
-    writef("- Residue   : %11.2dr ms - %4.1dr%% of Run-Time\n",   residueTime,   residueTime/totalTime*100);
-    writef("  - Src Term: %11.2dr ms - %4.1dr%% of Run-Time\n",   srcTermTime,   srcTermTime/totalTime*100);
-    writef("  - Dsc Flux: %11.2dr ms - %4.1dr%% of Run-Time\n",   dscFluxTime,   dscFluxTime/totalTime*100);
-    writef("    - Step 1: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime1,  dscFluxTime1/dscFluxTime*100);
-    writef("    - Step 2: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime2,  dscFluxTime2/dscFluxTime*100);
-    writef("    - Step 3: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime3,  dscFluxTime3/dscFluxTime*100);
-    writef("    - Step 4: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime4,  dscFluxTime4/dscFluxTime*100);
-    writef("  - Cnt Flux: %11.2dr ms - %4.1dr%% of Run-Time\n",   cntFluxTime,   cntFluxTime/totalTime*100);
-    writef("    - Step 1: %11.2dr ms - %4.1dr%% of Cnt Flux\n",  cntFluxTime1,  cntFluxTime1/cntFluxTime*100);
-    writef("    - Step 2: %11.2dr ms - %4.1dr%% of Cnt Flux\n",  cntFluxTime2,  cntFluxTime2/cntFluxTime*100);
-    writef("    - Step 3: %11.2dr ms - %4.1dr%% of Cnt Flux\n",  cntFluxTime3,  cntFluxTime3/cntFluxTime*100);
-    writef("- Stabilize : %11.2dr ms - %4.1dr%% of Run-Time\n", stabilizeTime, stabilizeTime/totalTime*100);
-    writef("- Time-Step : %11.2dr ms - %4.1dr%% of Run-Time\n",  timeStepTime,  timeStepTime/totalTime*100);
+    writef("- Init      : %11.2dr ms - %4.1dr%% of Run-Time\n",      initTime,      initTime/totalTime   *100);
+    writef("- Residue   : %11.2dr ms - %4.1dr%% of Run-Time\n",   residueTime,   residueTime/totalTime   *100);
+    writef("  - Src Term: %11.2dr ms - %4.1dr%% of Run-Time\n",   srcTermTime,   srcTermTime/totalTime   *100);
+    writef("  - Dsc Flux: %11.2dr ms - %4.1dr%% of Run-Time\n",   dscFluxTime,   dscFluxTime/totalTime   *100);
+    writef("    - Step 1: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime1,  dscFluxTime1/dscFluxTime *100);
+    writef("    - Step 2: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime2,  dscFluxTime2/dscFluxTime *100);
+    writef("    - Step 3: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime3,  dscFluxTime3/dscFluxTime *100);
+    writef("    - Step 4: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime4,  dscFluxTime4/dscFluxTime *100);
+    writef("  - Cnt Flux: %11.2dr ms - %4.1dr%% of Run-Time\n",   cntFluxTime,   cntFluxTime/totalTime   *100);
+    writef("    - Step 1: %11.2dr ms - %4.1dr%% of Cnt Flux\n",  cntFluxTime1,  cntFluxTime1/cntFluxTime *100);
+    writef("    - Step 2: %11.2dr ms - %4.1dr%% of Cnt Flux\n",  cntFluxTime2,  cntFluxTime2/cntFluxTime *100);
+    writef("    - Step 3: %11.2dr ms - %4.1dr%% of Cnt Flux\n",  cntFluxTime3,  cntFluxTime3/cntFluxTime *100);
+    writef("      - Op 1: %11.2dr ms - %4.1dr%% of St3 Flux\n",      riemTime,      riemTime/cntFluxTime3*100);
+    writef("      - Op 2: %11.2dr ms - %4.1dr%% of St3 Flux\n",      jumpTime,      jumpTime/cntFluxTime3*100);
+    writef("      - Op 3: %11.2dr ms - %4.1dr%% of St3 Flux\n",      corrTime,      corrTime/cntFluxTime3*100);
+    writef("- Stabilize : %11.2dr ms - %4.1dr%% of Run-Time\n", stabilizeTime, stabilizeTime/totalTime   *100);
+    writef("- Time-Step : %11.2dr ms - %4.1dr%% of Run-Time\n",  timeStepTime,  timeStepTime/totalTime   *100);
     writef("---------------------------------------------------------\n");
     var sumTime : real = initTime + srcTermTime + dscFluxTime + cntFluxTime + stabilizeTime + timeStepTime;
     writef("  Sum       : %11.2dr ms - %4.1dr%% of Run-Time\n",  sumTime,  sumTime/totalTime*100);
