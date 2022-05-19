@@ -225,17 +225,15 @@ module FREI
     // 11. Save first restart file
 
     // 12. Initialize convergence monitoring variables
-    var l2DeltaIni           : [1..frMesh.nVars] real;
-    var l2RelativeDeltaIni   : [1..frMesh.nVars] real;
-    var convergenceLogFile   : file;
+    var l2SolDeltaAbsIni : [1..frMesh.nVars] real;
+    var convergenceLogFile : file;
     try! {
-      convergenceLogFile = open("convengence.dat" , iomode.cw);
+      convergenceLogFile = open("convergence.dat", iomode.cw);
     } catch {
       try! stdout.writeln("Unknown Error opening convergence log file.");
       try! stderr.writeln("Unknown Error opening convergence log file.");
     }
     var convergenceLogChan = try! convergenceLogFile.writer();
-
 
     writeln();
     initTime = stopwatch.elapsed(timeUnit);
@@ -601,38 +599,38 @@ module FREI
 
       // Calculate and print convergence metrics
       {
-        var l1Delta              : [1..frMesh.nVars] real;
-        var l2Delta              : [1..frMesh.nVars] real;
-        var lInfDelta            : [1..frMesh.nVars] real;
-        var l1RelativeDelta      : [1..frMesh.nVars] real;
-        var l2RelativeDelta      : [1..frMesh.nVars] real;
-        var lInfRelativeDelta    : [1..frMesh.nVars] real;
+        var l1SolDeltaAbs : [1..frMesh.nVars] real;
+        var l2SolDeltaAbs : [1..frMesh.nVars] real;
+        var lfSolDeltaAbs : [1..frMesh.nVars] real;
+        var l1SolDeltaRel : [1..frMesh.nVars] real;
+        var l2SolDeltaRel : [1..frMesh.nVars] real;
+        var lfSolDeltaRel : [1..frMesh.nVars] real;
 
         // Calculate solution delta from previous iteration
-        for varIdx in 1..frMesh.nVars
+        forall varIdx in 1..frMesh.nVars
         {
-          l1Delta[varIdx]           =      + reduce     (frMesh.oldSolSP[varIdx, ..] - frMesh.solSP[varIdx, ..]);
-          l2Delta[varIdx]           = sqrt(+ reduce     (frMesh.oldSolSP[varIdx, ..] - frMesh.solSP[varIdx, ..])**2);
-          lInfDelta[varIdx]         = max    reduce  abs(frMesh.oldSolSP[varIdx, ..] - frMesh.solSP[varIdx, ..]);
-          l1RelativeDelta[varIdx]   =      + reduce     (frMesh.oldSolSP[varIdx, ..] - frMesh.solSP[varIdx, ..]);
-          l2RelativeDelta[varIdx]   = sqrt(+ reduce     (frMesh.oldSolSP[varIdx, ..] - frMesh.solSP[varIdx, ..])**2);
-          lInfRelativeDelta[varIdx] = max    reduce abs((frMesh.oldSolSP[varIdx, ..] - frMesh.solSP[varIdx, ..])
-                                                        /frMesh.oldSolSP[varIdx, ..]                            );
+          l1SolDeltaAbs[varIdx] =     (  + reduce  abs(frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..])   );
+          l2SolDeltaAbs[varIdx] = sqrt(  + reduce     (frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..])**2);
+          lfSolDeltaAbs[varIdx] =     (max reduce  abs(frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..])   );
+          l1SolDeltaRel[varIdx] =     (  + reduce abs((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..])
+                                                      /                           frMesh.oldSolSP[varIdx, ..] )   );
+          l2SolDeltaRel[varIdx] = sqrt(  + reduce    ((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..])
+                                                      /                           frMesh.oldSolSP[varIdx, ..] )**2);
+          lfSolDeltaRel[varIdx] =     (max reduce abs((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..])
+                                                      /                           frMesh.oldSolSP[varIdx, ..] )   );
         }
 
-        // Save values from first iterations as reference
-        if iteration == 1
-        {
-          l2DeltaIni         = l2Delta;
-          l2RelativeDeltaIni = l2RelativeDelta;
-        }
+        // Save deltas from first iterations as reference
+        if iteration == 1 then
+          l2SolDeltaAbsIni = l2SolDeltaAbs;
 
         // Output summarized convergence metrics to stdOut
-        writef("Iteration %9i | Time %{ 10.2dr}ms | Log10(L2(ΔSol)/L2(ΔSol0)) = %{ 7.4dr}", iteration,
-            iterTimer.elapsed(timeUnit), log10(norm(l2Delta)/norm(l2DeltaIni)));
+        writef("Iteration %9i | Time %{ 10.2dr}ms | Log10(L2(ΔSol)/L2(ΔSol0)) = %{ 7.4dr}",
+            iteration, iterTimer.elapsed(timeUnit), log10(norm(l2SolDeltaAbs)/norm(l2SolDeltaAbsIni)));
 
         // Output full state to log file
-        log_convergence(convergenceLogChan, iteration, l1Delta, l2Delta, lInfDelta, l1RelativeDelta, l2RelativeDelta, lInfRelativeDelta);
+        log_convergence(convergenceLogChan, iteration, l1SolDeltaAbs, l2SolDeltaAbs, lfSolDeltaAbs,
+                                                       l1SolDeltaRel, l2SolDeltaRel, lfSolDeltaRel);
 
         if iteration % ioIter == 0 then
           writef(" | Saving solution file\n");
