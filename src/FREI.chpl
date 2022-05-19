@@ -199,6 +199,7 @@ module FREI
     iterOutput(iteration, frMesh);
 
     // 10. Stabilize initial solution
+    if Input.limiterScheme != LIMITER_NONE
     {
       // Loop through cells
       forall cellIdx in frMesh.cellList.domain
@@ -213,7 +214,7 @@ module FREI
                                                         solDegree = frMesh.solOrder                           );
 
           if stableDegree < frMesh.solOrder then
-            frMesh.solSP[cellSPini.. #cellSPcnt, varIdx] = projection_limiter(solPoly = frMesh.solSP[varIdx, cellSPini.. #cellSPcnt],
+            frMesh.solSP[varIdx, cellSPini.. #cellSPcnt] = projection_limiter(solPoly = frMesh.solSP[varIdx, cellSPini.. #cellSPcnt],
                                                                               cellTopo = frMesh.cellList[cellIdx].elemTopo()        ,
                                                                               solDegree = frMesh.solOrder                           ,
                                                                               projDegree = stableDegree                             );
