@@ -46,6 +46,33 @@ module Output
     }
   }
 
+  proc print_log(logChan : channel, iteration : int, logVar : [] (string, real))
+  {
+    use IO;
+
+    // Open writer channel and write to log
+    try {
+      // Write header on first iteration
+      if iteration == 1
+      {
+        logChan.writef("%10s", "Iteration");
+        for varIdx in logVar.domain do
+          logChan.writef(" %19s", logVar[varIdx](0));
+        logChan.writef("\n");
+      }
+
+      logChan.writef("%10i", iteration);
+      for varIdx in logVar.domain do
+        logChan.writef(" %{ 19.12er}", logVar[varIdx](1));
+      logChan.writef("\n");
+
+      logChan.flush();
+    }
+    catch {
+      writeln("Failed to write log file log");
+    }
+  }
+
   // Select the adequate output routines that need to be run
   proc iterOutput(nIter : int, frMesh : fr_mesh_c)
   {

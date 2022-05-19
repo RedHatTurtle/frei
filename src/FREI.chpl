@@ -16,6 +16,7 @@ module FREI
     use Riemann;
     use Interpolation;
     use Output;
+    use ErrorCalc;
     use Gmesh;
     use Mesh;
     use FRMesh;
@@ -227,13 +228,16 @@ module FREI
     // 12. Initialize convergence monitoring variables
     var l2SolDeltaAbsIni : [1..frMesh.nVars] real;
     var convergenceLogFile : file;
+    var       errorLogFile : file;
     try! {
       convergenceLogFile = open("convergence.dat", iomode.cw);
+            errorLogFile = open(      "error.dat", iomode.cw);
     } catch {
       try! stdout.writeln("Unknown Error opening convergence log file.");
       try! stderr.writeln("Unknown Error opening convergence log file.");
     }
     var convergenceLogChan = try! convergenceLogFile.writer();
+    var       errorLogChan = try!       errorLogFile.writer();
 
     writeln();
     initTime = stopwatch.elapsed(timeUnit);
@@ -631,6 +635,13 @@ module FREI
         // Output full state to log file
         log_convergence(convergenceLogChan, iteration, l1SolDeltaAbs, l2SolDeltaAbs, lfSolDeltaAbs,
                                                        l1SolDeltaRel, l2SolDeltaRel, lfSolDeltaRel);
+
+        if Input.outError > 0
+        {
+          // Output all calculated errors
+          var errors = error_calc(Input.outError, frMesh);
+          print_log(errorLogChan, iteration, errors);
+        }
 
         if iteration % ioIter == 0 then
           writef(" | Saving solution file\n");

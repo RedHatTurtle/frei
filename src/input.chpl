@@ -50,6 +50,7 @@ module Input
   var maxIter : int = 10000;         // Maximum number of iterations
   var ioTime  : real =-0.01;         // Time interval between output dumps
   var maxTime : real = 1.00;         // Maximum time to simulate
+  var outError: int =     0;         // Calculate and output solution error
 
   //parRef
   var rhoRef  : real = 1.0;          // Reference density for non-dimensionalization
@@ -170,6 +171,7 @@ module Input
       maxIter  = tomlData!["parOutput"]!["maxIter"]!.i : int;
       ioTime   = tomlData!["parOutput"]!["ioTime"]!.re : real;
       maxTime  = tomlData!["parOutput"]!["maxTime"]!.re : real;
+      outError = tomlData!["parOutput"]!["outError"]!.i : int;
 
       // parRef
       rhoRef   = tomlData!["parRef"]!["rhoRef"]!.re : real;

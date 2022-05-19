@@ -54,7 +54,7 @@ module Flux
   {
     import Input.fGamma;
 
-    var idxDens : int   = cons.domain.dim(0).high;          // Last element is energy
+    var idxDens : int   = cons.domain.dim(0).low;          // Last element is energy
 
     var pressure : real = pressure_cv(cons);
 

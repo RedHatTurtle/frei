@@ -83,6 +83,7 @@ if [[ $BUILD_GENERIC == "true" ]]; then
                                   src/fr.chpl                      \
                                   src/temporal.chpl                \
                                   src/output.chpl                  \
+                                  src/error.chpl                   \
                                   src/boundary.chpl                \
                                   src/frmesh.chpl                  \
                                   src/mapping.chpl                 \
@@ -135,6 +136,7 @@ if [[ $BUILD_GENERIC == "true" ]]; then
                                   src/fr.chpl                      \
                                   src/temporal.chpl                \
                                   src/output.chpl                  \
+                                  src/error.chpl                   \
                                   src/boundary.chpl                \
                                   src/frmesh.chpl                  \
                                   src/mapping.chpl                 \
@@ -200,6 +202,7 @@ if [[ $BUILD_INTEL == "true" ]]; then
                                   src/fr.chpl                      \
                                   src/temporal.chpl                \
                                   src/output.chpl                  \
+                                  src/error.chpl                   \
                                   src/boundary.chpl                \
                                   src/frmesh.chpl                  \
                                   src/mapping.chpl                 \
@@ -251,6 +254,7 @@ if [[ $BUILD_INTEL == "true" ]]; then
                                   src/fr.chpl                      \
                                   src/temporal.chpl                \
                                   src/output.chpl                  \
+                                  src/error.chpl                   \
                                   src/boundary.chpl                \
                                   src/frmesh.chpl                  \
                                   src/mapping.chpl                 \
@@ -314,6 +318,7 @@ if [[ $BUILD_AMD == "true" ]]; then
                                   src/fr.chpl                      \
                                   src/temporal.chpl                \
                                   src/output.chpl                  \
+                                  src/error.chpl                   \
                                   src/boundary.chpl                \
                                   src/frmesh.chpl                  \
                                   src/mapping.chpl                 \
@@ -363,6 +368,7 @@ if [[ $BUILD_AMD == "true" ]]; then
                                   src/fr.chpl                      \
                                   src/temporal.chpl                \
                                   src/output.chpl                  \
+                                  src/error.chpl                   \
                                   src/boundary.chpl                \
                                   src/frmesh.chpl                  \
                                   src/mapping.chpl                 \
