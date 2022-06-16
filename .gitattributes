@@ -1,1 +1,2 @@
+test-cases/3rd_workshop/c1.2_naca0012/meshfiles/naca_ref5.gmsh filter=lfs diff=lfs merge=lfs -text
 naca_ref5.gmsh filter=lfs diff=lfs merge=lfs -text
