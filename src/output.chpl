@@ -373,18 +373,20 @@ module Output
           {
             outputChan.writef(pointIdxFormat, spCnt + fpIdx);
 
+            var avgSol : [1..frMesh.nVars] real = ( frMesh.solFP[fpIdx, 1, ..] + frMesh.solFP[fpIdx, 2, ..] )/2.0;
+
             // Loop through spatial coordinates
             for dimIdx in 1..frMesh.nDims do
               outputChan.writef(realFormat, frMesh.xyzFP[fpIdx, dimIdx]);
 
             // Loop through conserved variables
             for varIdx in 1..frMesh.nVars do
-              outputChan.writef(realFormat, (frMesh.solFP[fpIdx, 1, varIdx]+frMesh.solFP[fpIdx, 2, varIdx])/2.0);
+              outputChan.writef(realFormat, avgSol[varIdx]);
 
-            if flagPressure    then outputChan.writef(realFormat, pressure_cv(frMesh.solFP[fpIdx, 1, ..]));
-            if flagTemperature then outputChan.writef(realFormat, temperature_cv(frMesh.solFP[fpIdx, 1, ..]));
-            if flagMach        then outputChan.writef(realFormat, mach_cv(frMesh.solFP[fpIdx, 1, ..]));
-            if flagEntropy     then outputChan.writef(realFormat, entropy_cv(frMesh.solFP[fpIdx, 1, ..]));
+            if flagPressure    then outputChan.writef(realFormat,    pressure_cv(avgSol));
+            if flagTemperature then outputChan.writef(realFormat, temperature_cv(avgSol));
+            if flagMach        then outputChan.writef(realFormat,        mach_cv(avgSol));
+            if flagEntropy     then outputChan.writef(realFormat,     entropy_cv(avgSol));
 
             outputChan.writef("\n");
           }
@@ -407,10 +409,10 @@ module Output
             for varIdx in 1..frMesh.nVars do
               outputChan.writef(realFormat, solNode[nodeIdx, varIdx]);
 
-            if flagPressure    then outputChan.writef(realFormat, pressure_cv(solNode[nodeIdx, ..]));
+            if flagPressure    then outputChan.writef(realFormat,    pressure_cv(solNode[nodeIdx, ..]));
             if flagTemperature then outputChan.writef(realFormat, temperature_cv(solNode[nodeIdx, ..]));
-            if flagMach        then outputChan.writef(realFormat, mach_cv(solNode[nodeIdx, ..]));
-            if flagEntropy     then outputChan.writef(realFormat, entropy_cv(solNode[nodeIdx, ..]));
+            if flagMach        then outputChan.writef(realFormat,        mach_cv(solNode[nodeIdx, ..]));
+            if flagEntropy     then outputChan.writef(realFormat,     entropy_cv(solNode[nodeIdx, ..]));
 
             outputChan.writef("\n");
           }
