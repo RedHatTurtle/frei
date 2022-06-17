@@ -19,8 +19,8 @@
 
 [parFR]
   iOrder   = 0
-  minOrder = 1
-  maxOrder = 1
+  minOrder = 0
+  maxOrder = 0
   distSP   = 2
   frScheme = 1
 

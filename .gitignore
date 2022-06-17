@@ -1,7 +1,7 @@
 # Anything in the build folder
 build/
 
-# Logs from benchamarks should be useless since they need to be run on every machine
+# Logs from benchmarks should be useless since they need to be run on every machine
 bench/*.log
 bench/interpBench.chapel
 bench/interpBench.fortran
@@ -34,6 +34,7 @@ test_frei.sh
 *_tests
 
 # Output files and images
+*.log
 *.out
 *.dat
 *.svg

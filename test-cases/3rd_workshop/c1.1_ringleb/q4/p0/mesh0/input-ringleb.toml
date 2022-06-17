@@ -20,7 +20,7 @@
 [parFR]
   iOrder   = 0
   minOrder = 0
-  maxOrder = 9
+  maxOrder = 0
   distSP   = 2
   frScheme = 1
 

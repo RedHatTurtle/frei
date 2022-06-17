@@ -10,7 +10,7 @@
 
 [parMesh]
   meshFormat    = 1
-  meshFile      = "../../../meshfiles/ringleb1.gmsh"
+  meshFile      = "../../../meshfiles/ringleb0.gmsh"
 
 [parSpatial]
   spatialScheme     = 11
@@ -18,18 +18,18 @@
   limiterScheme     = 0
 
 [parFR]
-  iOrder   = 4
-  minOrder = 4
-  maxOrder = 4
+  iOrder   = 5
+  minOrder = 5
+  maxOrder = 5
   distSP   = 2
   frScheme = 1
 
 [parTime]
   timeScheme = 3
-  timeStep   = 0.014
+  timeStep   = 0.02
 
 [parOutput]
-  ioIter  = 1000
+  ioIter  =  800
   maxIter = 8000
   ioTime  = 0.00
   maxTime = 0.00
