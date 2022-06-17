@@ -10,7 +10,7 @@
 
 [parMesh]
   meshFormat    = 1
-  meshFile      = "../../../meshfiles/naca_ref5-q1.msh"
+  meshFile      = "../../../../meshfiles/naca_ref5-q1.msh"
 
 [parSpatial]
   spatialScheme     = 11

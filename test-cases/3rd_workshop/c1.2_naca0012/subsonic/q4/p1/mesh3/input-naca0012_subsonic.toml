@@ -10,7 +10,7 @@
 
 [parMesh]
   meshFormat    = 1
-  meshFile      = "../../../meshfiles/naca_ref3-q1.msh"
+  meshFile      = "../../../../meshfiles/naca_ref3.gmsh"
 
 [parSpatial]
   spatialScheme     = 11
@@ -18,7 +18,7 @@
   limiterScheme     = 0
 
 [parFR]
-  iOrder   = 2
+  iOrder   = 1
   minOrder = 0
   maxOrder = 9
   distSP   = 2
@@ -26,13 +26,14 @@
 
 [parTime]
   timeScheme = 3
-  timeStep   = 0.0000025
+  timeStep   = 0.000012
 
 [parOutput]
-  ioIter  = 1000
-  maxIter = 100000
+  ioIter  = 2000
+  maxIter = 200000
   ioTime  = 0.00
   maxTime = 0.00
+  outError = 0
 
 [parRef]
   rhoRef  = 1.0
