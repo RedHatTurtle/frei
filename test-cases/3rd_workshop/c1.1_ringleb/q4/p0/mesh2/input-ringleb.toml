@@ -18,7 +18,7 @@
   limiterScheme     = 0
 
 [parFR]
-  iOrder   = 4
+  iOrder   = 0
   minOrder = 0
   maxOrder = 9
   distSP   = 2
@@ -26,11 +26,11 @@
 
 [parTime]
   timeScheme = 3
-  timeStep   = 0.007
+  timeStep   = 0.01
 
 [parOutput]
-  ioIter  = 1000
-  maxIter = 10000
+  ioIter  =  1200
+  maxIter = 12000
   ioTime  = 0.00
   maxTime = 0.00
   outError = 62
