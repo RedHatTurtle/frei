@@ -129,7 +129,7 @@ It seems like a good rule of thumb to try to use 4 letter abbreviations.
 - `Temp`   : Temperature
 - `VelV`, `VelX`, `VelY`, `VelZ` : Velocity vector and it's components
 - `MomV`, `MomX`, `MomY`, `MomZ` : Momentum vector and it's components
-- `Vel`    : Velocity magnitude
+- `VelM, VelMag        `   : Velocity magnitude
 - `Mach`   : Mach Number
 - `A`      : Speed of Sound
 - `EneK`, `EneKin`, `ek` : Kinetic Energy / Dynamic Pressure
@@ -182,9 +182,9 @@ It seems like a good rule of thumb to try to use 4 letter abbreviations.
 - `var0`    : Total var. Ex: Total Pressure `p0`, Total Temperature `t0`
 
 ### Flight Mechanics
-- `alpha` : Rotation on the Y axis (wingspan axis), aka: Angle of Attack ($\alpha$), Pitch ($\theta$), Flight path ($\gamma$).
-- `beta`  : Rotation on the Z axis (vertical axis), aka: Sideslip ($\beta$), Yaw ($\psi$), Heading ($\sigma$).
-- `phi`   : Rotation on the X axis (fuselage axis), aka: Roll ($\phi$), Bank ($\mu$).
+- `alpha` : Rotation on the Z axis (wingspan axis, oriented left to right), aka: Angle of Attack ($\alpha$), Pitch ($\theta$), Flight path ($\gamma$).
+- `beta`  : Rotation on the Y axis (vertical axis, oriented down to up), aka: Sideslip ($\beta$), Yaw ($\psi$), Heading ($\sigma$).
+- `phi`   : Rotation on the X axis (fuselage axis, oriented front to back), aka: Roll ($\phi$), Bank ($\mu$).
 
 - `lift` : Lift ($L$)
 - `drag` : Drag ($D$)
