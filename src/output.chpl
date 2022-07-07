@@ -316,7 +316,7 @@ module Output
               nodeVertMap[meshNodeIdx] = vertCnt;
             }
 
-            solNode[meshNodeIdx, ..] += dot(frMesh.solSP[.., frMesh.cellSPidx[cellIdx, 1]..#frMesh.cellSPidx[cellIdx, 2]],
+            solNode[meshNodeIdx, ..] += dot(frMesh.solSP[.., frMesh.cellSPidx[cellIdx, 1].. #frMesh.cellSPidx[cellIdx, 2]],
                                             sp2nodeInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellNodeIdx, ..]);
           }
         }

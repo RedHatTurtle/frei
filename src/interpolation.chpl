@@ -86,8 +86,8 @@ module Interpolation
           var fpDistLine : [1..fpCnt] real = [-1.0, 1.0];
 
           for fp in 1..fpCnt do
-            sp2fpInterp[(cellTopo, interpOrder)]!.coefs[{fp..#1, 1..spCnt}] = reshape(
-                eval_LagrangePoly1D_array(fpDistLine[fp], spDistLine), {fp..#1, 1..spCnt});
+            sp2fpInterp[(cellTopo, interpOrder)]!.coefs[{fp.. #1, 1..spCnt}] = reshape(
+                eval_LagrangePoly1D_array(fpDistLine[fp], spDistLine), {fp.. #1, 1..spCnt});
         }
         when TOPO_TRIA {}
         when TOPO_QUAD
@@ -191,8 +191,8 @@ module Interpolation
           var spLoc : [1..spCnt] real = nodes_legendre_gauss(spCnt);
 
           for sp in 1..spCnt do
-            sp2spDeriv[(cellTopo, interpOrder)]!.coefs[{sp..#1, 1..#1, 1..spCnt}] =
-                  reshape(eval_DLagrangeDx_array(spLoc[sp], spLoc), {sp..#1, 1..#1, 1..spCnt});
+            sp2spDeriv[(cellTopo, interpOrder)]!.coefs[{sp.. #1, 1.. #1, 1..spCnt}] =
+                  reshape(eval_DLagrangeDx_array(spLoc[sp], spLoc), {sp.. #1, 1.. #1, 1..spCnt});
         }
         when TOPO_TRIA {}
         when TOPO_QUAD
@@ -273,8 +273,8 @@ module Interpolation
           var nodeDistLine : [1..nodeCnt] real = [-1.0, 1.0];
 
           for node in 1..nodeCnt do
-            sp2nodeInterp[(cellTopo, interpOrder)]!.coefs[{node..#1, 1..spCnt}] = reshape(
-                eval_LagrangePoly1D_array(nodeDistLine[node], spDistLine), {node..#1, 1..spCnt});
+            sp2nodeInterp[(cellTopo, interpOrder)]!.coefs[{node.. #1, 1..spCnt}] = reshape(
+                eval_LagrangePoly1D_array(nodeDistLine[node], spDistLine), {node.. #1, 1..spCnt});
         }
         when TOPO_TRIA {}
         when TOPO_QUAD
