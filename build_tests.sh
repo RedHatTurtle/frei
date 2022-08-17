@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ "${-#*i}" == "$-" ]; then
+    Color_Off='\033[0m'       # Text Reset
+    BRed='\033[1;31m'         # Bold Red
+    BGreen='\033[1;32m'       # Bold Green
+fi
+
 STD_LIBS="/usr/lib64/gcc/x86_64-suse-linux/11"
 
 CBLAS_DIR="/usr/include"
@@ -35,10 +41,10 @@ chpl -o tests/polynomials_tests                            \
                                src/testing.chpl            \
                                src/parameters.chpl         \
     2>&1 | tee tests/polynomials_build.log
-if [ $? -eq 0 ]; then
-  echo -e "\nSuccess"
+if [ ${PIPESTATUS[0]} -eq 0 ]; then
+  echo -e "${BGreen}Done${Color_Off}"
 else
-  echo -e "\nFailed"
+  echo -e "${BRed}Fail${Color_Off}"
 fi
 echo
 echo "------------------------------------------------------------"
@@ -53,10 +59,10 @@ chpl -o tests/quadrature_tests                             \
                               src/testing.chpl             \
                               src/parameters.chpl          \
     2>&1 | tee tests/quadrature_build.log
-if [ $? -eq 0 ]; then
-  echo -e "\nSuccess"
+if [ ${PIPESTATUS[0]} -eq 0 ]; then
+  echo -e "${BGreen}Done${Color_Off}"
 else
-  echo -e "\nFailed"
+  echo -e "${BRed}Fail${Color_Off}"
 fi
 echo
 echo "------------------------------------------------------------"
@@ -73,10 +79,10 @@ chpl -o tests/interpolation_tests                          \
                                  src/parameters.chpl       \
                                  src/testing.chpl          \
     2>&1 | tee tests/interpolation_build.log
-if [ $? -eq 0 ]; then
-  echo -e "\nSuccess"
+if [ ${PIPESTATUS[0]} -eq 0 ]; then
+  echo -e "${BGreen}Done${Color_Off}"
 else
-  echo -e "\nFailed"
+  echo -e "${BRed}Fail${Color_Off}"
 fi
 echo
 echo "------------------------------------------------------------"
@@ -97,10 +103,10 @@ chpl -o tests/projection_tests                             \
                               src/testing.chpl             \
                               src/parameters.chpl          \
     2>&1 | tee tests/projection_build.log
-if [ $? -eq 0 ]; then
-  echo -e "\nSuccess"
+if [ ${PIPESTATUS[0]} -eq 0 ]; then
+  echo -e "${BGreen}Done${Color_Off}"
 else
-  echo -e "\nFailed"
+  echo -e "${BRed}Fail${Color_Off}"
 fi
 echo
 echo "------------------------------------------------------------"
@@ -119,10 +125,10 @@ chpl -o tests/correction_tests                             \
                               src/config.chpl              \
                               src/parameters.chpl          \
     2>&1 | tee tests/correction_build.log
-if [ $? -eq 0 ]; then
-  echo -e "\nSuccess"
+if [ ${PIPESTATUS[0]} -eq 0 ]; then
+  echo -e "${BGreen}Done${Color_Off}"
 else
-  echo -e "\nFailed"
+  echo -e "${BRed}Fail${Color_Off}"
 fi
 echo
 echo "------------------------------------------------------------"
@@ -135,10 +141,10 @@ chpl -o tests/gmesh_tests                                  \
      --main-module Gmesh src/gmesh.chpl                    \
                          src/parameters.chpl               \
     2>&1 | tee tests/gmesh_build.log
-if [ $? -eq 0 ]; then
-  echo -e "\nSuccess"
+if [ ${PIPESTATUS[0]} -eq 0 ]; then
+  echo -e "${BGreen}Done${Color_Off}"
 else
-  echo -e "\nFailed"
+  echo -e "${BRed}Fail${Color_Off}"
 fi
 echo
 echo "------------------------------------------------------------"
@@ -153,10 +159,10 @@ chpl -o tests/mesh_tests                                   \
                         src/testing.chpl                   \
                         src/parameters.chpl                \
     2>&1 | tee tests/mesh_build.log
-if [ $? -eq 0 ]; then
-  echo -e "\nSuccess"
+if [ ${PIPESTATUS[0]} -eq 0 ]; then
+  echo -e "${BGreen}Done${Color_Off}"
 else
-  echo -e "\nFailed"
+  echo -e "${BRed}Fail${Color_Off}"
 fi
 echo
 echo "------------------------------------------------------------"
@@ -182,10 +188,10 @@ chpl -o tests/frmesh_tests                                 \
                           src/input.chpl                   \
                           src/parameters.chpl              \
     2>&1 | tee tests/frmesh_build.log
-if [ $? -eq 0 ]; then
-  echo -e "\nSuccess"
+if [ ${PIPESTATUS[0]} -eq 0 ]; then
+  echo -e "${BGreen}Done${Color_Off}"
 else
-  echo -e "\nFailed"
+  echo -e "${BRed}Fail${Color_Off}"
 fi
 echo
 echo "------------------------------------------------------------"
@@ -210,10 +216,10 @@ chpl -o tests/mapping_tests                                \
                            src/testing.chpl                \
                            src/parameters.chpl             \
      2>&1 | tee tests/mapping_build.log
-if [ $? -eq 0 ]; then
-  echo -e "\nSuccess"
+if [ ${PIPESTATUS[0]} -eq 0 ]; then
+  echo -e "${BGreen}Done${Color_Off}"
 else
-  echo -e "\nFailed"
+  echo -e "${BRed}Fail${Color_Off}"
 fi
 echo
 echo "------------------------------------------------------------"
@@ -229,10 +235,10 @@ chpl -o tests/flux_tests                                   \
                         src/gmesh.chpl                     \
                         src/parameters.chpl                \
     2>&1 | tee tests/flux_build.log
-if [ $? -eq 0 ]; then
-  echo -e "\nSuccess"
+if [ ${PIPESTATUS[0]} -eq 0 ]; then
+  echo -e "${BGreen}Done${Color_Off}"
 else
-  echo -e "\nFailed"
+  echo -e "${BRed}Fail${Color_Off}"
 fi
 echo
 echo "------------------------------------------------------------"
@@ -254,10 +260,10 @@ chpl -o tests/riemann_tests                                \
                            src/gmesh.chpl                  \
                            src/parameters.chpl             \
     2>&1 | tee tests/riemann_build.log
-if [ $? -eq 0 ]; then
-  echo -e "\nSuccess"
+if [ ${PIPESTATUS[0]} -eq 0 ]; then
+  echo -e "${BGreen}Done${Color_Off}"
 else
-  echo -e "\nFailed"
+  echo -e "${BRed}Fail${Color_Off}"
 fi
 echo
 echo "------------------------------------------------------------"
@@ -274,10 +280,10 @@ chpl -o tests/ringleb_tests                                \
                            src/testing.chpl                \
                            src/parameters.chpl             \
    2>&1 | tee tests/ringleb_build.log
-if [ $? -eq 0 ]; then
-  echo -e "\nSuccess"
+if [ ${PIPESTATUS[0]} -eq 0 ]; then
+  echo -e "${BGreen}Done${Color_Off}"
 else
-  echo -e "\nFailed"
+  echo -e "${BRed}Fail${Color_Off}"
 fi
 echo
 echo "------------------------------------------------------------"
@@ -296,10 +302,10 @@ chpl -o tests/init_tests                                   \
                         src/gmesh.chpl                     \
                         src/parameters.chpl                \
     2>&1 | tee tests/init_build.log
-if [ $? -eq 0 ]; then
-  echo -e "\nSuccess"
+if [ ${PIPESTATUS[0]} -eq 0 ]; then
+  echo -e "${BGreen}Done${Color_Off}"
 else
-  echo -e "\nFailed"
+  echo -e "${BRed}Fail${Color_Off}"
 fi
 echo
 echo "------------------------------------------------------------"
@@ -319,10 +325,10 @@ chpl -o tests/boundary_tests                               \
                             src/input.chpl                 \
                             src/parameters.chpl            \
     2>&1 | tee tests/boundary_build.log
-if [ $? -eq 0 ]; then
-  echo -e "\nSuccess"
+if [ ${PIPESTATUS[0]} -eq 0 ]; then
+  echo -e "${BGreen}Done${Color_Off}"
 else
-  echo -e "\nFailed"
+  echo -e "${BRed}Fail${Color_Off}"
 fi
 echo
 echo "------------------------------------------------------------"
@@ -344,10 +350,10 @@ chpl -o tests/limiter_tests                                \
                            src/parameters.chpl             \
                            src/testing.chpl                \
     2>&1 | tee tests/limiter_build.log
-if [ $? -eq 0 ]; then
-  echo -e "\nSuccess"
+if [ ${PIPESTATUS[0]} -eq 0 ]; then
+  echo -e "${BGreen}Done${Color_Off}"
 else
-  echo -e "\nFailed"
+  echo -e "${BRed}Fail${Color_Off}"
 fi
 echo
 echo "------------------------------------------------------------"
@@ -359,10 +365,10 @@ chpl -o tests/fr_tests                                     \
      -L$STD_LIBS                                           \
      --main-module FR src/fr.chpl                          \
     2>&1 | tee tests/fr_build.log
-if [ $? -eq 0 ]; then
-  echo -e "\nSuccess"
+if [ ${PIPESTATUS[0]} -eq 0 ]; then
+  echo -e "${BGreen}Done${Color_Off}"
 else
-  echo -e "\nFailed"
+  echo -e "${BRed}Fail${Color_Off}"
 fi
 echo
 echo "------------------------------------------------------------"

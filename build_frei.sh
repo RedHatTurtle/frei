@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ "${-#*i}" == "$-" ]; then
+    Color_Off='\033[0m'       # Text Reset
+    BRed='\033[1;31m'         # Bold Red
+    BGreen='\033[1;32m'       # Bold Green
+fi
+
 # Initialise option flags
 BUILD_DBG="true"
 BUILD_OPT="true"
@@ -24,38 +30,38 @@ CHANGES=``
 git diff --quiet HEAD ./src; SOURCE_CHANGES=$?
 git diff --quiet HEAD ./build_frei.sh; BUILD_SCRIPT_CHANGES=$?
 if [ $SOURCE_CHANGES -eq 0 ] && [ $BUILD_SCRIPT_CHANGES -eq 0 ] ; then
-    echo "Compiling FREI"
-    echo "   - Commit:" $GIT_HASH
-    echo "   - Branch:" $GIT_BRANCH
-    echo "   - Time  :" $COMPILE_TIME
+    echo -e "Compiling FREI"
+    echo -e "   - Commit:" $GIT_HASH
+    echo -e "   - Branch:" $GIT_BRANCH
+    echo -e "   - Time  :" $COMPILE_TIME
 elif [ $SOURCE_CHANGES -eq 0 ] && [ $BUILD_SCRIPT_CHANGES -ne 0 ] ; then
     CHANGES=$CHANGES".bld-${BUILD_SCRIPT_HASH::6}"
-    echo "Compiling FREI with modified build script"
-    echo "   - Commit:" $GIT_HASH
-    echo "   - Branch:" $GIT_BRANCH
-    echo "   - Time  :" $COMPILE_TIME
-    echo "Build script hash:" $BUILD_SCRIPT_HASH
+    echo -e "Compiling FREI with modified build script"
+    echo -e "   - Commit:" $GIT_HASH
+    echo -e "   - Branch:" $GIT_BRANCH
+    echo -e "   - Time  :" $COMPILE_TIME
+    echo -e "Build script hash:" $BUILD_SCRIPT_HASH
 else
     CHANGES=$CHANGES".src-${SOURCES_HASH::6}"
     if [ $BUILD_SCRIPT_CHANGES -ne 0 ] ; then
         CHANGES=$CHANGES".bld-${BUILD_SCRIPT_HASH::6}"
     fi
-    echo "Compiling FREI with modified sources based on"
-    echo "   - Commit:" $GIT_HASH
-    echo "   - Branch:" $GIT_BRANCH
-    echo "   - Time  :" $COMPILE_TIME
-    echo "Build script hash:" $BUILD_SCRIPT_HASH
-    echo "Source files hash:" $SOURCES_HASH
+    echo -e "Compiling FREI with modified sources based on"
+    echo -e "   - Commit:" $GIT_HASH
+    echo -e "   - Branch:" $GIT_BRANCH
+    echo -e "   - Time  :" $COMPILE_TIME
+    echo -e "Build script hash:" $BUILD_SCRIPT_HASH
+    echo -e "Source files hash:" $SOURCES_HASH
 fi
 
 EXTENSION="$GIT_HASH_SHORT$CHANGES"
 GIT_BRANCH=${GIT_BRANCH//\//-}
 
 if [ ! -d "build" ]; then
-    echo "Creating build directory"
+    echo -e "Creating build directory"
     mkdir build
 fi
-echo "------------------------------------------------------------"
+echo -e "------------------------------------------------------------"
 
 if [[ $BUILD_GENERIC == "true" ]]; then
     # System BLAS/LAPACK
@@ -69,7 +75,7 @@ if [[ $BUILD_GENERIC == "true" ]]; then
         ##################################################
         ###   Debug Build                              ###
         ##################################################
-        echo "(1/2) Building Debug version of Frei..."
+        echo -e "(1/2) Building Debug version of Frei..."
         echo
         chpl -o build/frei_dbg.$EXTENSION                          \
              --warnings                                            \
@@ -106,7 +112,7 @@ if [[ $BUILD_GENERIC == "true" ]]; then
                                   src/testing.chpl                 \
             2>&1 | tee build/frei_dbg.$EXTENSION.log
         if [ ${PIPESTATUS[0]} -eq 0 ]; then
-            echo "OK"
+            echo -e "${BGreen}Done${Color_Off}"
             ln -srf build/frei_dbg.$EXTENSION ./build/frei_dbg
             if [ $SOURCE_CHANGES -eq 0 ] && [ $BUILD_SCRIPT_CHANGES -eq 0 ] ; then
                 ln -srf build/frei_dbg.$EXTENSION ./build/frei_dbg.$GIT_BRANCH
@@ -114,16 +120,16 @@ if [[ $BUILD_GENERIC == "true" ]]; then
                 ln -srf build/frei_dbg.$EXTENSION ./build/frei_dbg.$GIT_BRANCH-alpha
             fi
         else
-            echo "FAILED"
+            echo -e "${BRed}Fail${Color_Off}"
         fi
-        echo "------------------------------------------------------------"
+        echo -e "------------------------------------------------------------"
     fi
 
     if [[ $BUILD_OPT == "true" ]]; then
         ##################################################
         ###   Optimized / Production Build             ###
         ##################################################
-        echo "(2/2) Building Optimized version of Frei..."
+        echo -e "(2/2) Building Optimized version of Frei..."
         echo
         chpl -o build/frei_opt.$EXTENSION                          \
              --fast                                                \
@@ -159,7 +165,7 @@ if [[ $BUILD_GENERIC == "true" ]]; then
                                   src/testing.chpl                 \
             2>&1 | tee build/frei_opt.$EXTENSION.log
         if [ ${PIPESTATUS[0]} -eq 0 ]; then
-            echo "OK"
+            echo -e "${BGreen}Done${Color_Off}"
             ln -srf build/frei_opt.$EXTENSION ./build/frei_opt
             if [ $SOURCE_CHANGES -eq 0 ] && [ $BUILD_SCRIPT_CHANGES -eq 0 ] ; then
                 ln -srf build/frei_opt.$EXTENSION ./build/frei_opt.$GIT_BRANCH
@@ -167,9 +173,9 @@ if [[ $BUILD_GENERIC == "true" ]]; then
                 ln -srf build/frei_opt.$EXTENSION ./build/frei_opt.$GIT_BRANCH-alpha
             fi
         else
-            echo "FAILED"
+            echo -e "${BRed}Fail${Color_Off}"
         fi
-        echo "------------------------------------------------------------"
+        echo -e "------------------------------------------------------------"
     fi
 fi
 
@@ -186,7 +192,7 @@ if [[ $BUILD_INTEL == "true" ]]; then
     PATH_TO_LAPACK_BINARIES="/opt/intel/oneapi/mkl/latest/lib/intel64"
 
     if [[ $BUILD_DBG == "true" ]]; then
-        echo "(1/2) Building Debug Intel MKL version of Frei..."
+        echo -e "(1/2) Building Debug Intel MKL version of Frei..."
         echo
         chpl -o build/frei_dbg_mkl.$EXTENSION                      \
              --warnings                                            \
@@ -225,7 +231,7 @@ if [[ $BUILD_INTEL == "true" ]]; then
                                   src/testing.chpl                 \
             2>&1 | tee build/frei_dbg_mkl.$EXTENSION.log
         if [ ${PIPESTATUS[0]} -eq 0 ]; then
-            echo "OK"
+            echo -e "${BGreen}Done${Color_Off}"
             ln -srf build/frei_dbg_mkl.$EXTENSION ./build/frei_dbg_mkl
             if [ $SOURCE_CHANGES -eq 0 ] && [ $BUILD_SCRIPT_CHANGES -eq 0 ] ; then
                 ln -srf build/frei_dbg_mkl.$EXTENSION ./build/frei_dbg_mkl.$GIT_BRANCH
@@ -233,13 +239,13 @@ if [[ $BUILD_INTEL == "true" ]]; then
                 ln -srf build/frei_dbg_mkl.$EXTENSION ./build/frei_dbg_mkl.$GIT_BRANCH-alpha
             fi
         else
-            echo "FAILED"
+            echo -e "${BRed}Fail${Color_Off}"
         fi
-        echo "------------------------------------------------------------"
+        echo -e "------------------------------------------------------------"
         fi
 
     if [[ $BUILD_OPT == "true" ]]; then
-        echo "(2/2) Building Optimized Intel MKL version of Frei..."
+        echo -e "(2/2) Building Optimized Intel MKL version of Frei..."
         echo
         chpl -o build/frei_opt_mkl.$EXTENSION                      \
              --fast                                                \
@@ -277,7 +283,7 @@ if [[ $BUILD_INTEL == "true" ]]; then
                                   src/testing.chpl                 \
             2>&1 | tee build/frei_opt_mkl.$EXTENSION.log
         if [ ${PIPESTATUS[0]} -eq 0 ]; then
-            echo "OK"
+            echo -e "${BGreen}Done${Color_Off}"
             ln -srf build/frei_opt_mkl.$EXTENSION ./build/frei_opt_mkl
             if [ $SOURCE_CHANGES -eq 0 ] && [ $BUILD_SCRIPT_CHANGES -eq 0 ] ; then
                 ln -srf build/frei_opt_mkl.$EXTENSION ./build/frei_opt_mkl.$GIT_BRANCH
@@ -285,9 +291,9 @@ if [[ $BUILD_INTEL == "true" ]]; then
                 ln -srf build/frei_opt_mkl.$EXTENSION ./build/frei_opt_mkl.$GIT_BRANCH-alpha
             fi
         else
-            echo "FAILED"
+            echo -e "${BRed}Fail${Color_Off}"
         fi
-        echo "------------------------------------------------------------"
+        echo -e "------------------------------------------------------------"
     fi
 fi
 
@@ -304,7 +310,7 @@ if [[ $BUILD_AMD == "true" ]]; then
     PATH_TO_LAPACK_BINARIES="/opt/AMD/aocl/aocl-linux-aocc-3.1.0/lib"
 
     if [[ $BUILD_DBG == "true" ]]; then
-        echo "(1/2) Building Debug AMD AOCL LibM version of Frei..."
+        echo -e "(1/2) Building Debug AMD AOCL LibM version of Frei..."
         echo
         chpl -o build/frei_dbg_amd.$EXTENSION                      \
              --warnings                                            \
@@ -341,7 +347,7 @@ if [[ $BUILD_AMD == "true" ]]; then
                                   src/testing.chpl                 \
             2>&1 | tee build/frei_dbg_amd.$EXTENSION.log
         if [ ${PIPESTATUS[0]} -eq 0 ]; then
-            echo "OK"
+            echo -e "${BGreen}Done${Color_Off}"
             ln -srf build/frei_dbg_amd.$EXTENSION ./build/frei_dbg_amd
             if [ $SOURCE_CHANGES -eq 0 ] && [ $BUILD_SCRIPT_CHANGES -eq 0 ] ; then
                 ln -srf build/frei_dbg_amd.$EXTENSION ./build/frei_dbg_amd.$GIT_BRANCH
@@ -349,13 +355,13 @@ if [[ $BUILD_AMD == "true" ]]; then
                 ln -srf build/frei_dbg_amd.$EXTENSION ./build/frei_dbg_amd.$GIT_BRANCH-alpha
             fi
         else
-            echo "FAILED"
+            echo -e "${BRed}Fail${Color_Off}"
         fi
-        echo "------------------------------------------------------------"
+        echo -e "------------------------------------------------------------"
     fi
 
     if [[ $BUILD_OPT == "true" ]]; then
-        echo "(2/2) Building Optimized AMD AOCL LibM version of Frei..."
+        echo -e "(2/2) Building Optimized AMD AOCL LibM version of Frei..."
         echo
         chpl -o build/frei_opt_amd.$EXTENSION                      \
              --fast                                                \
@@ -391,7 +397,7 @@ if [[ $BUILD_AMD == "true" ]]; then
                                   src/testing.chpl                 \
             2>&1 | tee build/frei_opt_amd.$EXTENSION.log
         if [ ${PIPESTATUS[0]} -eq 0 ]; then
-            echo "OK"
+            echo -e "${BGreen}Done${Color_Off}"
             ln -srf build/frei_opt_amd.$EXTENSION ./build/frei_opt_amd
             if [ $SOURCE_CHANGES -eq 0 ] && [ $BUILD_SCRIPT_CHANGES -eq 0 ] ; then
                 ln -srf build/frei_opt_amd.$EXTENSION ./build/frei_opt_amd.$GIT_BRANCH
@@ -399,8 +405,8 @@ if [[ $BUILD_AMD == "true" ]]; then
                 ln -srf build/frei_opt_amd.$EXTENSION ./build/frei_opt_amd.$GIT_BRANCH-alpha
             fi
         else
-            echo "FAILED"
+            echo -e "${BRed}Fail${Color_Off}"
         fi
-        echo "------------------------------------------------------------"
+        echo -e "------------------------------------------------------------"
     fi
 fi
