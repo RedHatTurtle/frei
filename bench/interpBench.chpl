@@ -22,6 +22,7 @@ module InterpBench
     use IO;
 
     var testTime : real = 0;
+    var initTime : real = 0;
     var compTime : real = 0;
     var minTest : int =  0;
     var maxTest : int = 16;
@@ -54,30 +55,30 @@ module InterpBench
 
         select minTimeTest(1)
         {
-          when  0 do (compTime, testTime) = manual_dense_0(   nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
-          when  1 do (compTime, testTime) = manual_dense_1(   nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
-          when  2 do (compTime, testTime) = manual_dense_2(   nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
-          when  3 do (compTime, testTime) = manual_dense_3(   nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
-          when  4 do (compTime, testTime) = manual_dense_4(   nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
-          when  5 do (compTime, testTime) = manual_dense_5(   nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
-          when  6 do (compTime, testTime) = manual_dense_6(   nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
-          when  7 do (compTime, testTime) = manual_dense_7(   nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
-          when  8 do (compTime, testTime) = manual_dense_8(   nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
-          when  9 do (compTime, testTime) = LinAlgDot_dense_1(nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
-          when 10 do (compTime, testTime) = LinAlgDot_dense_2(nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
-          when 11 do (compTime, testTime) = LinAlgDot_dense_3(nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
-          when 12 do (compTime, testTime) = LinAlgDot_dense_4(nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
-          when 13 do (compTime, testTime) = LinAlgDot_dense_5(nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
-          when 14 do (compTime, testTime) = LinAlgDot_dense_6(nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
-          when 15 do (compTime, testTime) = LinAlgDot_dense_7(nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
-          when 16 do (compTime, testTime) = LinAlgDot_dense_8(nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
+          when  0 do (testTime, initTime, compTime) = manual_dense_0(   nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
+          when  1 do (testTime, initTime, compTime) = manual_dense_1(   nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
+          when  2 do (testTime, initTime, compTime) = manual_dense_2(   nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
+          when  3 do (testTime, initTime, compTime) = manual_dense_3(   nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
+          when  4 do (testTime, initTime, compTime) = manual_dense_4(   nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
+          when  5 do (testTime, initTime, compTime) = manual_dense_5(   nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
+          when  6 do (testTime, initTime, compTime) = manual_dense_6(   nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
+          when  7 do (testTime, initTime, compTime) = manual_dense_7(   nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
+          when  8 do (testTime, initTime, compTime) = manual_dense_8(   nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
+          when  9 do (testTime, initTime, compTime) = LinAlgDot_dense_1(nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
+          when 10 do (testTime, initTime, compTime) = LinAlgDot_dense_2(nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
+          when 11 do (testTime, initTime, compTime) = LinAlgDot_dense_3(nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
+          when 12 do (testTime, initTime, compTime) = LinAlgDot_dense_4(nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
+          when 13 do (testTime, initTime, compTime) = LinAlgDot_dense_5(nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
+          when 14 do (testTime, initTime, compTime) = LinAlgDot_dense_6(nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
+          when 15 do (testTime, initTime, compTime) = LinAlgDot_dense_7(nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
+          when 16 do (testTime, initTime, compTime) = LinAlgDot_dense_8(nDims, nIters, cellCnt, interpDegree, seed=cnt[minTimeTest]+1);
         }
 
         cnt[ minTimeTest(0), minTimeTest(1)] += 1;
         sum1[minTimeTest(0), minTimeTest(1)] += testTime;
         sum2[minTimeTest(0), minTimeTest(1)] += testTime**2;
-        writef("    - Test %2i, %8i cells @ degree %2i ran in: %{ 9.3er} ms total with %{ 9.3er} ms of computation\n",
-            minTimeTest(1), cellCnt, minTimeTest(0), testTime, compTime);
+        writef("  - Test %2i | %8i cells | %2i degree | %{ 9.3er} ms tot | %{ 9.3er} ms init | %{ 9.3er} ms comp\n",
+            minTimeTest(1), cellCnt, minTimeTest(0), testTime, initTime, compTime);
 
         if outputTimer.elapsed(TimeUnits.seconds) > 60
         {
@@ -104,122 +105,121 @@ module InterpBench
           // Manual implementations
           if testManual
           {
-            (compTime, testTime) = manual_dense_1(nDims, nIters, cellCnt, interpDegree, seed=rep);
+            (testTime, initTime, compTime) = manual_dense_1(nDims, nIters, cellCnt, interpDegree, seed=rep);
             cnt[  1, interpDegree] += 1;
             sum1[ 1, interpDegree] += testTime;
             sum2[ 1, interpDegree] += testTime**2;
-            writef("      - Manual    Dense 1: %{ 9.3er} ms\n", testTime);
-            writef("    - Test  1, %8i cells @ degree %2i ran in: %{ 9.3er} ms total with %{ 9.3er} ms of computation\n",
-                cellCnt, interpDegree, testTime, compTime);
+            writef("  - Test  1 | %8i cells | %2i degree | %{ 9.3er} ms tot | %{ 9.3er} ms init | %{ 9.3er} ms comp\n",
+                cellCnt, interpDegree, testTime, initTime, compTime);
 
-            (compTime, testTime) = manual_dense_2(nDims, nIters, cellCnt, interpDegree, seed=rep);
+            (testTime, initTime, compTime) = manual_dense_2(nDims, nIters, cellCnt, interpDegree, seed=rep);
             cnt[  2, interpDegree] += 1;
             sum1[ 2, interpDegree] += testTime;
             sum2[ 2, interpDegree] += testTime**2;
-            writef("    - Test  2, %8i cells @ degree %2i ran in: %{ 9.3er} ms total with %{ 9.3er} ms of computation\n",
-                cellCnt, interpDegree, testTime, compTime);
+            writef("  - Test  2 | %8i cells | %2i degree | %{ 9.3er} ms tot | %{ 9.3er} ms init | %{ 9.3er} ms comp\n",
+                cellCnt, interpDegree, testTime, initTime, compTime);
 
-            (compTime, testTime) = manual_dense_3(nDims, nIters, cellCnt, interpDegree, seed=rep);
+            (testTime, initTime, compTime) = manual_dense_3(nDims, nIters, cellCnt, interpDegree, seed=rep);
             cnt[  3, interpDegree] += 1;
             sum1[ 3, interpDegree] += testTime;
             sum2[ 3, interpDegree] += testTime**2;
-            writef("    - Test  3, %8i cells @ degree %2i ran in: %{ 9.3er} ms total with %{ 9.3er} ms of computation\n",
-                cellCnt, interpDegree, testTime, compTime);
+            writef("  - Test  3 | %8i cells | %2i degree | %{ 9.3er} ms tot | %{ 9.3er} ms init | %{ 9.3er} ms comp\n",
+                cellCnt, interpDegree, testTime, initTime, compTime);
 
-            (compTime, testTime) = manual_dense_4(nDims, nIters, cellCnt, interpDegree, seed=rep);
+            (testTime, initTime, compTime) = manual_dense_4(nDims, nIters, cellCnt, interpDegree, seed=rep);
             cnt[  4, interpDegree] += 1;
             sum1[ 4, interpDegree] += testTime;
             sum2[ 4, interpDegree] += testTime**2;
-            writef("    - Test  4, %8i cells @ degree %2i ran in: %{ 9.3er} ms total with %{ 9.3er} ms of computation\n",
-                cellCnt, interpDegree, testTime, compTime);
+            writef("  - Test  4 | %8i cells | %2i degree | %{ 9.3er} ms tot | %{ 9.3er} ms init | %{ 9.3er} ms comp\n",
+                cellCnt, interpDegree, testTime, initTime, compTime);
 
-            (compTime, testTime) = manual_dense_5(nDims, nIters, cellCnt, interpDegree, seed=rep);
+            (testTime, initTime, compTime) = manual_dense_5(nDims, nIters, cellCnt, interpDegree, seed=rep);
             cnt[  5, interpDegree] += 1;
             sum1[ 5, interpDegree] += testTime;
             sum2[ 5, interpDegree] += testTime**2;
-            writef("    - Test  5, %8i cells @ degree %2i ran in: %{ 9.3er} ms total with %{ 9.3er} ms of computation\n",
-                cellCnt, interpDegree, testTime, compTime);
+            writef("  - Test  5 | %8i cells | %2i degree | %{ 9.3er} ms tot | %{ 9.3er} ms init | %{ 9.3er} ms comp\n",
+                cellCnt, interpDegree, testTime, initTime, compTime);
 
-            (compTime, testTime) = manual_dense_6(nDims, nIters, cellCnt, interpDegree, seed=rep);
+            (testTime, initTime, compTime) = manual_dense_6(nDims, nIters, cellCnt, interpDegree, seed=rep);
             cnt[  6, interpDegree] += 1;
             sum1[ 6, interpDegree] += testTime;
             sum2[ 6, interpDegree] += testTime**2;
-            writef("    - Test  6, %8i cells @ degree %2i ran in: %{ 9.3er} ms total with %{ 9.3er} ms of computation\n",
-                cellCnt, interpDegree, testTime, compTime);
+            writef("  - Test  6 | %8i cells | %2i degree | %{ 9.3er} ms tot | %{ 9.3er} ms init | %{ 9.3er} ms comp\n",
+                cellCnt, interpDegree, testTime, initTime, compTime);
 
-            (compTime, testTime) = manual_dense_7(nDims, nIters, cellCnt, interpDegree, seed=rep);
+            (testTime, initTime, compTime) = manual_dense_7(nDims, nIters, cellCnt, interpDegree, seed=rep);
             cnt[  7, interpDegree] += 1;
             sum1[ 7, interpDegree] += testTime;
             sum2[ 7, interpDegree] += testTime**2;
-            writef("    - Test  7, %8i cells @ degree %2i ran in: %{ 9.3er} ms total with %{ 9.3er} ms of computation\n",
-                cellCnt, interpDegree, testTime, compTime);
+            writef("  - Test  7 | %8i cells | %2i degree | %{ 9.3er} ms tot | %{ 9.3er} ms init | %{ 9.3er} ms comp\n",
+                cellCnt, interpDegree, testTime, initTime, compTime);
 
-            (compTime, testTime) = manual_dense_8(nDims, nIters, cellCnt, interpDegree, seed=rep);
+            (testTime, initTime, compTime) = manual_dense_8(nDims, nIters, cellCnt, interpDegree, seed=rep);
             cnt[  8, interpDegree] += 1;
             sum1[ 8, interpDegree] += testTime;
             sum2[ 8, interpDegree] += testTime**2;
-            writef("    - Test  8, %8i cells @ degree %2i ran in: %{ 9.3er} ms total with %{ 9.3er} ms of computation\n",
-                cellCnt, interpDegree, testTime, compTime);
+            writef("  - Test  8 | %8i cells | %2i degree | %{ 9.3er} ms tot | %{ 9.3er} ms init | %{ 9.3er} ms comp\n",
+                cellCnt, interpDegree, testTime, initTime, compTime);
           }
 
           // LinearAlgebra implementations
           if testLinAlg
           {
-            (compTime, testTime) = LinAlgDot_dense_1(nDims, nIters, cellCnt, interpDegree, seed=rep);
+            (testTime, initTime, compTime) = LinAlgDot_dense_1(nDims, nIters, cellCnt, interpDegree, seed=rep);
             cnt[  9, interpDegree] += 1;
             sum1[ 9, interpDegree] += testTime;
             sum2[ 9, interpDegree] += testTime**2;
-            writef("    - Test  9, %8i cells @ degree %2i ran in: %{ 9.3er} ms total with %{ 9.3er} ms of computation\n",
-                cellCnt, interpDegree, testTime, compTime);
+            writef("  - Test  9 | %8i cells | %2i degree | %{ 9.3er} ms tot | %{ 9.3er} ms init | %{ 9.3er} ms comp\n",
+                cellCnt, interpDegree, testTime, initTime, compTime);
 
-            (compTime, testTime) = LinAlgDot_dense_2(nDims, nIters, cellCnt, interpDegree, seed=rep);
+            (testTime, initTime, compTime) = LinAlgDot_dense_2(nDims, nIters, cellCnt, interpDegree, seed=rep);
             cnt[ 10, interpDegree] += 1;
             sum1[10, interpDegree] += testTime;
             sum2[10, interpDegree] += testTime**2;
-            writef("    - Test 10, %8i cells @ degree %2i ran in: %{ 9.3er} ms total with %{ 9.3er} ms of computation\n",
-                cellCnt, interpDegree, testTime, compTime);
+            writef("  - Test 10 | %8i cells | %2i degree | %{ 9.3er} ms tot | %{ 9.3er} ms init | %{ 9.3er} ms comp\n",
+                cellCnt, interpDegree, testTime, initTime, compTime);
 
-            (compTime, testTime) = LinAlgDot_dense_3(nDims, nIters, cellCnt, interpDegree, seed=rep);
+            (testTime, initTime, compTime) = LinAlgDot_dense_3(nDims, nIters, cellCnt, interpDegree, seed=rep);
             cnt[ 11, interpDegree] += 1;
             sum1[11, interpDegree] += testTime;
             sum2[11, interpDegree] += testTime**2;
-            writef("    - Test 11, %8i cells @ degree %2i ran in: %{ 9.3er} ms total with %{ 9.3er} ms of computation\n",
-                cellCnt, interpDegree, testTime, compTime);
+            writef("  - Test 11 | %8i cells | %2i degree | %{ 9.3er} ms tot | %{ 9.3er} ms init | %{ 9.3er} ms comp\n",
+                cellCnt, interpDegree, testTime, initTime, compTime);
 
-            (compTime, testTime) = LinAlgDot_dense_4(nDims, nIters, cellCnt, interpDegree, seed=rep);
+            (testTime, initTime, compTime) = LinAlgDot_dense_4(nDims, nIters, cellCnt, interpDegree, seed=rep);
             cnt[ 12, interpDegree] += 1;
             sum1[12, interpDegree] += testTime;
             sum2[12, interpDegree] += testTime**2;
-            writef("    - Test 12, %8i cells @ degree %2i ran in: %{ 9.3er} ms total with %{ 9.3er} ms of computation\n",
-                cellCnt, interpDegree, testTime, compTime);
+            writef("  - Test 12 | %8i cells | %2i degree | %{ 9.3er} ms tot | %{ 9.3er} ms init | %{ 9.3er} ms comp\n",
+                cellCnt, interpDegree, testTime, initTime, compTime);
 
-            (compTime, testTime) = LinAlgDot_dense_5(nDims, nIters, cellCnt, interpDegree, seed=rep);
+            (testTime, initTime, compTime) = LinAlgDot_dense_5(nDims, nIters, cellCnt, interpDegree, seed=rep);
             cnt[ 13, interpDegree] += 1;
             sum1[13, interpDegree] += testTime;
             sum2[13, interpDegree] += testTime**2;
-            writef("    - Test 13, %8i cells @ degree %2i ran in: %{ 9.3er} ms total with %{ 9.3er} ms of computation\n",
-                cellCnt, interpDegree, testTime, compTime);
+            writef("  - Test 13 | %8i cells | %2i degree | %{ 9.3er} ms tot | %{ 9.3er} ms init | %{ 9.3er} ms comp\n",
+                cellCnt, interpDegree, testTime, initTime, compTime);
 
-            (compTime, testTime) = LinAlgDot_dense_6(nDims, nIters, cellCnt, interpDegree, seed=rep);
+            (testTime, initTime, compTime) = LinAlgDot_dense_6(nDims, nIters, cellCnt, interpDegree, seed=rep);
             cnt[ 14, interpDegree] += 1;
             sum1[14, interpDegree] += testTime;
             sum2[14, interpDegree] += testTime**2;
-            writef("    - Test 14, %8i cells @ degree %2i ran in: %{ 9.3er} ms total with %{ 9.3er} ms of computation\n",
-                cellCnt, interpDegree, testTime, compTime);
+            writef("  - Test 14 | %8i cells | %2i degree | %{ 9.3er} ms tot | %{ 9.3er} ms init | %{ 9.3er} ms comp\n",
+                cellCnt, interpDegree, testTime, initTime, compTime);
 
-            (compTime, testTime) = LinAlgDot_dense_7(nDims, nIters, cellCnt, interpDegree, seed=rep);
+            (testTime, initTime, compTime) = LinAlgDot_dense_7(nDims, nIters, cellCnt, interpDegree, seed=rep);
             cnt[ 15, interpDegree] += 1;
             sum1[15, interpDegree] += testTime;
             sum2[15, interpDegree] += testTime**2;
-            writef("    - Test 15, %8i cells @ degree %2i ran in: %{ 9.3er} ms total with %{ 9.3er} ms of computation\n",
-                cellCnt, interpDegree, testTime, compTime);
+            writef("  - Test 15 | %8i cells | %2i degree | %{ 9.3er} ms tot | %{ 9.3er} ms init | %{ 9.3er} ms comp\n",
+                cellCnt, interpDegree, testTime, initTime, compTime);
 
-            (compTime, testTime) = LinAlgDot_dense_8(nDims, nIters, cellCnt, interpDegree, seed=rep);
+            (testTime, initTime, compTime) = LinAlgDot_dense_8(nDims, nIters, cellCnt, interpDegree, seed=rep);
             cnt[ 16, interpDegree] += 1;
             sum1[16, interpDegree] += testTime;
             sum2[16, interpDegree] += testTime**2;
-            writef("    - Test 16, %8i cells @ degree %2i ran in: %{ 9.3er} ms total with %{ 9.3er} ms of computation\n",
-                cellCnt, interpDegree, testTime, compTime);
+            writef("  - Test 16 | %8i cells | %2i degree | %{ 9.3er} ms tot | %{ 9.3er} ms init | %{ 9.3er} ms comp\n",
+                cellCnt, interpDegree, testTime, initTime, compTime);
           }
         }
       }
@@ -372,7 +372,7 @@ module InterpBench
   /////////////////////////////////
 
   // Loops: vfs,  F[v,f] += S[v,s]*M[f,s]
- proc manual_dense_0(nDims, nIters, nCells, interpDegree, seed) : (2*real)
+ proc manual_dense_0(nDims, nIters, nCells, interpDegree, seed) : (3*real)
   {
     var interpTimer : Timer;
     interpTimer.start();
@@ -403,13 +403,13 @@ module InterpBench
               for spIdx in 1..cellSPcnt do
                 varFP[varIdx, (cellIdx-1)*cellFPcnt+fpIdx] += varSP[varIdx, spFirst+spIdx] * sp2fp[fpIdx, spIdx];
         }
-    var compTime : real = interpTimer.elapsed(TIMEUNIT);
+    var testTime : real = interpTimer.elapsed(TIMEUNIT);
 
-    return (compTime-initTime, compTime);
+    return (testTime, initTime, testTime-initTime);
   }
 
   // Loops: vfs,  F[v,f] += S[v,s]*M[f,s]
-  proc manual_dense_2(nDims, nIters, nCells, interpDegree, seed) : (2*real)
+  proc manual_dense_2(nDims, nIters, nCells, interpDegree, seed) : (3*real)
   {
     var interpTimer : Timer;
     interpTimer.start();
@@ -440,13 +440,13 @@ module InterpBench
             for spIdx in 1..cellSPcnt do
               varFP[varIdx, (cellIdx-1)*cellFPcnt+fpIdx] += varSP[varIdx, spFirst+spIdx]*sp2fp[fpIdx, spIdx];
       }
-    var compTime : real = interpTimer.elapsed(TIMEUNIT);
+    var testTime : real = interpTimer.elapsed(TIMEUNIT);
 
-    return (compTime-initTime, compTime);
+    return (testTime, initTime, testTime-initTime);
   }
 
   // Loops: vfs,  F[f,v] += S[v,s]*M[f,s]
-  proc manual_dense_6(nDims, nIters, nCells, interpDegree, seed) : (2*real)
+  proc manual_dense_6(nDims, nIters, nCells, interpDegree, seed) : (3*real)
   {
     var interpTimer : Timer;
     interpTimer.start();
@@ -477,13 +477,13 @@ module InterpBench
             for spIdx in 1..cellSPcnt do
               varFP[(cellIdx-1)*cellFPcnt+fpIdx, varIdx] += varSP[varIdx, spFirst+spIdx]*sp2fp[fpIdx, spIdx];
       }
-    var compTime : real = interpTimer.elapsed(TIMEUNIT);
+    var testTime : real = interpTimer.elapsed(TIMEUNIT);
 
-    return (compTime-initTime, compTime);
+    return (testTime, initTime, testTime-initTime);
   }
 
   // Loops: fvs,  F[f,v] += S[v,s]*M[f,s]
-  proc manual_dense_5(nDims, nIters, nCells, interpDegree, seed) : (2*real)
+  proc manual_dense_5(nDims, nIters, nCells, interpDegree, seed) : (3*real)
   {
     var interpTimer : Timer;
     interpTimer.start();
@@ -514,13 +514,13 @@ module InterpBench
             for spIdx in 1..cellSPcnt do
               varFP[(cellIdx-1)*cellFPcnt+fpIdx, varIdx] += varSP[varIdx, spFirst+spIdx]*sp2fp[fpIdx, spIdx];
       }
-    var compTime : real = interpTimer.elapsed(TIMEUNIT);
+    var testTime : real = interpTimer.elapsed(TIMEUNIT);
 
-    return (compTime-initTime, compTime);
+    return (testTime, initTime, testTime-initTime);
   }
 
   // Loops: fvs,  F[v,f] += S[v,s]*M[f,s]
-  proc manual_dense_1(nDims, nIters, nCells, interpDegree, seed) : (2*real)
+  proc manual_dense_1(nDims, nIters, nCells, interpDegree, seed) : (3*real)
   {
     var interpTimer : Timer;
     interpTimer.start();
@@ -551,13 +551,13 @@ module InterpBench
             for spIdx in 1..cellSPcnt do
               varFP[varIdx, (cellIdx-1)*cellFPcnt+fpIdx] += varSP[varIdx, spFirst+spIdx]*sp2fp[fpIdx, spIdx];
       }
-    var compTime : real = interpTimer.elapsed(TIMEUNIT);
+    var testTime : real = interpTimer.elapsed(TIMEUNIT);
 
-    return (compTime-initTime, compTime);
+    return (testTime, initTime, testTime-initTime);
   }
 
   // Loops: vfs,  F[v,f] += S[s,v]*M[f,s]
-  proc manual_dense_4(nDims, nIters, nCells, interpDegree, seed) : (2*real)
+  proc manual_dense_4(nDims, nIters, nCells, interpDegree, seed) : (3*real)
   {
     var interpTimer : Timer;
     interpTimer.start();
@@ -588,13 +588,13 @@ module InterpBench
             for spIdx in 1..cellSPcnt do
               varFP[varIdx, (cellIdx-1)*cellFPcnt+fpIdx] += varSP[spFirst+spIdx, varIdx]*sp2fp[fpIdx, spIdx];
       }
-    var compTime : real = interpTimer.elapsed(TIMEUNIT);
+    var testTime : real = interpTimer.elapsed(TIMEUNIT);
 
-    return (compTime-initTime, compTime);
+    return (testTime, initTime, testTime-initTime);
   }
 
   // Loops: vfs,  F[f,v] += S[s,v]*M[f,s]
-  proc manual_dense_8(nDims, nIters, nCells, interpDegree, seed) : (2*real)
+  proc manual_dense_8(nDims, nIters, nCells, interpDegree, seed) : (3*real)
   {
     //  FP[f,v] = SP[s,v] * M[f,s]
     //  Loop: fvs
@@ -627,13 +627,13 @@ module InterpBench
             for spIdx in 1..cellSPcnt do
               varFP[(cellIdx-1)*cellFPcnt+fpIdx, varIdx] += varSP[spFirst+spIdx, varIdx]*sp2fp[fpIdx, spIdx];
       }
-    var compTime : real = interpTimer.elapsed(TIMEUNIT);
+    var testTime : real = interpTimer.elapsed(TIMEUNIT);
 
-    return (compTime-initTime, compTime);
+    return (testTime, initTime, testTime-initTime);
   }
 
   // Loops: fvs,  F[f,v] += S[s,v]*M[f,s]
-  proc manual_dense_7(nDims, nIters, nCells, interpDegree, seed) : (2*real)
+  proc manual_dense_7(nDims, nIters, nCells, interpDegree, seed) : (3*real)
   {
     var interpTimer : Timer;
     interpTimer.start();
@@ -664,13 +664,13 @@ module InterpBench
             for spIdx in 1..cellSPcnt do
               varFP[(cellIdx-1)*cellFPcnt+fpIdx, varIdx] += varSP[spFirst+spIdx, varIdx]*sp2fp[fpIdx, spIdx];
       }
-    var compTime : real = interpTimer.elapsed(TIMEUNIT);
+    var testTime : real = interpTimer.elapsed(TIMEUNIT);
 
-    return (compTime-initTime, compTime);
+    return (testTime, initTime, testTime-initTime);
   }
 
   // Loops: fvs,  F[v,f] += S[s,v]*M[f,s]
-  proc manual_dense_3(nDims, nIters, nCells, interpDegree, seed) : (2*real)
+  proc manual_dense_3(nDims, nIters, nCells, interpDegree, seed) : (3*real)
   {
     var interpTimer : Timer;
     interpTimer.start();
@@ -701,16 +701,16 @@ module InterpBench
             for spIdx in 1..cellSPcnt do
               varFP[varIdx, (cellIdx-1)*cellFPcnt+fpIdx] += varSP[spFirst+spIdx, varIdx]*sp2fp[fpIdx, spIdx];
       }
-    var compTime : real = interpTimer.elapsed(TIMEUNIT);
+    var testTime : real = interpTimer.elapsed(TIMEUNIT);
 
-    return (compTime-initTime, compTime);
+    return (testTime, initTime, testTime-initTime);
   }
 
   ////////////////////////////////////
   // Linear Algebra Implementations //
   ////////////////////////////////////
 
-  proc LinAlgDot_dense_1(nDims, nIters, nCells, interpDegree, seed) : (2*real)
+  proc LinAlgDot_dense_1(nDims, nIters, nCells, interpDegree, seed) : (3*real)
   {
     var interpTimer : Timer;
     interpTimer.start();
@@ -740,12 +740,12 @@ module InterpBench
         for fpIdx in 1..cellFPcnt do
           varFP[.., (cellIdx-1)*cellFPcnt+fpIdx] = dot(varSP[.., spFirst..spLast], sp2fp[fpIdx, ..]);
       }
-    var compTime : real = interpTimer.elapsed(TIMEUNIT);
+    var testTime : real = interpTimer.elapsed(TIMEUNIT);
 
-    return (compTime-initTime, compTime);
+    return (testTime, initTime, testTime-initTime);
   }
 
-  proc LinAlgDot_dense_3(nDims, nIters, nCells, interpDegree, seed) : (2*real)
+  proc LinAlgDot_dense_3(nDims, nIters, nCells, interpDegree, seed) : (3*real)
   {
     var interpTimer : Timer;
     interpTimer.start();
@@ -775,12 +775,12 @@ module InterpBench
         for fpIdx in 1..cellFPcnt do
           varFP[.., (cellIdx-1)*cellFPcnt+fpIdx] = dot(sp2fp[fpIdx, ..], varSP[spFirst..spLast, ..]);
       }
-    var compTime : real = interpTimer.elapsed(TIMEUNIT);
+    var testTime : real = interpTimer.elapsed(TIMEUNIT);
 
-    return (compTime-initTime, compTime);
+    return (testTime, initTime, testTime-initTime);
   }
 
-  proc LinAlgDot_dense_5(nDims, nIters, nCells, interpDegree, seed) : (2*real)
+  proc LinAlgDot_dense_5(nDims, nIters, nCells, interpDegree, seed) : (3*real)
   {
     var interpTimer : Timer;
     interpTimer.start();
@@ -810,12 +810,12 @@ module InterpBench
         for fpIdx in 1..cellFPcnt do
           varFP[(cellIdx-1)*cellFPcnt+fpIdx, ..] = dot(varSP[.., spFirst..spLast], sp2fp[fpIdx, ..]);
       }
-    var compTime : real = interpTimer.elapsed(TIMEUNIT);
+    var testTime : real = interpTimer.elapsed(TIMEUNIT);
 
-    return (compTime-initTime, compTime);
+    return (testTime, initTime, testTime-initTime);
   }
 
-  proc LinAlgDot_dense_7(nDims, nIters, nCells, interpDegree, seed) : (2*real)
+  proc LinAlgDot_dense_7(nDims, nIters, nCells, interpDegree, seed) : (3*real)
   {
     var interpTimer : Timer;
     interpTimer.start();
@@ -845,14 +845,14 @@ module InterpBench
         for fpIdx in 1..cellFPcnt do
           varFP[(cellIdx-1)*cellFPcnt+fpIdx, ..] = dot(sp2fp[fpIdx, ..], varSP[spFirst..spLast, ..]);
       }
-    var compTime : real = interpTimer.elapsed(TIMEUNIT);
+    var testTime : real = interpTimer.elapsed(TIMEUNIT);
 
-    return (compTime-initTime, compTime);
+    return (testTime, initTime, testTime-initTime);
   }
 
   // Transposed varSP alternates
 
-  proc LinAlgDot_dense_2(nDims, nIters, nCells, interpDegree, seed) : (2*real)
+  proc LinAlgDot_dense_2(nDims, nIters, nCells, interpDegree, seed) : (3*real)
   {
     var interpTimer : Timer;
     interpTimer.start();
@@ -885,12 +885,12 @@ module InterpBench
         for varIdx in 1..nDims+2 do
           varFP[varIdx, fpFirst..fpLast] = dot(sp2fp, varSP[varIdx, spFirst..spLast]);
       }
-    var compTime : real = interpTimer.elapsed(TIMEUNIT);
+    var testTime : real = interpTimer.elapsed(TIMEUNIT);
 
-    return (compTime-initTime, compTime);
+    return (testTime, initTime, testTime-initTime);
   }
 
-  proc LinAlgDot_dense_4(nDims, nIters, nCells, interpDegree, seed) : (2*real)
+  proc LinAlgDot_dense_4(nDims, nIters, nCells, interpDegree, seed) : (3*real)
   {
     var interpTimer : Timer;
     interpTimer.start();
@@ -923,12 +923,12 @@ module InterpBench
         for varIdx in 1..nDims+2 do
           varFP[varIdx, fpFirst..fpLast] = dot(sp2fp, varSP[spFirst..spLast, varIdx]);
       }
-    var compTime : real = interpTimer.elapsed(TIMEUNIT);
+    var testTime : real = interpTimer.elapsed(TIMEUNIT);
 
-    return (compTime-initTime, compTime);
+    return (testTime, initTime, testTime-initTime);
   }
 
-  proc LinAlgDot_dense_6(nDims, nIters, nCells, interpDegree, seed) : (2*real)
+  proc LinAlgDot_dense_6(nDims, nIters, nCells, interpDegree, seed) : (3*real)
   {
     var interpTimer : Timer;
     interpTimer.start();
@@ -961,12 +961,12 @@ module InterpBench
         for varIdx in 1..nDims+2 do
           varFP[fpFirst..fpLast, varIdx] = dot(sp2fp, varSP[varIdx, spFirst..spLast]);
       }
-    var compTime : real = interpTimer.elapsed(TIMEUNIT);
+    var testTime : real = interpTimer.elapsed(TIMEUNIT);
 
-    return (compTime-initTime, compTime);
+    return (testTime, initTime, testTime-initTime);
   }
 
-  proc LinAlgDot_dense_8(nDims, nIters, nCells, interpDegree, seed) : (2*real)
+  proc LinAlgDot_dense_8(nDims, nIters, nCells, interpDegree, seed) : (3*real)
   {
     var interpTimer : Timer;
     interpTimer.start();
@@ -999,12 +999,12 @@ module InterpBench
         for varIdx in 1..nDims+2 do
           varFP[fpFirst..fpLast, varIdx] = dot(sp2fp, varSP[spFirst..spLast, varIdx]);
       }
-    var compTime : real = interpTimer.elapsed(TIMEUNIT);
+    var testTime : real = interpTimer.elapsed(TIMEUNIT);
 
-    return (compTime-initTime, compTime);
+    return (testTime, initTime, testTime-initTime);
   }
 
-  //proc LinAlgDot_dense_9(nDims, nIters, nCells, interpDegree, seed) : (2*real)
+  //proc LinAlgDot_dense_9(nDims, nIters, nCells, interpDegree, seed) : (3*real)
   //{
   //  var interpTimer : Timer;
   //  interpTimer.start();
@@ -1037,8 +1037,8 @@ module InterpBench
   //      for fpIdx in 1..cellFPcnt do
   //        varFP[(cellIdx-1)*cellFPcnt+fpIdx, ..] = dot(sp2fp[, ..], varSP[spFirst..spLast, ..]);
   //    }
-  //  var compTime : real = interpTimer.elapsed(TIMEUNIT);
+  //  var testTime : real = interpTimer.elapsed(TIMEUNIT);
 
-  //  return (compTime-initTime, compTime);
+  //  return (testTime, initTime, testTime-initTime);
   //}
 }

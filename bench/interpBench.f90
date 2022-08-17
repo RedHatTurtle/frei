@@ -123,7 +123,7 @@ contains
 
         ! Close file
         close(100)
-    end subroutine
+    end subroutine dump_stats
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !! Manual Loop Implementations !!
@@ -472,14 +472,14 @@ program InterpBench
             endif
 
             select case (minTimeTest)
-                case (1)
-                    testTime = manual_dense_0(nDims, nIters, testCells, interpDegree, cnt(interpDegree, minTimeTest))
-                case (2)
-                    testTime = dotprod_dense_0(nDims, nIters, testCells, interpDegree, cnt(interpDegree, minTimeTest))
-                case (3)
-                    testTime = matmul_dense_0(nDims, nIters, testCells, interpDegree, cnt(interpDegree, minTimeTest))
-                case (4)
-                    testTime = dgemmT_dense_0(nDims, nIters, testCells, interpDegree, cnt(interpDegree, minTimeTest))
+              case (1)
+                testTime = manual_dense_0(nDims, nIters, testCells, interpDegree, cnt(interpDegree, minTimeTest))
+              case (2)
+                testTime = dotprod_dense_0(nDims, nIters, testCells, interpDegree, cnt(interpDegree, minTimeTest))
+              case (3)
+                testTime = matmul_dense_0(nDims, nIters, testCells, interpDegree, cnt(interpDegree, minTimeTest))
+              case (4)
+                testTime = dgemmT_dense_0(nDims, nIters, testCells, interpDegree, cnt(interpDegree, minTimeTest))
             endselect
 
             sum1(interpDegree, minTimeTest) = sum1(interpDegree, minTimeTest) + testTime
