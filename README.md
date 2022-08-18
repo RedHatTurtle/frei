@@ -131,7 +131,7 @@ It seems like a good rule of thumb to try to use 4 letter abbreviations.
 - `MomV`, `MomX`, `MomY`, `MomZ` : Momentum vector and it's components
 - `VelM, VelMag        `   : Velocity magnitude
 - `Mach`   : Mach Number
-- `A`      : Speed of Sound
+- `VelA`, `A` : Speed of Sound
 - `EneK`, `EneKin`, `ek` : Kinetic Energy / Dynamic Pressure
 - `EneI`, `EneInt`, `ei` : Internal Energy
 - `Enth`, `H` : Enthalpy
@@ -144,7 +144,7 @@ It seems like a good rule of thumb to try to use 4 letter abbreviations.
 
 - `SolPnt`, `SP` : Solution Point
 - `FlxPnt`, `FP` : Flux Point
-- `Point` , `PT` : Generic interpolation point
+- `Point` , `PT` : Generic, possibly auxiliary, interpolation point
 
 - `meshSP`, `meshFP` : Global mesh index of a mesh element (SP, FP, etc)
 - `faceFP`, `faceNode` : Local cell index/position of a mesh element (SP, FP, Node, etc)
