@@ -83,6 +83,7 @@ module Output
     var outputDir  : string = curDir;
 
     // Create directory for this iteration output
+    //call execute_command_line('mkdir -p '+trim(outputDir) );
 
     // Write all selected output files
     if frMesh.nDims == 1
@@ -112,7 +113,7 @@ module Output
 //    call stdOut(dirName);
 //  }
 
-  proc output_gnuplot(outputDir : string, fileRoot : string, fileSulfix : string, xyz : [] real, vars : [] real,
+  proc output_gnuplot(outputDir : string, fileRoot : string, fileSuffix : string, xyz : [] real, vars : [] real,
       flagPressure : bool = false, flagMach : bool = false)
   {
     use FileSystem;
@@ -125,7 +126,7 @@ module Output
     param fileExt  : string = ".dat";
     param nameSep  : string = "-";
 
-    var fileName   : string = fileRoot + nameSep + fileSulfix + fileExt;
+    var fileName   : string = fileRoot + nameSep + fileSuffix + fileExt;
     var outputFile : file;
 
     try {
@@ -175,7 +176,7 @@ module Output
     try! outputFile.close();
   }
 
-  proc output_fr_tecplot_dat(outputDir : string, fileRoot : string, fileSulfix : string,
+  proc output_fr_tecplot_dat(outputDir : string, fileRoot : string, fileSuffix : string,
       frMesh : fr_mesh_c,
       flagPressure : bool = true, flagTemperature : bool = false, flagMach : bool = true, flagEntropy : bool = true,
       flagNormals : bool = false, flagDouble : bool = false)
@@ -195,10 +196,11 @@ module Output
     param fileExt  : string = ".dat";
     param nameSep  : string = "-";
 
-    var fileName   : string = fileRoot + nameSep + fileSulfix + fileExt;
+    var fileName   : string = fileRoot + nameSep + fileSuffix + fileExt;
     var outputFile : file;
 
-    try {
+    // Create and open the output files
+    try! {
       outputFile = open(outputDir + pathSep + fileName , ioMode.cw);
     } catch {
       try! stdout.writeln("Unknown Error creating/opening output file.");
@@ -246,12 +248,12 @@ module Output
       }
 
       // Initially every family is combined into one single zone, but in the future more zones should be added
-      // corresponding to each mesh family.
+      // corresponding to each mesh family and possibly an extra zone for the low-order mesh.
       //
       // Ex 1, Ringleb Flow: Zone 1 = Inlet
-      //                     Zone 2 = Outler
+      //                     Zone 2 = Outlet
       //                     Zone 3 = Inner Wall
-      //                     Zone 4 = Outter Wall
+      //                     Zone 4 = Outer Wall
       //                     Zone 5 = Mesh Interior / Flow
       //
       // Ex 2, Airfoil Flow: Zone 1 = Farfield
@@ -260,17 +262,17 @@ module Output
 
       // Finite Element Zone Record (Mesh Interior / Flow)
       {
-        // Control Line
+        // Control Line to start a zone section
         outputWriter.writef("ZONE\n");
 
-        // Zone data
+        // Define basic zone data
         var spCnt : int = frMesh.xyzSP.domain.dim(0).high;
         var fpCnt : int = frMesh.xyzFP.domain.dim(0).high;
         var elemCnt : int = frMesh.cellList.domain.dim(0).high*(frMesh.solOrder+2)**2;
         var realFormat : string = "  %{ 14.7er}";
 
         // Calculate the average solution on the vertices and index them
-        var vertCnt : int = 0;
+        var vertCnt : int = 0; // Count how many of the nodes are vertices
         var nodeCellCnt : [frMesh.nodeList.domain] int = 0;
         var nodeVertMap : [frMesh.nodeList.domain] int = 0;
         var solNode : [frMesh.nodeList.domain.dim(0), 1..frMesh.nVars] real = 0.0;
@@ -278,6 +280,7 @@ module Output
         {
           ref thisCell = frMesh.cellList[cellIdx];
 
+          // Loop through the first nodes of the cell, which are always it's vertices
           for cellNodeIdx in 1..elem_vertices(thisCell.elemTopo())
           {
             var meshNodeIdx : int = thisCell.nodes[cellNodeIdx];
@@ -833,7 +836,7 @@ module Output
       flagPressure : bool = false, flagMach : bool = false)
   {}
 
-  proc output_tecplot_szplt(outputDir : string, fileRoot : string, fileSulfix : string, xyz : [] real, vars : [] real,
+  proc output_tecplot_szplt(outputDir : string, fileRoot : string, fileSuffix : string, xyz : [] real, vars : [] real,
       flagPressure : bool = false, flagMach : bool = false)
   {}
 }
