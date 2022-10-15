@@ -13,10 +13,12 @@ BUILD_GENERIC="true"
 BUILD_INTEL="false"
 BUILD_AMD="false"
 
-if [[ $* == --no-dbg ]]; then BUILD_DBG="false"; fi
-if [[ $* == --no-opt ]]; then BUILD_OPT="false"; fi
-if [[ $* == --intel  ]]; then BUILD_INTEL="true"; BUILD_GENERIC="false"; fi
-if [[ $* == --amd    ]]; then BUILD_AMD="true"; BUILD_GENERIC="false"; fi
+if [[ $@ =~ --no-dbg  ]]; then BUILD_DBG="false"; fi
+if [[ $@ =~ --no-opt  ]]; then BUILD_OPT="false"; fi
+if [[ $@ =~ --amd     ]]; then BUILD_AMD="true"; BUILD_GENERIC="false"; fi
+if [[ $@ =~ --intel   ]]; then BUILD_INTEL="true"; BUILD_GENERIC="false"; fi
+if [[ $@ =~ --generic ]]; then BUILD_GENERIC="true"; fi
+if [[ $@ =~ --all     ]]; then BUILD_GENERIC="true"; BUILD_AMD="true"; BUILD_INTEL="true"; fi
 
 FREI_DIR=$(pwd)
 GIT_HASH=$(git rev-parse HEAD)
