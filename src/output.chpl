@@ -226,22 +226,27 @@ module Output
       {
         var tecplotTitle : string = "FREI OUTPUT";
         var tecplotFileType : string = "FULL";
-        var tecplotVariables : string = "\"PointIdx\"";
+        var tecplotVariables : string;
 
         var dimName : [1..3] string = ["\"X\"", "\"Y\"", "\"Z\""];
         var nrmName : [1..3] string = ["\"Normal-X\"", "\"Normal-Y\"", "\"Normal-Z\""];
-        //if input.eqSet == EULER
-        //{
-        //  if frMesh.nDims == 3 then
-        //    var varName : [1..frMesh.nVars] string = ["\"Density\"", "\"Momentum-X\"", "\"Energy\""];
-        //  if frMesh.nDims == 4 then
-            var varName : [1..frMesh.nVars] string = ["\"Density\"", "\"Momentum-X\"", "\"Momentum-Y\"", "\"Energy\""];
-        //  if frMesh.nDims == 5 then
-        //    var varName : [1..frMesh.nVars] string = ["\"Density\"", "\"Momentum-X\"", "\"Momentum-Y\"", "\"Momentum-Z\"", "\"Energy\""];
-        //}
+        var varName : [1..frMesh.nVars] string;
+        if Input.eqSet == EQ_EULER
+        {
+          if frMesh.nDims == 1 then
+            varName = ["\"Density\"", "\"Momentum-X\"", "\"Energy\""];
+          if frMesh.nDims == 2 then
+            varName = ["\"Density\"", "\"Momentum-X\"", "\"Momentum-Y\"", "\"Energy\""];
+          if frMesh.nDims == 3 then
+            varName = ["\"Density\"", "\"Momentum-X\"", "\"Momentum-Y\"", "\"Momentum-Z\"", "\"Energy\""];
+        }
 
-        for dimIdx in 1..frMesh.nDims do
+        // Built the variables' name list
+        tecplotVariables = dimName[1];
+        for dimIdx in 2..frMesh.nDims do
           tecplotVariables += ", "+dimName[dimIdx];
+
+        tecplotVariables += ", "+"\"PointIdx\"";
 
         if flagNormals then for dimIdx in 1..frMesh.nDims do
           tecplotVariables += ", "+nrmName[dimIdx];
@@ -340,11 +345,12 @@ module Output
           // Loop through SPs
           for spIdx in frMesh.xyzSP.domain.dim(0)
           {
-            outputWriter.writef(pointIdxFormat, spIdx);
-
             // Loop through spatial coordinates
             for dimIdx in 1..frMesh.nDims do
               outputWriter.writef(realFormat, frMesh.xyzSP[spIdx, dimIdx]);
+
+            // Write point index
+            outputChan.writef(pointIdxFormat, spIdx);
 
             if flagNormals then for dimIdx in 1..frMesh.nDims do
               outputWriter.writef(realFormat, 0.0);
@@ -367,8 +373,6 @@ module Output
           // Loop through FPs
           for fpIdx in frMesh.xyzFP.domain.dim(0)
           {
-            outputWriter.writef(pointIdxFormat, spCnt + fpIdx);
-
             // Average and dimensionalize variables
             const avgSol : [1..frMesh.nVars] real = (frMesh.solFP[fpIdx, 1, ..] + frMesh.solFP[fpIdx, 2, ..])/2.0;
             const dimAvgConsVars : [1..frMesh.nVars] real = scales!.non2dim_cv(avgSol);
@@ -376,6 +380,9 @@ module Output
             // Loop through spatial coordinates
             for dimIdx in 1..frMesh.nDims do
               outputWriter.writef(realFormat, frMesh.xyzFP[fpIdx, dimIdx]);
+
+            // Write point index
+            outputChan.writef(pointIdxFormat, spCnt + fpIdx);
 
             if flagNormals then for dimIdx in 1..frMesh.nDims do
               outputWriter.writef(realFormat, frMesh.nrmFP[fpIdx, dimIdx]);
@@ -398,8 +405,6 @@ module Output
             // Skip nodes that aren't vertices
             if nodeCellCnt[nodeIdx] == 0 then continue;
 
-            outputWriter.writef(pointIdxFormat, spCnt + fpCnt + nodeVertMap[nodeIdx]);
-
             // Average and dimensionalize variables
             const avgSol : [1..frMesh.nVars] real = solNode[nodeIdx, ..]/nodeCellCnt[nodeIdx];
             const dimAvgConsVars : [1..frMesh.nVars] real = scales!.non2dim_cv(avgSol);
@@ -407,6 +412,9 @@ module Output
             // Loop through spatial coordinates
             for dimIdx in 1..frMesh.nDims do
               outputWriter.writef(realFormat, frMesh.nodeList[nodeIdx].xyz[dimIdx]);
+
+            // Write point index
+            outputChan.writef(pointIdxFormat, spCnt + fpCnt + epCnt + vertIdx);
 
             if flagNormals then for dimIdx in 1..frMesh.nDims do
               outputWriter.writef(realFormat, 0.0);
@@ -852,3 +860,4 @@ module Output
       flagPressure : bool = false, flagMach : bool = false)
   {}
 }
+
