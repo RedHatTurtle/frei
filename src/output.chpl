@@ -88,8 +88,8 @@ module Output
     // Write all selected output files
     if frMesh.nDims == 1
     {
-      output_gnuplot(outputDir, "sol_sp_gnuplt", stringIter, frMesh.xyzSP, frMesh.solSP, true, true);
-      output_gnuplot(outputDir, "res_sp_gnuplt", stringIter, frMesh.xyzSP, frMesh.resSP);
+      output_gnuplot(outputDir, "sol_sp_gnuplt-iter", stringIter, frMesh.xyzSP, frMesh.solSP, true, true);
+      output_gnuplot(outputDir, "res_sp_gnuplt-iter", stringIter, frMesh.xyzSP, frMesh.resSP);
     }
     if frMesh.nDims == 2 {
       output_fr_tecplot_dat(outputDir, "sol_ho_tecplot", stringIter, frMesh, flagNormals = flagNormals);
@@ -99,19 +99,33 @@ module Output
     // Delete old output directories if necessary
   }
 
-//  proc timeOutput(in curTime : real)
-//  {
-//    var stringTime : string;
-//    var dirName : string;
-//
-//    // Define the string format to write the current time on the file/dir name string
-//    // Build string with the file/directory name
-//    write(stringTime,'(f0.4)') curTime;
-//    dirName = 'time'+trim(stringTime);
-//
-//    call execute_command_line('mkdir -p '+trim(dirName) );
-//    call stdOut(dirName);
-//  }
+  proc timeOutput(curTime : real, frMesh : fr_mesh_c)
+  {
+    use IO;
+    use Path;
+
+    var stringTime : string = curTime:string;
+    var outputDir  : string = curDir;
+
+    // Create directory for this iteration output
+    //call execute_command_line('mkdir -p '+trim(outputDir) );
+
+    // Define the string format to write the current time on the file/dir name string
+    // Build string with the file/directory name
+    //write(stringTime,'(f0.4)') curTime;
+    //dirName = 'time'+trim(stringTime);
+
+    // Write all selected output files
+    if frMesh.nDims == 1
+    {
+      output_gnuplot(outputDir, "sol_sp_gnuplt-time", stringTime, frMesh.xyzSP, frMesh.solSP, true, true);
+      output_gnuplot(outputDir, "res_sp_gnuplt-time", stringTime, frMesh.xyzSP, frMesh.resSP);
+    }
+    if frMesh.nDims == 2 then
+      output_tecplot_dat(outputDir, "sol_ho_tecplot-time", stringTime, frMesh);
+
+    // Delete old output directories if necessary
+  }
 
   proc output_gnuplot(outputDir : string, fileRoot : string, fileSuffix : string, xyz : [] real, vars : [] real,
       flagPressure : bool = false, flagMach : bool = false)
@@ -122,9 +136,8 @@ module Output
     use Flux;
     import Input.fGamma;
 
-    //param fileRoot : string = "sol_gnuplt";
     param fileExt  : string = ".dat";
-    param nameSep  : string = "-";
+    param nameSep  : string = "_";
 
     var fileName   : string = fileRoot + nameSep + fileSuffix + fileExt;
     var outputFile : file;
@@ -192,9 +205,8 @@ module Output
     import Input.fGamma;
     import Input.fR;
 
-    //param fileRoot : string = "sol_gnuplt";
     param fileExt  : string = ".dat";
-    param nameSep  : string = "-";
+    param nameSep  : string = "_";
 
     var fileName   : string = fileRoot + nameSep + fileSuffix + fileExt;
     var outputFile : file;
