@@ -184,7 +184,7 @@ module Gmesh
     proc read_gmesh_file(meshFileName : string)
     {
       use IO;
-      use SysError;
+      use OS;
 
       enum section {Main, MeshFormat, PhysicalNames, Nodes, Elements, Periodic, NodeData, ElementData,
                                 ElementNodeData, InterpolationScheme};

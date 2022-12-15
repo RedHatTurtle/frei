@@ -74,7 +74,7 @@ module Input
   proc indat(fileName : string)
   {
     use IO;
-    use SysError;
+    use OS;
     use TOML;
 
     var tomlFile : file;
