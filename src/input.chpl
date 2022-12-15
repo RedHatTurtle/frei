@@ -78,7 +78,7 @@ module Input
     use TOML;
 
     var tomlFile : file;
-    var tomlData : unmanaged Toml?;
+    var tomlData : shared Toml?;
 
     // Open input config file
     try {
