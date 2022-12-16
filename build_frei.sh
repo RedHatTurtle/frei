@@ -67,10 +67,10 @@ echo -e "------------------------------------------------------------"
 
 if [[ $BUILD_GENERIC == "true" ]]; then
     # System BLAS/LAPACK
+    #PATH_TO_LIBGFORTRAN="/usr/lib64"
     PATH_TO_CBLAS_DIR="/usr/include"
-    PATH_TO_BLAS_LIBS="/usr/lib64/lapack"
+    PATH_TO_BLAS_LIBS="/usr/lib64/blas"
     PATH_TO_LAPACKE_INCLUDE_DIR="/usr/include"
-    PATH_TO_LIBGFORTRAN="/usr/lib64/lapack"
     PATH_TO_LAPACK_BINARIES="/usr/lib64/lapack"
 
     if [[ $BUILD_DBG == "true" ]]; then
@@ -85,7 +85,6 @@ if [[ $BUILD_GENERIC == "true" ]]; then
              -I$PATH_TO_CBLAS_DIR                                  \
              -L$PATH_TO_BLAS_LIBS -lcblas                          \
              -I$PATH_TO_LAPACKE_INCLUDE_DIR                        \
-             -L$PATH_TO_LIBGFORTRAN -lgfortran                     \
              -L$PATH_TO_LAPACK_BINARIES -llapacke -llapack -lcblas \
              --main-module "FREI" src/FREI.chpl                    \
                                   src/fr.chpl                      \
@@ -138,7 +137,6 @@ if [[ $BUILD_GENERIC == "true" ]]; then
              -I$PATH_TO_CBLAS_DIR                                  \
              -L$PATH_TO_BLAS_LIBS -lcblas                          \
              -I$PATH_TO_LAPACKE_INCLUDE_DIR                        \
-             -L$PATH_TO_LIBGFORTRAN -lgfortran                     \
              -L$PATH_TO_LAPACK_BINARIES -llapacke -llapack -lcblas \
              --main-module "FREI" src/FREI.chpl                    \
                                   src/fr.chpl                      \
@@ -187,11 +185,9 @@ fi
 
 if [[ $BUILD_INTEL == "true" ]]; then
     # Intel Libraries
-    PATH_TO_CBLAS_DIR="/opt/intel/oneapi/mkl/latest/include"
-    PATH_TO_BLAS_LIBS="/opt/intel/oneapi/mkl/latest/lib/intel64"
-    PATH_TO_LAPACKE_INCLUDE_DIR="/opt/intel/oneapi/mkl/latest/include"
-    PATH_TO_LIBGFORTRAN="/opt/intel/oneapi/mkl/latest/lib/intel64"
-    PATH_TO_LAPACK_BINARIES="/opt/intel/oneapi/mkl/latest/lib/intel64"
+    #PATH_TO_INTEL_LIBGFORTRAN="/opt/intel/oneapi/mkl/latest/lib/intel64"
+    PATH_TO_MKL_INCLUDES="/opt/intel/oneapi/mkl/latest/include"
+    PATH_TO_MKL_LIBS="/opt/intel/oneapi/mkl/latest/lib/intel64"
 
     if [[ $BUILD_DBG == "true" ]]; then
         echo -e "(1/2) Building Debug Intel MKL version of Frei..."
@@ -201,11 +197,8 @@ if [[ $BUILD_INTEL == "true" ]]; then
              --warn-unstable                                       \
              --set blasImpl=mkl                                    \
              --set lapackImpl=mkl                                  \
-             -I$PATH_TO_CBLAS_DIR                                  \
-             -L$PATH_TO_BLAS_LIBS -lblas                           \
-             -I$PATH_TO_LAPACKE_INCLUDE_DIR                        \
-             -L$PATH_TO_LIBGFORTRAN -lgfortran                     \
-             -L$PATH_TO_LAPACK_BINARIES -llapacke -llapack -lcblas \
+             -I$PATH_TO_MKL_INCLUDES                               \
+             -L$PATH_TO_MKL_LIBS -lblas -lcblas -llapack -llapacke \
              --main-module "FREI" src/FREI.chpl                    \
                                   src/fr.chpl                      \
                                   src/temporal.chpl                \
@@ -253,11 +246,8 @@ if [[ $BUILD_INTEL == "true" ]]; then
              --fast                                                \
              --set blasImpl=mkl                                    \
              --set lapackImpl=mkl                                  \
-             -I$PATH_TO_CBLAS_DIR                                  \
-             -L$PATH_TO_BLAS_LIBS -lblas                           \
-             -I$PATH_TO_LAPACKE_INCLUDE_DIR                        \
-             -L$PATH_TO_LIBGFORTRAN -lgfortran                     \
-             -L$PATH_TO_LAPACK_BINARIES -llapacke -llapack -lcblas \
+             -I$PATH_TO_MKL_INCLUDES                               \
+             -L$PATH_TO_MKL_LIBS -lblas -lcblas -llapack -llapacke \
              --main-module "FREI" src/FREI.chpl                    \
                                   src/fr.chpl                      \
                                   src/temporal.chpl                \
@@ -305,11 +295,9 @@ fi
 
 if [[ $BUILD_AMD == "true" ]]; then
     # AMD Libraries
-    PATH_TO_CBLAS_DIR="/opt/AMD/aocl/aocl-linux-aocc-3.1.0/include"
-    PATH_TO_BLAS_LIBS="/opt/AMD/aocl/aocl-linux-aocc-3.1.0/lib64"
-    PATH_TO_LAPACKE_INCLUDE_DIR="/opt/AMD/aocl/aocl-linux-aocc-3.1.0/include"
-    PATH_TO_LIBGFORTRAN="/opt/AMD/aocl/aocl-linux-aocc-3.1.0/lib"
-    PATH_TO_LAPACK_BINARIES="/opt/AMD/aocl/aocl-linux-aocc-3.1.0/lib"
+    #PATH_TO_AMD_LIBGFORTRAN="/opt/AMD/aocl/aocl-linux-aocc-4.0.0/lib"
+    PATH_TO_AMD_INCLUDES="/opt/AMD/aocl/aocl-linux-aocc-4.0.0/include"
+    PATH_TO_AMD_LIBS="/opt/AMD/aocl/aocl-linux-aocc-4.0.0/lib"
 
     if [[ $BUILD_DBG == "true" ]]; then
         echo -e "(1/2) Building Debug AMD AOCL LibM version of Frei..."
@@ -317,11 +305,8 @@ if [[ $BUILD_AMD == "true" ]]; then
         chpl -o build/frei_dbg_amd.$EXTENSION                      \
              --warnings                                            \
              --warn-unstable                                       \
-             -I$PATH_TO_CBLAS_DIR                                  \
-             -L$PATH_TO_BLAS_LIBS -lblas                           \
-             -I$PATH_TO_LAPACKE_INCLUDE_DIR                        \
-             -L$PATH_TO_LIBGFORTRAN -lgfortran                     \
-             -L$PATH_TO_LAPACK_BINARIES -llapacke -llapack -lcblas \
+             -I$PATH_TO_AMD_INCLUDES                               \
+             -L$PATH_TO_AMD_LIBS -lblas -lcblas -llapack -llapacke \
              --main-module "FREI" src/FREI.chpl                    \
                                   src/fr.chpl                      \
                                   src/temporal.chpl                \
@@ -367,11 +352,8 @@ if [[ $BUILD_AMD == "true" ]]; then
         echo
         chpl -o build/frei_opt_amd.$EXTENSION                      \
              --fast                                                \
-             -I$PATH_TO_CBLAS_DIR                                  \
-             -L$PATH_TO_BLAS_LIBS -lblas                           \
-             -I$PATH_TO_LAPACKE_INCLUDE_DIR                        \
-             -L$PATH_TO_LIBGFORTRAN -lgfortran                     \
-             -L$PATH_TO_LAPACK_BINARIES -llapacke -llapack -lcblas \
+             -I$PATH_TO_AMD_INCLUDES                               \
+             -L$PATH_TO_AMD_LIBS -lblas -lcblas -llapack -llapacke \
              --main-module "FREI" src/FREI.chpl                    \
                                   src/fr.chpl                      \
                                   src/temporal.chpl                \
