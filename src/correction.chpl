@@ -81,12 +81,13 @@ module Correction
               correctionCoefsLine = correction_g2_deriv(interpOrder, spDistLine);
           }
 
-          for (fp,sp) in {1..fpCnt, 1..spCnt} do
-            flux_correction[(cellTopo, interpOrder)]!.correction[fp,sp] = correctionCoefsLine[sp];
+          for (fpIdx, spIdx) in {1..1, 1..spCnt} do
+            flux_correction[(cellTopo, interpOrder)]!.correction[fpIdx, spIdx] = correctionCoefsLine[spIdx];
 
           // Invert the correction derivative for right side FP
-          flux_correction[(cellTopo, interpOrder)]!.correction[2,..].reverse();
-          flux_correction[(cellTopo, interpOrder)]!.correction[2,..] *= -1;
+          for (fpIdx, spIdx) in {2..2, 1..spCnt} do
+            flux_correction[(cellTopo, interpOrder)]!.correction[fpIdx, spIdx] = -1.0*correctionCoefsLine[spCnt - (spIdx-1)];
+
         }
         when TOPO_TRIA {}
         when TOPO_QUAD
