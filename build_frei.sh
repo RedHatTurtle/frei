@@ -7,18 +7,20 @@ if [ "${-#*i}" == "$-" ]; then
 fi
 
 # Initialise option flags
-BUILD_DBG="true"
-BUILD_OPT="true"
 BUILD_GENERIC="true"
 BUILD_INTEL="false"
 BUILD_AMD="false"
+BUILD_OPENBLAS="false"
+BUILD_DBG="true"
+BUILD_OPT="true"
 
-if [[ $@ =~ --no-dbg  ]]; then BUILD_DBG="false"; fi
-if [[ $@ =~ --no-opt  ]]; then BUILD_OPT="false"; fi
-if [[ $@ =~ --amd     ]]; then BUILD_AMD="true"; BUILD_GENERIC="false"; fi
-if [[ $@ =~ --intel   ]]; then BUILD_INTEL="true"; BUILD_GENERIC="false"; fi
-if [[ $@ =~ --generic ]]; then BUILD_GENERIC="true"; fi
-if [[ $@ =~ --all     ]]; then BUILD_GENERIC="true"; BUILD_AMD="true"; BUILD_INTEL="true"; fi
+if [[ $@ =~ --amd      ]]; then BUILD_AMD="true"; BUILD_GENERIC="false"; fi
+if [[ $@ =~ --intel    ]]; then BUILD_INTEL="true"; BUILD_GENERIC="false"; fi
+if [[ $@ =~ --openblas ]]; then BUILD_OPENBLAS="true"; BUILD_GENERIC="false"; fi
+if [[ $@ =~ --generic  ]]; then BUILD_GENERIC="true"; fi
+if [[ $@ =~ --all      ]]; then BUILD_GENERIC="true"; BUILD_OPENBLAS="true"; BUILD_AMD="true"; BUILD_INTEL="true"; fi
+if [[ $@ =~ --no-dbg   ]]; then BUILD_DBG="false"; fi
+if [[ $@ =~ --no-opt   ]]; then BUILD_OPT="false"; fi
 
 FREI_DIR=$(pwd)
 GIT_HASH=$(git rev-parse HEAD)
@@ -32,7 +34,7 @@ CHANGES=``
 git diff --quiet HEAD ./src; SOURCE_CHANGES=$?
 git diff --quiet HEAD ./build_frei.sh; BUILD_SCRIPT_CHANGES=$?
 if [ $SOURCE_CHANGES -eq 0 ] && [ $BUILD_SCRIPT_CHANGES -eq 0 ] ; then
-    echo -e "Compiling FREI"
+    echo -e "Compiling FREI unaltered from"
     echo -e "   - Commit:" $GIT_HASH
     echo -e "   - Branch:" $GIT_BRANCH
     echo -e "   - Time  :" $COMPILE_TIME
@@ -65,6 +67,10 @@ if [ ! -d "build" ]; then
 fi
 echo -e "------------------------------------------------------------"
 
+##################################################
+###   System native BLAS/Lapack based build    ###
+##################################################
+
 if [[ $BUILD_GENERIC == "true" ]]; then
     # System BLAS/LAPACK
     #PATH_TO_LIBGFORTRAN="/usr/lib64"
@@ -77,7 +83,7 @@ if [[ $BUILD_GENERIC == "true" ]]; then
         ##################################################
         ###   Debug Build                              ###
         ##################################################
-        echo -e "(1/2) Building Debug version of Frei..."
+        echo -e "(1/2) Building Debug generic version of Frei..."
         echo
         chpl -o build/frei_dbg.$EXTENSION                          \
              --warnings                                            \
@@ -130,7 +136,7 @@ if [[ $BUILD_GENERIC == "true" ]]; then
         ##################################################
         ###   Optimized / Production Build             ###
         ##################################################
-        echo -e "(2/2) Building Optimized version of Frei..."
+        echo -e "(2/2) Building Optimized generic version of Frei..."
         echo
         chpl -o build/frei_opt.$EXTENSION                          \
              --fast                                                \
@@ -179,8 +185,121 @@ if [[ $BUILD_GENERIC == "true" ]]; then
     fi
 fi
 
+
 ##################################################
-###   Optimized Intel MKL Build                ###
+###   OpenBLAS based build                     ###
+##################################################
+
+if [[ $BUILD_OPENBLAS == "true" ]]; then
+    # OpenBLAS libraries
+    #PATH_TO_LIBGFORTRAN="/usr/lib64"
+    PATH_TO_CBLAS_DIR="/usr/include"
+    PATH_TO_OPENBLAS_LIBS="/usr/lib64/openblas-serial/"
+    PATH_TO_LAPACKE_INCLUDE_DIR="/usr/include"
+    PATH_TO_LAPACK_BINARIES="/usr/lib64/lapack"
+
+    if [[ $BUILD_DBG == "true" ]]; then
+        ##################################################
+        ###   Debug Build                              ###
+        ##################################################
+        echo -e "(1/2) Building Debug OpenBLAS version of Frei..."
+        echo
+        chpl -o build/frei_dbg_openblas.$EXTENSION                 \
+             --warnings                                            \
+             --warn-unstable                                       \
+             -L$PATH_TO_OPENBLAS_LIBS -lopenblas                   \
+             --main-module "FREI" src/FREI.chpl                    \
+                                  src/fr.chpl                      \
+                                  src/temporal.chpl                \
+                                  src/output.chpl                  \
+                                  src/error.chpl                   \
+                                  src/boundary.chpl                \
+                                  src/frmesh.chpl                  \
+                                  src/mapping.chpl                 \
+                                  src/mesh.chpl                    \
+                                  src/gmesh.chpl                   \
+                                  src/riemann.chpl                 \
+                                  src/flux.chpl                    \
+                                  src/correction.chpl              \
+                                  src/limiter.chpl                 \
+                                  src/projection.chpl              \
+                                  src/quadrature.chpl              \
+                                  src/interpolation.chpl           \
+                                  src/polynomials.chpl             \
+                                  src/sourceterm.chpl              \
+                                  src/init.chpl                    \
+                                  src/ringleb.chpl                 \
+                                  src/config.chpl                  \
+                                  src/input.chpl                   \
+                                  src/parameters.chpl              \
+                                  src/testing.chpl                 \
+            2>&1 | tee build/frei_dbg_openblas.$EXTENSION.log
+        if [ ${PIPESTATUS[0]} -eq 0 ]; then
+            echo -e "${BGreen}Done${Color_Off}"
+            ln -srf build/frei_dbg_openblas.$EXTENSION ./build/frei_dbg_openblas
+            if [ $SOURCE_CHANGES -eq 0 ] && [ $BUILD_SCRIPT_CHANGES -eq 0 ] ; then
+                ln -srf build/frei_dbg_openblas.$EXTENSION ./build/frei_dbg_openblas.$GIT_BRANCH
+            else
+                ln -srf build/frei_dbg_openblas.$EXTENSION ./build/frei_dbg_openblas.$GIT_BRANCH-alpha
+            fi
+        else
+            echo -e "${BRed}Fail${Color_Off}"
+        fi
+        echo -e "------------------------------------------------------------"
+    fi
+
+    if [[ $BUILD_OPT == "true" ]]; then
+        ##################################################
+        ###   Optimized / Production Build             ###
+        ##################################################
+        echo -e "(2/2) Building Optimized OpenBLAS version of Frei..."
+        echo
+        chpl -o build/frei_opt_openblas.$EXTENSION                 \
+             --fast                                                \
+             -L$PATH_TO_OPENBLAS_LIBS -lopenblas                   \
+             --main-module "FREI" src/FREI.chpl                    \
+                                  src/fr.chpl                      \
+                                  src/temporal.chpl                \
+                                  src/output.chpl                  \
+                                  src/error.chpl                   \
+                                  src/boundary.chpl                \
+                                  src/frmesh.chpl                  \
+                                  src/mapping.chpl                 \
+                                  src/mesh.chpl                    \
+                                  src/gmesh.chpl                   \
+                                  src/riemann.chpl                 \
+                                  src/flux.chpl                    \
+                                  src/correction.chpl              \
+                                  src/limiter.chpl                 \
+                                  src/projection.chpl              \
+                                  src/quadrature.chpl              \
+                                  src/interpolation.chpl           \
+                                  src/polynomials.chpl             \
+                                  src/sourceterm.chpl              \
+                                  src/init.chpl                    \
+                                  src/ringleb.chpl                 \
+                                  src/config.chpl                  \
+                                  src/input.chpl                   \
+                                  src/parameters.chpl              \
+                                  src/testing.chpl                 \
+            2>&1 | tee build/frei_opt_openblas.$EXTENSION.log
+        if [ ${PIPESTATUS[0]} -eq 0 ]; then
+            echo -e "${BGreen}Done${Color_Off}"
+            ln -srf build/frei_opt_openblas.$EXTENSION ./build/frei_opt_openblas
+            if [ $SOURCE_CHANGES -eq 0 ] && [ $BUILD_SCRIPT_CHANGES -eq 0 ] ; then
+                ln -srf build/frei_opt_openblas.$EXTENSION ./build/frei_opt_openblas.$GIT_BRANCH
+            else
+                ln -srf build/frei_opt_openblas.$EXTENSION ./build/frei_opt_openblas.$GIT_BRANCH-alpha
+            fi
+        else
+            echo -e "${BRed}Fail${Color_Off}"
+        fi
+        echo -e "------------------------------------------------------------"
+    fi
+fi
+
+##################################################
+###   Intel MKL based Build                    ###
 ##################################################
 
 if [[ $BUILD_INTEL == "true" ]]; then
@@ -290,7 +409,7 @@ if [[ $BUILD_INTEL == "true" ]]; then
 fi
 
 ##################################################
-###   Optimized AMD AOCL LibM Build            ###
+###   AMD AOCL LibM based Build                ###
 ##################################################
 
 if [[ $BUILD_AMD == "true" ]]; then
