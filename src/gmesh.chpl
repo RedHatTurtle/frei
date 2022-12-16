@@ -202,8 +202,8 @@ module Gmesh
         writeln("Unknown Error opening mesh file.");
       }
 
-      // Open reader channel to gmesh file
-      var meshReaderChannel = try! meshFile.reader();
+      // Open file reader to gmesh file
+      var meshFileReader = try! meshFile.reader();
 
       // Set initial state
       var state = section.Main;
@@ -211,7 +211,7 @@ module Gmesh
       var lineIdx : int = 1;
 
       // Start reading and parsing file
-      for line in meshReaderChannel.lines()
+      for line in meshFileReader.lines()
       {
         select state
         {

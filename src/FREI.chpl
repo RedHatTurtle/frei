@@ -237,8 +237,8 @@ module FREI
       try! stdout.writeln("Unknown Error opening convergence log file.");
       try! stderr.writeln("Unknown Error opening convergence log file.");
     }
-    var convergenceLogChan = try! convergenceLogFile.writer();
-    var       errorLogChan = try!       errorLogFile.writer();
+    var convergenceLogWriter = try! convergenceLogFile.writer();
+    var       errorLogWriter = try!       errorLogFile.writer();
 
     writeln();
     initTime = mainWatch.elapsed(timeUnit);
@@ -635,14 +635,14 @@ module FREI
             iteration, iterWatch.elapsed(timeUnit), log10(norm(l2SolDeltaAbs)/norm(l2SolDeltaAbsIni)));
 
         // Output full state to log file
-        log_convergence(convergenceLogChan, iteration, l1SolDeltaAbs, l2SolDeltaAbs, lfSolDeltaAbs,
-                                                       l1SolDeltaRel, l2SolDeltaRel, lfSolDeltaRel);
+        log_convergence(convergenceLogWriter, iteration, l1SolDeltaAbs, l2SolDeltaAbs, lfSolDeltaAbs,
+                                                         l1SolDeltaRel, l2SolDeltaRel, lfSolDeltaRel);
 
         if Input.outError > 0
         {
           // Output all calculated errors
           var errors = error_calc(Input.outError, frMesh);
-          print_log(errorLogChan, iteration, errors);
+          print_log(errorLogWriter, iteration, errors);
         }
 
         if iteration % ioIter == 0 then

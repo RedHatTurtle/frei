@@ -3,7 +3,7 @@ module Output
   use IO;
   import FRMesh.fr_mesh_c;
 
-  proc log_convergence(convergenceLogChan : channel, iteration : int,
+  proc log_convergence(convergenceLogWriter : fileWriter, iteration : int,
       l1SolDeltaAbs : [] real, l2SolDeltaAbs : [] real, lfSolDeltaAbs : [] real,
       l1SolDeltaRel : [] real, l2SolDeltaRel : [] real, lfSolDeltaRel : [] real)
   {
@@ -12,61 +12,61 @@ module Output
     const header : [1..6] string = ["L2(ΔSol[%1i])",   "Lf(ΔSol[%1i])",   "L1(ΔSol[%1i])",
                                     "L2(%%ΔSol[%1i])", "Lf(%%ΔSol[%1i])", "L1(%%ΔSol[%1i])"];
 
-    // Open writer channel and write to log
+    // Open file writer and write to log
     try {
       // Write header on first iteration
       if iteration == 1
       {
-        convergenceLogChan.writef("%10s", "Iteration");
+        convergenceLogWriter.writef("%10s", "Iteration");
         for metric in header do
           for varIdx in l2SolDeltaAbs.domain do
-            convergenceLogChan.writef("%16s", metric.format(varIdx));
-        convergenceLogChan.writef("\n");
+            convergenceLogWriter.writef("%16s", metric.format(varIdx));
+        convergenceLogWriter.writef("\n");
       }
 
-      convergenceLogChan.writef("%10i", iteration);
+      convergenceLogWriter.writef("%10i", iteration);
       for varIdx in l2SolDeltaAbs.domain do
-        convergenceLogChan.writef("%{ 16.8er}", l2SolDeltaAbs[varIdx]);
+        convergenceLogWriter.writef("%{ 16.8er}", l2SolDeltaAbs[varIdx]);
       for varIdx in lfSolDeltaAbs.domain do
-        convergenceLogChan.writef("%{ 16.8er}", lfSolDeltaAbs[varIdx]);
+        convergenceLogWriter.writef("%{ 16.8er}", lfSolDeltaAbs[varIdx]);
       for varIdx in l1SolDeltaAbs.domain do
-        convergenceLogChan.writef("%{ 16.8er}", l1SolDeltaAbs[varIdx]);
+        convergenceLogWriter.writef("%{ 16.8er}", l1SolDeltaAbs[varIdx]);
       for varIdx in l2SolDeltaRel.domain do
-        convergenceLogChan.writef("%{ 16.8er}", l2SolDeltaRel[varIdx]*100);
+        convergenceLogWriter.writef("%{ 16.8er}", l2SolDeltaRel[varIdx]*100);
       for varIdx in lfSolDeltaRel.domain do
-        convergenceLogChan.writef("%{ 16.8er}", lfSolDeltaRel[varIdx]*100);
+        convergenceLogWriter.writef("%{ 16.8er}", lfSolDeltaRel[varIdx]*100);
       for varIdx in l1SolDeltaRel.domain do
-        convergenceLogChan.writef("%{ 16.8er}", l1SolDeltaRel[varIdx]*100);
-      convergenceLogChan.writef("\n");
+        convergenceLogWriter.writef("%{ 16.8er}", l1SolDeltaRel[varIdx]*100);
+      convergenceLogWriter.writef("\n");
 
-      convergenceLogChan.flush();
+      convergenceLogWriter.flush();
     }
     catch {
       writeln("Failed to write to convergence log");
     }
   }
 
-  proc print_log(logChan : channel, iteration : int, logVar : [] (string, real))
+  proc print_log(logWriter : fileWriter, iteration : int, logVar : [] (string, real))
   {
     use IO;
 
-    // Open writer channel and write to log
+    // Open file writer and write to log
     try {
       // Write header on first iteration
       if iteration == 1
       {
-        logChan.writef("%10s", "Iteration");
+        logWriter.writef("%10s", "Iteration");
         for varIdx in logVar.domain do
-          logChan.writef(" %19s", logVar[varIdx](0));
-        logChan.writef("\n");
+          logWriter.writef(" %19s", logVar[varIdx](0));
+        logWriter.writef("\n");
       }
 
-      logChan.writef("%10i", iteration);
+      logWriter.writef("%10i", iteration);
       for varIdx in logVar.domain do
-        logChan.writef(" %{ 19.12er}", logVar[varIdx](1));
-      logChan.writef("\n");
+        logWriter.writef(" %{ 19.12er}", logVar[varIdx](1));
+      logWriter.writef("\n");
 
-      logChan.flush();
+      logWriter.flush();
     }
     catch {
       writeln("Failed to write log file log");
@@ -132,73 +132,38 @@ module Output
       try! stderr.writeln("Unknown Error creating/opening output file.");
     }
 
-    // Open writer channel and write gnuplot output
+    // Open file writer and write gnuplot output
     try {
-      var outputChan = outputFile.writer();
-
-      // Channel style:
-      {
-        //   binary = 0,
-        //   byteorder = 1,
-        //   str_style = -65280,
-        //   min_width_columns = 15,
-        //   max_width_columns = 4294967295,
-        //   max_width_characters = 4294967295,
-        //   max_width_bytes = 4294967295,
-        //   string_start = 34,
-        //   string_end = 34,
-        //   string_format = 0,
-        //   bytes_prefix = 98,
-        //   base = 0,
-        //   point_char = 46,
-        //   exponent_char = 101,
-        //   other_exponent_char = 112,
-        //   positive_char = 43,
-        //   negative_char = 45,
-        //   i_char = 105,
-        //   prefix_base = 1,
-        //   pad_char = 32,
-        //   showplus = 1,
-        //   uppercase = 0,
-        //   leftjustify = 0,
-        //   showpoint = 0,
-        //   showpointzero = 0,
-        //   precision = 6,
-        //   realfmt = 2,
-        //   complex_style = 0,
-        //   array_style = 0,
-        //   aggregate_style = 0,
-        //   tuple_style = 0
-      }
+      var outputWriter = outputFile.writer();
 
       // Write header
-      outputChan.writef("       DOF");
+      outputWriter.writef("       DOF");
       for dimIdx in xyz.domain.dim(1) do
-        outputChan.writef("    Coordinate-%i", dimIdx);
+        outputWriter.writef("    Coordinate-%i", dimIdx);
       for varIdx in vars.domain.dim(1) do
-        outputChan.writef("      Variable-%i", varIdx);
+        outputWriter.writef("      Variable-%i", varIdx);
       if flagPressure then
-        outputChan.writef("        Pressure");
+        outputWriter.writef("        Pressure");
       if flagMach then
-        outputChan.writef("            Mach");
-      outputChan.writeln();
+        outputWriter.writef("            Mach");
+      outputWriter.writeln();
 
       // Write values
       for dof in xyz.domain.dim(0)
       {
-        outputChan.writef("%{10i}", dof);
+        outputWriter.writef("%{10i}", dof);
         for dimIdx in xyz.domain.dim(1) do
-          outputChan.writef("  %{ 14.7er}", xyz[dof,dimIdx]);
+          outputWriter.writef("  %{ 14.7er}", xyz[dof,dimIdx]);
         for varIdx in vars.domain.dim(1) do
-          outputChan.writef("  %{ 14.7er}", vars[dof,varIdx]);
+          outputWriter.writef("  %{ 14.7er}", vars[dof,varIdx]);
         if flagPressure then
-          outputChan.writef("  %{ 14.7er}", pressure_cv(vars[dof,..]));
+          outputWriter.writef("  %{ 14.7er}", pressure_cv(vars[dof,..]));
         if flagMach then
-          outputChan.writef("  %{ 14.7er}", mach_cv(vars[dof,..]));
-        outputChan.writeln();
+          outputWriter.writef("  %{ 14.7er}", mach_cv(vars[dof,..]));
+        outputWriter.writeln();
       }
 
-      outputChan.close();
+      outputWriter.close();
     }
     catch {
       writeln("Failed to write solution to GNUPlot file");
@@ -235,7 +200,7 @@ module Output
     }
 
     try {
-      var outputChan = outputFile.writer();
+      var outputWriter = outputFile.writer();
 
       // File Header
       {
@@ -265,9 +230,9 @@ module Output
         if flagMach        then tecplotVariables += ", \"Mach\"";
         if flagEntropy     then tecplotVariables += ", \"Entropy\"";
 
-        outputChan.writef("TITLE = %\"S\n", tecplotTitle);
-        outputChan.writef("FILETYPE = %\"S\n", tecplotFileType);
-        outputChan.writef("VARIABLES = %s\n", tecplotVariables);
+        outputWriter.writef("TITLE = %\"S\n", tecplotTitle);
+        outputWriter.writef("FILETYPE = %\"S\n", tecplotFileType);
+        outputWriter.writef("VARIABLES = %s\n", tecplotVariables);
       }
 
       // Initially every family is combined into one single zone, but in the future more zones should be added
@@ -286,7 +251,7 @@ module Output
       // Finite Element Zone Record (Mesh Interior / Flow)
       {
         // Control Line
-        outputChan.writef("ZONE\n");
+        outputWriter.writef("ZONE\n");
 
         // Zone data
         var spCnt : int = frMesh.xyzSP.domain.dim(0).high;
@@ -326,21 +291,21 @@ module Output
         {
           var tecplotZoneTitle : string = "Flow";
 
-          outputChan.writef("T = %\"S", tecplotZoneTitle);
-          outputChan.writef(", ZONETYPE = FEQUADRILATERAL");
-          outputChan.writef(", DATAPACKING = POINT"); // Default is BLOCK
-          outputChan.writef(", NODES = %i, ELEMENTS = %i", pointCnt, elemCnt);
-          outputChan.writef(", NV = 1"); // Position of the variable with the node index, assumed to be ordered
-          outputChan.writef("\n");
+          outputWriter.writef("T = %\"S", tecplotZoneTitle);
+          outputWriter.writef(", ZONETYPE = FEQUADRILATERAL");
+          outputWriter.writef(", DATAPACKING = POINT"); // Default is BLOCK
+          outputWriter.writef(", NODES = %i, ELEMENTS = %i", pointCnt, elemCnt);
+          outputWriter.writef(", NV = 1"); // Position of the variable with the node index, assumed to be ordered
+          outputWriter.writef("\n");
 
           if flagDouble // Default is SINGLE
           {
-            outputChan.writef("DT = (DOUBLE, DOUBLE, DOUBLE ...)");
+            outputWriter.writef("DT = (DOUBLE, DOUBLE, DOUBLE ...)");
             realFormat = "  %{ 22.15er}";
-            outputChan.writef("\n");
+            outputWriter.writef("\n");
           }
-          //outputChan.writef(" VARLOCATION = (NODAL, NODAL, NODAL ...)"); // Default is NODAL
-          //outputChan.writef("\n");
+          //outputWriter.writef(" VARLOCATION = (NODAL, NODAL, NODAL ...)"); // Default is NODAL
+          //outputWriter.writef("\n");
         }
 
         // Zone Data
@@ -350,45 +315,45 @@ module Output
           // Loop through SPs
           for spIdx in frMesh.xyzSP.domain.dim(0)
           {
-            outputChan.writef(pointIdxFormat, spIdx);
+            outputWriter.writef(pointIdxFormat, spIdx);
 
             // Loop through spatial coordinates
             for dimIdx in 1..frMesh.nDims do
-              outputChan.writef(realFormat, frMesh.xyzSP[spIdx, dimIdx]);
+              outputWriter.writef(realFormat, frMesh.xyzSP[spIdx, dimIdx]);
 
             // Loop through conserved variables
             for varIdx in 1..frMesh.nVars do
-              outputChan.writef(realFormat, frMesh.solSP[varIdx, spIdx]);
+              outputWriter.writef(realFormat, frMesh.solSP[varIdx, spIdx]);
 
-            if flagPressure    then outputChan.writef(realFormat,    pressure_cv(frMesh.solSP[.., spIdx]));
-            if flagTemperature then outputChan.writef(realFormat, temperature_cv(frMesh.solSP[.., spIdx]));
-            if flagMach        then outputChan.writef(realFormat,        mach_cv(frMesh.solSP[.., spIdx]));
-            if flagEntropy     then outputChan.writef(realFormat,     entropy_cv(frMesh.solSP[.., spIdx]));
+            if flagPressure    then outputWriter.writef(realFormat,    pressure_cv(frMesh.solSP[.., spIdx]));
+            if flagTemperature then outputWriter.writef(realFormat, temperature_cv(frMesh.solSP[.., spIdx]));
+            if flagMach        then outputWriter.writef(realFormat,        mach_cv(frMesh.solSP[.., spIdx]));
+            if flagEntropy     then outputWriter.writef(realFormat,     entropy_cv(frMesh.solSP[.., spIdx]));
 
-            outputChan.writef("\n");
+            outputWriter.writef("\n");
           }
 
           // Loop through FPs
           for fpIdx in frMesh.xyzFP.domain.dim(0)
           {
-            outputChan.writef(pointIdxFormat, spCnt + fpIdx);
+            outputWriter.writef(pointIdxFormat, spCnt + fpIdx);
 
             var avgSol : [1..frMesh.nVars] real = ( frMesh.solFP[fpIdx, 1, ..] + frMesh.solFP[fpIdx, 2, ..] )/2.0;
 
             // Loop through spatial coordinates
             for dimIdx in 1..frMesh.nDims do
-              outputChan.writef(realFormat, frMesh.xyzFP[fpIdx, dimIdx]);
+              outputWriter.writef(realFormat, frMesh.xyzFP[fpIdx, dimIdx]);
 
             // Loop through conserved variables
             for varIdx in 1..frMesh.nVars do
-              outputChan.writef(realFormat, avgSol[varIdx]);
+              outputWriter.writef(realFormat, avgSol[varIdx]);
 
-            if flagPressure    then outputChan.writef(realFormat,    pressure_cv(avgSol));
-            if flagTemperature then outputChan.writef(realFormat, temperature_cv(avgSol));
-            if flagMach        then outputChan.writef(realFormat,        mach_cv(avgSol));
-            if flagEntropy     then outputChan.writef(realFormat,     entropy_cv(avgSol));
+            if flagPressure    then outputWriter.writef(realFormat,    pressure_cv(avgSol));
+            if flagTemperature then outputWriter.writef(realFormat, temperature_cv(avgSol));
+            if flagMach        then outputWriter.writef(realFormat,        mach_cv(avgSol));
+            if flagEntropy     then outputWriter.writef(realFormat,     entropy_cv(avgSol));
 
-            outputChan.writef("\n");
+            outputWriter.writef("\n");
           }
 
           // Loop through Nodes
@@ -397,24 +362,24 @@ module Output
             // Skip nodes that aren't vertices
             if nodeCellCnt[nodeIdx] == 0 then continue;
 
-            outputChan.writef(pointIdxFormat, spCnt + fpCnt + nodeVertMap[nodeIdx]);
+            outputWriter.writef(pointIdxFormat, spCnt + fpCnt + nodeVertMap[nodeIdx]);
 
             solNode[nodeIdx, ..] = solNode[nodeIdx, ..]/nodeCellCnt[nodeIdx];
 
             // Loop through spatial coordinates
             for dimIdx in 1..frMesh.nDims do
-              outputChan.writef(realFormat, frMesh.nodeList[nodeIdx].xyz[dimIdx]);
+              outputWriter.writef(realFormat, frMesh.nodeList[nodeIdx].xyz[dimIdx]);
 
             // Loop through conserved variables
             for varIdx in 1..frMesh.nVars do
-              outputChan.writef(realFormat, solNode[nodeIdx, varIdx]);
+              outputWriter.writef(realFormat, solNode[nodeIdx, varIdx]);
 
-            if flagPressure    then outputChan.writef(realFormat,    pressure_cv(solNode[nodeIdx, ..]));
-            if flagTemperature then outputChan.writef(realFormat, temperature_cv(solNode[nodeIdx, ..]));
-            if flagMach        then outputChan.writef(realFormat,        mach_cv(solNode[nodeIdx, ..]));
-            if flagEntropy     then outputChan.writef(realFormat,     entropy_cv(solNode[nodeIdx, ..]));
+            if flagPressure    then outputWriter.writef(realFormat,    pressure_cv(solNode[nodeIdx, ..]));
+            if flagTemperature then outputWriter.writef(realFormat, temperature_cv(solNode[nodeIdx, ..]));
+            if flagMach        then outputWriter.writef(realFormat,        mach_cv(solNode[nodeIdx, ..]));
+            if flagEntropy     then outputWriter.writef(realFormat,     entropy_cv(solNode[nodeIdx, ..]));
 
-            outputChan.writef("\n");
+            outputWriter.writef("\n");
           }
         }
 
@@ -442,7 +407,7 @@ module Output
                   var sp3Idx : int = frMesh.cellSPidx[cellIdx, 1] + (lin+1)*(frMesh.solOrder+1) + col+1;
                   var sp4Idx : int = frMesh.cellSPidx[cellIdx, 1] + (lin+1)*(frMesh.solOrder+1) + col;
 
-                  outputChan.writef(connectivityFormat, sp1Idx, sp2Idx, sp3Idx, sp4Idx);
+                  outputWriter.writef(connectivityFormat, sp1Idx, sp2Idx, sp3Idx, sp4Idx);
                 }
 
                 // Sub-cells on edges, loop through quad faces
@@ -499,7 +464,7 @@ module Output
                     var sp1PntIdx : int = sp1Idx;
                     var sp2PntIdx : int = sp2Idx;
 
-                    outputChan.writef(connectivityFormat, fp1PntIdx, fp2PntIdx, sp1PntIdx, sp2PntIdx);
+                    outputWriter.writef(connectivityFormat, fp1PntIdx, fp2PntIdx, sp1PntIdx, sp2PntIdx);
                   }
                 }
 
@@ -553,7 +518,7 @@ module Output
                   var spPntIdx   : int = spIdx;
                   var fp2PntIdx  : int = spCnt + meshFP2Idx;
 
-                  outputChan.writef(connectivityFormat, nodePntIdx, fp1PntIdx, spPntIdx, fp2PntIdx);
+                  outputWriter.writef(connectivityFormat, nodePntIdx, fp1PntIdx, spPntIdx, fp2PntIdx);
                 }
               }
             }
