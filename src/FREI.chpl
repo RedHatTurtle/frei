@@ -33,39 +33,40 @@ module FREI
 
     // Declare timing variables
     const timeUnit = TimeUnits.milliseconds;
+
     var initTime : real = 0.0;
     var iterTime : real = 0.0;
     var timeStepTime : real = 0.0;
     var stabilizeTime : real = 0.0;
-    var iterTimer  : Timer;
-    var totalTimer : Timer;
-    totalTimer.start();
+    var iterWatch  : stopwatch;
+    var totalWatch : stopwatch;
+    totalWatch.start();
 
-    var residueTimer : Timer;
+    var residueWatch : stopwatch;
     var residueTime : real = 0.0;
-    residueTimer.start();
+    residueWatch.start();
 
-    var stopwatch  : Timer;
+    var mainWatch  : stopwatch;
     var srcTermTime : real = 0.0;
     var dscFluxTime : real = 0.0;
     var cntFluxTime : real = 0.0;
-    stopwatch.start();
+    mainWatch.start();
 
-    var dscFluxWatch : Timer;
+    var dscFluxWatch : stopwatch;
     var dscFluxTime1 : real = 0;
     var dscFluxTime2 : real = 0;
     var dscFluxTime3 : real = 0;
     var dscFluxTime4 : real = 0;
     dscFluxWatch.start();
 
-    var cntFluxWatch : Timer;
+    var cntFluxWatch : stopwatch;
     var cntFluxTime1 : real = 0;
     var cntFluxTime2 : real = 0;
     var cntFluxTime3 : real = 0;
     var cntFluxTime4 : real = 0;
     cntFluxWatch.start();
 
-    var jumpCorrectionWatch : Timer;
+    var jumpCorrectionWatch : stopwatch;
     var riemTime : real = 0;
     var jumpTime : real = 0;
     var corrTime : real = 0;
@@ -240,15 +241,16 @@ module FREI
     var       errorLogChan = try!       errorLogFile.writer();
 
     writeln();
-    initTime = stopwatch.elapsed(timeUnit);
-    writef("Stopwatch - Init    : %10.2dr ms\n", initTime);
+    initTime = mainWatch.elapsed(timeUnit);
+    writef("Initialization Time: %10.2dr ms\n", initTime);
+    writeln();
     writef("Start Iterating\n");
 
     // Main: Solve flow
-    iterTimer.start();
+    iterWatch.start();
     for iteration in 1..Input.maxIter
     {
-      iterTimer.clear();
+      iterWatch.clear();
 
       // Save initial solution
       frMesh.oldSolSP = frMesh.solSP;
@@ -264,11 +266,11 @@ module FREI
           //   3. Source terms
           //
           // The residual array is reset in the time stepping procedure
-          residueTimer.clear();
+          residueWatch.clear();
 
           // Component 1: Source Term
           {
-            stopwatch.clear();
+            mainWatch.clear();
 
             if Input.eqSet == EQ_QUASI_1D_EULER then
               forall spIdx in frMesh.resSP.domain.dim(1) do
@@ -277,12 +279,12 @@ module FREI
                                                              Input.eqSet                 )
                                                * frMesh.jacSP[spIdx];
 
-            srcTermTime += stopwatch.elapsed(timeUnit);
+            srcTermTime += mainWatch.elapsed(timeUnit);
           }
 
           // Component 2: Discontinuous Flux
           {
-            stopwatch.clear();
+            mainWatch.clear();
 
             // Calculate flux at SPs and it's divergence
             forall cellIdx in frMesh.cellList.domain
@@ -376,12 +378,12 @@ module FREI
               }
               //dscFluxTime4 += dscFluxWatch.elapsed(timeUnit);
             }
-            dscFluxTime += stopwatch.elapsed(timeUnit);
+            dscFluxTime += mainWatch.elapsed(timeUnit);
           }
 
           // Component 3: Continuous Flux
           {
-            stopwatch.clear();
+            mainWatch.clear();
 
             // Step 1: Interpolate solution to FPs
             cntFluxWatch.clear();
@@ -528,15 +530,15 @@ module FREI
             }
             cntFluxTime3 += cntFluxWatch.elapsed(timeUnit);
 
-            cntFluxTime += stopwatch.elapsed(timeUnit);
+            cntFluxTime += mainWatch.elapsed(timeUnit);
           }
 
-          residueTime += residueTimer.elapsed(timeUnit);
+          residueTime += residueWatch.elapsed(timeUnit);
         }
 
         // Advance RK Stage
         {
-          stopwatch.clear();
+          mainWatch.clear();
 
           // Loop through cells
           forall cellIdx in frMesh.cellList.domain
@@ -563,12 +565,12 @@ module FREI
           // Zero out residue
           frMesh.resSP = 0.0;
 
-          timeStepTime += stopwatch.elapsed(timeUnit);
+          timeStepTime += mainWatch.elapsed(timeUnit);
         }
 
         // Stabilize Solution
         {
-          stopwatch.clear();
+          mainWatch.clear();
 
           if Input.limiterScheme != LIMITER_NONE
           {
@@ -593,7 +595,7 @@ module FREI
             }
           }
 
-          stabilizeTime += stopwatch.elapsed(timeUnit);
+          stabilizeTime += mainWatch.elapsed(timeUnit);
         }
       }
 
@@ -630,7 +632,7 @@ module FREI
 
         // Output summarized convergence metrics to stdOut
         writef("Iteration %9i | Time %{ 10.2dr}ms | Log10(L2(ΔSol)/L2(ΔSol0)) = %{ 7.4dr}",
-            iteration, iterTimer.elapsed(timeUnit), log10(norm(l2SolDeltaAbs)/norm(l2SolDeltaAbsIni)));
+            iteration, iterWatch.elapsed(timeUnit), log10(norm(l2SolDeltaAbs)/norm(l2SolDeltaAbsIni)));
 
         // Output full state to log file
         log_convergence(convergenceLogChan, iteration, l1SolDeltaAbs, l2SolDeltaAbs, lfSolDeltaAbs,
@@ -659,7 +661,7 @@ module FREI
     // Output the final solution
     //iterOutput(iteration, frMesh);
 
-    var totalTime : real = totalTimer.elapsed(timeUnit);
+    var totalTime : real = totalWatch.elapsed(timeUnit);
     writeln();
     writef("Time splits:\n");
     writef("- Init      : %11.2dr ms - %4.1dr%% of Run-Time\n",      initTime,      initTime/totalTime   *100);

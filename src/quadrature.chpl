@@ -35,8 +35,8 @@ module Quadrature
     writeln("    Element Topologies: ", elemTopos);
     writeln("    Minimum Polynomial Degree: ", minPolyDegree);
     writeln("    Maximum Polynomial Degree: ", maxPolyDegree);
-    var stopwatch : Timer;
-    stopwatch.start();
+    var initWatch : stopwatch;
+    initWatch.start();
 
     // Add all combination of cell topology and interpolation order to the domain
     for elemTopo in elemTopos do
@@ -73,7 +73,7 @@ module Quadrature
       }
     }
 
-    writef("    Initialized in  %6.1dr ms\n", stopwatch.elapsed(TimeUnits.milliseconds));
+    writef("    Initialized in  %6.1dr ms\n", initWatch.elapsed(TimeUnits.milliseconds));
   }
 
   ///////////////////////////////

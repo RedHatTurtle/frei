@@ -59,8 +59,8 @@ module Interpolation
     writeln("    Cell Topologies: ", cellTopos);
     writeln("    Minimum Polynomial Degree: ", minOrder);
     writeln("    Maximum Polynomial Degree: ", maxOrder);
-    var stopwatch : Timer;
-    stopwatch.start();
+    var initWatch : stopwatch;
+    initWatch.start();
 
     // Add all combination of cell topology and interpolation order to the domain
     for cellTopo in cellTopos do
@@ -152,7 +152,7 @@ module Interpolation
       }
     }
 
-    writef("    Initialized in  %6.1dr ms\n", stopwatch.elapsed(TimeUnits.milliseconds));
+    writef("    Initialized in  %6.1dr ms\n", initWatch.elapsed(TimeUnits.milliseconds));
   }
 
   proc init_sp2spDeriv(minOrder : int, maxOrder : int, cellTopos : set(int))
@@ -166,8 +166,8 @@ module Interpolation
     writeln("    Cell Topologies: ", cellTopos);
     writeln("    Minimum Polynomial Degree: ", minOrder);
     writeln("    Maximum Polynomial Degree: ", maxOrder);
-    var stopwatch : Timer;
-    stopwatch.start();
+    var initWatch : stopwatch;
+    initWatch.start();
 
     // Add all combination of cell topology and interpolation order to the domain
     for cellTopo in cellTopos do
@@ -232,7 +232,7 @@ module Interpolation
       }
     }
 
-    writef("    Initialized in  %6.1dr ms\n", stopwatch.elapsed(TimeUnits.milliseconds));
+    writef("    Initialized in  %6.1dr ms\n", initWatch.elapsed(TimeUnits.milliseconds));
   }
 
   proc init_sp2nodeInterp(minOrder : int, maxOrder : int, cellTopos : set(int))
@@ -246,8 +246,8 @@ module Interpolation
     writeln("    Cell Topologies: ", cellTopos);
     writeln("    Minimum Polynomial Degree: ", minOrder);
     writeln("    Maximum Polynomial Degree: ", maxOrder);
-    var stopwatch : Timer;
-    stopwatch.start();
+    var initWatch : stopwatch;
+    initWatch.start();
 
     // Add all combination of cell topology and interpolation order to the domain
     for cellTopo in cellTopos do
@@ -337,7 +337,7 @@ module Interpolation
       }
     }
 
-    writef("    Initialized in  %6.1dr ms\n", stopwatch.elapsed(TimeUnits.milliseconds));
+    writef("    Initialized in  %6.1dr ms\n", initWatch.elapsed(TimeUnits.milliseconds));
   }
 
   //////////////////////////////////////////

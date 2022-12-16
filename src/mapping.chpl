@@ -41,8 +41,8 @@ module Mapping
     writeln("    Element types: ", elemTypes);
     writeln("    Minimum Polynomial Degree: ", minOrder);
     writeln("    Maximum Polynomial Degree: ", maxOrder);
-    var stopwatch : Timer;
-    stopwatch.start();
+    var initWatch : stopwatch;
+    initWatch.start();
 
     // Add all combination of cell topology and interpolation order to the domain
     for elemType in elemTypes do
@@ -98,7 +98,7 @@ module Mapping
       }
     }
 
-    writef("    Initialized in  %6.1dr ms\n", stopwatch.elapsed(TimeUnits.milliseconds));
+    writef("    Initialized in  %6.1dr ms\n", initWatch.elapsed(TimeUnits.milliseconds));
   }
 
   proc init_mapping_metrics(minOrder : int, maxOrder : int, elemTypes : set(int))
@@ -115,8 +115,8 @@ module Mapping
     writeln("    Element types: ", elemTypes);
     writeln("    Minimum Polynomial Degree: ", minOrder);
     writeln("    Maximum Polynomial Degree: ", maxOrder);
-    var stopwatch : Timer;
-    stopwatch.start();
+    var initWatch : stopwatch;
+    initWatch.start();
 
     // Add all combination of cell topology and interpolation order to the domain
     for elemType in elemTypes do
@@ -170,7 +170,7 @@ module Mapping
       }
     }
 
-    writef("    Initialized in  %6.1dr ms\n", stopwatch.elapsed(TimeUnits.milliseconds));
+    writef("    Initialized in  %6.1dr ms\n", initWatch.elapsed(TimeUnits.milliseconds));
   }
 
   //////////////////////////////
