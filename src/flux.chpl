@@ -29,13 +29,23 @@ module Flux
 
   proc enthalpy_cv(cons : [] real) : real
   {
-    var idxEne : int   = cons.domain.dim(0).high;          // Last element is energy
+    var enerInt : real = internal_energy_cv(cons);
+    var pres    : real = pressure_cv(cons);
 
-    var p : real = pressure_cv(cons);
-
-    var enthalpy : real = (cons[idxEne] + p);
+    var enthalpy : real = enerInt + pres;
 
     return enthalpy;
+  }
+
+  proc enthalpy_stagnation_cv(cons : [] real) : real
+  {
+    var idxEner : int   = cons.domain.dim(0).high;         // Last element is energy
+
+    var pres    : real = pressure_cv(cons);
+
+    var enthalpyStagnation : real = cons[idxEner] + pres;
+
+    return enthalpyStagnation;
   }
 
   proc internal_energy_cv(cons : [] real) : real
@@ -54,7 +64,7 @@ module Flux
   {
     import Input.fGamma;
 
-    var idxDens : int   = cons.domain.dim(0).low;          // Last element is energy
+    var idxDens : int   = cons.domain.dim(0).low;          // First element is density
 
     var pressure : real = pressure_cv(cons);
 

@@ -369,7 +369,7 @@ module Riemann
     var velNrmL : real = dot[velL, uniNrm];
     var presL   : real = pressure_cv(consL);
     var aL      : real = sqrt(fGamma*presL/densL);
-    var enthL   : real = ( enerL + presL ) / densL;
+    var enthL   : real = ( enerL + presL ) / densL; // Mass specific Stagnation/Total Enthalpy
 
     //   Right state
     ref densR   : real = consR[idxDens];
@@ -379,7 +379,7 @@ module Riemann
     var velNrmR : real = dot[velR, uniNrm];
     var presR   : real = pressure_cv(consR);
     var aR      : real = sqrt(fGamma*presR/densR);
-    var enthR   : real = ( enerR + presR ) / densR;
+    var enthR   : real = ( enerR + presR ) / densR; // Mass specific Stagnation/Total Enthalpy
 
     // Compute the Roe Averages
     var RT     : real = sqrt( densR/densL );

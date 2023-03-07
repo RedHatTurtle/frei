@@ -123,6 +123,10 @@ It seems like a good rule of thumb to try to use 4 letter abbreviations.
 - `Sub` : Subsonic
 - `Sup` : Supersonic
 
+- `xStat` : Static X
+- `xDyna` : Dynamic X
+- `xStag` : Stagnation X
+
 - `Dens`   : Density
 - `Ener`   : Energy
 - `Pres`   : Static Pressure
@@ -132,8 +136,8 @@ It seems like a good rule of thumb to try to use 4 letter abbreviations.
 - `VelM, VelMag        `   : Velocity magnitude
 - `Mach`   : Mach Number
 - `VelA`, `A` : Speed of Sound
-- `EneK`, `EneKin`, `ek` : Kinetic Energy / Dynamic Pressure
-- `EneI`, `EneInt`, `ei` : Internal Energy
+- `EneK`, `EnerKin`, `ek` : Kinetic Energy / Dynamic Pressure
+- `EneI`, `EnerInt`, `ei` : Internal Energy
 - `Enth`, `H` : Enthalpy
 - `Entr`, `S` : Entropy
 

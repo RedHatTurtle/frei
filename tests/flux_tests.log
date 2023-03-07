@@ -14,9 +14,9 @@ Pressure and Temperature functions:
 3D - Pressure (Pa): 1.01325e+05, Temperature (K): 288.203
 
 Enthalpy and Internal Energy functions:
-1D - Enthalpy (J/m³): 3.80171e+05, Internal Energy (J/m³): 2.53313e+05
-2D - Enthalpy (J/m³): 3.80171e+05, Internal Energy (J/m³): 2.53312e+05
-3D - Enthalpy (J/m³): 3.80171e+05, Internal Energy (J/m³): 2.53312e+05
+1D - Enthalpy (J/m³): 3.54638e+05, Internal Energy (J/m³): 2.53313e+05
+2D - Enthalpy (J/m³): 3.54637e+05, Internal Energy (J/m³): 2.53312e+05
+3D - Enthalpy (J/m³): 3.54637e+05, Internal Energy (J/m³): 2.53312e+05
 
 Mach and Speed of Sound functions:
 1D - Mach (non-dimensional): 0.6, Speed of Sound (m/s): 340.294
