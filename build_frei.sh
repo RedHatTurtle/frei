@@ -88,6 +88,7 @@ if [[ $BUILD_GENERIC == "true" ]]; then
         chpl -o build/frei_dbg.$EXTENSION                          \
              --warnings                                            \
              --warn-unstable                                       \
+             --detailed-errors                                     \
              -I$PATH_TO_CBLAS_DIR                                  \
              -L$PATH_TO_BLAS_LIBS -lcblas                          \
              -I$PATH_TO_LAPACKE_INCLUDE_DIR                        \
@@ -207,6 +208,7 @@ if [[ $BUILD_OPENBLAS == "true" ]]; then
         chpl -o build/frei_dbg_openblas.$EXTENSION                 \
              --warnings                                            \
              --warn-unstable                                       \
+             --detailed-errors                                     \
              -L$PATH_TO_OPENBLAS_LIBS -lopenblas                   \
              --main-module "FREI" src/FREI.chpl                    \
                                   src/fr.chpl                      \
@@ -314,6 +316,7 @@ if [[ $BUILD_INTEL == "true" ]]; then
         chpl -o build/frei_dbg_mkl.$EXTENSION                      \
              --warnings                                            \
              --warn-unstable                                       \
+             --detailed-errors                                     \
              --set blasImpl=mkl                                    \
              --set lapackImpl=mkl                                  \
              -I$PATH_TO_MKL_INCLUDES                               \
@@ -424,6 +427,7 @@ if [[ $BUILD_AMD == "true" ]]; then
         chpl -o build/frei_dbg_amd.$EXTENSION                      \
              --warnings                                            \
              --warn-unstable                                       \
+             --detailed-errors                                     \
              -I$PATH_TO_AMD_INCLUDES                               \
              -L$PATH_TO_AMD_LIBS -lblas -lcblas -llapack -llapacke \
              --main-module "FREI" src/FREI.chpl                    \
