@@ -152,7 +152,7 @@ module Interpolation
       }
     }
 
-    writef("    Initialized in  %6.1dr ms\n", initWatch.elapsed(TimeUnits.milliseconds));
+    writef("    Initialized in  %6.1dr ms\n", initWatch.elapsed()*1000);
   }
 
   proc init_sp2spDeriv(minOrder : int, maxOrder : int, cellTopos : set(int))
@@ -232,7 +232,7 @@ module Interpolation
       }
     }
 
-    writef("    Initialized in  %6.1dr ms\n", initWatch.elapsed(TimeUnits.milliseconds));
+    writef("    Initialized in  %6.1dr ms\n", initWatch.elapsed()*1000);
   }
 
   proc init_sp2nodeInterp(minOrder : int, maxOrder : int, cellTopos : set(int))
@@ -337,7 +337,7 @@ module Interpolation
       }
     }
 
-    writef("    Initialized in  %6.1dr ms\n", initWatch.elapsed(TimeUnits.milliseconds));
+    writef("    Initialized in  %6.1dr ms\n", initWatch.elapsed()*1000);
   }
 
   //////////////////////////////////////////

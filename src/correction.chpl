@@ -150,7 +150,7 @@ module Correction
       }
     }
 
-    writef("    Initialized in  %6.1dr ms\n", initWatch.elapsed(TimeUnits.milliseconds));
+    writef("    Initialized in  %6.1dr ms\n", initWatch.elapsed()*1000);
   }
 
   //////////////////////////////

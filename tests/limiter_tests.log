@@ -8,8 +8,8 @@ Initializing Quadrature Weight matrices
     Element Topologies: {4, 2}
     Minimum Polynomial Degree: 0
     Maximum Polynomial Degree: 9
-    Initialized in     1.0 ms
-    Initialized in    71.3 ms
+    Initialized in     1.1 ms
+    Initialized in    79.7 ms
 
 Initializing Quadrature Weight matrices
     Element Topologies: {4, 2}
@@ -28,8 +28,8 @@ Line Element
 src/projection.chpl:277: error: halt reached - array index out of bounds: (2, 0)
 Stacktrace
 
-halt() at $CHPL_HOME/modules/standard/Errors.chpl:732
-dsiAccess() at $CHPL_HOME/modules/internal/DefaultAssociative.chpl:550
+halt() at $CHPL_HOME/modules/standard/Errors.chpl:760
+dsiAccess() at $CHPL_HOME/modules/internal/DefaultAssociative.chpl:548
 project_poly() at src/projection.chpl:266
 projection_limiter() at src/limiter.chpl:133
 main() at src/limiter.chpl:143

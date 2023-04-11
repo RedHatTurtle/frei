@@ -3,13 +3,13 @@ Initializing Mapping matrices
     Element types: {24, 23, 22, 41, 21, 43, 44, 42}
     Minimum Polynomial Degree: 0
     Maximum Polynomial Degree: 3
-    Initialized in     2.2 ms
+    Initialized in     2.1 ms
 
 Initializing Mapping Metrics matrices
     Element types: {24, 23, 22, 41, 21, 43, 44, 42}
     Minimum Polynomial Degree: 0
     Maximum Polynomial Degree: 3
-    Initialized in    11.2 ms
+    Initialized in    10.7 ms
 
 Element mapping:
 {coefs_d = {1..16, 1..4}, coefs = 0.865957 0.0646111 0.00482078 0.0646111

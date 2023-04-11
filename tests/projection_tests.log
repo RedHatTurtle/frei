@@ -11,7 +11,7 @@ Initializing Quadrature Weight matrices
     Minimum Polynomial Degree: 0
     Maximum Polynomial Degree: 9
     Initialized in     0.9 ms
-    Initialized in    72.7 ms
+    Initialized in    77.9 ms
 
 Interpolation initialized structure for FR (polyProj):
 {coefs_d = {0..1, 1..2, 1..2}, coefs = 0.5 0.5
