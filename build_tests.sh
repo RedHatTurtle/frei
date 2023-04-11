@@ -6,8 +6,6 @@ if [ "${-#*i}" == "$-" ]; then
     BGreen='\033[1;32m'       # Bold Green
 fi
 
-STD_LIBS="/usr/lib64/gcc/x86_64-suse-linux/11"
-
 CBLAS_DIR="/usr/include"
 BLAS_LIBS="/usr/lib64/lapack"
 LAPACKE_INCLUDE_DIR="/usr/include"
@@ -33,13 +31,12 @@ echo
 echo "------------------------------------------------------------"
 echo
 echo -e "Building Polynomials Tests:"
-chpl -o tests/polynomials_tests                            \
-     --warnings                                            \
-     --warn-unstable                                       \
-     -L$STD_LIBS                                           \
-     --main-module Polynomials src/polynomials.chpl        \
-                               src/testing.chpl            \
-                               src/parameters.chpl         \
+chpl -o tests/polynomials_tests                                   \
+     --warnings                                                   \
+     --warn-unstable                                              \
+     --main-module Polynomials src/polynomials.chpl               \
+                               src/parameters.chpl                \
+                               src/testing.chpl                   \
     2>&1 | tee tests/polynomials_build.log
 if [ ${PIPESTATUS[0]} -eq 0 ]; then
   echo -e "${BGreen}Done${Color_Off}"
@@ -50,14 +47,13 @@ echo
 echo "------------------------------------------------------------"
 echo
 echo -e "Building Quadrature Tests:"
-chpl -o tests/quadrature_tests                             \
-     --warnings                                            \
-     --warn-unstable                                       \
-     -L$STD_LIBS                                           \
-     --main-module Quadrature src/quadrature.chpl          \
-                              src/polynomials.chpl         \
-                              src/testing.chpl             \
-                              src/parameters.chpl          \
+chpl -o tests/quadrature_tests                                    \
+     --warnings                                                   \
+     --warn-unstable                                              \
+     --main-module Quadrature src/quadrature.chpl                 \
+                              src/polynomials.chpl                \
+                              src/parameters.chpl                 \
+                              src/testing.chpl                    \
     2>&1 | tee tests/quadrature_build.log
 if [ ${PIPESTATUS[0]} -eq 0 ]; then
   echo -e "${BGreen}Done${Color_Off}"
@@ -68,16 +64,18 @@ echo
 echo "------------------------------------------------------------"
 echo
 echo -e "Building Interpolation Tests:"
-chpl -o tests/interpolation_tests                          \
-     --warnings                                            \
-     --warn-unstable                                       \
-     -L$STD_LIBS                                           \
-     --main-module Interpolation src/interpolation.chpl    \
-                                 src/polynomials.chpl      \
-                                 src/mesh.chpl             \
-                                 src/gmesh.chpl            \
-                                 src/parameters.chpl       \
-                                 src/testing.chpl          \
+chpl -o tests/interpolation_tests                                 \
+     --warnings                                                   \
+     --warn-unstable                                              \
+     --main-module Interpolation src/interpolation.chpl           \
+                                 src/polynomials.chpl             \
+                                 src/mapping.chpl                 \
+                                 src/frmesh.chpl                  \
+                                 src/mesh.chpl                    \
+                                 src/gmesh.chpl                   \
+                                 src/input.chpl                   \
+                                 src/parameters.chpl              \
+                                 src/testing.chpl                 \
     2>&1 | tee tests/interpolation_build.log
 if [ ${PIPESTATUS[0]} -eq 0 ]; then
   echo -e "${BGreen}Done${Color_Off}"
@@ -88,20 +86,19 @@ echo
 echo "------------------------------------------------------------"
 echo
 echo -e "Building Projection Tests:"
-chpl -o tests/projection_tests                             \
-     --warnings                                            \
-     --warn-unstable                                       \
-     -L$STD_LIBS                                           \
-     -I$CBLAS_DIR                                          \
-     -L$BLAS_LIBS -lcblas                                  \
-     -I$LAPACKE_INCLUDE_DIR                                \
-     -L$LIBGFORTRAN -lgfortran                             \
-     -L$LAPACK_BINARIES -llapacke -llapack -lcblas         \
-     --main-module Projection src/projection.chpl          \
-                              src/quadrature.chpl          \
-                              src/polynomials.chpl         \
-                              src/testing.chpl             \
-                              src/parameters.chpl          \
+chpl -o tests/projection_tests                                    \
+     --warnings                                                   \
+     --warn-unstable                                              \
+     -I $CBLAS_DIR                                                \
+     -L $BLAS_LIBS -lcblas                                        \
+     -I $LAPACKE_INCLUDE_DIR                                      \
+     -L $LIBGFORTRAN -lgfortran                                   \
+     -L $LAPACK_BINARIES -llapacke -llapack -lcblas               \
+     --main-module Projection src/projection.chpl                 \
+                              src/quadrature.chpl                 \
+                              src/polynomials.chpl                \
+                              src/parameters.chpl                 \
+                              src/testing.chpl                    \
     2>&1 | tee tests/projection_build.log
 if [ ${PIPESTATUS[0]} -eq 0 ]; then
   echo -e "${BGreen}Done${Color_Off}"
@@ -112,18 +109,20 @@ echo
 echo "------------------------------------------------------------"
 echo
 echo -e "Building Correction Tests:"
-chpl -o tests/correction_tests                             \
-     --warnings                                            \
-     --warn-unstable                                       \
-     -L$STD_LIBS                                           \
-     --main-module Correction src/correction.chpl          \
-                              src/polynomials.chpl         \
-                              src/testing.chpl             \
-                              src/input.chpl               \
-                              src/mesh.chpl                \
-                              src/gmesh.chpl               \
-                              src/config.chpl              \
-                              src/parameters.chpl          \
+chpl -o tests/correction_tests                                    \
+     --warnings                                                   \
+     --warn-unstable                                              \
+     --main-module Correction src/correction.chpl                 \
+                              src/interpolation.chpl              \
+                              src/polynomials.chpl                \
+                              src/input.chpl                      \
+                              src/mapping.chpl                    \
+                              src/frmesh.chpl                     \
+                              src/mesh.chpl                       \
+                              src/gmesh.chpl                      \
+                              src/config.chpl                     \
+                              src/parameters.chpl                 \
+                              src/testing.chpl                    \
     2>&1 | tee tests/correction_build.log
 if [ ${PIPESTATUS[0]} -eq 0 ]; then
   echo -e "${BGreen}Done${Color_Off}"
@@ -134,12 +133,18 @@ echo
 echo "------------------------------------------------------------"
 echo
 echo -e "Building Gmesh Tests:"
-chpl -o tests/gmesh_tests                                  \
-     --warnings                                            \
-     --warn-unstable                                       \
-     -L$STD_LIBS                                           \
-     --main-module Gmesh src/gmesh.chpl                    \
-                         src/parameters.chpl               \
+chpl -o tests/gmesh_tests                                         \
+     --warnings                                                   \
+     --warn-unstable                                              \
+     --main-module Gmesh src/gmesh.chpl                           \
+                         src/mesh.chpl                            \
+                         src/frmesh.chpl                          \
+                         src/mapping.chpl                         \
+                         src/interpolation.chpl                   \
+                         src/polynomials.chpl                     \
+                         src/input.chpl                           \
+                         src/parameters.chpl                      \
+                         src/testing.chpl                         \
     2>&1 | tee tests/gmesh_build.log
 if [ ${PIPESTATUS[0]} -eq 0 ]; then
   echo -e "${BGreen}Done${Color_Off}"
@@ -150,14 +155,18 @@ echo
 echo "------------------------------------------------------------"
 echo
 echo -e "Building Mesh Tests:"
-chpl -o tests/mesh_tests                                   \
-     --warnings                                            \
-     --warn-unstable                                       \
-     -L$STD_LIBS                                           \
-     --main-module Mesh src/mesh.chpl                      \
-                        src/gmesh.chpl                     \
-                        src/testing.chpl                   \
-                        src/parameters.chpl                \
+chpl -o tests/mesh_tests                                          \
+     --warnings                                                   \
+     --warn-unstable                                              \
+     --main-module Mesh src/mesh.chpl                             \
+                        src/gmesh.chpl                            \
+                        src/polynomials.chpl                      \
+                        src/interpolation.chpl                    \
+                        src/mapping.chpl                          \
+                        src/frmesh.chpl                           \
+                        src/input.chpl                            \
+                        src/parameters.chpl                       \
+                        src/testing.chpl                          \
     2>&1 | tee tests/mesh_build.log
 if [ ${PIPESTATUS[0]} -eq 0 ]; then
   echo -e "${BGreen}Done${Color_Off}"
@@ -168,25 +177,24 @@ echo
 echo "------------------------------------------------------------"
 echo
 echo -e "Building FRMesh Tests:"
-chpl -o tests/frmesh_tests                                 \
-     --warnings                                            \
-     --warn-unstable                                       \
-     -L$STD_LIBS                                           \
-     -I$CBLAS_DIR                                          \
-     -L$BLAS_LIBS -lcblas                                  \
-     -I$LAPACKE_INCLUDE_DIR                                \
-     -L$LIBGFORTRAN -lgfortran                             \
-     -L$LAPACK_BINARIES -llapacke -llapack -lcblas         \
-     --main-module FRMesh src/frmesh.chpl                  \
-                          src/mapping.chpl                 \
-                          src/interpolation.chpl           \
-                          src/polynomials.chpl             \
-                          src/mesh.chpl                    \
-                          src/gmesh.chpl                   \
-                          src/testing.chpl                 \
-                          src/config.chpl                  \
-                          src/input.chpl                   \
-                          src/parameters.chpl              \
+chpl -o tests/frmesh_tests                                        \
+     --warnings                                                   \
+     --warn-unstable                                              \
+     -I $CBLAS_DIR                                                \
+     -L $BLAS_LIBS -lcblas                                        \
+     -I $LAPACKE_INCLUDE_DIR                                      \
+     -L $LIBGFORTRAN -lgfortran                                   \
+     -L $LAPACK_BINARIES -llapacke -llapack -lcblas               \
+     --main-module FRMesh src/frmesh.chpl                         \
+                          src/interpolation.chpl                  \
+                          src/polynomials.chpl                    \
+                          src/mesh.chpl                           \
+                          src/gmesh.chpl                          \
+                          src/mapping.chpl                        \
+                          src/config.chpl                         \
+                          src/input.chpl                          \
+                          src/parameters.chpl                     \
+                          src/testing.chpl                        \
     2>&1 | tee tests/frmesh_build.log
 if [ ${PIPESTATUS[0]} -eq 0 ]; then
   echo -e "${BGreen}Done${Color_Off}"
@@ -197,24 +205,23 @@ echo
 echo "------------------------------------------------------------"
 echo
 echo -e "Building Mapping Tests:"
-chpl -o tests/mapping_tests                                \
-     --warnings                                            \
-     --warn-unstable                                       \
-     -L$STD_LIBS                                           \
-     -I$CBLAS_DIR                                          \
-     -L$BLAS_LIBS -lcblas                                  \
-     -I$LAPACKE_INCLUDE_DIR                                \
-     -L$LIBGFORTRAN -lgfortran                             \
-     -L$LAPACK_BINARIES -llapacke -llapack -lcblas         \
-     --main-module Mapping src/mapping.chpl                \
-                           src/interpolation.chpl          \
-                           src/polynomials.chpl            \
-                           src/frmesh.chpl                 \
-                           src/mesh.chpl                   \
-                           src/gmesh.chpl                  \
-                           src/input.chpl                  \
-                           src/testing.chpl                \
-                           src/parameters.chpl             \
+chpl -o tests/mapping_tests                                       \
+     --warnings                                                   \
+     --warn-unstable                                              \
+     -I $CBLAS_DIR                                                \
+     -L $BLAS_LIBS -lcblas                                        \
+     -I $LAPACKE_INCLUDE_DIR                                      \
+     -L $LIBGFORTRAN -lgfortran                                   \
+     -L $LAPACK_BINARIES -llapacke -llapack -lcblas               \
+     --main-module Mapping src/mapping.chpl                       \
+                           src/interpolation.chpl                 \
+                           src/polynomials.chpl                   \
+                           src/frmesh.chpl                        \
+                           src/mesh.chpl                          \
+                           src/gmesh.chpl                         \
+                           src/input.chpl                         \
+                           src/parameters.chpl                    \
+                           src/testing.chpl                       \
      2>&1 | tee tests/mapping_build.log
 if [ ${PIPESTATUS[0]} -eq 0 ]; then
   echo -e "${BGreen}Done${Color_Off}"
@@ -225,15 +232,19 @@ echo
 echo "------------------------------------------------------------"
 echo
 echo -e "Building Flux Tests:"
-chpl -o tests/flux_tests                                   \
-     --warnings                                            \
-     --warn-unstable                                       \
-     -L$STD_LIBS                                           \
-     --main-module Flux src/flux.chpl                      \
-                        src/input.chpl                     \
-                        src/mesh.chpl                      \
-                        src/gmesh.chpl                     \
-                        src/parameters.chpl                \
+chpl -o tests/flux_tests                                          \
+     --warnings                                                   \
+     --warn-unstable                                              \
+     --main-module Flux src/flux.chpl                             \
+                        src/interpolation.chpl                    \
+                        src/polynomials.chpl                      \
+                        src/input.chpl                            \
+                        src/frmesh.chpl                           \
+                        src/mesh.chpl                             \
+                        src/gmesh.chpl                            \
+                        src/mapping.chpl                          \
+                        src/parameters.chpl                       \
+                        src/testing.chpl                          \
     2>&1 | tee tests/flux_build.log
 if [ ${PIPESTATUS[0]} -eq 0 ]; then
   echo -e "${BGreen}Done${Color_Off}"
@@ -244,21 +255,25 @@ echo
 echo "------------------------------------------------------------"
 echo
 echo -e "Building Riemann Tests:"
-chpl -o tests/riemann_tests                                \
-     --warnings                                            \
-     --warn-unstable                                       \
-     -L$STD_LIBS                                           \
-     -I$CBLAS_DIR                                          \
-     -L$BLAS_LIBS -lcblas                                  \
-     -I$LAPACKE_INCLUDE_DIR                                \
-     -L$LIBGFORTRAN -lgfortran                             \
-     -L$LAPACK_BINARIES -llapacke -llapack -lcblas         \
-     --main-module Riemann src/riemann.chpl                \
-                           src/flux.chpl                   \
-                           src/input.chpl                  \
-                           src/mesh.chpl                   \
-                           src/gmesh.chpl                  \
-                           src/parameters.chpl             \
+chpl -o tests/riemann_tests                                       \
+     --warnings                                                   \
+     --warn-unstable                                              \
+     -I $CBLAS_DIR                                                \
+     -L $BLAS_LIBS -lcblas                                        \
+     -I $LAPACKE_INCLUDE_DIR                                      \
+     -L $LIBGFORTRAN -lgfortran                                   \
+     -L $LAPACK_BINARIES -llapacke -llapack -lcblas               \
+     --main-module Riemann src/riemann.chpl                       \
+                           src/interpolation.chpl                 \
+                           src/polynomials.chpl                   \
+                           src/flux.chpl                          \
+                           src/input.chpl                         \
+                           src/frmesh.chpl                        \
+                           src/mesh.chpl                          \
+                           src/gmesh.chpl                         \
+                           src/mapping.chpl                       \
+                           src/parameters.chpl                    \
+                           src/testing.chpl                       \
     2>&1 | tee tests/riemann_build.log
 if [ ${PIPESTATUS[0]} -eq 0 ]; then
   echo -e "${BGreen}Done${Color_Off}"
@@ -269,16 +284,19 @@ echo
 echo "------------------------------------------------------------"
 echo
 echo "Building Ringleb Tests:"
-chpl -o tests/ringleb_tests                                \
-     --warnings                                            \
-     --warn-unstable                                       \
-     -L$STD_LIBS                                           \
-     --main-module Ringleb src/ringleb.chpl                \
-                           src/input.chpl                  \
-                           src/mesh.chpl                   \
-                           src/gmesh.chpl                  \
-                           src/testing.chpl                \
-                           src/parameters.chpl             \
+chpl -o tests/ringleb_tests                                       \
+     --warnings                                                   \
+     --warn-unstable                                              \
+     --main-module Ringleb src/ringleb.chpl                       \
+                           src/interpolation.chpl                 \
+                           src/polynomials.chpl                   \
+                           src/input.chpl                         \
+                           src/frmesh.chpl                        \
+                           src/mesh.chpl                          \
+                           src/gmesh.chpl                         \
+                           src/mapping.chpl                       \
+                           src/parameters.chpl                    \
+                           src/testing.chpl                       \
    2>&1 | tee tests/ringleb_build.log
 if [ ${PIPESTATUS[0]} -eq 0 ]; then
   echo -e "${BGreen}Done${Color_Off}"
@@ -289,18 +307,22 @@ echo
 echo "------------------------------------------------------------"
 echo
 echo -e "Building Init Tests:"
-chpl -o tests/init_tests                                   \
-     --warnings                                            \
-     --warn-unstable                                       \
-     -L$STD_LIBS                                           \
-     --main-module Init src/init.chpl                      \
-                        src/ringleb.chpl                   \
-                        src/flux.chpl                      \
-                        src/config.chpl                    \
-                        src/input.chpl                     \
-                        src/mesh.chpl                      \
-                        src/gmesh.chpl                     \
-                        src/parameters.chpl                \
+chpl -o tests/init_tests                                          \
+     --warnings                                                   \
+     --warn-unstable                                              \
+     --main-module Init src/init.chpl                             \
+                        src/interpolation.chpl                    \
+                        src/polynomials.chpl                      \
+                        src/ringleb.chpl                          \
+                        src/flux.chpl                             \
+                        src/config.chpl                           \
+                        src/input.chpl                            \
+                        src/frmesh.chpl                           \
+                        src/mesh.chpl                             \
+                        src/gmesh.chpl                            \
+                        src/mapping.chpl                          \
+                        src/parameters.chpl                       \
+                        src/testing.chpl                          \
     2>&1 | tee tests/init_build.log
 if [ ${PIPESTATUS[0]} -eq 0 ]; then
   echo -e "${BGreen}Done${Color_Off}"
@@ -311,19 +333,23 @@ echo
 echo "------------------------------------------------------------"
 echo
 echo -e "Building Boundary Tests:"
-chpl -o tests/boundary_tests                               \
-     --warnings                                            \
-     --warn-unstable                                       \
-     -L$STD_LIBS                                           \
-     --main-module Boundary src/boundary.chpl              \
-                            src/init.chpl                  \
-                            src/ringleb.chpl               \
-                            src/flux.chpl                  \
-                            src/mesh.chpl                  \
-                            src/gmesh.chpl                 \
-                            src/config.chpl                \
-                            src/input.chpl                 \
-                            src/parameters.chpl            \
+chpl -o tests/boundary_tests                                      \
+     --warnings                                                   \
+     --warn-unstable                                              \
+     --main-module Boundary src/boundary.chpl                     \
+                            src/interpolation.chpl                \
+                            src/polynomials.chpl                  \
+                            src/init.chpl                         \
+                            src/ringleb.chpl                      \
+                            src/flux.chpl                         \
+                            src/frmesh.chpl                       \
+                            src/mesh.chpl                         \
+                            src/gmesh.chpl                        \
+                            src/mapping.chpl                      \
+                            src/config.chpl                       \
+                            src/input.chpl                        \
+                            src/parameters.chpl                   \
+                            src/testing.chpl                      \
     2>&1 | tee tests/boundary_build.log
 if [ ${PIPESTATUS[0]} -eq 0 ]; then
   echo -e "${BGreen}Done${Color_Off}"
@@ -334,21 +360,20 @@ echo
 echo "------------------------------------------------------------"
 echo
 echo -e "Building Limiter Tests:"
-chpl -o tests/limiter_tests                                \
-     --warnings                                            \
-     --warn-unstable                                       \
-     -L$STD_LIBS                                           \
-     -I$CBLAS_DIR                                          \
-     -L$BLAS_LIBS -lcblas                                  \
-     -I$LAPACKE_INCLUDE_DIR                                \
-     -L$LIBGFORTRAN -lgfortran                             \
-     -L$LAPACK_BINARIES -llapacke -llapack -lcblas         \
-     --main-module Limiter src/limiter.chpl                \
-                           src/projection.chpl             \
-                           src/quadrature.chpl             \
-                           src/polynomials.chpl            \
-                           src/parameters.chpl             \
-                           src/testing.chpl                \
+chpl -o tests/limiter_tests                                       \
+     --warnings                                                   \
+     --warn-unstable                                              \
+     -I $CBLAS_DIR                                                \
+     -L $BLAS_LIBS -lcblas                                        \
+     -I $LAPACKE_INCLUDE_DIR                                      \
+     -L $LIBGFORTRAN -lgfortran                                   \
+     -L $LAPACK_BINARIES -llapacke -llapack -lcblas               \
+     --main-module Limiter src/limiter.chpl                       \
+                           src/projection.chpl                    \
+                           src/quadrature.chpl                    \
+                           src/polynomials.chpl                   \
+                           src/parameters.chpl                    \
+                           src/testing.chpl                       \
     2>&1 | tee tests/limiter_build.log
 if [ ${PIPESTATUS[0]} -eq 0 ]; then
   echo -e "${BGreen}Done${Color_Off}"
@@ -359,11 +384,11 @@ echo
 echo "------------------------------------------------------------"
 echo
 echo -e "Building FR Tests:"
-chpl -o tests/fr_tests                                     \
-     --warnings                                            \
-     --warn-unstable                                       \
-     -L$STD_LIBS                                           \
-     --main-module FR src/fr.chpl                          \
+chpl -o tests/fr_tests                                            \
+     --warnings                                                   \
+     --warn-unstable                                              \
+     --main-module FR src/fr.chpl                                 \
+                      src/testing.chpl                            \
     2>&1 | tee tests/fr_build.log
 if [ ${PIPESTATUS[0]} -eq 0 ]; then
   echo -e "${BGreen}Done${Color_Off}"
