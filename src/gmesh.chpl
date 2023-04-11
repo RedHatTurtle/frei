@@ -195,7 +195,7 @@ module Gmesh
       try {
         writeln();
         writeln("Opening Gmesh2 formated mesh file");
-        meshFile = open(meshFileName, iomode.r);
+        meshFile = open(meshFileName, ioMode.r);
       } catch e : FileNotFoundError {
         writeln("Critical Error: Mesh file not found.");
       } catch {

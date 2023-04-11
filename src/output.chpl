@@ -126,7 +126,7 @@ module Output
     var outputFile : file;
 
     try {
-      outputFile = open(outputDir + pathSep + fileName , iomode.cw);
+      outputFile = open(outputDir + pathSep + fileName , ioMode.cw);
     } catch {
       try! stdout.writeln("Unknown Error creating/opening output file.");
       try! stderr.writeln("Unknown Error creating/opening output file.");
@@ -193,7 +193,7 @@ module Output
     var outputFile : file;
 
     try {
-      outputFile = open(outputDir + pathSep + fileName , iomode.cw);
+      outputFile = open(outputDir + pathSep + fileName , ioMode.cw);
     } catch {
       try! stdout.writeln("Unknown Error creating/opening output file.");
       try! stderr.writeln("Unknown Error creating/opening output file.");

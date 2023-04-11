@@ -8,14 +8,14 @@ Initializing Quadrature Weight matrices
     Element Topologies: {4, 2}
     Minimum Polynomial Degree: 0
     Maximum Polynomial Degree: 9
-    Initialized in     1.1 ms
-    Initialized in    79.7 ms
+    Initialized in     0.9 ms
+    Initialized in    80.0 ms
 
 Initializing Quadrature Weight matrices
     Element Topologies: {4, 2}
     Minimum Polynomial Degree: 1
     Maximum Polynomial Degree: 9
-    Initialized in     0.9 ms
+    Initialized in     1.0 ms
 
 ------------------------------------------------------------
 

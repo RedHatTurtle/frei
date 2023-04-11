@@ -229,8 +229,8 @@ module FREI
     var convergenceLogFile : file;
     var       errorLogFile : file;
     try! {
-      convergenceLogFile = open("convergence.dat", iomode.cw);
-            errorLogFile = open(      "error.dat", iomode.cw);
+      convergenceLogFile = open("convergence.dat", ioMode.cw);
+            errorLogFile = open(      "error.dat", ioMode.cw);
     } catch {
       try! stdout.writeln("Unknown Error opening convergence log file.");
       try! stderr.writeln("Unknown Error opening convergence log file.");

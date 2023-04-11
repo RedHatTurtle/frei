@@ -10,8 +10,8 @@ Initializing Quadrature Weight matrices
     Element Topologies: {4, 2}
     Minimum Polynomial Degree: 0
     Maximum Polynomial Degree: 9
-    Initialized in     0.9 ms
-    Initialized in    77.9 ms
+    Initialized in     1.1 ms
+    Initialized in    79.1 ms
 
 Interpolation initialized structure for FR (polyProj):
 {coefs_d = {0..1, 1..2, 1..2}, coefs = 0.5 0.5

@@ -1,7 +1,1 @@
-src/gmesh.chpl:184: In method 'read_gmesh_file':
-src/gmesh.chpl:198: warning: enum iomode is deprecated - please use ioMode instead
-src/input.chpl:74: In function 'indat':
-src/input.chpl:86: warning: enum iomode is deprecated - please use ioMode instead
 $CHPL_HOME/modules/packages/UnitTest.chpl:263: warning: use of routines as values is unstable
-src/gmesh.chpl:184: In method 'read_gmesh_file':
-src/gmesh.chpl:198: warning: open with an iomode argument is deprecated - please use ioMode

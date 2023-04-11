@@ -83,7 +83,7 @@ module Input
     // Open input config file
     try {
       writeln("Opening input file");
-      tomlFile = open(fileName, iomode.r);
+      tomlFile = open(fileName, ioMode.r);
     } catch e : FileNotFoundError {
       writeln("Critical Error: Input file not found.");
       writeln("Stopping Execution immediately.");
