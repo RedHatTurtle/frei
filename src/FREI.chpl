@@ -327,7 +327,7 @@ module FREI
           //   3. Source terms
           //
           // The residual array is reset in the time stepping procedure
-          writef("   RK-Stage %1i\n", rkStage);
+          writef("   RK-Stage %1i/%1i\n", rkStage, timeStepStages);
 
           // Component 1: Source Term
           tagVdebug("Res1: Src Term");
@@ -424,7 +424,7 @@ module FREI
                   }
                 }
               }
-              //dscFluxTime2 += dscFluxWatch.elapsed();
+              dscFluxTime2 += dscFluxWatch.elapsed();
 
               // Step 3: Convert fluxes from physical to computational domain
               dscFluxWatch.restart();
