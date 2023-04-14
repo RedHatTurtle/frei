@@ -763,6 +763,12 @@ module Riemann
     var enth   : real = (enthL + RT*enthR)/(1.0 + RT);
     var a      : real = sqrt( (fGamma-1.0)*(enth-0.5*dot(vel, vel)) );
 
+    //writef("      %12s | %12s | %12s |\n", "Left", "Right", "RoeAvg");
+    //writef("Dens: %12.4er | %12.4er | %12.4er |\n", densL, densR, dens  );
+    //writef("Pres: %12.4er | %12.4er | %12s |\n", presL, presR, "--"     );
+    //writef("Enth: %12.4er | %12.4er | %12.4er |\n", enthL, enthR, enth  );
+    //writef("Soun: %12.4er | %12.4er | %12.4er |\n", aL   , aR   , a     );
+
     // Differences in primitive variables
     var dDens   = densR   - densL;
     var dVelNrm = velNrmR - velNrmL;
@@ -821,6 +827,19 @@ module Riemann
 
     // Compute the Roe flux
     var roe : [consL.domain] real = (fluxL + fluxR - diss)/2.0;
+
+    //writef("Normal vector:  %t\n", nrm);
+    //writef("Normal vector:  %t\n", uniNrm);
+    //writef("Left  Solution: %t\n", consL);
+    //writef("Right Solution: %t\n", consR);
+    //writef("Left  Flux:\n%t\n", euler_flux_cv(consL));
+    //writef("Right Flux:\n%t\n", euler_flux_cv(consR));
+    //writef("Left  Flux:     %t\n", fluxL);
+    //writef("Right Flux:     %t\n", fluxR);
+    //writef("Eigenvalues:    %t\n", ws);
+    //writef("Eigenvectors:\n%t\n", R);
+    //writef("Dissipation:    %t\n", diss);
+    //writef("Riemann Flux:   %t\n", roe);
 
     return roe;
   }
