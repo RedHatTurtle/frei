@@ -566,6 +566,11 @@ module FREI
 
                   // Operation 1: Calculate Riemann flux at the FP
                   correctionWatch.restart();
+
+                  //writeln();
+                  //writeln("Cell Index: ", cellIdx);
+                  //writeln("FP Index:   ", meshFP);
+
                   select Input.eqSet
                   {
                     when EQ_CONVECTION do
