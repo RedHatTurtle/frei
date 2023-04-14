@@ -26,11 +26,11 @@
 
 [parTime]
   timeScheme = 3
-  timeStep   = 0.01
+  timeStep   = 1.1e-1
 
 [parOutput]
-  ioIter  =  1200
-  maxIter = 12000
+  ioIter  =  120
+  maxIter = 1200
   ioTime  = 0.00
   maxTime = 0.00
   outError = 62
