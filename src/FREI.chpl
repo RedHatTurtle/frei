@@ -67,11 +67,11 @@ module FREI
     var cntFluxTime : real = 0.0;
 
     // Stopwatch and variables for discontinuous flux component's internal steps
-    //var dscFluxWatch : stopwatch;
-    //var dscFluxTime1 : real = 0.0;
-    //var dscFluxTime2 : real = 0.0;
-    //var dscFluxTime3 : real = 0.0;
-    //var dscFluxTime4 : real = 0.0;
+    var dscFluxWatch : stopwatch;
+    var dscFluxTime1 : real = 0.0;
+    var dscFluxTime2 : real = 0.0;
+    var dscFluxTime3 : real = 0.0;
+    var dscFluxTime4 : real = 0.0;
 
     // Stopwatch and variables for continuous flux component's internal steps
     var cntFluxWatch : stopwatch;
@@ -80,10 +80,10 @@ module FREI
     var cntFluxTime3 : real = 0.0;
 
     // Stopwatch and variables for the components of the 3rd step of the continuous flux calculation
-    //var correctionWatch : stopwatch;
-    //var riemTime : real = 0.0;
-    //var jumpTime : real = 0.0;
-    //var corrTime : real = 0.0;
+    var correctionWatch : stopwatch;
+    var riemTime : real = 0.0;
+    var jumpTime : real = 0.0;
+    var corrTime : real = 0.0;
 
     // Start stopwatches
     programWatch.start();
@@ -167,7 +167,7 @@ module FREI
     init_correction(Input.minOrder+1, Input.maxOrder+1, frMesh.cellTopos);
 
     // 8. Initialize solution
-    forall cellIdx in frMesh.cellList.domain
+    for cellIdx in frMesh.cellList.domain
     {
       ref familyIdx = frMesh.cellList[cellIdx].family;
 
@@ -230,7 +230,7 @@ module FREI
     if Input.limiterScheme != LIMITER_NONE
     {
       // Loop through cells
-      forall cellIdx in frMesh.cellList.domain
+      for cellIdx in frMesh.cellList.domain
       {
         ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
         ref cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
@@ -335,7 +335,7 @@ module FREI
             residueWatch.restart();
 
             if Input.eqSet == EQ_QUASI_1D_EULER then
-              forall spIdx in frMesh.resSP.domain.dim(1) do
+              for spIdx in frMesh.resSP.domain.dim(1) do
                 frMesh.resSP[.., spIdx.. #1] += -source_term(frMesh.xyzSP[spIdx.. #1, ..],
                                                              frMesh.solSP[.., spIdx.. #1],
                                                              Input.eqSet                 )
@@ -359,7 +359,7 @@ module FREI
             residueWatch.restart();
 
             // Calculate flux at SPs and it's divergence
-            forall cellIdx in frMesh.cellList.domain
+            for cellIdx in frMesh.cellList.domain
             {
               // Get loop variables
               ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
@@ -371,7 +371,7 @@ module FREI
               var flxSP : [1..frMesh.nDims, 1..frMesh.nVars, 1..cellSPcnt] real;
 
               // Step 1: Calculate fluxes at SPs
-              //dscFluxWatch.restart();
+              dscFluxWatch.restart();
               for meshSP in cellSPini.. #cellSPcnt do
                 select Input.eqSet
                 {
@@ -384,10 +384,10 @@ module FREI
                   when EQ_EULER do
                     flxSP[.., .., meshSP-cellSPini+1] = euler_flux_cv(frMesh.solSP[.., meshSP], Input.fGamma);
                 }
-              //dscFluxTime1 += dscFluxWatch.elapsed();
+              dscFluxTime1 += dscFluxWatch.elapsed();
 
               // Step 2: Interpolate fluxes to FPs and save the FP normal flux
-              //dscFluxWatch.restart();
+              dscFluxWatch.restart();
               for cellFace in thisCell.faces.domain
               {
                 // Get loop variables
@@ -427,7 +427,7 @@ module FREI
               //dscFluxTime2 += dscFluxWatch.elapsed();
 
               // Step 3: Convert fluxes from physical to computational domain
-              //dscFluxWatch.restart();
+              dscFluxWatch.restart();
               for cellSPidx in 1..cellSPcnt
               {
                 const meshSPidx = cellSPini + cellSPidx - 1;
@@ -451,10 +451,10 @@ module FREI
                   flxSP[.., varIdx, cellSPidx] = compFlxSP * frMesh.jacSP[meshSPidx];
                 }
               }
-              //dscFluxTime3 += dscFluxWatch.elapsed();
+              dscFluxTime3 += dscFluxWatch.elapsed();
 
               // Step 4: Calculate flux divergence
-              //dscFluxWatch.restart();
+              dscFluxWatch.restart();
               for cellSP in 1..cellSPcnt
               {
                 var meshSP = cellSPini + cellSP - 1;
@@ -467,7 +467,7 @@ module FREI
                   res2[.., meshSP] += dot(flxsp, sp2spDeriv[(cellTopo, frMesh.solOrder)]!.coefs[cellSP, dimIdx, ..]) / frMesh.jacSP[meshSP];
                 }
               }
-              //dscFluxTime4 += dscFluxWatch.elapsed();
+              dscFluxTime4 += dscFluxWatch.elapsed();
             }
 
             dscFluxTime += residueWatch.elapsed();
@@ -489,19 +489,19 @@ module FREI
 
             // Step 1: Interpolate solution to FPs
             cntFluxWatch.restart();
-            forall cellIdx in frMesh.cellList.domain
+            for cellIdx in frMesh.cellList.domain
             {
               ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
               ref cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
               ref thisCell = frMesh.cellList[cellIdx];
 
-              forall cellFace in thisCell.faces.domain
+              for cellFace in thisCell.faces.domain
               {
                 ref faceIdx  : int = thisCell.faces[cellFace];
                 ref faceSide : int = thisCell.sides[cellFace];
                 ref thisFace = frMesh.faceList[faceIdx];
 
-                forall meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
+                for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
                 {
                   var cellFP : int;
 
@@ -519,7 +519,7 @@ module FREI
 
             // Step 2: Apply boundary conditions
             cntFluxWatch.restart();
-            forall faceIdx in frMesh.faceList.domain
+            for faceIdx in frMesh.faceList.domain
             {
               // Get loop variables
               ref faceFPini : int = frMesh.faceFPidx[faceIdx, 1];
@@ -534,7 +534,7 @@ module FREI
                 ref thisFaml = frMesh.famlList[thisBoco.family];
 
                 // Iterate through the FPs on this face
-                forall meshFP in faceFPini.. #faceFPcnt
+                for meshFP in faceFPini.. #faceFPcnt
                 {
                   // Calculate the boundary condition using the solution at the left neighbor´s corresponding FP
                   frMesh.solFP[meshFP, 2, ..] = Boundary.boundary(frMesh.solFP[meshFP, 1, ..], thisFaml             ,
@@ -546,7 +546,7 @@ module FREI
 
             // Step 3: Calculate interface correction
             cntFluxWatch.restart();
-            forall cellIdx in frMesh.cellList.domain
+            for cellIdx in frMesh.cellList.domain
             {
               // Get loop variables
               ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
@@ -565,7 +565,7 @@ module FREI
                   var jump : [1..frMesh.nVars] real;
 
                   // Operation 1: Calculate Riemann flux at the FP
-                  //correctionWatch.restart();
+                  correctionWatch.restart();
                   select Input.eqSet
                   {
                     when EQ_CONVECTION do
@@ -577,10 +577,10 @@ module FREI
                     when EQ_EULER do
                       jump = roe(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..], frMesh.nrmFP[meshFP, ..]);
                   }
-                  //riemTime += correctionWatch.elapsed();
+                  riemTime += correctionWatch.elapsed();
 
                   // Operation 2: Calculate jump at a FP and convert it to the physical domain
-                  //correctionWatch.restart();
+                  correctionWatch.restart();
                   {
                     // Calculate the flux jump = -1*(local_flux) + numerical_flux
                     jump -= frMesh.flxFP[meshFP, faceSide, ..];
@@ -607,10 +607,10 @@ module FREI
                       }
                     }
                   }
-                  //jumpTime += correctionWatch.elapsed();
+                  jumpTime += correctionWatch.elapsed();
 
                   // Operation 3: Apply the correction to the residue matrix
-                  //correctionWatch.restart();
+                  correctionWatch.restart();
                   {
                     // For 1D each face has 1 FP therefore the FP and the Face have the same index Relative to it's
                     // position in the cell
@@ -629,7 +629,7 @@ module FREI
                     res3[.., cellSPini.. #cellSPcnt] += outer(jump[..]                                  ,
                         flux_correction[(cellTopo, frMesh.solOrder+1)]!.correction[cellFP, 1..cellSPcnt]);
                   }
-                  //corrTime += correctionWatch.elapsed();
+                  corrTime += correctionWatch.elapsed();
                 }
               }
             }
@@ -656,13 +656,13 @@ module FREI
           if rkStage == 1 then frMesh.calc_time_step();
 
           // Loop through cells
-          forall cellIdx in frMesh.cellList.domain
+          for cellIdx in frMesh.cellList.domain
           {
             ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
             ref cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
 
             // Convert the residual from the computational to the physical domain
-            forall meshSP in cellSPini.. #cellSPcnt do
+            for meshSP in cellSPini.. #cellSPcnt do
               frMesh.resSP[.., meshSP] /= frMesh.jacSP[meshSP];
 
             // Update solution
@@ -712,7 +712,7 @@ module FREI
           if Input.limiterScheme != LIMITER_NONE
           {
             // Loop through cells
-            forall cellIdx in frMesh.cellList.domain
+            for cellIdx in frMesh.cellList.domain
             {
               ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
               ref cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
