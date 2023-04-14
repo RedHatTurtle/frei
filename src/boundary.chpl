@@ -72,8 +72,8 @@ module Boundary
             ghstConsVars = nozzle_subsonic_inflow(hostConsVars, faml.bocoProperties);
           when BC_SUBTYPE_1D_NOZZLE_SHOCKED_INFLOW do
             ghstConsVars = nozzle_shocked_inflow(hostConsVars, faml.bocoProperties);
-          when BC_SUBTYPE_RINGLEB do
-            ghstConsVars = 2*ringleb_sol(xyz[1..2]) - hostConsVars;
+          when BC_SUBTYPE_RINGLEB_DIRICHLET do
+            ghstConsVars = ringleb_dirichlet(xyz[1..2]);
           when BC_SUBTYPE_MMS_DIRICHLET {}
         }
     }
@@ -399,6 +399,17 @@ module Boundary
 
     var ghstConsVars : [hostConsVars.domain] real = reshape(flow_condition(IC_1D_NOZZLE_SHOCKED_TRANSONIC, [0.0], xyz),
         hostConsVars.domain);
+
+    return ghstConsVars;
+  }
+
+  proc ringleb_dirichlet(xyz : [1..2] real)  : [1..4] real
+  {
+    import Ringleb.ringleb_sol;
+
+    var ghstConsVars : [1..4] real;
+
+    ghstConsVars = ringleb_sol(xyz[1..2]);
 
     return ghstConsVars;
   }

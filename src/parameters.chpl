@@ -170,7 +170,7 @@ module Parameters
     param BC_SUBTYPE_1D_NOZZLE_CRIT_INFLOW     : int = 94;
     param BC_SUBTYPE_1D_NOZZLE_SUBSONIC_INFLOW : int = 95;
     param BC_SUBTYPE_1D_NOZZLE_SHOCKED_INFLOW  : int = 96;
-    param BC_SUBTYPE_RINGLEB          : int = 97;
+    param BC_SUBTYPE_RINGLEB_DIRICHLET: int = 97;
     param BC_SUBTYPE_MMS_DIRICHLET    : int = 99;
   }
 
