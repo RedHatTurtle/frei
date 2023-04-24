@@ -153,13 +153,13 @@ module Output
       {
         outputWriter.writef("%{10i}", dof);
         for dimIdx in xyz.domain.dim(1) do
-          outputWriter.writef("  %{ 14.7er}", xyz[dof,dimIdx]);
-        for varIdx in vars.domain.dim(1) do
-          outputWriter.writef("  %{ 14.7er}", vars[dof,varIdx]);
+          outputWriter.writef("  %{ 14.7er}", xyz[dof, dimIdx]);
+        for varIdx in vars.domain.dim(0) do
+          outputWriter.writef("  %{ 14.7er}", vars[varIdx, dof]);
         if flagPressure then
-          outputWriter.writef("  %{ 14.7er}", pressure_cv(vars[dof,..]));
+          outputWriter.writef("  %{ 14.7er}", pressure_cv(vars[.., dof]));
         if flagMach then
-          outputWriter.writef("  %{ 14.7er}", mach_cv(vars[dof,..]));
+          outputWriter.writef("  %{ 14.7er}", mach_cv(vars[.., dof]));
         outputWriter.writeln();
       }
 
