@@ -274,12 +274,12 @@ module Projection
     {
       when TOPO_LINE
       {
-        projection = dot(polyProj[(cellTopo, polyDegree)]!.coefs[projDegree, .., ..], nodalPoly.T);
+        projection = dot(polyProj[(cellTopo, polyDegree)]!.coefs[projDegree, .., ..], nodalPoly);
       }
       when TOPO_TRIA {}
       when TOPO_QUAD
       {
-        projection = dot(polyProj[(cellTopo, polyDegree)]!.coefs[projDegree, .., ..], nodalPoly.T);
+        projection = dot(polyProj[(cellTopo, polyDegree)]!.coefs[projDegree, .., ..], nodalPoly);
       }
       when TOPO_TETR {}
       when TOPO_PYRA {}
