@@ -44,7 +44,7 @@ text editor configuration.
 Indentation must be done with spaces, not tabs, and at an increment of 2 per level.
 
 ### Avoid unnecessary blocks {}
-When issuing a single command after a loop or conditional expression use `do` instead of single line blocks.
+When issuing a single command after a loop or conditional expression favor the single statement form of these expressions (ex: `for ... do`, `if ... then`) instead of blocks with only one statement.
 
 ### Use descriptive naming
 Give as descriptive a name as possible, within reason. Abbreviations that would be familiar to someone outside your
@@ -80,9 +80,9 @@ Acronyms are **always** ALL CAPS.
 ### Limit comment/text lines to 120 characters
 
 ### Comments
--Avoid using `\* comment *\` unless writing really long comments.
--In parameter/constant/variable declarations try to keep comments at the end of the line.
--In imperative sections add comment only lines before the code referenced.
+- Avoid using `\* comment *\` unless writing really long comments or required by **ChplDoc**.
+- In parameter/constant/variable declarations try to keep comments at the end of the line.
+- In imperative sections add comment only lines before the code referenced.
 
 ### Use double quotes "" for strings
 
@@ -140,6 +140,10 @@ It seems like a good rule of thumb to try to use 4 letter abbreviations.
 - `EneI`, `EnerInt`, `ei` : Internal Energy
 - `Enth`, `H` : Enthalpy
 - `Entr`, `S` : Entropy
+
+- `varFree` : Free stream property
+- `varRef`  : Reference value for a property, usually the free stream conditions
+- `varScal` : Nondimensionalization scale
 
 ### FR Specific terms
 - `Sol`, `Con`, `Cons`, `cv` : Conserved variables
