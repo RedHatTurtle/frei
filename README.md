@@ -6,13 +6,17 @@ _by **Fábio Malacco Moreira** (RedHatTurtle)_
 _Licensed under the GNU Affero General Public License v3.0_
 
 ## Intro
-This code is a prototype version of a full high-order Flux Reconstruction (developed by H.T. Huyhn from NASA Glenn) LES
-solver.d
+This code is a prototype for a high-order Flux Reconstruction method (developed by H.T. Huyhn from NASA Glenn) LES
+solver. Secondarily, it should also be able to incorporate RANS modeling and a Finite Volume solver.
 
-The initial objective is to build an accurate, stable and efficient 1D Euler solver while also providing the basic
-building blocks and structure for future development of the solver. Most of the work done currently is still targeted
-at this goal. The next major target will be to expand the solver to two dimensional flows and add support for
-simulating laminar viscous flows described by the Navier-Stokes equations.
+The initial objective is to build an accurate, stable and efficient 3D Euler solver while also providing the basic
+building blocks and structure for future development of the solver.
+
+Currently the code has basic support for 1D and 2D inviscid, smooth flows with an experimental 3D implementation under
+development. An experimental limiter for transonic flows is implemented but not maintained.
+
+The next major objectives are implementing multi locale parallelism and benchmarking/tuning of the code up to acceptable
+performance standards compared to similar solver in Fortran/C/C++.
 
 ## Compiling and running instructions
 
@@ -23,7 +27,33 @@ chpl -o frei --main-module "Control" frei.chpl
 
 # Less important shit (also work in progress)
 
-## Coding Standards
+## Git Standards
+
+### Branch Naming
+
+Main branches:
+- `main`: Main trunk, most ready for users versions of the code, Stable.
+- `dev` : Current development version, Unstable.
+
+Default branch naming: `<author>/<branch-type>/<branchID>-<branch-name>`
+
+- `Author`: Short author/owner identifier. Ex: `rht`, `fabio`, `fmoreira`.
+- `Branch ID`: ID# of bug fix, feature request, etc, if existing.
+- `Branch Name`: Short descriptive name of work done, ~3 words in camelCase.
+- `Branch Type`: One of
+  + `fix`: Bug fixes on main trunk.
+  + `wip`: Work in Progress, for unfinished development branches.
+  + `feat`: Finished new feature development branch, to be or already merged.
+  + `dbg`: Debug versions of the code, never expected to be merged to main.
+  + `test`: Test case configurations update only.
+  + `patch`: Updates for compatibility reasons with no intended behavior change.
+
+Examples:
+- `rht/fix/47-isothermalWallEnergy` Fixing the energy gradient on an isothermal wall boundary condition
+- `fabio/wip/compressionLimiter` Developing a new limiter
+- `fmoreira/patch/chapel-1.30.0` Updating code for new compiler version
+
+## Chapel Standards
 These coding rules are meant to avoid bugs and passively improve code quality and readability.
 
 ### Declare variables at the beginning of the code block they are used
@@ -37,14 +67,15 @@ Chapel default boolean variables to false, numbers to 0 and strings to empty. Re
 declaration when these are not appropriate defaults.
 
 ## Style Standards
-These style rules are meant to be only as strict as necessary to keep code easy to read, comprehend and facilitate
-text editor configuration.
+These style rules are meant to be only as strict as necessary to keep code easy to read, comprehend and facilitate text
+editor configuration.
 
 ### Indentation
 Indentation must be done with spaces, not tabs, and at an increment of 2 per level.
 
 ### Avoid unnecessary blocks {}
-When issuing a single command after a loop or conditional expression favor the single statement form of these expressions (ex: `for ... do`, `if ... then`) instead of blocks with only one statement.
+When issuing a single command after a loop or conditional expression favor the single statement form of these
+expressions (ex: `for ... do`, `if ... then`) instead of blocks with only one statement.
 
 ### Use descriptive naming
 Give as descriptive a name as possible, within reason. Abbreviations that would be familiar to someone outside your
@@ -89,10 +120,10 @@ Acronyms are **always** ALL CAPS.
 ## Order vs Degree
 
 When referring to the solution interpolation polynomial it is usual in the High-Order CFD community to use the term
-"order" to refer to the degree of the polynomial. This can lead to miscommunication and misunderstanding in
-discussions, as many of my colleagues can attest. This is in no way a topic of great concern currently but it is a
-definition yet to be made. Currently my predisposition is to use the term "degree", leaving the term "order" only for
-the few places where the "order of approximation", which is related to the approximation error, is being referred to.
+"order" to refer to the degree of the polynomial. This can lead to miscommunication and misunderstanding in discussions,
+as many of my colleagues can attest. This is in no way a topic of great concern currently but it is a definition yet to
+be made. Currently my predisposition is to use the term "degree", leaving the term "order" only for the few places where
+the "order of approximation", which is related to the approximation error, is being referred to.
 
 Currently the terms "order" and "degree" may be used interchangeably in the code and are always (mostly?) referring to
 the degree of the polynomial. Ex: `iOrder` (interpolation order), `solOrder` (solution order).
@@ -191,7 +222,7 @@ It seems like a good rule of thumb to try to use 4 letter abbreviations.
 
 ### Flight Mechanics
 - `alpha` : Rotation on the Z axis (wingspan axis, oriented left to right), aka: Angle of Attack ($\alpha$), Pitch ($\theta$), Flight path ($\gamma$).
-- `beta`  : Rotation on the Y axis (vertical axis, oriented down to up), aka: Sideslip ($\beta$), Yaw ($\psi$), Heading ($\sigma$).
+- `beta`  : Rotation on the Y axis (vertical axis, oriented down to up), aka: Side-slip ($\beta$), Yaw ($\psi$), Heading ($\sigma$).
 - `phi`   : Rotation on the X axis (fuselage axis, oriented front to back), aka: Roll ($\phi$), Bank ($\mu$).
 
 - `lift` : Lift ($L$)
