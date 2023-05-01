@@ -513,9 +513,9 @@ module FREI
                     var cellFP : int;
                     var faceFP : int = meshFP - frMesh.faceFPidx[faceIdx, 1] + 1;
                     if faceSide == 1 then
-                      cellFP = (cellFace-1)*(frMesh.solOrder+1) +  meshFP - frMesh.faceFPidx[faceIdx, 1] + 1;
+                      cellFP = (cellFace-1)*(frMesh.solOrder+1) +  faceFP;
                     else
-                      cellFP = (cellFace-1)*(frMesh.solOrder+1) + (frMesh.faceFPidx[faceIdx, 2] - (meshFP - frMesh.faceFPidx[faceIdx, 1]));
+                      cellFP = (cellFace-1)*(frMesh.solOrder+1) + (frMesh.faceFPidx[faceIdx, 2] + 1 - faceFP);
 
                     // The correction function was calculated in the computational domain already, therefore no
                     // transformation is required.
