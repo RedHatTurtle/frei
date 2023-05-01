@@ -74,7 +74,7 @@ module Output
   }
 
   // Select the adequate output routines that need to be run
-  proc iterOutput(nIter : int, frMesh : fr_mesh_c)
+  proc iterOutput(nIter : int, frMesh : fr_mesh_c, flagNormals : bool = false)
   {
     use IO;
     use Path;
@@ -91,7 +91,7 @@ module Output
       output_gnuplot(outputDir, "res_sp_gnuplt", stringIter, frMesh.xyzSP, frMesh.resSP);
     }
     if frMesh.nDims == 2 then
-      output_tecplot_dat(outputDir, "sol_ho_tecplot", stringIter, frMesh);
+      output_tecplot_dat(outputDir, "sol_ho_tecplot", stringIter, frMesh, flagNormals = flagNormals);
 
     // Delete old output directories if necessary
   }
@@ -174,8 +174,8 @@ module Output
 
   proc output_tecplot_dat(outputDir : string, fileRoot : string, fileSulfix : string,
       frMesh : fr_mesh_c,
-      flagPressure : bool = true, flagTemperature : bool = false, flagMach : bool = true, flagEntropy : bool = false,
-      flagDouble : bool = false)
+      flagPressure : bool = true, flagTemperature : bool = false, flagMach : bool = true, flagEntropy : bool = true,
+      flagNormals : bool = false, flagDouble : bool = false)
   {
     use FileSystem;
     use IO;
@@ -209,6 +209,7 @@ module Output
         var tecplotVariables : string = "\"PointIdx\"";
 
         var dimName : [1..3] string = ["\"X\"", "\"Y\"", "\"Z\""];
+        var nrmName : [1..3] string = ["\"Normal-X\"", "\"Normal-Y\"", "\"Normal-Z\""];
         //if input.eqSet == EULER
         //{
         //  if frMesh.nDims == 3 then
@@ -221,6 +222,9 @@ module Output
 
         for dimIdx in 1..frMesh.nDims do
           tecplotVariables += ", "+dimName[dimIdx];
+
+        if flagNormals then for dimIdx in 1..frMesh.nDims do
+          tecplotVariables += ", "+nrmName[dimIdx];
 
         for varIdx in 1..frMesh.nVars do
           tecplotVariables += ", "+varName[varIdx];
@@ -236,7 +240,7 @@ module Output
       }
 
       // Initially every family is combined into one single zone, but in the future more zones should be added
-      // correnpoding to each mesh family.
+      // corresponding to each mesh family.
       //
       // Ex 1, Ringleb Flow: Zone 1 = Inlet
       //                     Zone 2 = Outler
@@ -321,6 +325,9 @@ module Output
             for dimIdx in 1..frMesh.nDims do
               outputWriter.writef(realFormat, frMesh.xyzSP[spIdx, dimIdx]);
 
+            if flagNormals then for dimIdx in 1..frMesh.nDims do
+              outputWriter.writef(realFormat, 0.0);
+
             // Loop through conserved variables
             for varIdx in 1..frMesh.nVars do
               outputWriter.writef(realFormat, frMesh.solSP[varIdx, spIdx]);
@@ -343,6 +350,9 @@ module Output
             // Loop through spatial coordinates
             for dimIdx in 1..frMesh.nDims do
               outputWriter.writef(realFormat, frMesh.xyzFP[fpIdx, dimIdx]);
+
+            if flagNormals then for dimIdx in 1..frMesh.nDims do
+              outputWriter.writef(realFormat, frMesh.nrmFP[fpIdx, dimIdx]);
 
             // Loop through conserved variables
             for varIdx in 1..frMesh.nVars do
@@ -369,6 +379,9 @@ module Output
             // Loop through spatial coordinates
             for dimIdx in 1..frMesh.nDims do
               outputWriter.writef(realFormat, frMesh.nodeList[nodeIdx].xyz[dimIdx]);
+
+            if flagNormals then for dimIdx in 1..frMesh.nDims do
+              outputWriter.writef(realFormat, 0.0);
 
             // Loop through conserved variables
             for varIdx in 1..frMesh.nVars do
