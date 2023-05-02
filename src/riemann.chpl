@@ -342,6 +342,184 @@ module Riemann
     return roe;
   }
 
+  proc rotated_rhll_2d(consL : [1..4] real, consR : [1..4] real, nrm : [1..2] real) : [1..4] real
+  {
+    use Input;
+    use LinearAlgebra;
+    import Flux.pressure_cv;
+    import Flux.euler_flux_cv;
+
+    var idxDens : int   = consL.domain.dim(0).low;        // First element is density
+    var idxMom  : range = consL.domain.dim(0).expand(-1); // Intermediary elements are the velocities
+    var idxEner : int   = consL.domain.dim(0).high;       // Last element is energy
+
+    var uniNrm : [nrm.domain] real = nrm/norm(nrm, normType.norm2);
+
+    //Primitive and other variables.
+    //  Left state
+    ref densL   : real = consL[idxDens];
+    ref enerL   : real = consL[idxEner];
+    var velVL   : [idxMom-1] real = consL[idxMom]/densL;
+    var velNrmL : real = dot[velVL, uniNrm];
+    var presL   : real = pressure_cv(consL);
+    var aL      : real = sqrt(fGamma*presL/densL);
+    var enthL   : real = ( enerL + presL ) / densL;
+
+    //  Right state
+    ref densR   : real = consR[idxDens];
+    ref enerR   : real = consR[idxEner];
+    var velVR   : [idxMom-1] real = consR[idxMom]/densR;
+    var velNrmR : real = dot[velVR, uniNrm];
+    var presR   : real = pressure_cv(consR);
+    var aR      : real = sqrt(fGamma*presR/densR);
+    var enthR   : real = ( enerR + presR ) / densR;
+
+    // Compute the Roe Averages
+    var RT     : real = sqrt( densR/densL );
+    var dens   : real = RT*densL;
+    var velV   : [idxMom-1] real = (velVL + RT*velVR)/(1.0 + RT);
+    var enth   : real = (enthL + RT*enthR)/(1.0 + RT);
+    var a      : real = sqrt( (fGamma-1.0)*(enth-0.5*dot(velV, velV)) );
+
+    //--------------------------------------------------------------------------------
+    // Define nrmA and nrmB, and compute alpha1 and alpha2: (4.2) in the original paper.
+    //
+    // Note: nrma and nrmB may need to be frozen at some point during a steady calculation to fully make it converge.
+    //       For time-accurate calculation, it is not necessary.
+    // Note: For a boundary face, you may want to set nrmB = nrm and nrmA = Tangent to force use the Roe flux.
+
+    // Calculate the magnitude of the velocity difference vector
+    var dVelV    = velVR-velVL;
+    var absDVelV = norm(dVelV, normType.norm2);
+
+    // If it's large enough it can be used as the first normal
+    var uniNrmA : [nrm.domain] real;
+    if absDVelV > 1.0e-12 {
+        // Normal to shock or tangent to shear
+        uniNrmA = dVelV/absDVelV;
+    } else {
+        // A face tangent vector is used rotating the face normal
+        uniNrmA[1] = -uniNrm[2];
+        uniNrmA[2] =  uniNrm[1];
+    }
+
+    // Calculate the angle between the face normal and nrmA
+    var alphaA = dot(uniNrm, uniNrmA);
+
+    // Make alphaA always positive.
+    if sgn(alphaA) < 0 {
+        uniNrmA = sgn(alphaA) * uniNrmA;
+        alphaA  = sgn(alphaA) * alphaA;
+    }
+
+    //----------------------------------------------------
+    // Compute the wave speed estimates for the HLL part, following Einfeldt:
+    // B. Einfeldt, On Godunov-type methods for gas dynamics, SIAM Journal on Numerical Analysis 25 (2) (1988) 294–318.
+    //
+    // Note: HLL is actually applied to n1, but this is all we need to incorporate HLL. See JCP2008 paper.
+
+    var velNrmA  = dot(velV, uniNrmA);
+    var SRp = max( 0.0, velNrmA + a, dot(velVR, uniNrmA) + aR ); // Maximum wave speed estimate
+    var SLm = min( 0.0, velNrmA - a, dot(velVL, uniNrmA) - aL ); // Minimum wave speed estimate
+
+    // This is the only place where uniNrmA=(nx1,ny1,nz1), except from calculating uniNrmB right bellow.
+    //----------------------------------------------------
+
+    // nrmB = direction perpendicular to nrmA.
+    //     Note: There are infinitely many choices for this vector. The best choice may be discovered in future.
+    // The paper authors suggest employing the formula (4.4) in the paper:
+    //     NrmB = (nrmAxn)xnrmA / |(n1xn)xn1|    ('x' is the vector product.)
+
+    // Author's implementation/suggestion
+    var uniNrmB : [nrm.domain] real;
+    uniNrmB[1] = -uniNrmA[2];
+    uniNrmB[2] =  uniNrmA[1];
+    uniNrmB = uniNrmB/norm(uniNrmB, normType.norm2);
+
+    // Calculate the angle between the face normal and nrmB
+    var alphaB = dot(uniNrm, uniNrmB);
+
+    // Make alphaB always positive.
+    if sgn(alphaB) < 0 {
+        uniNrmB = sgn(alphaB) * uniNrmB;
+        alphaB  = sgn(alphaB) * alphaB;
+    }
+
+    // Now we are going to compute the Roe flux with n2 as the normal with modified wave speeds (5.12).
+    // NOTE: The Roe flux here is computed without tangent vectors. See "I do like CFD, VOL.1" for details: page 57,
+    //       Equation (3.6.31).
+
+    // Recalculate normal velocities using uniNrmB
+    var velNrmBL = dot(velVL, uniNrmB);
+    var velNrmBR = dot(velVR, uniNrmB);
+    var velNrmB  = dot(velV , uniNrmB);
+
+    // Differences in primitive variables
+    var dDens    = densR    - densL;
+    var dPres    = presR    - presL;
+    var dVelNrmB = velNrmBR - velNrmBL;
+
+    // Wave strengths (Characteristic Variables).
+    var dV : [1..4] real;
+    dV[1] =  (dPres - dens*a*dVelNrmB)/(2.0*a**2);
+    dV[2] =   dDens - dPres/(a**2);
+    dV[3] =  (dPres + dens*a*dVelNrmB)/(2.0*a**2);
+    dV[4] =   dens;
+
+    // Absolute values of the wave speeds (Eigenvalues)
+    var eig : [1..4] real;
+    eig[1] = velNrmB - a; // Left moving acoustic wave
+    eig[2] = velNrmB;     // Entropy wave
+    eig[3] = velNrmB + a; // Right moving acoustic wave
+    eig[4] = velNrmB;     // Shear wave
+
+    var ws : [1..4] real = abs(eig);
+
+    // Harten's Entropy Fix JCP(1983), 49, pp357-393. Only for the nonlinear fields.
+    // It avoids vanishing wave speeds by making a parabolic fit near ws = 0.
+    if ( ws[1] < 0.2 ) then ws[1] = (ws[1]**2)/0.4 + 0.1;
+    if ( ws[3] < 0.2 ) then ws[3] = (ws[3]**2)/0.4 + 0.1;
+
+    // Combine the wave speeds for Rotated-RHLL: Eq.(5.12) in the original JCP2008 paper.
+    ws = ws*alphaB - (2.0*alphaA*SRp*SLm + alphaB*(SRp+SLm)*eig)/(SRp-SLm);
+
+    // Right eigenvectors
+    var R : [1..5, 1..4] real;
+
+    // Negative acoustic wave
+    R[idxDens, 1] = 1.0;
+    R[idxMom , 1] = velV - a*uniNrmB;
+    R[idxEner, 1] = enth - a*velNrmB;
+
+    // Entropy wave
+    R[idxDens, 2] = 1.0;
+    R[idxMom , 2] = velV;
+    R[idxEner, 2] = dot(velV, velV)/2.0;
+
+    // Positive acoustic wave
+    R[idxDens, 3] = 1.0;
+    R[idxMom , 3] = velV + a*uniNrmB;
+    R[idxEner, 3] = enth + a*velNrmB;
+
+    // Combined shear waves
+    R[idxDens, 4] = 0.0;
+    R[idxMom , 4] = dVelV - dVelNrmB*uniNrmB;
+    R[idxEner, 4] = dot(velV, dVelV) - velNrmB*dVelNrmB;
+
+    // Compute the let and right fluxes
+    var fluxL : [consL.domain] real = dot(uniNrm, euler_flux_cv(consL));
+    var fluxR : [consR.domain] real = dot(uniNrm, euler_flux_cv(consR));
+
+    // Calculate the dissipation term
+    var roeDiss : [consL.domain] real = ws[1]*dV[1]*R[.., 1] + ws[2]*dV[2]*R[.., 2]
+                                      + ws[3]*dV[3]*R[.., 3] + ws[4]*dV[4]*R[.., 4];
+
+    // Compute the final 2D Rotated-RHLL flux
+    var rotRHLL : [consL.domain] real = (fluxL*SRp - fluxR*SLm)/(SRp-SLm) - roeDiss/2.0;
+
+    return rotRHLL;
+  }
+
   proc rusanov(consL : [] real, consR : [] real, nrm : [] real) : [] real
   {
     // Generic 1D/2D/3D Rusanov solver
