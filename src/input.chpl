@@ -16,10 +16,10 @@ module Input
   var diffusionCoef : real = 1.0;
 
   //parFluid
-  var fGamma : real =    1.4;        // Set the ratio of heat coefficients Cp/Cv
-  var fCp    : real = 1004.5;        // Set the heat coefficients at constant pressure Cp
-  var fCv    : real =  717.5;        // Set the heat coefficients at constant volume Cv
-  var fR     : real =  287.0;        // Set the specific gas constant J/(kg*K)
+  var fGamma : real =     1.4;                                                  // Set the ratio of heat coefficients Cp/Cv
+  var fCp    : real = 1_004.64748888351860802319961333977767037216046399226680; // Set the heat coefficients at constant pressure Cp
+  var fCv    : real =   717.60534920251329144514258095698405026582890285161914; // Set the heat coefficients at constant volume Cv
+  var fR     : real =   287.04213968100531657805703238279362010633156114064766; // Set the specific gas constant J/(kg*K)
 
   //parMesh
   var meshFormat    : int = MESH_GENERATE;
