@@ -123,6 +123,17 @@ module Flux
     return sqrt(fGamma*p/cons[idxRho]);
   }
 
+  proc sound_speed_pv(prim : [] real) : real
+  {
+    import Input.fGamma;
+
+    var idxDens : int   = prim.domain.dim(0).low;           // First element is density
+    var idxVelV : range = prim.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
+    var idxPres : int   = prim.domain.dim(0).high;          // Last element is the pressure
+
+    return sqrt(fGamma*prim[idxPres]/prim[idxDens]);
+  }
+
   proc mach_cv(cons : [] real) : real
   {
     import LinearAlgebra.norm;
