@@ -35,10 +35,10 @@ Main branches:
 - `main`: Main trunk, most ready for users versions of the code, Stable.
 - `dev` : Current development version, Unstable.
 
-Default branch naming: `<author>/<branch-type>/<branchID>-<branch-name>`
+Default branch naming: `<author>/<branch-type>/<issueID>-<branch-name>`
 
 - `Author`: Short author/owner identifier. Ex: `rht`, `fabio`, `fmoreira`.
-- `Branch ID`: ID# of bug fix, feature request, etc, if existing.
+- `Issue ID`: ID# of bug fix, feature request, etc, if existing.
 - `Branch Name`: Short descriptive name of work done, ~3 words in camelCase.
 - `Branch Type`: One of
   + `fix`: Bug fixes on main trunk.
@@ -47,11 +47,21 @@ Default branch naming: `<author>/<branch-type>/<branchID>-<branch-name>`
   + `dbg`: Debug versions of the code, never expected to be merged to main.
   + `test`: Test case configurations update only.
   + `patch`: Updates for compatibility reasons with no intended behavior change.
+  + `docs` : Update to documentation only
+
+style: (formatting, missing semi colons, etc; no production code change)
+refactor: (refactoring production code, eg. renaming a variable)
+test: (adding missing tests, refactoring tests; no production code change)
 
 Examples:
 - `rht/fix/47-isothermalWallEnergy` Fixing the energy gradient on an isothermal wall boundary condition
 - `fabio/wip/compressionLimiter` Developing a new limiter
 - `fmoreira/patch/chapel-1.30.0` Updating code for new compiler version
+
+### Merge Strategy
+
+#### No Fast-Forward Merges
+Disabling fast-forward merges to the `main` and `dev` allows a cleaner history for these branches while keeping the development history of the merged code in it's original branch.
 
 ## Chapel Standards
 These coding rules are meant to avoid bugs and passively improve code quality and readability.
@@ -85,15 +95,15 @@ project with relevant domain knowledge are OK.
 Files are named after the modules they contain but start with small caps for easier auto-complete on the terminal
 
 ```
-Modules    - CapitalizationAndCamelCase
-Parameters - ALL_CAPS_AND_UNDERSCORE
-Constants  - ALL_CAPS_AND_UNDERSCORE
-Variables  - smallCapsAndCamelCase
+Modules    - PascalCase
+Parameters - SCREAMING_SNAKE_CASE
+Constants  - SCREAMING_SNAKE_CASE
+Variables  - camelCase
 Domains    - sameNameAsArrayAnd_d
-Procedures - all_small_caps_and_underscores
-Classes    - all_small_caps_underscores_and_c
-Types      - all_small_caps_underscores_and_t
-Records    - all_small_caps_underscores_and_r
+Procedures - snake_case
+Classes    - snake_case_and_c
+Types      - snake_case_and_t
+Records    - snake_case_and_r
 ```
 
 ```
