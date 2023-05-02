@@ -147,18 +147,54 @@ module Flux
     return dens;
   }
 
-  proc ener_pv(prim : [] real) : real
+  proc energy_pv(prim : [] real) : real
   {
     import Input.fGamma;
     import LinearAlgebra.dot;
 
     var idxDens : int   = prim.domain.dim(0).low;           // First element is density
-    var idxVel  : range = prim.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
+    var idxVelV : range = prim.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
     var idxPres : int   = prim.domain.dim(0).high;          // Last element is pressure
 
-    var ener : real = prim[idxPres]/(fGamma-1) + 0.5*prim[idxDens]*dot(prim[idxVel], prim[idxVel]);
+    var ener : real = prim[idxPres]/(fGamma-1) + 0.5*prim[idxDens]*dot(prim[idxVelV], prim[idxVelV]);
 
     return ener;
+  }
+
+  proc cons2prim(cons : [] real) : [] real
+  {
+    var idxDens : int   = cons.domain.dim(0).low;           // First element is density
+    var idxMomV : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the momentum vector
+    var idxEner : int   = cons.domain.dim(0).high;          // Last element is energy
+
+    var idxVelV : range = idxMomV;
+    var idxPres : int   = idxEner;
+
+    var prim : [cons.domain] real;
+
+    prim[idxDens] = cons[idxDens];
+    prim[idxVelV] = cons[idxMomV]/cons[idxDens];
+    prim[idxPres] = pressure_cv(cons);
+
+    return prim;
+  }
+
+  proc prim2cons(prim : [] real) : [] real
+  {
+    var idxDens : int   = prim.domain.dim(0).low;           // First element is density
+    var idxVelV : range = prim.domain.dim(0).expand(-1);    // Intermediary elements are the velocity vector
+    var idxPres : int   = prim.domain.dim(0).high;          // Last element is pressure
+
+    var idxMomV : range = idxVelV;
+    var idxEner : int   = idxPres;
+
+    var cons : [prim.domain] real;
+
+    cons[idxDens] = prim[idxDens];
+    cons[idxMomV] = prim[idxDens]*prim[idxVelV];
+    cons[idxEner] = energy_pv(prim);
+
+    return cons;
   }
 
   proc convection_flux_cv_1d(cons : real) : real
