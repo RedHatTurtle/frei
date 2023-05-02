@@ -1,5 +1,14 @@
 module Flux
 {
+  proc pressure(dens : real, temp : real) : real
+  {
+    import Input.fR;
+
+    var pressure : real = fR*dens*temp;
+
+    return pressure;
+  }
+
   proc pressure_cv(cons : [] real) : real
   {
     import Input.fGamma;
