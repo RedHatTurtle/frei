@@ -240,8 +240,8 @@ module Boundary
   {
     import Parameters.ParamConstants.PI;
     import Flux.density;
+    import Flux.sound_speed;
     import Flux.sound_speed_cv;
-    import Flux.sound_speed_temp;
 
     var idxDens : int   = hostConsVars.domain.dim(0).low;        // First element is density
     var idxMom  : range = hostConsVars.domain.dim(0).expand(-1); // Intermediary elements are the velocities
@@ -271,7 +271,7 @@ module Boundary
     var  tempExt = bocoProperties[5];
 
     var densExt : real = density(presExt, tempExt);
-    var    aExt : real = sound_speed_temp(tempExt);
+    var    aExt : real = sound_speed(tempExt);
 
     var velVExt : [idxMom] real;
     velVExt[idxMom.low] = machExt*aExt*cos(betaExt/180*PI)*cos(alphaExt/180*PI);

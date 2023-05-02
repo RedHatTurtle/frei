@@ -100,7 +100,7 @@ module Flux
     return a;
   }
 
-  proc sound_speed_temp(temp : real) : real
+  proc sound_speed(temp : real) : real
   {
     import Input.fGamma;
     import Input.fR;
