@@ -19,14 +19,16 @@
 
 [parFR]
   iOrder   = 1
-  minOrder = 0
-  maxOrder = 9
+  minOrder = 1
+  maxOrder = 1
   distSP   = 2
   frScheme = 1
 
 [parTime]
-  timeScheme = 3
-  timeStep   = 0.000012
+  timeScheme     = 3
+  timeStepMethod = 0
+  timeStep       = 1.0e-6
+  cfl            = 1.0e-1
 
 [parOutput]
   ioIter  = 2000
