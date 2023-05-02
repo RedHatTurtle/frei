@@ -161,6 +161,17 @@ module Riemann
     var aL      : real = sqrt(fGamma*presL/densL);
     var enthL   : real = ( enerL + presL ) / densL;
 
+    //writeln();
+    //writeln("Left State");
+    //writef("Dens %20.10dr\n", densL);
+    //writef("Ener %20.10dr\n", enerL);
+    //writef("Vx   %20.10dr\n", velL[1]);
+    //writef("Vy   %20.10dr\n", velL[2]);
+    //writef("Vn   %20.10dr\n", velNrmL);
+    //writef("Pres %20.10dr\n", presL);
+    //writef("A    %20.10dr\n", aL);
+    //writef("H    %20.10dr\n", enthL);
+
     //  Right state
     ref densR   : real = consR[idxDens];
     ref enerR   : real = consR[idxEner];
@@ -170,6 +181,17 @@ module Riemann
     var aR      : real = sqrt(fGamma*presR/densR);
     var enthR   : real = ( enerR + presR ) / densR;
 
+    //writeln();
+    //writeln("Right State");
+    //writef("Dens %20.10dr\n", densR);
+    //writef("Ener %20.10dr\n", enerR);
+    //writef("Vx   %20.10dr\n", velR[1]);
+    //writef("Vy   %20.10dr\n", velR[2]);
+    //writef("Vn   %20.10dr\n", velNrmR);
+    //writef("Pres %20.10dr\n", presR);
+    //writef("H    %20.10dr\n", enthR);
+    //writef("A    %20.10dr\n", aR);
+
     // Compute the Roe Averages
     var RT     : real = sqrt( densR/densL );
     var dens   : real = RT*densL;
@@ -177,6 +199,16 @@ module Riemann
     var velNrm : real = dot(vel, uniNrm);
     var enth   : real = (enthL + RT*enthR)/(1.0 + RT);
     var a      : real = sqrt( (fGamma-1.0)*(enth-0.5*dot(vel, vel)) );
+
+    //writeln();
+    //writeln("Roe Averages");
+    //writef("RT   %20.10dr\n", RT);
+    //writef("Dens %20.10dr\n", dens);
+    //writef("Vx   %20.10dr\n", vel[1]);
+    //writef("Vy   %20.10dr\n", vel[2]);
+    //writef("H    %20.10dr\n", enth);
+    //writef("A    %20.10dr\n", a);
+    //writef("Vn   %20.10dr\n", velNrm);
 
     //Differences in primitive variables
     var dDens   = densR   - densL;
@@ -264,6 +296,18 @@ module Riemann
     var aL      : real = sqrt(fGamma*presL/densL);
     var enthL   : real = ( enerL + presL ) / densL;
 
+    //writeln();
+    //writeln("Left State");
+    //writef("Dens %20.10dr\n", densL);
+    //writef("Ener %20.10dr\n", enerL);
+    //writef("Vx   %20.10dr\n", velL[1]);
+    //writef("Vy   %20.10dr\n", velL[2]);
+    //writef("Vz   %20.10dr\n", velL[3]);
+    //writef("Vn   %20.10dr\n", velNrmL);
+    //writef("Pres %20.10dr\n", presL);
+    //writef("A    %20.10dr\n", aL);
+    //writef("H    %20.10dr\n", enthL);
+
     //  Right state
     ref densR   : real = consR[idxDens];
     ref enerR   : real = consR[idxEner];
@@ -273,6 +317,18 @@ module Riemann
     var aR      : real = sqrt(fGamma*presR/densR);
     var enthR   : real = ( enerR + presR ) / densR;
 
+    //writeln();
+    //writeln("Right State");
+    //writef("Dens %20.10dr\n", densR);
+    //writef("Ener %20.10dr\n", enerR);
+    //writef("Vx   %20.10dr\n", velR[1]);
+    //writef("Vy   %20.10dr\n", velR[2]);
+    //writef("Vz   %20.10dr\n", velR[3]);
+    //writef("Vn   %20.10dr\n", velNrmR);
+    //writef("Pres %20.10dr\n", presR);
+    //writef("H    %20.10dr\n", enthR);
+    //writef("A    %20.10dr\n", aR);
+
     // Compute the Roe Averages
     var RT     : real = sqrt( densR/densL );
     var dens   : real = RT*densL;
@@ -280,6 +336,16 @@ module Riemann
     var velNrm : real = dot(vel, uniNrm);
     var enth   : real = (enthL + RT*enthR)/(1.0 + RT);
     var a      : real = sqrt( (fGamma-1.0)*(enth-0.5*dot(vel, vel)) );
+
+    //writeln();
+    //writeln("Roe Averages");
+    //writef("RT   %20.10dr\n", RT);
+    //writef("Dens %20.10dr\n", dens);
+    //writef("Vx   %20.10dr\n", vel[1]);
+    //writef("Vy   %20.10dr\n", vel[2]);
+    //writef("H    %20.10dr\n", enth);
+    //writef("A    %20.10dr\n", a);
+    //writef("Vn   %20.10dr\n", velNrm);
 
     //Differences in primitive variables
     var dDens   = densR   - densL;
@@ -355,6 +421,8 @@ module Riemann
     var idxEner : int   = consL.domain.dim(0).high;       // Last element is energy
 
     var uniNrm : [nrm.domain] real = nrm/norm(nrm, normType.norm2);
+    //writef("Nrm    = %+.8ht\n", nrm);
+    //writef("UniNrm = %+.8ht\n", uniNrm);
 
     //Primitive and other variables.
     //  Left state
@@ -366,6 +434,17 @@ module Riemann
     var aL      : real = sqrt(fGamma*presL/densL);
     var enthL   : real = ( enerL + presL ) / densL;
 
+    //writeln();
+    //writeln("Left State");
+    //writef("Dens %20.10dr\n", densL);
+    //writef("Ener %20.10dr\n", enerL);
+    //writef("Vx   %20.10dr\n", velVL[1]);
+    //writef("Vy   %20.10dr\n", velVL[2]);
+    //writef("Vn   %20.10dr\n", velNrmL);
+    //writef("Pres %20.10dr\n", presL);
+    //writef("A    %20.10dr\n", aL);
+    //writef("H    %20.10dr\n", enthL);
+
     //  Right state
     ref densR   : real = consR[idxDens];
     ref enerR   : real = consR[idxEner];
@@ -375,12 +454,33 @@ module Riemann
     var aR      : real = sqrt(fGamma*presR/densR);
     var enthR   : real = ( enerR + presR ) / densR;
 
+    //writeln();
+    //writeln("Right State");
+    //writef("Dens %20.10dr\n", densR);
+    //writef("Ener %20.10dr\n", enerR);
+    //writef("Vx   %20.10dr\n", velVR[1]);
+    //writef("Vy   %20.10dr\n", velVR[2]);
+    //writef("Vn   %20.10dr\n", velNrmR);
+    //writef("Pres %20.10dr\n", presR);
+    //writef("H    %20.10dr\n", enthR);
+    //writef("A    %20.10dr\n", aR);
+
     // Compute the Roe Averages
     var RT     : real = sqrt( densR/densL );
     var dens   : real = RT*densL;
     var velV   : [idxMom-1] real = (velVL + RT*velVR)/(1.0 + RT);
     var enth   : real = (enthL + RT*enthR)/(1.0 + RT);
     var a      : real = sqrt( (fGamma-1.0)*(enth-0.5*dot(velV, velV)) );
+
+    //writeln();
+    //writeln("Roe Averages");
+    //writef("RT   %20.10dr\n", RT);
+    //writef("Dens %20.10dr\n", dens);
+    //writef("Vx   %20.10dr\n", vel[1]);
+    //writef("Vy   %20.10dr\n", vel[2]);
+    //writef("H    %20.10dr\n", enth);
+    //writef("A    %20.10dr\n", a);
+    //writef("Vn   %20.10dr\n", velNrm);
 
     //--------------------------------------------------------------------------------
     // Define nrmA and nrmB, and compute alpha1 and alpha2: (4.2) in the original paper.
@@ -413,6 +513,9 @@ module Riemann
         alphaA  = sgn(alphaA) * alphaA;
     }
 
+    //writef("UniNrmA = %+.8ht\n", uniNrmA);
+    //writef("AlphaA  = %+.8dr\n", alphaA);
+
     //----------------------------------------------------
     // Compute the wave speed estimates for the HLL part, following Einfeldt:
     // B. Einfeldt, On Godunov-type methods for gas dynamics, SIAM Journal on Numerical Analysis 25 (2) (1988) 294–318.
@@ -422,6 +525,9 @@ module Riemann
     var velNrmA  = dot(velV, uniNrmA);
     var SRp = max( 0.0, velNrmA + a, dot(velVR, uniNrmA) + aR ); // Maximum wave speed estimate
     var SLm = min( 0.0, velNrmA - a, dot(velVL, uniNrmA) - aL ); // Minimum wave speed estimate
+
+    //writef("SLm = %+.8dr\n", SLm);
+    //writef("SRp = %+.8dr\n", SRp);
 
     // This is the only place where uniNrmA=(nx1,ny1,nz1), except from calculating uniNrmB right bellow.
     //----------------------------------------------------
@@ -445,6 +551,9 @@ module Riemann
         uniNrmB = sgn(alphaB) * uniNrmB;
         alphaB  = sgn(alphaB) * alphaB;
     }
+
+    //writef("UniNrmB = %+.8ht\n", uniNrmB);
+    //writef("AlphaA  = %+.8dr\n", alphaB);
 
     // Now we are going to compute the Roe flux with n2 as the normal with modified wave speeds (5.12).
     // NOTE: The Roe flux here is computed without tangent vectors. See "I do like CFD, VOL.1" for details: page 57,
@@ -515,6 +624,14 @@ module Riemann
     var roeDiss : [consL.domain] real = ws[1]*dV[1]*R[.., 1] + ws[2]*dV[2]*R[.., 2]
                                       + ws[3]*dV[3]*R[.., 3] + ws[4]*dV[4]*R[.., 4];
 
+    //writef("    SRp: %+.8dr\n", SRp);
+    //writef("    SLm: %+.8dr\n", SLm);
+    //writef("    Roe Wave Speeds: %+.8ht\n", ws);
+    //writef("    Roe Wave Streng: %+.8ht\n", dV);
+    //writef("    Left  Flux:      %+.8ht\n", fluxL);
+    //writef("    Right Flux:      %+.8ht\n", fluxR);
+    //writef("    Roe Dissipation: %+.8ht\n", roeDiss);
+
     // Compute the final 2D Rotated-RHLL flux
     var rotRHLL : [consL.domain] real = (fluxL*SRp - fluxR*SLm)/(SRp-SLm) - roeDiss/2.0;
 
@@ -544,6 +661,18 @@ module Riemann
     var aL      : real = sqrt(fGamma*presL/densL);
     var enthL   : real = ( enerL + presL ) / densL;
 
+    //writeln();
+    //writeln("Left State");
+    //writef("Dens %20.10dr\n", densL);
+    //writef("Ener %20.10dr\n", enerL);
+    //writef("Vx   %20.10dr\n", velL[1]);
+    //writef("Vy   %20.10dr\n", velL[2]);
+    //writef("Vz   %20.10dr\n", velL[3]);
+    //writef("Vn   %20.10dr\n", velNrmL);
+    //writef("Pres %20.10dr\n", presL);
+    //writef("A    %20.10dr\n", aL);
+    //writef("H    %20.10dr\n", enthL);
+
     //  Right state
     ref densR   : real = consR[idxDens];
     ref enerR   : real = consR[idxEner];
@@ -553,12 +682,34 @@ module Riemann
     var aR      : real = sqrt(fGamma*presR/densR);
     var enthR   : real = ( enerR + presR ) / densR;
 
+    //writeln();
+    //writeln("Right State");
+    //writef("Dens %20.10dr\n", densR);
+    //writef("Ener %20.10dr\n", enerR);
+    //writef("Vx   %20.10dr\n", velR[1]);
+    //writef("Vy   %20.10dr\n", velR[2]);
+    //writef("Vz   %20.10dr\n", velR[3]);
+    //writef("Vn   %20.10dr\n", velNrmR);
+    //writef("Pres %20.10dr\n", presR);
+    //writef("H    %20.10dr\n", enthR);
+    //writef("A    %20.10dr\n", aR);
+
     // Compute the Roe Averages
     var RT     : real = sqrt( densR/densL );
     var dens   : real = RT*densL;
     var velV   : [idxMom-1] real = (velVL + RT*velVR)/(1.0 + RT);
     var enth   : real = (enthL + RT*enthR)/(1.0 + RT);
     var a      : real = sqrt( (fGamma-1.0)*(enth-0.5*dot(velV, velV)) );
+
+    //writeln();
+    //writeln("Roe Averages");
+    //writef("RT   %20.10dr\n", RT);
+    //writef("Dens %20.10dr\n", dens);
+    //writef("Vx   %20.10dr\n", vel[1]);
+    //writef("Vy   %20.10dr\n", vel[2]);
+    //writef("H    %20.10dr\n", enth);
+    //writef("A    %20.10dr\n", a);
+    //writef("Vn   %20.10dr\n", velNrm);
 
     //--------------------------------------------------------------------------------
     // Define nrmA and nrmB, and compute alpha1 and alpha2: (4.2) in the original paper.
@@ -610,6 +761,9 @@ module Riemann
         alphaA  = sgn(alphaA) * alphaA;
     }
 
+    //writef("UniNrmA = %+.8ht\n", uniNrmA);
+    //writef("AlphaA  = %+.8dr\n", alphaA);
+
     //----------------------------------------------------
     // Compute the wave speed estimates for the HLL part, following Einfeldt:
     // B. Einfeldt, On Godunov-type methods for gas dynamics, SIAM Journal on Numerical Analysis 25 (2) (1988) 294–318.
@@ -619,6 +773,9 @@ module Riemann
     var velNrmA  = dot(velV, uniNrmA);
     var SLm = min( 0.0, velNrmA - a, dot(velVL, uniNrmA) - aL ); // Minimum wave speed estimate
     var SRp = max( 0.0, velNrmA + a, dot(velVR, uniNrmA) + aR ); // Maximum wave speed estimate
+
+    //writef("SLm = %+.8dr\n", SLm);
+    //writef("SRp = %+.8dr\n", SRp);
 
     // This is the only place where uniNrmA=(nx1,ny1,nz1), except from calculating uniNrmB right bellow.
     //----------------------------------------------------
@@ -640,6 +797,9 @@ module Riemann
         uniNrmB = sgn(alphaB) * uniNrmB;
         alphaB  = sgn(alphaB) * alphaB;
     }
+
+    //writef("UniNrmB = %+.8ht\n", uniNrmB);
+    //writef("AlphaA  = %+.8dr\n", alphaB);
 
     // Now we are going to compute the Roe flux with n2 as the normal with modified wave speeds (5.12).
     // NOTE: The Roe flux here is computed without tangent vectors. See "I do like CFD, VOL.1" for details: page 57,
@@ -709,6 +869,10 @@ module Riemann
     // Calculate the dissipation term
     var roeDiss : [consL.domain] real = ws[1]*dV[1]*R[.., 1] + ws[2]*dV[2]*R[.., 2]
                                       + ws[3]*dV[3]*R[.., 3] + ws[4]*dV[4]*R[.., 4];
+
+    //writef("    Roe Wave Speeds: %+.8ht\n", ws);
+    //writef("    Roe Wave Streng: %+.8ht\n", dV);
+    //writef("    Roe Dissipation: %+.8ht\n", roeDiss);
 
     // Compute the final 3D Rotated-RHLL flux
     var rotRHLL : [consL.domain] real = (fluxL*SRp - fluxR*SLm)/(SRp-SLm) - roeDiss/2.0;
