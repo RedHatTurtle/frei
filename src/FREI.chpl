@@ -583,6 +583,10 @@ module FREI
                       jump = roe(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..], frMesh.nrmFP[meshFP, ..]);
                   }
                   riemTime += correctionWatch.elapsed();
+                  //writeln("Left  Sol: ", frMesh.solFP[meshFP, 1, ..]);
+                  //writeln("Right Sol: ", frMesh.solFP[meshFP, 2, ..]);
+                  //writeln("Normal:    ", frMesh.nrmFP[meshFP, ..]);
+                  //writeln("Jump:      ", jump);
 
                   // Operation 2: Calculate jump at a FP and convert it to the physical domain
                   correctionWatch.restart();
