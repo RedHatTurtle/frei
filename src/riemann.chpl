@@ -867,240 +867,217 @@ module Riemann
 
     var nrm1 : [1..3] real = [+0.612372436, +0.353553391, +0.707106781];
     var nrm2 : [1..3] real = [-0.612372436, -0.353553391, -0.707106781];
-
+    var nrm3 : [1..3] real = [+1.13651    , +0.699182   , +0.1];
 
     writeln();
-    writeln("1D Tests");
+    writeln("1D Tests:");
     {
-      var cons1dL : [1..3] real = [1.225, 250.1160830494510, 278846.40];
-      var cons1dR : [1..3] real = [1.125, 265.2881676121270, 259260.30];
+      var consL1 : [1..3] real = [1.225, 250.1160830494510, 278846.40];
+      var consR1 : [1..3] real = [1.125, 265.2881676121270, 259260.30];
+      var consL2 : [1..3] real = [1.225, 250.1160830494510, 278846.40];
+      var consR2 : [1..3] real = [1.125, 265.2881676121270, 259260.30];
 
       var uniNrm1 : [1..1] real = nrm1[1..1]/norm(nrm1[1..1]);
       var uniNrm2 : [1..1] real = nrm2[1..1]/norm(nrm2[1..1]);
 
-      writef("  Conserved variables:\n");
-      writef("    Left  %t: %.4ht\n", cons1dL.domain, cons1dL);
-      writef("    Right %t: %.4ht\n", cons1dR.domain, cons1dR);
-
-      writef("\n");
-      writef("  Face normal unit vectors:\n");
-      writef("    Normal 1 %t: %.4ht\n", nrm1[1..1].domain, nrm1[1..1]);
-      writef("    Normal 2 %t: %.4ht\n", nrm2[1..1].domain, nrm2[1..1]);
-
-      writef("\n");
-      writef("  Euler flux:\n");
-      writef("    Left  %t: %.4ht\n", euler_flux_cv(cons1dL).domain,
-                                      euler_flux_cv(cons1dL)[1,..] );
-      writef("    Right %t: %.4ht\n", euler_flux_cv(cons1dR).domain,
-                                      euler_flux_cv(cons1dR)[1,..] );
-
       writef("\n");
       writef("  Normal 1:\n");
-      writef("    Left  Euler Flux %t: %.4ht\n", dot( nrm1[1..1], euler_flux_cv(cons1dL)).domain,
-                                                 dot( nrm1[1..1], euler_flux_cv(cons1dL))       );
-      writef("    Right Euler Flux %t: %.4ht\n", dot( nrm1[1..1], euler_flux_cv(cons1dR)).domain,
-                                                 dot( nrm1[1..1], euler_flux_cv(cons1dR))       );
-      writef("    1D  Roe     Flux %t: %.4ht\n", roe_1d(cons1dR, cons1dL, nrm1[1..1]    ).domain,
-                                                 roe_1d(cons1dR, cons1dL, nrm1[1..1]    )       );
-      writef("    Gen Roe 1D  Flux %t: %.4ht\n", roe(   cons1dR, cons1dL, nrm1[1..1]    ).domain,
-                                                 roe(   cons1dR, cons1dL, nrm1[1..1]    )       );
-
-      writef("  Normal 2:\n");
-      writef("    Left  Euler Flux %t: %.4ht\n", dot( nrm2[1..1], euler_flux_cv(cons1dL)).domain,
-                                                 dot( nrm2[1..1], euler_flux_cv(cons1dL))       );
-      writef("    Right Euler Flux %t: %.4ht\n", dot( nrm2[1..1], euler_flux_cv(cons1dR)).domain,
-                                                 dot( nrm2[1..1], euler_flux_cv(cons1dR))       );
-      writef("    1D  Roe     Flux %t: %.4ht\n", roe_1d(cons1dR, cons1dL, nrm2[1..1]    ).domain,
-                                                 roe_1d(cons1dR, cons1dL, nrm2[1..1]    )       );
-      writef("    Gen Roe 1D  Flux %t: %.4ht\n", roe(   cons1dR, cons1dL, nrm2[1..1]    ).domain,
-                                                 roe(   cons1dR, cons1dL, nrm2[1..1]    )       );
+      writef("    Face normal unit vectors:\n");
+      writef("      Normal 1 %t: %+.8ht\n",    nrm1[1..1].domain,    nrm1[1..1]);
+      writef("      UniNrm 1 %t: %+.8ht\n", uniNrm1[1..1].domain, uniNrm1[1..1]);
+      writef("\n");
+      writef("    Conserved variables:\n");
+      writef("      Left  %t: %+.8ht\n", consL1.domain, consL1);
+      writef("      Right %t: %+.8ht\n", consR1.domain, consR1);
+      writef("\n");
+      writef("    Left  Euler Flux %t: %+.8ht\n", dot( uniNrm1[1..1], euler_flux_cv(consL1)).domain,
+                                                  dot( uniNrm1[1..1], euler_flux_cv(consL1))       );
+      writef("    Right Euler Flux %t: %+.8ht\n", dot( uniNrm1[1..1], euler_flux_cv(consR1)).domain,
+                                                  dot( uniNrm1[1..1], euler_flux_cv(consR1))       );
+      writef("    1D  Roe     Flux %t: %+.8ht\n", roe_1d(consR1, consL1, nrm1[1..1]).domain,
+                                                  roe_1d(consR1, consL1, nrm1[1..1])       );
+      writef("    Gen Roe 1D  Flux %t: %+.8ht\n", roe(   consR1, consL1, nrm1[1..1]).domain,
+                                                  roe(   consR1, consL1, nrm1[1..1])       );
 
       writef("\n");
-      writef("  Normal 1:\n");
-      writef("    Left  Euler Flux %t: %.4ht\n", outer(nrm1[1..1], dot( nrm1[1..1], euler_flux_cv(cons1dL))).domain,
-                                                 outer(nrm1[1..1], dot( nrm1[1..1], euler_flux_cv(cons1dL)))[1, ..]);
-      writef("    Right Euler Flux %t: %.4ht\n", outer(nrm1[1..1], dot( nrm1[1..1], euler_flux_cv(cons1dR))).domain,
-                                                 outer(nrm1[1..1], dot( nrm1[1..1], euler_flux_cv(cons1dR)))[1, ..]);
-      writef("    1D  Roe     Flux %t: %.4ht\n", outer(nrm1[1..1], roe_1d(cons1dR, cons1dL, nrm1[1..1]    )).domain,
-                                                 outer(nrm1[1..1], roe_1d(cons1dR, cons1dL, nrm1[1..1]    ))[1, ..]);
-      writef("    Gen Roe 1D  Flux %t: %.4ht\n", outer(nrm1[1..1], roe(   cons1dR, cons1dL, nrm1[1..1]    )).domain,
-                                                 outer(nrm1[1..1], roe(   cons1dR, cons1dL, nrm1[1..1]    ))[1, ..]);
-
       writef("  Normal 2:\n");
-      writef("    Left  Euler Flux %t: %.4ht\n", outer(nrm2[1..1], dot( nrm2[1..1], euler_flux_cv(cons1dL))).domain,
-                                                 outer(nrm2[1..1], dot( nrm2[1..1], euler_flux_cv(cons1dL)))[1, ..]);
-      writef("    Right Euler Flux %t: %.4ht\n", outer(nrm2[1..1], dot( nrm2[1..1], euler_flux_cv(cons1dR))).domain,
-                                                 outer(nrm2[1..1], dot( nrm2[1..1], euler_flux_cv(cons1dR)))[1, ..]);
-      writef("    1D  Roe     Flux %t: %.4ht\n", outer(nrm2[1..1], roe_1d(cons1dL, cons1dR, nrm2[1..1]    )).domain,
-                                                 outer(nrm2[1..1], roe_1d(cons1dL, cons1dR, nrm2[1..1]    ))[1, ..]);
-      writef("    Gen Roe 1D  Flux %t: %.4ht\n", outer(nrm2[1..1], roe(   cons1dL, cons1dR, nrm2[1..1]    )).domain,
-                                                 outer(nrm2[1..1], roe(   cons1dL, cons1dR, nrm2[1..1]    ))[1, ..]);
+      writef("    Face normal unit vectors:\n");
+      writef("      Normal 2 %t: %+.8ht\n",    nrm2[1..1].domain,    nrm2[1..1]);
+      writef("      UniNrm 2 %t: %+.8ht\n", uniNrm2[1..1].domain, uniNrm2[1..1]);
+      writef("\n");
+      writef("    Conserved variables:\n");
+      writef("      Left  %t: %+.8ht\n", consL2.domain, consL2);
+      writef("      Right %t: %+.8ht\n", consR2.domain, consR2);
+      writef("\n");
+      writef("    Left  Euler Flux %t: %+.8ht\n", dot( uniNrm2[1..1], euler_flux_cv(consL2)).domain,
+                                                  dot( uniNrm2[1..1], euler_flux_cv(consL2))       );
+      writef("    Right Euler Flux %t: %+.8ht\n", dot( uniNrm2[1..1], euler_flux_cv(consR2)).domain,
+                                                  dot( uniNrm2[1..1], euler_flux_cv(consR2))       );
+      writef("    1D  Roe     Flux %t: %+.8ht\n", roe_1d(consR2, consL2, nrm2[1..1]).domain,
+                                                  roe_1d(consR2, consL2, nrm2[1..1])       );
+      writef("    Gen Roe 1D  Flux %t: %+.8ht\n", roe(   consR2, consL2, nrm2[1..1]).domain,
+                                                  roe(   consR2, consL2, nrm2[1..1])       );
     }
 
     writeln();
-    writeln("2D Tests");
+    writeln("------------------------------------------------------------------------------------------------------------------------");
+    writeln();
+    writeln("2D Tests:");
     {
-      var cons2dL : [1..4] real = [1.225, 249.1643158413380, 21.79905299130990, 278846.40];
-      var cons2dR : [1..4] real = [1.125, 264.2786660416750, 23.12138729040020, 259260.30];
+      var consL1 : [1..4] real = [1.225, 249.1643158413380, 21.79905299130990, 278846.40];
+      var consR1 : [1..4] real = [1.125, 264.2786660416750, 23.12138729040020, 259260.30];
+      var consL2 : [1..4] real = [1.225, 249.1643158413380, 21.79905299130990, 278846.40];
+      var consR2 : [1..4] real = [1.125, 264.2786660416750, 23.12138729040020, 259260.30];
+      var consL3 : [1..4] real = [0.714259, 0.356919, 0.0124639, 1.3648];
+      var consR3 : [1..4] real = [0.714259, 0.356919, 0.0124639, 1.3648];
 
       var uniNrm1 : [1..2] real = nrm1[1..2]/norm(nrm1[1..2]);
       var uniNrm2 : [1..2] real = nrm2[1..2]/norm(nrm2[1..2]);
-
-      writef("  Conserved variables:\n");
-      writef("    Left  %t: %.4ht\n", cons2dL.domain, cons2dL);
-      writef("    Right %t: %.4ht\n", cons2dR.domain, cons2dR);
-
-      writef("\n");
-      writef("  Face normal unit vectors:\n");
-      writef("    Normal 1 %t: %.4ht\n", nrm1[1..2].domain, nrm1[1..2]);
-      writef("    Normal 2 %t: %.4ht\n", nrm2[1..2].domain, nrm2[1..2]);
-
-      writef("\n");
-      writef("  Euler flux:\n");
-      writef("    Left  %t: %.4ht, %.4ht\n", euler_flux_cv(cons2dL).domain,
-                                             euler_flux_cv(cons2dL)[1,..] ,
-                                             euler_flux_cv(cons2dL)[2,..] );
-      writef("    Right %t: %.4ht, %.4ht\n", euler_flux_cv(cons2dR).domain,
-                                             euler_flux_cv(cons2dR)[1,..] ,
-                                             euler_flux_cv(cons2dR)[2,..] );
+      var uniNrm3 : [1..2] real = nrm3[1..2]/norm(nrm3[1..2]);
 
       writef("\n");
       writef("  Normal 1:\n");
-      writef("    Left  Euler Flux %t: %.4ht\n", dot( nrm1[1..2], euler_flux_cv(cons2dL)).domain,
-                                                 dot( nrm1[1..2], euler_flux_cv(cons2dL))       );
-      writef("    Right Euler Flux %t: %.4ht\n", dot( nrm1[1..2], euler_flux_cv(cons2dR)).domain,
-                                                 dot( nrm1[1..2], euler_flux_cv(cons2dR))       );
-      writef("    2D  Roe     Flux %t: %.4ht\n", roe_2d(cons2dR, cons2dL, nrm1[1..2]    ).domain,
-                                                 roe_2d(cons2dR, cons2dL, nrm1[1..2]    )       );
-      writef("    Gen Roe 2D  Flux %t: %.4ht\n", roe(   cons2dR, cons2dL, nrm1[1..2]    ).domain,
-                                                 roe(   cons2dR, cons2dL, nrm1[1..2]    )       );
+      writef("    Face normal unit vectors:\n");
+      writef("      Normal 1 %t: %+.8ht\n",    nrm1[1..2].domain,    nrm1[1..2]);
+      writef("      UniNrm 1 %t: %+.8ht\n", uniNrm1[1..2].domain, uniNrm1[1..2]);
+      writef("\n");
+      writef("    Conserved variables:\n");
+      writef("      Left  1 %t: %+.8ht\n", consL1.domain, consL1);
+      writef("      Right 1 %t: %+.8ht\n", consR1.domain, consR1);
+      writef("\n");
+      writef("    Left  Euler Flux %t: %+.8ht\n", dot( uniNrm1[1..2], euler_flux_cv(consL1)).domain,
+                                                  dot( uniNrm1[1..2], euler_flux_cv(consL1))       );
+      writef("    Right Euler Flux %t: %+.8ht\n", dot( uniNrm1[1..2], euler_flux_cv(consR1)).domain,
+                                                  dot( uniNrm1[1..2], euler_flux_cv(consR1))       );
+      writef("    2D  Roe     Flux %t: %+.8ht\n", roe_2d(         consL1, consR1, nrm1[1..2]).domain,
+                                                  roe_2d(         consL1, consR1, nrm1[1..2])       );
+      writef("    Gen Roe 2D  Flux %t: %+.8ht\n", roe(            consL1, consR1, nrm1[1..2]).domain,
+                                                  roe(            consL1, consR1, nrm1[1..2])       );
+      writef("    2D  RotRHLL Flux %t: %+.8ht\n", rotated_rhll_2d(consL1, consR1, nrm1[1..2]).domain,
+                                                  rotated_rhll_2d(consL1, consR1, nrm1[1..2])       );
 
       writef("\n");
       writef("  Normal 2:\n");
-      writef("    Left  Euler Flux %t: %.4ht\n", dot( nrm2[1..2], euler_flux_cv(cons2dL)).domain,
-                                                 dot( nrm2[1..2], euler_flux_cv(cons2dL))       );
-      writef("    Right Euler Flux %t: %.4ht\n", dot( nrm2[1..2], euler_flux_cv(cons2dR)).domain,
-                                                 dot( nrm2[1..2], euler_flux_cv(cons2dR))       );
-      writef("    2D  Roe     Flux %t: %.4ht\n", roe_2d(cons2dL, cons2dR, nrm2[1..2]    ).domain,
-                                                 roe_2d(cons2dL, cons2dR, nrm2[1..2]    )       );
-      writef("    Gen Roe 2D  Flux %t: %.4ht\n", roe(   cons2dL, cons2dR, nrm2[1..2]    ).domain,
-                                                 roe(   cons2dL, cons2dR, nrm2[1..2]    )       );
+      writef("    Face normal unit vectors:\n");
+      writef("      Normal 2 %t: %+.8ht\n",    nrm2[1..2].domain,    nrm2[1..2]);
+      writef("      UniNrm 2 %t: %+.8ht\n", uniNrm2[1..2].domain, uniNrm2[1..2]);
+      writef("\n");
+      writef("    Conserved variables:\n");
+      writef("      Left  2 %t: %+.8ht\n", consL2.domain, consL2);
+      writef("      Right 2 %t: %+.8ht\n", consR2.domain, consR2);
+      writef("\n");
+      writef("    Left  Euler Flux %t: %+.8ht\n", dot( uniNrm2[1..2], euler_flux_cv(consL2)).domain,
+                                                  dot( uniNrm2[1..2], euler_flux_cv(consL2))       );
+      writef("    Right Euler Flux %t: %+.8ht\n", dot( uniNrm2[1..2], euler_flux_cv(consR2)).domain,
+                                                  dot( uniNrm2[1..2], euler_flux_cv(consR2))       );
+      writef("    2D  Roe     Flux %t: %+.8ht\n", roe_2d(         consL2, consR2, nrm2[1..2]).domain,
+                                                  roe_2d(         consL2, consR2, nrm2[1..2])       );
+      writef("    Gen Roe 2D  Flux %t: %+.8ht\n", roe(            consL2, consR2, nrm2[1..2]).domain,
+                                                  roe(            consL2, consR2, nrm2[1..2])       );
+      writef("    2D  RotRHLL Flux %t: %+.8ht\n", rotated_rhll_2d(consL2, consR2, nrm2[1..2]).domain,
+                                                  rotated_rhll_2d(consL2, consR2, nrm2[1..2])       );
 
       writef("\n");
-      writef("  Normal 1:\n");
-      writef("    Left  Euler Flux %t: %.4ht, %.4ht\n", outer(nrm1[1..2], dot( nrm1[1..2], euler_flux_cv(cons2dL))).domain,
-                                                        outer(nrm1[1..2], dot( nrm1[1..2], euler_flux_cv(cons2dL)))[1, ..],
-                                                        outer(nrm1[1..2], dot( nrm1[1..2], euler_flux_cv(cons2dL)))[2, ..]);
-      writef("    Right Euler Flux %t: %.4ht, %.4ht\n", outer(nrm1[1..2], dot( nrm1[1..2], euler_flux_cv(cons2dR))).domain,
-                                                        outer(nrm1[1..2], dot( nrm1[1..2], euler_flux_cv(cons2dR)))[1, ..],
-                                                        outer(nrm1[1..2], dot( nrm1[1..2], euler_flux_cv(cons2dR)))[2, ..]);
-      writef("    2D  Roe     Flux %t: %.4ht, %.4ht\n", outer(nrm1[1..2], roe_2d(cons2dR, cons2dL, nrm1[1..2]    )).domain,
-                                                        outer(nrm1[1..2], roe_2d(cons2dR, cons2dL, nrm1[1..2]    ))[1, ..],
-                                                        outer(nrm1[1..2], roe_2d(cons2dR, cons2dL, nrm1[1..2]    ))[2, ..]);
-      writef("    Gen Roe 2D  Flux %t: %.4ht, %.4ht\n", outer(nrm1[1..2], roe(   cons2dR, cons2dL, nrm1[1..2]    )).domain,
-                                                        outer(nrm1[1..2], roe(   cons2dR, cons2dL, nrm1[1..2]    ))[1, ..],
-                                                        outer(nrm1[1..2], roe(   cons2dR, cons2dL, nrm1[1..2]    ))[2, ..]);
-      writef("  Normal 2:\n");
-      writef("    Left  Euler Flux %t: %.4ht, %.4ht\n", outer(nrm2[1..2], dot( nrm2[1..2], euler_flux_cv(cons2dL))).domain,
-                                                        outer(nrm2[1..2], dot( nrm2[1..2], euler_flux_cv(cons2dL)))[1, ..],
-                                                        outer(nrm2[1..2], dot( nrm2[1..2], euler_flux_cv(cons2dL)))[2, ..]);
-      writef("    Right Euler Flux %t: %.4ht, %.4ht\n", outer(nrm2[1..2], dot( nrm2[1..2], euler_flux_cv(cons2dR))).domain,
-                                                        outer(nrm2[1..2], dot( nrm2[1..2], euler_flux_cv(cons2dR)))[1, ..],
-                                                        outer(nrm2[1..2], dot( nrm2[1..2], euler_flux_cv(cons2dR)))[2, ..]);
-      writef("    2D  Roe     Flux %t: %.4ht, %.4ht\n", outer(nrm2[1..2], roe_2d(cons2dL, cons2dR, nrm2[1..2]    )).domain,
-                                                        outer(nrm2[1..2], roe_2d(cons2dL, cons2dR, nrm2[1..2]    ))[1, ..],
-                                                        outer(nrm2[1..2], roe_2d(cons2dL, cons2dR, nrm2[1..2]    ))[2, ..]);
-      writef("    Gen Roe 2D  Flux %t: %.4ht, %.4ht\n", outer(nrm2[1..2], roe(   cons2dL, cons2dR, nrm2[1..2]    )).domain,
-                                                        outer(nrm2[1..2], roe(   cons2dL, cons2dR, nrm2[1..2]    ))[1, ..],
-                                                        outer(nrm2[1..2], roe(   cons2dL, cons2dR, nrm2[1..2]    ))[2, ..]);
+      writef("  Test 3:\n");
+      writef("    Face normal unit vectors:\n");
+      writef("      Normal 3 %t: %+.8ht\n",    nrm3[1..2].domain,    nrm3[1..2]);
+      writef("      UniNrm 3 %t: %+.8ht\n", uniNrm3[1..2].domain, uniNrm3[1..2]);
+      writef("\n");
+      writef("    Conserved variables:\n");
+      writef("      Left  3 %t: %+.8ht\n", consL3.domain, consL3);
+      writef("      Right 3 %t: %+.8ht\n", consR3.domain, consR3);
+      writef("\n");
+      writef("    Left  Euler Flux %t: %+.8ht\n", dot( uniNrm3[1..2], euler_flux_cv(consL3)).domain,
+                                                  dot( uniNrm3[1..2], euler_flux_cv(consL3))       );
+      writef("    Right Euler Flux %t: %+.8ht\n", dot( uniNrm3[1..2], euler_flux_cv(consR3)).domain,
+                                                  dot( uniNrm3[1..2], euler_flux_cv(consR3))       );
+      writef("    2D  Roe     Flux %t: %+.8ht\n", roe_2d(         consL3, consR3, nrm3[1..2]).domain,
+                                                  roe_2d(         consL3, consR3, nrm3[1..2])       );
+      writef("    Gen Roe 2D  Flux %t: %+.8ht\n", roe(            consL3, consR3, nrm3[1..2]).domain,
+                                                  roe(            consL3, consR3, nrm3[1..2])       );
+      writef("    2D  RotRHLL Flux %t: %+.8ht\n", rotated_rhll_2d(consL3, consR3, nrm3[1..2]).domain,
+                                                  rotated_rhll_2d(consL3, consR3, nrm3[1..2]));
     }
 
     writeln();
-    writeln("3D Tests");
+    writeln("------------------------------------------------------------------------------------------------------------------------");
+    writeln();
+    writeln("3D Tests:");
     {
-      var cons3dL : [1..5] real = [1.225, 249.0125316723220, 17.79514529902850, 7.098538138029130, 278846.40];
-      var cons3dR : [1..5] real = [1.125, 264.1176746188930, 23.12138729040020, 9.223192434062800, 259260.30];
+      var consL1 : [1..5] real = [1.225, 249.0125316723220, 17.79514529902850, 7.098538138029130, 278846.40];
+      var consR1 : [1..5] real = [1.125, 264.1176746188930, 23.12138729040020, 9.223192434062800, 259260.30];
+      var consL2 : [1..5] real = [1.225, 249.0125316723220, 17.79514529902850, 7.098538138029130, 278846.40];
+      var consR2 : [1..5] real = [1.125, 264.1176746188930, 23.12138729040020, 9.223192434062800, 259260.30];
+      var consL3 : [1..5] real = [0.714259, 0.356919, 0.0124639, 0.005, 1.3648];
+      var consR3 : [1..5] real = [0.714259, 0.356919, 0.0124639, 0.005, 1.3648];
 
       var uniNrm1 : [1..3] real = nrm1[1..3]/norm(nrm1[1..3]);
       var uniNrm2 : [1..3] real = nrm2[1..3]/norm(nrm2[1..3]);
-
-      writef("  Conserved variables:\n");
-      writef("    Left  %t: %.4ht\n", cons3dL.domain, cons3dL);
-      writef("    Right %t: %.4ht\n", cons3dR.domain, cons3dR);
+      var uniNrm3 : [1..3] real = nrm3[1..3]/norm(nrm3[1..3]);
 
       writef("\n");
-      writef("  Face normal unit vectors:\n");
-      writef("    Normal 1 %t: %.4ht\n", nrm1[1..3].domain, nrm1[1..3]);
-      writef("    Normal 2 %t: %.4ht\n", nrm2[1..3].domain, nrm2[1..3]);
+      writef("  Test 1:\n");
+      writef("    Face normal unit vectors:\n");
+      writef("      Normal 1 %t: %+.8ht\n",    nrm1[1..3].domain,    nrm1[1..3]);
+      writef("      UniNrm 1 %t: %+.8ht\n", uniNrm1[1..3].domain, uniNrm1[1..3]);
+      writef("\n");
+      writef("    Conserved variables:\n");
+      writef("      Left  1 %t: %+.8ht\n", consL1.domain, consL1);
+      writef("      Right 1 %t: %+.8ht\n", consR1.domain, consR1);
+      writef("\n");
+      writef("    Left  Euler Flux %t: %+.8ht\n", dot( uniNrm1[1..3], euler_flux_cv(consL1)).domain,
+                                                  dot( uniNrm1[1..3], euler_flux_cv(consL1))       );
+      writef("    Right Euler Flux %t: %+.8ht\n", dot( uniNrm1[1..3], euler_flux_cv(consR1)).domain,
+                                                  dot( uniNrm1[1..3], euler_flux_cv(consR1))       );
+      writef("    3D  Roe     Flux %t: %+.8ht\n", roe_3d(         consL1, consR1, nrm1[1..3]).domain,
+                                                  roe_3d(         consL1, consR1, nrm1[1..3])       );
+      writef("    Gen Roe 3D  Flux %t: %+.8ht\n", roe(            consL1, consR1, nrm1[1..3]).domain,
+                                                  roe(            consL1, consR1, nrm1[1..3])       );
+      writef("    3D  RotRHLL Flux %t: %+.8ht\n", rotated_rhll_3d(consL1, consR1, nrm1[1..3]).domain,
+                                                  rotated_rhll_3d(consL1, consR1, nrm1[1..3])       );
 
       writef("\n");
-      writef("  Euler flux:\n");
-      writef("    Left  %t: %.4ht, %.4ht, %.4ht\n", euler_flux_cv(cons3dL).domain,
-                                                    euler_flux_cv(cons3dL)[1,..] ,
-                                                    euler_flux_cv(cons3dL)[2,..] ,
-                                                    euler_flux_cv(cons3dL)[3,..] );
-      writef("    Right %t: %.4ht, %.4ht, %.4ht\n", euler_flux_cv(cons3dR).domain,
-                                                    euler_flux_cv(cons3dR)[1,..] ,
-                                                    euler_flux_cv(cons3dR)[2,..] ,
-                                                    euler_flux_cv(cons3dR)[3,..] );
+      writef("  Test 2:\n");
+      writef("    Face normal unit vectors:\n");
+      writef("      Normal 2 %t: %+.8ht\n",    nrm2[1..3].domain,    nrm2[1..3]);
+      writef("      UniNrm 2 %t: %+.8ht\n", uniNrm2[1..3].domain, uniNrm2[1..3]);
+      writef("\n");
+      writef("    Conserved variables:\n");
+      writef("      Left  2 %t: %+.8ht\n", consL2.domain, consL1);
+      writef("      Right 2 %t: %+.8ht\n", consR2.domain, consR1);
+      writef("\n");
+      writef("    Left  Euler Flux %t: %+.8ht\n", dot( uniNrm2[1..3], euler_flux_cv(consL1)).domain,
+                                                  dot( uniNrm2[1..3], euler_flux_cv(consL1))       );
+      writef("    Right Euler Flux %t: %+.8ht\n", dot( uniNrm2[1..3], euler_flux_cv(consR1)).domain,
+                                                  dot( uniNrm2[1..3], euler_flux_cv(consR1))       );
+      writef("    3D  Roe     Flux %t: %+.8ht\n", roe_3d(         consL2, consR2, nrm2[1..3]).domain,
+                                                  roe_3d(         consL2, consR2, nrm2[1..3])       );
+      writef("    Gen Roe 3D  Flux %t: %+.8ht\n", roe(            consL2, consR2, nrm2[1..3]).domain,
+                                                  roe(            consL2, consR2, nrm2[1..3])       );
+      writef("    3D  RotRHLL Flux %t: %+.8ht\n", rotated_rhll_3d(consL2, consR2, nrm2[1..3]).domain,
+                                                  rotated_rhll_3d(consL2, consR2, nrm2[1..3])       );
 
       writef("\n");
-      writeln("  Normal 1:");
-      writef("    Left  Euler Flux %t: %.4ht\n", dot( nrm1[1..3], euler_flux_cv(cons3dL)).domain,
-                                                 dot( nrm1[1..3], euler_flux_cv(cons3dL))       );
-      writef("    Right Euler Flux %t: %.4ht\n", dot( nrm1[1..3], euler_flux_cv(cons3dR)).domain,
-                                                 dot( nrm1[1..3], euler_flux_cv(cons3dR))       );
-      writef("    2D  Roe     Flux %t: %.4ht\n", roe_3d(cons3dL, cons3dR, nrm1[1..3]    ).domain,
-                                                 roe_3d(cons3dL, cons3dR, nrm1[1..3]    )       );
-      writef("    Gen Roe 2D  Flux %t: %.4ht\n", roe(   cons3dL, cons3dR, nrm1[1..3]    ).domain,
-                                                 roe(   cons3dL, cons3dR, nrm1[1..3]    )       );
-
-      writeln("  Normal 2:");
-      writef("    Left  Euler Flux %t: %.4ht\n", dot( nrm2[1..3], euler_flux_cv(cons3dL)).domain,
-                                                 dot( nrm2[1..3], euler_flux_cv(cons3dL))       );
-      writef("    Right Euler Flux %t: %.4ht\n", dot( nrm2[1..3], euler_flux_cv(cons3dR)).domain,
-                                                 dot( nrm2[1..3], euler_flux_cv(cons3dR))       );
-      writef("    2D  Roe     Flux %t: %.4ht\n", roe_3d(cons3dL, cons3dR, nrm2[1..3]    ).domain,
-                                                 roe_3d(cons3dL, cons3dR, nrm2[1..3]    )       );
-      writef("    Gen Roe 2D  Flux %t: %.4ht\n", roe(   cons3dL, cons3dR, nrm2[1..3]    ).domain,
-                                                 roe(   cons3dL, cons3dR, nrm2[1..3]    )       );
-
+      writef("  Test 3:\n");
+      writef("    Face normal unit vectors:\n");
+      writef("      Normal 3 %t: %+.8ht\n",    nrm2[1..3].domain,    nrm3[1..3]);
+      writef("      UniNrm 3 %t: %+.8ht\n", uniNrm2[1..3].domain, uniNrm3[1..3]);
       writef("\n");
-      writeln("  Normal 1:");
-      writef("    Left  Euler Flux %t: %.4ht, %.4ht, %.4ht\n", outer(nrm1[1..3], dot( nrm1[1..3], euler_flux_cv(cons3dL))).domain,
-                                                               outer(nrm1[1..3], dot( nrm1[1..3], euler_flux_cv(cons3dL)))[1, ..],
-                                                               outer(nrm1[1..3], dot( nrm1[1..3], euler_flux_cv(cons3dL)))[2, ..],
-                                                               outer(nrm1[1..3], dot( nrm1[1..3], euler_flux_cv(cons3dL)))[3, ..]);
-      writef("    Right Euler Flux %t: %.4ht, %.4ht, %.4ht\n", outer(nrm1[1..3], dot( nrm1[1..3], euler_flux_cv(cons3dR))).domain,
-                                                               outer(nrm1[1..3], dot( nrm1[1..3], euler_flux_cv(cons3dR)))[1, ..],
-                                                               outer(nrm1[1..3], dot( nrm1[1..3], euler_flux_cv(cons3dR)))[2, ..],
-                                                               outer(nrm1[1..3], dot( nrm1[1..3], euler_flux_cv(cons3dR)))[3, ..]);
-      writef("    3D  Roe     Flux %t: %.4ht, %.4ht, %.4ht\n", outer(nrm1[1..3], roe_3d(cons3dR, cons3dL, nrm1[1..3]    )).domain,
-                                                               outer(nrm1[1..3], roe_3d(cons3dR, cons3dL, nrm1[1..3]    ))[1, ..],
-                                                               outer(nrm1[1..3], roe_3d(cons3dR, cons3dL, nrm1[1..3]    ))[2, ..],
-                                                               outer(nrm1[1..3], roe_3d(cons3dR, cons3dL, nrm1[1..3]    ))[3, ..]);
-      writef("    Gen Roe 3D  Flux %t: %.4ht, %.4ht, %.4ht\n", outer(nrm1[1..3], roe(   cons3dR, cons3dL, nrm1[1..3]    )).domain,
-                                                               outer(nrm1[1..3], roe(   cons3dR, cons3dL, nrm1[1..3]    ))[1, ..],
-                                                               outer(nrm1[1..3], roe(   cons3dR, cons3dL, nrm1[1..3]    ))[2, ..],
-                                                               outer(nrm1[1..3], roe(   cons3dR, cons3dL, nrm1[1..3]    ))[3, ..]);
+      writef("    Conserved variables:\n");
+      writef("      Left  3 %t: %+.8ht\n", consL3.domain, consL1);
+      writef("      Right 3 %t: %+.8ht\n", consR3.domain, consR1);
+      writef("\n");
+      writef("    Left  Euler Flux %t: %+.8ht\n", dot( uniNrm3[1..3], euler_flux_cv(consL1)).domain,
+                                                  dot( uniNrm3[1..3], euler_flux_cv(consL1))       );
+      writef("    Right Euler Flux %t: %+.8ht\n", dot( uniNrm3[1..3], euler_flux_cv(consR1)).domain,
+                                                  dot( uniNrm3[1..3], euler_flux_cv(consR1))       );
+      writef("    3D  Roe     Flux %t: %+.8ht\n", roe_3d(         consL3, consR3, nrm3[1..3]).domain,
+                                                  roe_3d(         consL3, consR3, nrm3[1..3])       );
+      writef("    Gen Roe 3D  Flux %t: %+.8ht\n", roe(            consL3, consR3, nrm3[1..3]).domain,
+                                                  roe(            consL3, consR3, nrm3[1..3])       );
+      writef("    3D  RotRHLL Flux %t: %+.8ht\n", rotated_rhll_3d(consL3, consR3, nrm3[1..3]).domain,
+                                                  rotated_rhll_3d(consL3, consR3, nrm3[1..3])       );
 
-      writeln("  Normal 2:");
-      writef("    Left  Euler Flux %t: %.4ht, %.4ht, %.4ht\n", outer(nrm1[1..3], dot( nrm1[1..3], euler_flux_cv(cons3dL))).domain,
-                                                               outer(nrm1[1..3], dot( nrm1[1..3], euler_flux_cv(cons3dL)))[1, ..],
-                                                               outer(nrm1[1..3], dot( nrm1[1..3], euler_flux_cv(cons3dL)))[2, ..],
-                                                               outer(nrm1[1..3], dot( nrm1[1..3], euler_flux_cv(cons3dL)))[3, ..]);
-      writef("    Right Euler Flux %t: %.4ht, %.4ht, %.4ht\n", outer(nrm1[1..3], dot( nrm1[1..3], euler_flux_cv(cons3dR))).domain,
-                                                               outer(nrm1[1..3], dot( nrm1[1..3], euler_flux_cv(cons3dR)))[1, ..],
-                                                               outer(nrm1[1..3], dot( nrm1[1..3], euler_flux_cv(cons3dR)))[2, ..],
-                                                               outer(nrm1[1..3], dot( nrm1[1..3], euler_flux_cv(cons3dR)))[3, ..]);
-      writef("    3D  Roe     Flux %t: %.4ht, %.4ht, %.4ht\n", outer(nrm1[1..3], roe_3d(cons3dR, cons3dL, nrm1[1..3]    )).domain,
-                                                               outer(nrm1[1..3], roe_3d(cons3dR, cons3dL, nrm1[1..3]    ))[1, ..],
-                                                               outer(nrm1[1..3], roe_3d(cons3dR, cons3dL, nrm1[1..3]    ))[2, ..],
-                                                               outer(nrm1[1..3], roe_3d(cons3dR, cons3dL, nrm1[1..3]    ))[3, ..]);
-      writef("    Gen Roe 3D  Flux %t: %.4ht, %.4ht, %.4ht\n", outer(nrm1[1..3], roe(   cons3dR, cons3dL, nrm1[1..3]    )).domain,
-                                                               outer(nrm1[1..3], roe(   cons3dR, cons3dL, nrm1[1..3]    ))[1, ..],
-                                                               outer(nrm1[1..3], roe(   cons3dR, cons3dL, nrm1[1..3]    ))[2, ..],
-                                                               outer(nrm1[1..3], roe(   cons3dR, cons3dL, nrm1[1..3]    ))[3, ..]);
     }
   }
 }
