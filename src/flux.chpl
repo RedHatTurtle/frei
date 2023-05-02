@@ -23,6 +23,15 @@ module Flux
     return pressure;
   }
 
+  proc temperature(dens : real, pres : real) : real
+  {
+    import Input.fR;
+
+    var temperature : real = pres/dens/fR;
+
+    return temperature;
+  }
+
   proc temperature_cv(cons : [] real) : real
   {
     import Input.fR;
