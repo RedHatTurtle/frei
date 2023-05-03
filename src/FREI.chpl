@@ -210,6 +210,7 @@ module FREI
         for varIdx in 1..frMesh.nVars
         {
           var stableDegree : int = troubled_cell_marker(solPoly = frMesh.solSP[varIdx, cellSPini.. #cellSPcnt],
+                                                        jacobian = frMesh.jacSP[cellSPini.. #cellSPcnt]       ,
                                                         cellTopo = frMesh.cellList[cellIdx].elemTopo()        ,
                                                         solDegree = frMesh.solOrder                           );
 
@@ -581,6 +582,7 @@ module FREI
               for varIdx in 1..frMesh.nVars
               {
                 var stableDegree : int = troubled_cell_marker(solPoly = frMesh.solSP[varIdx, cellSPini.. #cellSPcnt],
+                                                              jacobian = frMesh.jacSP[cellSPini.. #cellSPcnt]       ,
                                                               cellTopo = frMesh.cellList[cellIdx].elemTopo()        ,
                                                               solDegree = frMesh.solOrder                           );
 

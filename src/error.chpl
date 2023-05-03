@@ -2,6 +2,8 @@ module ErrorCalc
 {
   import FRMesh.fr_mesh_c;
 
+  var meshVol : real = 0.0;
+
   proc error_calc(problemType: int, frMesh : fr_mesh_c) : [] (string, real)
   {
     var errors_d : domain(1);
@@ -32,7 +34,14 @@ module ErrorCalc
     var lfErrorAbs, lfErrorRel : [1..frMesh.nVars] real = 0;
     var l1EntrErrorAbs, l2EntrErrorAbs, lfEntrErrorAbs : real;
     var l1EntrErrorRel, l2EntrErrorRel, lfEntrErrorRel : real;
-    var meshVol : real = 0;
+
+    // Calculate mesh length/area/volume
+    if (meshVol <= 0.0) then
+      for cellIdx in frMesh.cellList.domain {
+        var unit : [1..frMesh.cellSPidx[cellIdx, 2]] real = 1.0;
+        var jacobian = frMesh.jacSP[frMesh.cellSPidx[cellIdx, 1].. #frMesh.cellSPidx[cellIdx, 2]];
+        meshVol += integrate( unit, jacobian, TOPO_QUAD, frMesh.solOrder);
+      }
 
     // Loop through cells
     for cellIdx in frMesh.cellList.domain
@@ -45,18 +54,15 @@ module ErrorCalc
       var entrRef : real = entropy_cv(solRef[.., 1]);
 
       // Calculate the errors at each point
-      var jac = frMesh.jacSP[frMesh.cellSPidx[cellIdx, 1].. #frMesh.cellSPidx[cellIdx, 2]];
-      var ptErrorAbs     = abs(frMesh.solSP[1..4, frMesh.cellSPidx[cellIdx, 1].. #frMesh.cellSPidx[cellIdx, 2]] - solRef[1..4, 1..frMesh.cellSPidx[cellIdx, 2]]);
-      var ptErrorRel     = ptErrorAbs/abs(solRef[1..4, 1..frMesh.cellSPidx[cellIdx, 2]]);
+      var jacobian   = frMesh.jacSP[frMesh.cellSPidx[cellIdx, 1].. #frMesh.cellSPidx[cellIdx, 2]];
+      var ptErrorAbs = abs(frMesh.solSP[1..4, frMesh.cellSPidx[cellIdx, 1].. #frMesh.cellSPidx[cellIdx, 2]] - solRef[1..4, 1..frMesh.cellSPidx[cellIdx, 2]]);
+      var ptErrorRel = ptErrorAbs/abs(solRef[1..4, 1..frMesh.cellSPidx[cellIdx, 2]]);
 
       var ptEntrErrorAbs : [1..frMesh.cellSPidx[cellIdx, 2]] real;
       for spIdx in 1..frMesh.cellSPidx[cellIdx, 2] do
         ptEntrErrorAbs[spIdx] = abs(entropy_cv(frMesh.solSP[1..4, frMesh.cellSPidx[cellIdx, 1]+spIdx-1]) - entrRef);
 
       var ptEntrErrorRel = ptEntrErrorAbs/abs(entrRef);
-
-      // Calculate mesh length/area/volume
-      meshVol += integrate( jac, TOPO_QUAD, frMesh.solOrder);
 
       // Absolute errors
       {
@@ -65,13 +71,13 @@ module ErrorCalc
           //Conserved Variables
           for varIdx in 1..frMesh.nVars
           {
-            var ptErrorAbs2 = ptErrorAbs[varIdx, ..]**2*jac;
-            l2ErrorAbs[varIdx] += integrate( ptErrorAbs2, TOPO_QUAD, frMesh.solOrder );
+            var ptErrorAbs2 = ptErrorAbs[varIdx, ..]**2;
+            l2ErrorAbs[varIdx] += integrate( ptErrorAbs2, jacobian, TOPO_QUAD, frMesh.solOrder );
           }
 
           //Entropy
-          var ptEntrErrorAbs2 = ptEntrErrorAbs**2*jac;
-          l2EntrErrorAbs += integrate( ptEntrErrorAbs2, TOPO_QUAD, frMesh.solOrder );
+          var ptEntrErrorAbs2 = ptEntrErrorAbs**2;
+          l2EntrErrorAbs += integrate( ptEntrErrorAbs2, jacobian, TOPO_QUAD, frMesh.solOrder );
         }
         // Lf Errors
         {
@@ -91,13 +97,13 @@ module ErrorCalc
           //Conserved Variables
           for varIdx in 1..frMesh.nVars
           {
-            var ptErrorAbs1 = ptErrorAbs[varIdx, ..]*jac;
-            l1ErrorAbs[varIdx] += integrate( ptErrorAbs1, TOPO_QUAD, frMesh.solOrder );
+            var ptErrorAbs1 = ptErrorAbs[varIdx, ..];
+            l1ErrorAbs[varIdx] += integrate( ptErrorAbs1, jacobian, TOPO_QUAD, frMesh.solOrder );
           }
 
           //Entropy
-          var ptEntrErrorAbs1 = ptEntrErrorAbs*jac;
-          l1EntrErrorAbs += integrate( ptEntrErrorAbs1, TOPO_QUAD, frMesh.solOrder );
+          var ptEntrErrorAbs1 = ptEntrErrorAbs;
+          l1EntrErrorAbs += integrate( ptEntrErrorAbs1, jacobian, TOPO_QUAD, frMesh.solOrder );
         }
       }
 
@@ -108,13 +114,13 @@ module ErrorCalc
           //Conserved Variables
           for varIdx in 1..frMesh.nVars
           {
-            var ptErrorRel2 = ptErrorRel[varIdx, ..]**2*jac;
-            l2ErrorRel[varIdx] += integrate( ptErrorRel2, TOPO_QUAD, frMesh.solOrder );
+            var ptErrorRel2 = ptErrorRel[varIdx, ..]**2;
+            l2ErrorRel[varIdx] += integrate( ptErrorRel2, jacobian, TOPO_QUAD, frMesh.solOrder );
           }
 
           //Entropy
-          var ptEntrErrorRel2 = ptEntrErrorRel**2*jac;
-          l2EntrErrorRel += integrate( ptEntrErrorRel2, TOPO_QUAD, frMesh.solOrder );
+          var ptEntrErrorRel2 = ptEntrErrorRel**2;
+          l2EntrErrorRel += integrate( ptEntrErrorRel2, jacobian, TOPO_QUAD, frMesh.solOrder );
         }
         // Lf Errors
         {
@@ -134,13 +140,13 @@ module ErrorCalc
           //Conserved Variables
           for varIdx in 1..frMesh.nVars
           {
-            var ptErrorRel1 = ptErrorRel[varIdx, ..]*jac;
-            l1ErrorRel[varIdx] += integrate( ptErrorRel1, TOPO_QUAD, frMesh.solOrder );
+            var ptErrorRel1 = ptErrorRel[varIdx, ..];
+            l1ErrorRel[varIdx] += integrate( ptErrorRel1, jacobian, TOPO_QUAD, frMesh.solOrder );
           }
 
           //Entropy
-          var ptEntrErrorRel1 = ptEntrErrorRel*jac;
-          l1EntrErrorRel += integrate( ptEntrErrorRel1, TOPO_QUAD, frMesh.solOrder );
+          var ptEntrErrorRel1 = ptEntrErrorRel;
+          l1EntrErrorRel += integrate( ptEntrErrorRel1, jacobian, TOPO_QUAD, frMesh.solOrder );
         }
       }
     }

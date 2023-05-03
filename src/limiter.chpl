@@ -3,7 +3,7 @@ module Limiter
   use UnitTest;
   use Set;
 
-  proc scaled_marker_projection(solPoly : [] real, cellTopo : int, solDegree : int, projDegree : int) : real
+  proc scaled_marker_projection(solPoly : [] real, jacobian : [] real, cellTopo : int, solDegree : int, projDegree : int) : real
   {
     use Parameters.ParamMesh;
     use Projection;
@@ -26,12 +26,14 @@ module Limiter
     //l2_p = sum( rho_p(1:np) * rho_p(1:np) * metrics_dt(nc)%jac(1:np) * &
     //            std_elem(this_geom,this_order)%wts(1:np) )
     var l2_p    : real = integrate(nodalPoly = sol2Poly,
+                                   jacobian = jacobian,
                                    elemTopo = cellTopo,
                                    nodeCnt = solDegree);
 
     //l2_pm1 = sum( rho_pm1(1:np) * rho_pm1(1:np) * metrics_dt(nc)%jac(1:np) * &
     //              std_elem(this_geom,this_order)%wts(1:np) )
     var l2_pm1  : real = integrate(nodalPoly = dif2Poly,
+                                   jacobian = jacobian,
                                    elemTopo = cellTopo,
                                    nodeCnt = solDegree);
 
@@ -58,7 +60,7 @@ module Limiter
     return scaledMarker;
   }
 
-  proc troubled_cell_marker(solPoly : [] real, cellTopo : int, solDegree : int) : int
+  proc troubled_cell_marker(solPoly : [] real, jacobian : [] real, cellTopo : int, solDegree : int) : int
   {
     use Parameters.ParamMesh;
     use Projection;
@@ -86,12 +88,14 @@ module Limiter
       //l2_p = sum( rho_p(1:np) * rho_p(1:np) * metrics_dt(nc)%jac(1:np) * &
       //            std_elem(this_geom,this_order)%wts(1:np) )
       var l2_ref  : real = integrate(nodalPoly = ref2Poly,
+                                     jacobian = jacobian,
                                      elemTopo = cellTopo,
                                      nodeCnt = solDegree);
 
       //l2_pm1 = sum( rho_pm1(1:np) * rho_pm1(1:np) * metrics_dt(nc)%jac(1:np) * &
       //              std_elem(this_geom,this_order)%wts(1:np) )
       var l2_diff : real = integrate(nodalPoly = dif2Poly,
+                                     jacobian = jacobian,
                                      elemTopo = cellTopo,
                                      nodeCnt = solDegree);
 
@@ -156,8 +160,11 @@ module Limiter
     cellTopos.add(TOPO_LINE);
     cellTopos.add(TOPO_QUAD);
 
-    init_polyProj(1, 9, cellTopos);
-    init_quadratureWeights(1, 9, cellTopos);
+    var minDegree : int = 0;
+    var maxDegree : int = 5;
+
+    init_polyProj(minDegree, maxDegree, cellTopos);
+    init_quadratureWeights(minDegree, maxDegree, cellTopos);
 
     var randStreamSeeded = new RandomStream(real, RANDOM_SEED);
 
@@ -165,8 +172,8 @@ module Limiter
     writeln();
     writeln("------------------------------------------------------------");
     writeln();
-    writeln("Line Element");
-    for polyDegree in 0..9
+    writeln("Line Cell");
+    for polyDegree in minDegree..maxDegree
     {
       writeln();
       writef("%i-Degree Interpolation:\n", polyDegree);
@@ -174,6 +181,7 @@ module Limiter
       var nodeDistLine : [1..polyDegree+1] real = nodes_legendre_gauss(polyDegree+1);
 
       var nodeCnt   : int = polyDegree+1;
+      var jacobian  : [1..nodeCnt] real = 0.5;
       var nodalSin  : [1..nodeCnt] real;
       var nodalExp  : [1..nodeCnt] real;
       var nodalLog  : [1..nodeCnt] real;
@@ -194,33 +202,33 @@ module Limiter
       }
 
       writeln();
-      writef("  Sin Stable degree: %2i\n", troubled_cell_marker( nodalSin , TOPO_LINE, polyDegree));
+      writef("  Sin Stable degree: %2i\n",    troubled_cell_marker( nodalSin, jacobian , TOPO_LINE, polyDegree));
       writef("  Original Solution: %{ ht}\n", nodalSin);
-      writef("  Limited Solution:  %{ ht}\n", projection_limiter(   nodalSin , TOPO_LINE, polyDegree ,
-                                                  troubled_cell_marker( nodalSin , TOPO_LINE, polyDegree)));
+      writef("  Limited Solution:  %{ ht}\n", projection_limiter(   nodalSin, TOPO_LINE, polyDegree ,
+                                              troubled_cell_marker( nodalSin, jacobian , TOPO_LINE, polyDegree)));
       writeln();
-      writef("  Exp Stable degree: %2i\n", troubled_cell_marker( nodalExp , TOPO_LINE, polyDegree));
+      writef("  Exp Stable degree: %2i\n",    troubled_cell_marker( nodalExp, jacobian , TOPO_LINE, polyDegree));
       writef("  Original Solution: %{ ht}\n", nodalExp);
-      writef("  Limited Solution:  %{ ht}\n", projection_limiter(   nodalExp , TOPO_LINE, polyDegree ,
-                                                  troubled_cell_marker( nodalExp , TOPO_LINE, polyDegree)));
+      writef("  Limited Solution:  %{ ht}\n", projection_limiter(   nodalExp, TOPO_LINE, polyDegree ,
+                                              troubled_cell_marker( nodalExp, jacobian , TOPO_LINE, polyDegree)));
       writeln();
-      writef("  Log Stable degree: %2i\n", troubled_cell_marker( nodalLog , TOPO_LINE, polyDegree));
+      writef("  Log Stable degree: %2i\n",    troubled_cell_marker( nodalLog, jacobian , TOPO_LINE, polyDegree));
       writef("  Original Solution: %{+ht}\n", nodalLog);
-      writef("  Limited Solution:  %{ ht}\n", projection_limiter(   nodalLog , TOPO_LINE, polyDegree ,
-                                                  troubled_cell_marker( nodalLog , TOPO_LINE, polyDegree)));
+      writef("  Limited Solution:  %{ ht}\n", projection_limiter(   nodalLog, TOPO_LINE, polyDegree ,
+                                              troubled_cell_marker( nodalLog, jacobian , TOPO_LINE, polyDegree)));
       writeln();
-      writef("  Step Stable degree: %2i\n", troubled_cell_marker( nodalStep , TOPO_LINE, polyDegree));
+      writef("  Step Stable degree: %2i\n",   troubled_cell_marker(nodalStep, jacobian, TOPO_LINE, polyDegree));
       writef("  Original Solution: %{ ht}\n", nodalStep);
-      writef("  Limited Solution:  %{ ht}\n", projection_limiter(   nodalStep, TOPO_LINE, polyDegree ,
-                                                   troubled_cell_marker(nodalStep, TOPO_LINE, polyDegree)));
+      writef("  Limited Solution:  %{ ht}\n", projection_limiter(  nodalStep, TOPO_LINE, polyDegree ,
+                                              troubled_cell_marker(nodalStep, jacobian, TOPO_LINE, polyDegree)));
     }
 
     // Quad Mode
     writeln();
     writeln("------------------------------------------------------------");
     writeln();
-    writeln("Quad Element");
-    for polyDegree in 1..2
+    writeln("Quad Cell");
+    for polyDegree in minDegree..maxDegree
     {
       writeln();
       writef("%i-Degree Interpolation:\n", polyDegree);
@@ -228,6 +236,7 @@ module Limiter
       var nodeDistLine : [1..polyDegree+1] real = nodes_legendre_gauss(polyDegree+1);
 
       var nodeCnt   : int = (polyDegree+1)**2;
+      var jacobian  : [1..nodeCnt] real = 0.25;
       var nodalSin  : [1..nodeCnt] real;
       var nodalExp  : [1..nodeCnt] real;
       var nodalLog  : [1..nodeCnt] real;
@@ -249,25 +258,25 @@ module Limiter
       }
 
       writeln();
-      writef("  Sin Stable degree: %2i\n", troubled_cell_marker( nodalSin , TOPO_QUAD, polyDegree));
+      writef("  Sin Stable degree: %2i\n",    troubled_cell_marker( nodalSin , jacobian, TOPO_QUAD, polyDegree));
       writef("  Original Solution: %{ ht}\n", nodalSin);
       writef("  Limited Solution:  %{ ht}\n", projection_limiter(   nodalSin , TOPO_QUAD, polyDegree ,
-                                                  troubled_cell_marker( nodalSin , TOPO_QUAD, polyDegree)));
+                                              troubled_cell_marker( nodalSin , jacobian, TOPO_QUAD, polyDegree)));
       writeln();
-      writef("  Exp Stable degree: %2i\n", troubled_cell_marker( nodalExp , TOPO_QUAD, polyDegree));
+      writef("  Exp Stable degree: %2i\n",    troubled_cell_marker( nodalExp , jacobian, TOPO_QUAD, polyDegree));
       writef("  Original Solution: %{ ht}\n", nodalExp);
       writef("  Limited Solution:  %{ ht}\n", projection_limiter(   nodalExp , TOPO_QUAD, polyDegree ,
-                                                  troubled_cell_marker( nodalExp , TOPO_QUAD, polyDegree)));
+                                              troubled_cell_marker( nodalExp , jacobian, TOPO_QUAD, polyDegree)));
       writeln();
-      writef("  Log Stable degree: %2i\n", troubled_cell_marker( nodalLog , TOPO_QUAD, polyDegree));
+      writef("  Log Stable degree: %2i\n",    troubled_cell_marker( nodalLog , jacobian, TOPO_QUAD, polyDegree));
       writef("  Original Solution: %{ ht}\n", nodalLog);
       writef("  Limited Solution:  %{ ht}\n", projection_limiter(   nodalLog , TOPO_QUAD, polyDegree ,
-                                                  troubled_cell_marker( nodalLog , TOPO_QUAD, polyDegree)));
+                                              troubled_cell_marker( nodalLog , jacobian, TOPO_QUAD, polyDegree)));
       writeln();
-      writef("  Step Stable degree: %2i\n", troubled_cell_marker( nodalStep , TOPO_QUAD, polyDegree));
+      writef("  Step Stable degree: %2i\n",    troubled_cell_marker(nodalStep, jacobian, TOPO_QUAD, polyDegree));
       writef("  Original Solution:  %{ ht}\n", nodalStep);
-      writef("  Limited Solution:   %{ ht}\n", projection_limiter(   nodalStep, TOPO_QUAD, polyDegree ,
-                                                   troubled_cell_marker(nodalStep, TOPO_QUAD, polyDegree)));
+      writef("  Limited Solution:   %{ ht}\n", projection_limiter(  nodalStep, TOPO_QUAD, polyDegree ,
+                                               troubled_cell_marker(nodalStep, jacobian, TOPO_QUAD, polyDegree)));
     }
   }
 }
