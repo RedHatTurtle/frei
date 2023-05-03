@@ -196,7 +196,7 @@ module FREI
     }
 
     // 9. Output initial solution
-    iterOutput(iteration, frMesh);
+    iterOutput(iteration, frMesh, flagNormals = true);
 
     // 10. Stabilize initial solution
     if Input.limiterScheme != LIMITER_NONE
