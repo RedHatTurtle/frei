@@ -18,26 +18,32 @@ module FRMesh {
     var  solSP_d : domain(rank=2, idxType=int);    // {1..nVars, 1..nSPs}
     var  solFP_d : domain(rank=3, idxType=int);    // {1..nFPs, 1..2, 1..nVars}
     var  flxFP_d : domain(rank=3, idxType=int);    // {1..nFPs, 1..2, 1..nVars}
-    var dSolSP_d : domain(rank=3, idxType=int);    // {1..nSPs, 1..nVars, 1..nVars}
-    var dSolFP_d : domain(rank=4, idxType=int);    // {1..nFPs, 1..2, 1..nVars, 1..nVars}
+    // For future viscous flow implementation
+    //var dSolSP_d : domain(rank=3, idxType=int);    // {1..nSPs, 1..nVars, 1..nVars}
+    //var dSolFP_d : domain(rank=4, idxType=int);    // {1..nFPs, 1..2, 1..nVars, 1..nVars}
 
     var cellSPidx_d : domain(rank=2, idxType=int); // {1..nCells, 1..2}
     var faceFPidx_d : domain(rank=2, idxType=int); // {1..nFaces, 1..2}
 
     // FR solver variables
+
+    // Physical coordinates
     var xyzSP : [xyzSP_d] real;
     var xyzFP : [xyzFP_d] real;
 
+    // Transformation metrics
     var metSP : [metSP_d] real;   // First degree metric terms, Jacobian matrix
     var jacSP : [jacSP_d] real;   // Jacobian
     var nrmFP : [xyzFP_d] real;   // Face normal vector pointing from the left (side 1) to the right (side 2) cell
 
+    // Flow Variables
     var oldSolSP : [ solSP_d] real;     // Backup of the solution at the beginning of residue calculation
     var    solSP : [ solSP_d] real;     // Conserved variables at SPs
     var    solFP : [ solFP_d] real;     // Conserved variables at FPs (1-Left / 2-right)
     var    flxFP : [ flxFP_d] real;     // Discontinuous flux at FPs (1-Left / 2-right)
-    var   dSolSP : [dSolSP_d] real;     // Gradient, at the SPs, of the discontinuous solution interpolation
-    var   dSolFP : [dSolFP_d] real;     // Gradient, at the FPs, of the discontinuous flux reconstruction
+    // For future viscous flow implementation
+    //var   dSolSP : [dSolSP_d] real;     // Gradient, at the SPs, of the discontinuous solution interpolation
+    //var   dSolFP : [dSolFP_d] real;     // Gradient, at the FPs, of the discontinuous flux reconstruction
     var    resSP : [ solSP_d] real;     // Conserved variables residual
 
     var cellSPidx : [cellSPidx_d] int;  // Index of the first SP and number of SPs of a cell
@@ -322,7 +328,9 @@ module FRMesh {
         metSP_d  = {1..nSPs, 1..this.nDims, 1..this.nDims};
         jacSP_d  = {1..nSPs};
         solSP_d  = {1..this.nVars, 1..nSPs};
-        dSolSP_d = {1..nSPs, 1..this.nVars, 1..this.nDims};
+
+        // For future viscous flow implementation
+        //dSolSP_d = {1..nSPs, 1..this.nVars, 1..this.nDims};
       }
 
       for face in this.faceList_d
@@ -339,7 +347,9 @@ module FRMesh {
         xyzFP_d  = {1..nFPs, 1..this.nDims};
         solFP_d  = {1..nFPs, 1..2, 1..this.nVars};
         flxFP_d  = {1..nFPs, 1..2, 1..this.nVars};
-        dSolFP_d = {1..nFPs, 1..2, 1..this.nVars, 1..this.nDims};
+
+        // For future viscous flow implementation
+        //dSolFP_d = {1..nFPs, 1..2, 1..this.nVars, 1..this.nDims};
       }
     }
 
@@ -550,8 +560,9 @@ module FRMesh {
     writeln("SP Solution        ", test_frmesh.solSP.domain);
     writeln("FP Solution        ", test_frmesh.solFP.domain);
     writeln("FP Flux            ", test_frmesh.flxFP.domain);
-    writeln("SP d/Solution      ", test_frmesh.dSolSP.domain);
-    writeln("FP d/Solution      ", test_frmesh.dSolFP.domain);
+    // For future viscous flow implementation
+    //writeln("SP d/Solution      ", test_frmesh.dSolSP.domain);
+    //writeln("FP d/Solution      ", test_frmesh.dSolFP.domain);
     writeln("SP Residue         ", test_frmesh.resSP.domain);
     writeln("SP Sparse Idx      ", test_frmesh.cellSPidx.domain);
     writeln("FP Sparse Idx      ", test_frmesh.faceFPidx.domain);
