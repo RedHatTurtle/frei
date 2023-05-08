@@ -116,6 +116,7 @@ if [[ $BUILD_GENERIC == "true" ]]; then
                                   src/ringleb.chpl                 \
                                   src/config.chpl                  \
                                   src/input.chpl                   \
+                                  src/functions/determinant.chpl   \
                                   src/functions/sorttuple.chpl     \
                                   src/parameters.chpl              \
                                   src/testing.chpl                 \
@@ -169,6 +170,7 @@ if [[ $BUILD_GENERIC == "true" ]]; then
                                   src/ringleb.chpl                 \
                                   src/config.chpl                  \
                                   src/input.chpl                   \
+                                  src/functions/determinant.chpl   \
                                   src/functions/sorttuple.chpl     \
                                   src/parameters.chpl              \
                                   src/testing.chpl                 \
@@ -235,6 +237,7 @@ if [[ $BUILD_OPENBLAS == "true" ]]; then
                                   src/ringleb.chpl                 \
                                   src/config.chpl                  \
                                   src/input.chpl                   \
+                                  src/functions/determinant.chpl   \
                                   src/functions/sorttuple.chpl     \
                                   src/parameters.chpl              \
                                   src/testing.chpl                 \
@@ -285,6 +288,7 @@ if [[ $BUILD_OPENBLAS == "true" ]]; then
                                   src/ringleb.chpl                 \
                                   src/config.chpl                  \
                                   src/input.chpl                   \
+                                  src/functions/determinant.chpl   \
                                   src/functions/sorttuple.chpl     \
                                   src/parameters.chpl              \
                                   src/testing.chpl                 \
@@ -348,6 +352,7 @@ if [[ $BUILD_INTEL == "true" ]]; then
                                   src/ringleb.chpl                 \
                                   src/config.chpl                  \
                                   src/input.chpl                   \
+                                  src/functions/determinant.chpl   \
                                   src/functions/sorttuple.chpl     \
                                   src/parameters.chpl              \
                                   src/testing.chpl                 \
@@ -398,6 +403,7 @@ if [[ $BUILD_INTEL == "true" ]]; then
                                   src/ringleb.chpl                 \
                                   src/config.chpl                  \
                                   src/input.chpl                   \
+                                  src/functions/determinant.chpl   \
                                   src/functions/sorttuple.chpl     \
                                   src/parameters.chpl              \
                                   src/testing.chpl                 \
@@ -459,6 +465,7 @@ if [[ $BUILD_AMD == "true" ]]; then
                                   src/ringleb.chpl                 \
                                   src/config.chpl                  \
                                   src/input.chpl                   \
+                                  src/functions/determinant.chpl   \
                                   src/functions/sorttuple.chpl     \
                                   src/parameters.chpl              \
                                   src/testing.chpl                 \
@@ -507,6 +514,7 @@ if [[ $BUILD_AMD == "true" ]]; then
                                   src/ringleb.chpl                 \
                                   src/config.chpl                  \
                                   src/input.chpl                   \
+                                  src/functions/determinant.chpl   \
                                   src/functions/sorttuple.chpl     \
                                   src/parameters.chpl              \
                                   src/testing.chpl                 \

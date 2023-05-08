@@ -361,6 +361,7 @@ module FRMesh {
       use LinearAlgebra;
       use Mapping;
       use Set;
+      import Determinant.determinant;
 
       init_mapping(minOrder=this.solOrder, maxOrder=this.solOrder, this.cellTypes|this.faceTypes);
       init_mapping_metrics(minOrder=this.solOrder, maxOrder=this.solOrder, this.cellTypes|this.faceTypes);
@@ -457,26 +458,6 @@ module FRMesh {
         }
       }
     }
-  }
-
-  proc determinant(matrix : [] real) : real
-  {
-    use LinearAlgebra;
-
-    var jacobian : real;
-
-    if matrix.size == 1 then
-      jacobian = matrix[1,1];
-    else if matrix.size == 4 then
-      jacobian = matrix[1,1]*matrix[2,2] - matrix[1,2]*matrix[2,1];
-    else if matrix.size == 9 then
-      jacobian = matrix[1,1]*(matrix[2,2]*matrix[3,3] - matrix[2,3]*matrix[3,2])
-                +matrix[1,2]*(matrix[2,3]*matrix[3,1] - matrix[2,1]*matrix[3,3])
-                +matrix[1,3]*(matrix[2,1]*matrix[3,2] - matrix[2,2]*matrix[3,1]);
-    else
-      jacobian = det(matrix);
-
-    return jacobian;
   }
 
   proc n_cell_sps(in elemTopo : int, in solOrder) : int

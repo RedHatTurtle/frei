@@ -74,6 +74,7 @@ chpl -o tests/interpolation_tests                                 \
                                  src/mesh.chpl                    \
                                  src/gmesh.chpl                   \
                                  src/input.chpl                   \
+                                 src/functions/determinant.chpl   \
                                  src/functions/sorttuple.chpl     \
                                  src/parameters.chpl              \
                                  src/testing.chpl                 \
@@ -122,6 +123,7 @@ chpl -o tests/correction_tests                                    \
                               src/mesh.chpl                       \
                               src/gmesh.chpl                      \
                               src/config.chpl                     \
+                              src/functions/determinant.chpl      \
                               src/functions/sorttuple.chpl        \
                               src/parameters.chpl                 \
                               src/testing.chpl                    \
@@ -145,6 +147,7 @@ chpl -o tests/gmesh_tests                                         \
                          src/interpolation.chpl                   \
                          src/polynomials.chpl                     \
                          src/input.chpl                           \
+                         src/functions/determinant.chpl           \
                          src/functions/sorttuple.chpl             \
                          src/parameters.chpl                      \
                          src/testing.chpl                         \
@@ -168,6 +171,7 @@ chpl -o tests/mesh_tests                                          \
                         src/mapping.chpl                          \
                         src/frmesh.chpl                           \
                         src/input.chpl                            \
+                        src/functions/determinant.chpl            \
                         src/functions/sorttuple.chpl              \
                         src/parameters.chpl                       \
                         src/testing.chpl                          \
@@ -197,6 +201,7 @@ chpl -o tests/frmesh_tests                                        \
                           src/mapping.chpl                        \
                           src/config.chpl                         \
                           src/input.chpl                          \
+                          src/functions/determinant.chpl          \
                           src/functions/sorttuple.chpl            \
                           src/parameters.chpl                     \
                           src/testing.chpl                        \
@@ -225,6 +230,7 @@ chpl -o tests/mapping_tests                                       \
                            src/mesh.chpl                          \
                            src/gmesh.chpl                         \
                            src/input.chpl                         \
+                           src/functions/determinant.chpl         \
                            src/functions/sorttuple.chpl           \
                            src/parameters.chpl                    \
                            src/testing.chpl                       \
@@ -249,6 +255,7 @@ chpl -o tests/flux_tests                                          \
                         src/mesh.chpl                             \
                         src/gmesh.chpl                            \
                         src/mapping.chpl                          \
+                        src/functions/determinant.chpl            \
                         src/functions/sorttuple.chpl              \
                         src/parameters.chpl                       \
                         src/testing.chpl                          \
@@ -279,6 +286,7 @@ chpl -o tests/riemann_tests                                       \
                            src/mesh.chpl                          \
                            src/gmesh.chpl                         \
                            src/mapping.chpl                       \
+                           src/functions/determinant.chpl         \
                            src/functions/sorttuple.chpl           \
                            src/parameters.chpl                    \
                            src/testing.chpl                       \
@@ -303,6 +311,7 @@ chpl -o tests/ringleb_tests                                       \
                            src/mesh.chpl                          \
                            src/gmesh.chpl                         \
                            src/mapping.chpl                       \
+                           src/functions/determinant.chpl         \
                            src/functions/sorttuple.chpl           \
                            src/parameters.chpl                    \
                            src/testing.chpl                       \
@@ -330,6 +339,7 @@ chpl -o tests/init_tests                                          \
                         src/mesh.chpl                             \
                         src/gmesh.chpl                            \
                         src/mapping.chpl                          \
+                        src/functions/determinant.chpl            \
                         src/functions/sorttuple.chpl              \
                         src/parameters.chpl                       \
                         src/testing.chpl                          \
@@ -358,6 +368,7 @@ chpl -o tests/boundary_tests                                      \
                             src/mapping.chpl                      \
                             src/config.chpl                       \
                             src/input.chpl                        \
+                            src/functions/determinant.chpl        \
                             src/functions/sorttuple.chpl          \
                             src/parameters.chpl                   \
                             src/testing.chpl                      \
