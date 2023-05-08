@@ -139,6 +139,7 @@ module FRMesh {
     {
       use Parameters.ParamMesh;
       use Parameters.ParamGmesh;
+      import SortTuple.sort_tuple;
 
       // Build face list
       var faceVerts : [1..6] 4*int;
