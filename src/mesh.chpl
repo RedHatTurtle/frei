@@ -5,103 +5,9 @@ module Mesh
   use UnitTest;
   use Set;
 
-  // Internal mesh structure
-
-  record node_r
-  {
-    // Arrays
-    var xyz : [1..3] real;
-  }
-
-  record edge_r
-  {
-    // Geometric properties
-    var elemType : int;
-
-    // Arrays
-    var nodes : [1..2] int;
-
-    proc elemTopo() : int
-    {
-      return elem_topology(this.elemType);
-    }
-  }
-
-  record face_r
-  {
-    // Geometric properties
-    var elemType : int;
-
-    // Array sizing domains
-    var nodes_d : domain(1);
-    //var edges_d : domain(1);
-
-    // Arrays
-    var nodes : [nodes_d] int;
-    //var edges : [edges_d] int;
-    var cells : [1..2] int;
-
-    proc elemTopo() : int
-    {
-      return elem_topology(this.elemType);
-    }
-  }
-
-  record cell_r
-  {
-    // Geometric properties
-    var elemType : int;
-
-    // Array sizing domains
-    var nodes_d : domain(1);
-    //var edges_d : domain(1);
-    var faces_d : domain(1);
-
-    // Arrays
-    var nodes : [nodes_d] int;
-    //var edges : [edges_d] int;
-    var faces : [faces_d] int;
-    var sides : [faces_d] int; // Side of the face this cell is on (1-Left / 2-Right)
-
-    var family : int;
-
-    proc elemTopo() : int
-    {
-      return elem_topology(this.elemType);
-    }
-  }
-
-  record boco_r
-  {
-    // Geometric properties
-    var elemType : int;
-
-    // Array sizing domains
-    var nodes_d : domain(1);
-    //var edges_d : domain(1);
-
-    // Arrays
-    var nodes : [nodes_d] int;
-    //var edges : [edges_d] int;
-    var face : int;
-
-    var family : int;
-
-    proc elemTopo() : int
-    {
-      return elem_topology(this.elemType);
-    }
-  }
-
-  record faml_r
-  {
-    var name : string;
-    var nDim : int;
-
-    // Boco definition
-    var bocoType, bocoSubType : int;
-    var bocoProperties : [1..9] real;
-  }
+  //////////////////
+  //  Mesh Class  //
+  //////////////////
 
   class mesh_c
   {
@@ -554,6 +460,110 @@ module Mesh
       return face_count;
     }
   }
+
+  ///////////////////////
+  //  Mesh Components  //
+  ///////////////////////
+
+  record node_r
+  {
+    // Arrays
+    var xyz : [1..3] real;
+  }
+
+  record edge_r
+  {
+    // Geometric properties
+    var elemType : int;
+
+    // Arrays
+    var nodes : [1..2] int;
+
+    proc elemTopo() : int
+    {
+      return elem_topology(this.elemType);
+    }
+  }
+
+  record face_r
+  {
+    // Geometric properties
+    var elemType : int;
+
+    // Array sizing domains
+    var nodes_d : domain(1);
+    //var edges_d : domain(1);
+
+    // Arrays
+    var nodes : [nodes_d] int;
+    //var edges : [edges_d] int;
+    var cells : [1..2] int;
+
+    proc elemTopo() : int
+    {
+      return elem_topology(this.elemType);
+    }
+  }
+
+  record cell_r
+  {
+    // Geometric properties
+    var elemType : int;
+
+    // Array sizing domains
+    var nodes_d : domain(1);
+    //var edges_d : domain(1);
+    var faces_d : domain(1);
+
+    // Arrays
+    var nodes : [nodes_d] int;
+    //var edges : [edges_d] int;
+    var faces : [faces_d] int;
+    var sides : [faces_d] int; // Side of the face this cell is on (1-Left / 2-Right)
+
+    var family : int;
+
+    proc elemTopo() : int
+    {
+      return elem_topology(this.elemType);
+    }
+  }
+
+  record boco_r
+  {
+    // Geometric properties
+    var elemType : int;
+
+    // Array sizing domains
+    var nodes_d : domain(1);
+    //var edges_d : domain(1);
+
+    // Arrays
+    var nodes : [nodes_d] int;
+    //var edges : [edges_d] int;
+    var face : int;
+
+    var family : int;
+
+    proc elemTopo() : int
+    {
+      return elem_topology(this.elemType);
+    }
+  }
+
+  record faml_r
+  {
+    var name : string;
+    var nDim : int;
+
+    // Boco definition
+    var bocoType, bocoSubType : int;
+    var bocoProperties : [1..9] real;
+  }
+
+  /////////////////////////////////
+  //  Element Probing Functions  //
+  /////////////////////////////////
 
   proc elem_type_gmsh2mesh(in elemTypeGmsh : int) : int
   {
@@ -1174,30 +1184,43 @@ module Mesh
     return faceNodes;
   }
 
+  /////////////////////////
+  //  Testing Procedure  //
+  /////////////////////////
+
   proc main()
   {
     use Gmesh;
 
+    writeln();
+    writeln("--------------------------------------------------------------------------------");
+    writeln();
+    writeln("Test 1: Generate a random 1D mesh - Gmesh:");
+
     var test_gmesh2 = new unmanaged gmesh2_c();
     test_gmesh2.random1D(nCells=6, xMin=-1.0, xMax=1.0);
-
-    writeln("Test 1: Random 1D mesh - Gmesh:");
-    writeln(test_gmesh2);
     writeln();
+    writeln(test_gmesh2);
+
+    writeln();
+    writeln("--------------------------------------------------------------------------------");
+    writeln();
+    writeln("Test 2: Convert random mesh from Gmesh => Native:");
 
     // Get number of physical dimensions from mesh or input
     var test_mesh = new unmanaged mesh_c(nDims=1);
     test_mesh.import_gmesh2(test_gmesh2);
-
-    writeln("Test 2: Random 1D mesh - Gmesh => Native:");
-    writeln(test_mesh);
     writeln();
+    writeln(test_mesh);
 
+    writeln();
+    writeln("--------------------------------------------------------------------------------");
+    writeln();
     writeln("Test 3: Cell and Face counts by topology:");
+    writeln();
     writeln("Cell counts:");
     writeln(test_mesh.cell_count());
     writeln("Face counts:");
     writeln(test_mesh.face_count());
-    writeln();
   }
 }
