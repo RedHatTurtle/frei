@@ -25,3 +25,36 @@ Cell counts:
 2 6
 Face counts:
 1 7
+
+--------------------------------------------------------------------------------
+
+Test 4: Calculate mesh element length/area/volume:
+
+Using the topology specific funtions:
+Elem Topo  | Reference           | Calculated          | Abs Error | Rel Error
+  LineLeng |  1.009553716658e+00 |  1.009553716658e+00 |  0.00e+00 |  0.00e+00
+  TriaArea |  1.000611107172e+00 |  1.000611107172e+00 |  2.22e-16 |  2.22e-16
+  QuadArea |  1.970601870564e+00 |  1.970601870564e+00 |  0.00e+00 |  0.00e+00
+  TetrVol  |  1.000121478266e+00 |  1.000121478266e+00 | -2.22e-16 | -2.22e-16
+  PyraVol  |  1.969637596199e+00 |  1.969637596199e+00 |  0.00e+00 |  0.00e+00
+  PrisVol  |  3.375556111183e+00 |  3.375556111183e+00 |  0.00e+00 |  0.00e+00
+  HexaVol  |  7.082940012013e+00 |  7.082940012013e+00 |  0.00e+00 |  0.00e+00
+
+Using the generic elem_size function:
+Elem Topo  | Reference           | Calculated          | Abs Error | Rel Error
+  LineLeng |  1.009553716658e+00 |  1.009553716658e+00 |  0.00e+00 |  0.00e+00
+  TriaArea |  1.000611107172e+00 |  1.000611107172e+00 |  2.22e-16 |  2.22e-16
+  QuadArea |  1.970601870564e+00 |  1.970601870564e+00 |  0.00e+00 |  0.00e+00
+  TetrVol  |  1.000121478266e+00 |  1.000121478266e+00 | -2.22e-16 | -2.22e-16
+  PyraVol  |  1.969637596199e+00 |  1.969637596199e+00 |  0.00e+00 |  0.00e+00
+  PrisVol  |  3.375556111183e+00 |  3.375556111183e+00 |  0.00e+00 |  0.00e+00
+  HexaVol  |  7.082940012013e+00 |  7.082940012013e+00 |  0.00e+00 |  0.00e+00
+
+Using the mesh class methods:
+Test mesh cell | elem_size()
+  Cell  1 size |  4.491496685374e-01
+  Cell  2 size |  1.484437116066e-01
+  Cell  3 size |  4.931595048200e-01
+  Cell  4 size |  4.659536229356e-01
+  Cell  5 size |  7.700047110048e-02
+  Cell  6 size |  3.662930210000e-01

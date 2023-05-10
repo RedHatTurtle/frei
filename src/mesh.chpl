@@ -459,6 +459,45 @@ module Mesh
 
       return face_count;
     }
+
+    proc elem_size (elemTopo : int, elemNodes : [] int) : real
+    {
+      use Parameters.ParamMesh;
+
+      select elemTopo
+      {
+        when TOPO_NODE do return 0.0;
+
+        when TOPO_LINE do return line_leng( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz );
+
+        when TOPO_TRIA do return tria_area( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                            this.nodeList[elemNodes[3]].xyz );
+
+        when TOPO_QUAD do return quad_area( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                            this.nodeList[elemNodes[3]].xyz, this.nodeList[elemNodes[4]].xyz );
+
+        when TOPO_TETR do return  tetr_vol( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                            this.nodeList[elemNodes[3]].xyz, this.nodeList[elemNodes[4]].xyz );
+
+        when TOPO_PYRA do return  pyra_vol( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                            this.nodeList[elemNodes[3]].xyz, this.nodeList[elemNodes[4]].xyz,
+                                            this.nodeList[elemNodes[5]].xyz );
+
+        when TOPO_PRIS do return  pris_vol( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                            this.nodeList[elemNodes[3]].xyz, this.nodeList[elemNodes[4]].xyz,
+                                            this.nodeList[elemNodes[5]].xyz, this.nodeList[elemNodes[6]].xyz );
+
+        when TOPO_HEXA do return  hexa_vol( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                            this.nodeList[elemNodes[3]].xyz, this.nodeList[elemNodes[4]].xyz,
+                                            this.nodeList[elemNodes[5]].xyz, this.nodeList[elemNodes[6]].xyz,
+                                            this.nodeList[elemNodes[7]].xyz, this.nodeList[elemNodes[8]].xyz );
+        otherwise {
+          writeln("Error calculating mesh element size");
+          writeln("Invalid element topology: ", elemTopo);
+          return -1.0;
+        }
+      }
+    }
   }
 
   ///////////////////////
@@ -1184,6 +1223,199 @@ module Mesh
     return faceNodes;
   }
 
+  ///////////////////////////////////
+  //  Mesh Element Size Functions  //
+  ///////////////////////////////////
+
+  proc elem_size(elemTopo : int, xyz : [] real) : real
+  {
+    use Parameters.ParamMesh;
+
+    select elemTopo
+    {
+      when TOPO_NODE do return 0.0;
+      when TOPO_LINE do return line_leng( xyz[1, 1..3], xyz[2, 1..3] );
+      when TOPO_TRIA do return tria_area( xyz[1, 1..3], xyz[2, 1..3], xyz[3, 1..3] );
+      when TOPO_QUAD do return quad_area( xyz[1, 1..3], xyz[2, 1..3], xyz[3, 1..3], xyz[4, 1..3] );
+      when TOPO_TETR do return  tetr_vol( xyz[1, 1..3], xyz[2, 1..3], xyz[3, 1..3], xyz[4, 1..3] );
+      when TOPO_PYRA do return  pyra_vol( xyz[1, 1..3], xyz[2, 1..3], xyz[3, 1..3], xyz[4, 1..3], xyz[5, 1..3] );
+      when TOPO_PRIS do return  pris_vol( xyz[1, 1..3], xyz[2, 1..3], xyz[3, 1..3],
+                                          xyz[4, 1..3], xyz[5, 1..3], xyz[6, 1..3] );
+      when TOPO_HEXA do return  hexa_vol( xyz[1, 1..3], xyz[2, 1..3], xyz[3, 1..3], xyz[4, 1..3],
+                                          xyz[5, 1..3], xyz[6, 1..3], xyz[7, 1..3], xyz[8, 1..3] );
+      otherwise {
+        writeln("Error calculating mesh element size");
+        writeln("Invalid element topology: ", elemTopo);
+        return -1.0;
+      }
+    }
+  }
+
+  proc line_leng( vert1 : [1..3] real, vert2 : [1..3] real ) : real
+  {
+    // Use the matrix formula to calculate the area of a triangle
+
+    use LinearAlgebra;
+
+    const edge12 : [1..3] real = vert2 - vert1;
+
+    return norm(edge12, normType.norm2);
+  }
+
+  proc tria_area( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real ) : real
+  {
+    // Use the matrix formula to calculate the area of a triangle
+
+    use LinearAlgebra;
+
+    const edge12 : [1..3] real = vert2 - vert1;
+    const edge13 : [1..3] real = vert3 - vert1;
+
+    return 0.5*norm(cross(edge12, edge13), normType.norm2);
+  }
+
+  proc quad_area( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
+                  vert4 : [1..3] real                                           ) : real
+  {
+    // Split the quadrilateral into 2 triangles and use the matrix formula to calculate their areas
+
+    use LinearAlgebra;
+
+    const edge12 : [1..3] real = vert2 - vert1;
+    const diag13 : [1..3] real = vert3 - vert1;
+    const edge14 : [1..3] real = vert4 - vert1;
+
+    const area1 : [1..3] real = cross(edge12, diag13);
+    const area2 : [1..3] real = cross(diag13, edge14);
+
+    return 0.5*(norm( area1, normType.norm2 ) + norm( area2, normType.norm2 ));
+  }
+
+  proc tetr_vol( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
+                 vert4 : [1..3] real                                           ) : real
+  {
+    import Determinant.determinant;
+
+    var matrix : [1..3, 1..3] real;
+    var volume : real = 0.0;
+
+    matrix[1, 1..3] = vert2[1..3] - vert1[1..3];
+    matrix[2, 1..3] = vert3[1..3] - vert1[1..3];
+    matrix[3, 1..3] = vert4[1..3] - vert1[1..3];
+
+    volume = determinant(matrix)/6.0;
+
+    return volume;
+  }
+
+  proc pyra_vol( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
+                 vert4 : [1..3] real, vert5 : [1..3]                           ) : real
+  {
+    import Determinant.determinant;
+
+    var matrix : [1..3, 1..3] real;
+    var volume : real = 0.0;
+
+    //writeln();
+    //writeln("Calculating Pyramid Cell Volume");
+
+    matrix[1, 1..3] = vert2[1..3] - vert1[1..3];
+    matrix[2, 1..3] = vert3[1..3] - vert1[1..3];
+    matrix[3, 1..3] = vert5[1..3] - vert1[1..3];
+    //writeln("  Tetra1: ", determinant(matrix)/6.0);
+    volume = determinant(matrix);
+
+    matrix[1, 1..3] = vert3[1..3] - vert1[1..3];
+    matrix[2, 1..3] = vert4[1..3] - vert1[1..3];
+    matrix[3, 1..3] = vert5[1..3] - vert1[1..3];
+    //writeln("  Tetra2: ", determinant(matrix)/6.0);
+    volume += determinant(matrix);
+
+    return volume/6.0;
+  }
+
+  proc pris_vol( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
+                 vert4 : [1..3] real, vert5 : [1..3] real, vert6 : [1..3] real ) : real
+  {
+    import Determinant.determinant;
+
+    var matrix : [1..3, 1..3] real;
+    var volume : real = 0.0;
+
+    //writeln();
+    //writeln("Calculating Prism Cell Volume");
+
+    matrix[1, 1..3] = vert2[1..3] - vert1[1..3];
+    matrix[2, 1..3] = vert3[1..3] - vert1[1..3];
+    matrix[3, 1..3] = vert4[1..3] - vert1[1..3];
+    //writeln("  Tetra1: ", determinant(matrix)/6.0);
+    volume = determinant(matrix);
+
+    matrix[1, 1..3] = vert4[1..3] - vert6[1..3];
+    matrix[2, 1..3] = vert3[1..3] - vert6[1..3];
+    matrix[3, 1..3] = vert5[1..3] - vert6[1..3];
+    //writeln("  Tetra2: ", determinant(matrix)/6.0);
+    volume += determinant(matrix);
+
+    matrix[1, 1..3] = vert4[1..3] - vert5[1..3];
+    matrix[2, 1..3] = vert3[1..3] - vert5[1..3];
+    matrix[3, 1..3] = vert2[1..3] - vert5[1..3];
+    //writeln("  Tetra3: ", determinant(matrix)/6.0);
+    volume += determinant(matrix);
+
+    return volume/6.0;
+  }
+
+  proc hexa_vol( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
+                 vert4 : [1..3] real, vert5 : [1..3] real, vert6 : [1..3] real,
+                 vert7 : [1..3] real, vert8 : [1..3] real                      ) : real
+  {
+    import Determinant.determinant;
+
+    var matrix : [1..3, 1..3] real;
+    var volume : real = 0.0;
+
+    //writeln();
+    //writeln("Calculating Hexahedron Cell Volume");
+
+    // First z=0 base tetra
+    matrix[1, 1..3] = vert2[1..3] - vert1[1..3];
+    matrix[2, 1..3] = vert4[1..3] - vert1[1..3];
+    matrix[3, 1..3] = vert5[1..3] - vert1[1..3];
+    //writeln("  Tetra1: ", determinant(matrix)/6.0);
+    volume = determinant(matrix);
+
+    // Second z=0 base tetra
+    matrix[1, 1..3] = vert2[1..3] - vert3[1..3];
+    matrix[2, 1..3] = vert7[1..3] - vert3[1..3];
+    matrix[3, 1..3] = vert4[1..3] - vert3[1..3];
+    //writeln("  Tetra2: ", determinant(matrix)/6.0);
+    volume += determinant(matrix);
+
+    // First z=1 base tetra
+    matrix[1, 1..3] = vert2[1..3] - vert6[1..3];
+    matrix[2, 1..3] = vert5[1..3] - vert6[1..3];
+    matrix[3, 1..3] = vert7[1..3] - vert6[1..3];
+    //writeln("  Tetra3: ", determinant(matrix)/6.0);
+    volume += determinant(matrix);
+
+    // Second z=1 base tetra
+    matrix[1, 1..3] = vert5[1..3] - vert8[1..3];
+    matrix[2, 1..3] = vert4[1..3] - vert8[1..3];
+    matrix[3, 1..3] = vert7[1..3] - vert8[1..3];
+    //writeln("  Tetra4: ", determinant(matrix)/6.0);
+    volume += determinant(matrix);
+
+    // Internal volume left
+    matrix[1, 1..3] = vert2[1..3] - vert5[1..3];
+    matrix[2, 1..3] = vert4[1..3] - vert5[1..3];
+    matrix[3, 1..3] = vert7[1..3] - vert5[1..3];
+    //writeln("  Tetra5: ", determinant(matrix)/6.0);
+    volume += determinant(matrix);
+
+    return volume/6.0;
+  }
+
   /////////////////////////
   //  Testing Procedure  //
   /////////////////////////
@@ -1191,6 +1423,8 @@ module Mesh
   proc main()
   {
     use Gmesh;
+    use Testing;
+    use Parameters.ParamMesh;
 
     writeln();
     writeln("--------------------------------------------------------------------------------");
@@ -1222,5 +1456,153 @@ module Mesh
     writeln(test_mesh.cell_count());
     writeln("Face counts:");
     writeln(test_mesh.face_count());
+
+    writeln();
+    writeln("--------------------------------------------------------------------------------");
+    writeln();
+    writeln("Test 4: Calculate mesh element length/area/volume:");
+    {
+      // Vertices and reference values calculated with Mathematica script "MeshElementSize.m"
+      // All vertices on quadrilateral faces must be coplanar
+      const vert1 : [1..3] real = [  3.7974683544303797468354430379746835443037974683544e-2,
+                                     1.1004126547455295735900962861072902338376891334250e-2,
+                                     2.1691973969631236442516268980477223427331887201735e-3 ];
+      const vert2 : [1..3] real = [  1.0472440944881889763779527559055118110236220472441e+0,
+                                     1.5174506828528072837632776934749620637329286798179e-3,
+                                    -1.9830028328611898016997167138810198300283286118980e-2 ];
+      const vert3 : [1..3] real = [  1.0052413242807748377966353727258180499742236362837e+0,
+                                     1.9781486945054348981743425265972475239538496550704e+0,
+                                    -3.7933372255520781960666895242258112418885586133838e-2 ];
+      const vert4 : [1..3] real = [  2.3738872403560830860534124629080118694362017804154e-2,
+                                     1.9934138309549945115257958287596048298572996706915e+0,
+                                    -1.6597510373443983402489626556016597510373443983402e-2 ];
+      const vert5 : [1..3] real = [ -1.0118043844856661045531197301854974704890387858347e-2,
+                                    -4.1916167664670658682634730538922155688622754491018e-2,
+                                     3.0031201248049921996879875195007800312012480499220e+0 ];
+      const vert6 : [1..3] real = [  9.7091855204967826520077260335877485377610528085053e-1,
+                                    -5.1536506888283435473522093887582675766656712870591e-2,
+                                     3.0041651072071832178859815959600809484731556420752e+0 ];
+      const vert7 : [1..3] real = [  8.9474675213241119537897024534668256086146853085362e-1,
+                                     1.8199116052025052422032508877600218964698897674390e+0,
+                                     4.4081237748435055697809484989569817863820657771572e+0 ];
+      const vert8 : [1..3] real = [ -4.6639390399799550175081311359315688855140302186572e-2,
+                                     1.8351629033273894051855318360721711249111735321387e+0,
+                                     4.4116391275403188403028577535296135156280577507533e+0 ];
+
+      // Reference values
+      const LineLeng : real = 1.0095537166582577686828933158331283089967683434117;
+      const TriaArea : real = 1.0006111071724500240791894523022772118776921443961;
+      const QuadArea : real = 1.9706018705641267330507965937128075578107481314163;
+      const TetrVol  : real = 1.0001214782656461611348893435338889368568025784744;
+      const PyraVol  : real = 1.9696375961994772192617584288865276601214484332378;
+      const PrisVol  : real = 3.3755561111825761236808689900659946291972459913852;
+      const HexaVol  : real = 7.0829400120134946303608705716380832379163203260756;
+
+      writeln();
+      writef("Using the topology specific funtions:\n");
+      writef("Elem Topo  | Reference           | Calculated          | Abs Error | Rel Error\n");
+      writef("  LineLeng | %19.12er | %19.12er | %9.2er | %9.2er\n", LineLeng, line_leng(vert1, vert2),
+                                                               error(LineLeng, line_leng(vert1, vert2)),
+                                                      relative_error(LineLeng, line_leng(vert1, vert2)));
+      writef("  TriaArea | %19.12er | %19.12er | %9.2er | %9.2er\n", TriaArea, tria_area(vert1, vert2, vert4),
+                                                               error(TriaArea, tria_area(vert1, vert2, vert4)),
+                                                      relative_error(TriaArea, tria_area(vert1, vert2, vert4)));
+      writef("  QuadArea | %19.12er | %19.12er | %9.2er | %9.2er\n", QuadArea, quad_area(vert1, vert2, vert3, vert4),
+                                                               error(QuadArea, quad_area(vert1, vert2, vert3, vert4)),
+                                                      relative_error(QuadArea, quad_area(vert1, vert2, vert3, vert4)));
+      writef("  TetrVol  | %19.12er | %19.12er | %9.2er | %9.2er\n", TetrVol , tetr_vol( vert1, vert2, vert4, vert5),
+                                                               error(TetrVol , tetr_vol( vert1, vert2, vert4, vert5)),
+                                                      relative_error(TetrVol , tetr_vol( vert1, vert2, vert4, vert5)));
+      writef("  PyraVol  | %19.12er | %19.12er | %9.2er | %9.2er\n", PyraVol , pyra_vol( vert1, vert2, vert3, vert4, vert5),
+                                                               error(PyraVol , pyra_vol( vert1, vert2, vert3, vert4, vert5)),
+                                                      relative_error(PyraVol , pyra_vol( vert1, vert2, vert3, vert4, vert5)));
+      writef("  PrisVol  | %19.12er | %19.12er | %9.2er | %9.2er\n", PrisVol ,
+                                 pris_vol( vert1, vert2, vert4, vert5, vert6, vert8),
+                 error(PrisVol , pris_vol( vert1, vert2, vert4, vert5, vert6, vert8)),
+        relative_error(PrisVol , pris_vol( vert1, vert2, vert4, vert5, vert6, vert8)));
+      writef("  HexaVol  | %19.12er | %19.12er | %9.2er | %9.2er\n", HexaVol ,
+                                 hexa_vol( vert1, vert2, vert3, vert4, vert5, vert6, vert7, vert8),
+                 error(HexaVol , hexa_vol( vert1, vert2, vert3, vert4, vert5, vert6, vert7, vert8)),
+        relative_error(HexaVol , hexa_vol( vert1, vert2, vert3, vert4, vert5, vert6, vert7, vert8)));
+
+      var xyzLine : [1..2, 1..3] real;
+      xyzLine[1, 1..3] = vert1;
+      xyzLine[2, 1..3] = vert2;
+
+      var xyzTria : [1..3, 1..3] real;
+      xyzTria[1, 1..3] = vert1;
+      xyzTria[2, 1..3] = vert2;
+      xyzTria[3, 1..3] = vert4;
+
+      var xyzQuad : [1..4, 1..3] real;
+      xyzQuad[1, 1..3] = vert1;
+      xyzQuad[2, 1..3] = vert2;
+      xyzQuad[3, 1..3] = vert3;
+      xyzQuad[4, 1..3] = vert4;
+
+      var xyzTetr : [1..4, 1..3] real;
+      xyzTetr[1, 1..3] = vert1;
+      xyzTetr[2, 1..3] = vert2;
+      xyzTetr[3, 1..3] = vert4;
+      xyzTetr[4, 1..3] = vert5;
+
+      var xyzPyra : [1..6, 1..3] real;
+      xyzPyra[1, 1..3] = vert1;
+      xyzPyra[2, 1..3] = vert2;
+      xyzPyra[3, 1..3] = vert3;
+      xyzPyra[4, 1..3] = vert4;
+      xyzPyra[5, 1..3] = vert5;
+
+      var xyzPris : [1..6, 1..3] real;
+      xyzPris[1, 1..3] = vert1;
+      xyzPris[2, 1..3] = vert2;
+      xyzPris[3, 1..3] = vert4;
+      xyzPris[4, 1..3] = vert5;
+      xyzPris[5, 1..3] = vert6;
+      xyzPris[6, 1..3] = vert8;
+
+      var xyzHexa : [1..8, 1..3] real;
+      xyzHexa[1, 1..3] = vert1;
+      xyzHexa[2, 1..3] = vert2;
+      xyzHexa[3, 1..3] = vert3;
+      xyzHexa[4, 1..3] = vert4;
+      xyzHexa[5, 1..3] = vert5;
+      xyzHexa[6, 1..3] = vert6;
+      xyzHexa[7, 1..3] = vert7;
+      xyzHexa[8, 1..3] = vert8;
+
+      writeln();
+      writef("Using the generic elem_size function:\n");
+      writef("Elem Topo  | Reference           | Calculated          | Abs Error | Rel Error\n");
+      writef("  LineLeng | %19.12er | %19.12er | %9.2er | %9.2er\n", LineLeng, elem_size(TOPO_LINE, xyzLine),
+                                                               error(LineLeng, elem_size(TOPO_LINE, xyzLine)),
+                                                      relative_error(LineLeng, elem_size(TOPO_LINE, xyzLine)));
+      writef("  TriaArea | %19.12er | %19.12er | %9.2er | %9.2er\n", TriaArea, elem_size(TOPO_TRIA, xyzTria),
+                                                               error(TriaArea, elem_size(TOPO_TRIA, xyzTria)),
+                                                      relative_error(TriaArea, elem_size(TOPO_TRIA, xyzTria)));
+      writef("  QuadArea | %19.12er | %19.12er | %9.2er | %9.2er\n", QuadArea, elem_size(TOPO_QUAD, xyzQuad),
+                                                               error(QuadArea, elem_size(TOPO_QUAD, xyzQuad)),
+                                                      relative_error(QuadArea, elem_size(TOPO_QUAD, xyzQuad)));
+      writef("  TetrVol  | %19.12er | %19.12er | %9.2er | %9.2er\n", TetrVol , elem_size(TOPO_TETR, xyzTetr),
+                                                               error(TetrVol , elem_size(TOPO_TETR, xyzTetr)),
+                                                      relative_error(TetrVol , elem_size(TOPO_TETR, xyzTetr)));
+      writef("  PyraVol  | %19.12er | %19.12er | %9.2er | %9.2er\n", PyraVol , elem_size(TOPO_PYRA, xyzPyra),
+                                                               error(PyraVol , elem_size(TOPO_PYRA, xyzPyra)),
+                                                      relative_error(PyraVol , elem_size(TOPO_PYRA, xyzPyra)));
+      writef("  PrisVol  | %19.12er | %19.12er | %9.2er | %9.2er\n", PrisVol , elem_size(TOPO_PRIS, xyzPris),
+                                                               error(PrisVol , elem_size(TOPO_PRIS, xyzPris)),
+                                                      relative_error(PrisVol , elem_size(TOPO_PRIS, xyzPris)));
+      writef("  HexaVol  | %19.12er | %19.12er | %9.2er | %9.2er\n", HexaVol , elem_size(TOPO_HEXA, xyzHexa),
+                                                               error(HexaVol , elem_size(TOPO_HEXA, xyzHexa)),
+                                                      relative_error(HexaVol , elem_size(TOPO_HEXA, xyzHexa)));
+
+      writeln();
+      writef("Using the mesh class methods:\n");
+      writef("Test mesh cell | elem_size()\n");
+      for cellIdx in test_mesh.cellList.domain do
+        writef("  Cell %2i size | %19.12er\n", cellIdx,
+          test_mesh.elem_size(test_mesh.cellList[cellIdx].elemTopo(), test_mesh.cellList[cellIdx].nodes)
+        );
+    }
   }
 }
