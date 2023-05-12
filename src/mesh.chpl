@@ -41,7 +41,9 @@ module Mesh
     var bocoList : [bocoList_d] boco_r;
     var famlList : [famlList_d] faml_r;
 
-    var cellCharLeng : [cellList_d] real; // Characteristic length used for variable time step
+    // Characteristic length used for variable time step
+    var cellCharLeng : [cellList_d] real;
+    var minCharLeng : real;
 
     proc import_gmesh2(gmesh : gmesh2_c)
     {
@@ -375,8 +377,10 @@ module Mesh
 
     proc build_cell_char_leng()
     {
-      for cellIdx in this.cellList.domain do
+      forall cellIdx in this.cellList.domain do
         cellCharLeng[cellIdx] = elem_char_leng(this.cellList[cellIdx].elemTopo(), this.cellList[cellIdx].nodes);
+
+      this.minCharLeng = min reduce (cellCharLeng);
     }
 
     proc set_families(inputFamlList)
