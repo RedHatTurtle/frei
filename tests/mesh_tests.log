@@ -58,3 +58,26 @@ Test mesh cell | elem_size()
   Cell  4 size |  4.659536229356e-01
   Cell  5 size |  7.700047110048e-02
   Cell  6 size |  3.662930210000e-01
+
+--------------------------------------------------------------------------------
+
+Test 5: Calculate mesh element shortest passthrough distance:
+
+Using the topology specific funtions:
+Elem Topo      | Reference           | Calculated          | Abs Error | Rel Error
+  LineCharLeng |  1.009553716658e+00 |  1.009553716658e+00 |  0.00e+00 |  0.00e+00
+  TriaCharLeng |  8.936143257928e-01 |  8.936143257928e-01 |  2.22e-16 |  2.48e-16
+  QuadCharLeng |  1.009086104530e+00 |  1.009086104530e+00 |  2.22e-16 |  2.20e-16
+  TetrCharLeng |  8.449565013332e-01 |  8.449565013332e-01 |  1.11e-16 |  1.31e-16
+  PyraCharLeng |  9.448283687743e-01 |  9.448283687743e-01 | -1.11e-16 | -1.18e-16
+  PrisCharLeng |  8.922962615785e-01 |  8.922962615785e-01 |  1.11e-16 |  1.24e-16
+  HexaCharLeng |  1.007938864789e+00 |  1.007938864789e+00 | -4.44e-16 | -4.41e-16
+
+Using the mesh class methods:
+Test mesh cell | elem_char_leng()
+  Cell  1 size |  4.491496685374e-01
+  Cell  2 size |  1.484437116066e-01
+  Cell  3 size |  4.931595048200e-01
+  Cell  4 size |  4.659536229356e-01
+  Cell  5 size |  7.700047110048e-02
+  Cell  6 size |  3.662930210000e-01

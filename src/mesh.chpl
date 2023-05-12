@@ -460,6 +460,45 @@ module Mesh
       return face_count;
     }
 
+    proc elem_char_leng(elemTopo : int, elemNodes : [] int) : real
+    {
+      use Parameters.ParamMesh;
+
+      select elemTopo
+      {
+        when TOPO_NODE do return 0.0;
+
+        when TOPO_LINE do return line_leng( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz );
+
+        when TOPO_TRIA do return tria_min_height( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                                  this.nodeList[elemNodes[3]].xyz );
+
+        when TOPO_QUAD do return quad_min_height( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                                  this.nodeList[elemNodes[3]].xyz, this.nodeList[elemNodes[4]].xyz );
+
+        when TOPO_TETR do return  tetr_min_height( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                                   this.nodeList[elemNodes[3]].xyz, this.nodeList[elemNodes[4]].xyz );
+
+        when TOPO_PYRA do return  pyra_min_height( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                                   this.nodeList[elemNodes[3]].xyz, this.nodeList[elemNodes[4]].xyz,
+                                                   this.nodeList[elemNodes[5]].xyz );
+
+        when TOPO_PRIS do return  pris_min_height( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                                   this.nodeList[elemNodes[3]].xyz, this.nodeList[elemNodes[4]].xyz,
+                                                   this.nodeList[elemNodes[5]].xyz, this.nodeList[elemNodes[6]].xyz );
+
+        when TOPO_HEXA do return  hexa_min_height( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                                   this.nodeList[elemNodes[3]].xyz, this.nodeList[elemNodes[4]].xyz,
+                                                   this.nodeList[elemNodes[5]].xyz, this.nodeList[elemNodes[6]].xyz,
+                                                   this.nodeList[elemNodes[7]].xyz, this.nodeList[elemNodes[8]].xyz );
+        otherwise {
+          writeln("Error calculating mesh element characteristic length");
+          writeln("Invalid element topology: ", elemTopo);
+          return -1.0;
+        }
+      }
+    }
+
     proc elem_size (elemTopo : int, elemNodes : [] int) : real
     {
       use Parameters.ParamMesh;
@@ -1416,6 +1455,173 @@ module Mesh
     return volume/6.0;
   }
 
+  ////////////////////////////////////////////
+  //  Cell Characteristic Length Functions  //
+  ////////////////////////////////////////////
+
+  proc tria_min_height( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real ) : real
+  {
+    // Calculate the shortest height of a triangle from the coordinates of it's vertices
+
+    use LinearAlgebra;
+
+    // Get the double of the triangle area using the shoelace formula
+    var area : real = tria_area(vert1, vert2, vert3);
+
+    const edge12 : [1..3] real = vert2 - vert1;
+    const edge23 : [1..3] real = vert3 - vert2;
+    const edge31 : [1..3] real = vert1 - vert3;
+
+    // Calculate the length of all sides and pick the largest
+    var baseMax : real = max( norm(edge12, normType.norm2) ,
+                              norm(edge23, normType.norm2) ,
+                              norm(edge31, normType.norm2) );
+
+    // The minimum height is the area divided by the largest base/side
+    return 2.0*area/baseMax;
+  }
+
+  proc quad_min_height( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
+                        vert4 : [1..3] real                                           ) : real
+  {
+    // Calculate the minimum height of the quadrilateral
+
+    use LinearAlgebra;
+
+    // Calculate the length of each side
+    const edge12 : [1..3] real = vert2-vert1;
+    const edge23 : [1..3] real = vert3-vert2;
+    const edge34 : [1..3] real = vert4-vert3;
+    const edge41 : [1..3] real = vert1-vert4;
+
+    var len12 : real = norm(edge12, normType.norm2);
+    var len23 : real = norm(edge23, normType.norm2);
+    var len34 : real = norm(edge34, normType.norm2);
+    var len41 : real = norm(edge41, normType.norm2);
+
+    // Get the area of each subtriangle
+    var area234 : real = tria_area(vert2, vert3, vert4);
+    var area341 : real = tria_area(vert3, vert4, vert1);
+    var area412 : real = tria_area(vert4, vert1, vert2);
+    var area123 : real = tria_area(vert1, vert2, vert3);
+
+    // Calculate the distance of the 2 opposing vertices to each side and pick the maximum
+    // Then select the shortest if these 4 heights
+    var heightMin : real = 2.0*min( max(area412, area123)/len12 ,
+                                    max(area234, area123)/len23 ,
+                                    max(area234, area341)/len34 ,
+                                    max(area341, area412)/len41 );
+
+    return heightMin;
+  }
+
+  proc tetr_min_height( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
+                        vert4 : [1..3] real                                           ) : real
+  {
+    // Volume = (1/3) * BaseArea * Height
+    // Height = 3 * Volume / BaseArea
+
+    var base : real = max(tria_area(vert2, vert3, vert4),
+                          tria_area(vert1, vert4, vert3),
+                          tria_area(vert1, vert2, vert4),
+                          tria_area(vert1, vert3, vert2) );
+
+    return 3.0*tetr_vol(vert1, vert2, vert3, vert4)/base;
+  }
+
+  proc pyra_min_height( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
+                        vert4 : [1..3] real, vert5 : [1..3] real                      ) : real
+  {
+    return 3.0*min( // Face 1 heights
+                    tetr_vol(vert1, vert2, vert4, vert5)/tria_area(vert1, vert4, vert2),
+
+                    // Face 2 heights
+                    max( tetr_vol(vert1, vert5, vert2, vert3),
+                         tetr_vol(vert1, vert5, vert2, vert4) )/tria_area(vert1, vert2, vert5),
+
+                    // Face 3 heights
+                    max( tetr_vol(vert2, vert5, vert3, vert1),
+                         tetr_vol(vert2, vert5, vert3, vert4) )/tria_area(vert2, vert3, vert5),
+
+                    // Face 4 heights
+                    max( tetr_vol(vert3, vert5, vert4, vert1),
+                         tetr_vol(vert3, vert5, vert4, vert2) )/tria_area(vert3, vert4, vert5),
+
+                    // Face 5 heights
+                    max( tetr_vol(vert4, vert5, vert1, vert2),
+                         tetr_vol(vert4, vert5, vert1, vert3) )/tria_area(vert4, vert1, vert5)
+                  );
+  }
+
+  proc pris_min_height( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
+                        vert4 : [1..3] real, vert5 : [1..3] real, vert6 : [1..3] real ) : real
+  {
+    return 3.0*min( // Face 1 heights
+                    max( tetr_vol(vert1, vert4, vert2, vert3),
+                         tetr_vol(vert1, vert4, vert2, vert6) )/tria_area(vert1, vert2, vert4),
+
+                    // Face 2 heights
+                    max( tetr_vol(vert2, vert5, vert3, vert1),
+                         tetr_vol(vert2, vert5, vert3, vert4) )/tria_area(vert2, vert3, vert5),
+
+                    // Face 3 heights
+                    max( tetr_vol(vert1, vert3, vert4, vert2),
+                         tetr_vol(vert1, vert3, vert4, vert5) )/tria_area(vert1, vert4, vert3),
+
+                    // Face 4 heights
+                    max( tetr_vol(vert1, vert2, vert3, vert4),
+                         tetr_vol(vert1, vert2, vert3, vert5),
+                         tetr_vol(vert1, vert2, vert3, vert6) )/tria_area(vert1, vert3, vert2),
+
+                    // Face 5 heights
+                    max( tetr_vol(vert4, vert6, vert5, vert1),
+                         tetr_vol(vert4, vert6, vert5, vert2),
+                         tetr_vol(vert4, vert6, vert5, vert3) )/tria_area(vert4, vert5, vert6)
+                  );
+  }
+
+  proc hexa_min_height( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
+                        vert4 : [1..3] real, vert5 : [1..3] real, vert6 : [1..3] real,
+                        vert7 : [1..3] real, vert8 : [1..3] real                      ) : real
+  {
+    return 3.0*min( // Face 1 heights
+                    max( tetr_vol(vert1, vert2, vert4, vert5),
+                         tetr_vol(vert1, vert2, vert4, vert6),
+                         tetr_vol(vert1, vert2, vert4, vert7),
+                         tetr_vol(vert1, vert2, vert4, vert8) )/tria_area(vert1, vert2, vert4),
+
+                    // Face 2 heights
+                    max( tetr_vol(vert1, vert5, vert2, vert4),
+                         tetr_vol(vert1, vert5, vert2, vert8),
+                         tetr_vol(vert1, vert5, vert2, vert7),
+                         tetr_vol(vert1, vert5, vert2, vert3) )/tria_area(vert1, vert2, vert5),
+
+                    // Face 3 heights
+                    max( tetr_vol(vert1, vert4, vert5, vert2),
+                         tetr_vol(vert1, vert4, vert5, vert3),
+                         tetr_vol(vert1, vert4, vert5, vert7),
+                         tetr_vol(vert1, vert4, vert5, vert6) )/tria_area(vert1, vert4, vert5),
+
+                    // Face 4 heights
+                    max( tetr_vol(vert5, vert8, vert6, vert1),
+                         tetr_vol(vert5, vert8, vert6, vert4),
+                         tetr_vol(vert5, vert8, vert6, vert3),
+                         tetr_vol(vert5, vert8, vert6, vert2) )/tria_area(vert5, vert6, vert8),
+
+                    // Face 5 heights
+                    max( tetr_vol(vert4, vert3, vert8, vert1),
+                         tetr_vol(vert4, vert3, vert8, vert2),
+                         tetr_vol(vert4, vert3, vert8, vert6),
+                         tetr_vol(vert4, vert3, vert8, vert5) )/tria_area(vert4, vert3, vert8),
+
+                    // Face 6 heights
+                    max( tetr_vol(vert2, vert6, vert3, vert1),
+                         tetr_vol(vert2, vert6, vert3, vert5),
+                         tetr_vol(vert2, vert6, vert3, vert8),
+                         tetr_vol(vert2, vert6, vert3, vert4) )/tria_area(vert2, vert3, vert6)
+                  );
+  }
+
   /////////////////////////
   //  Testing Procedure  //
   /////////////////////////
@@ -1602,6 +1808,83 @@ module Mesh
       for cellIdx in test_mesh.cellList.domain do
         writef("  Cell %2i size | %19.12er\n", cellIdx,
           test_mesh.elem_size(test_mesh.cellList[cellIdx].elemTopo(), test_mesh.cellList[cellIdx].nodes)
+        );
+    }
+
+    writeln();
+    writeln("--------------------------------------------------------------------------------");
+    writeln();
+    writeln("Test 5: Calculate mesh element shortest passthrough distance:");
+    {
+      // Vertices and reference values calculated with Mathematica script "MeshElementCharLeng.m"
+      // All vertices on quadrilateral faces must be coplanar
+      const vert1 : [1..3] real = [  3.7974683544303797468354430379746835443037974683544e-2,
+                                     1.1004126547455295735900962861072902338376891334250e-2,
+                                     2.1691973969631236442516268980477223427331887201735e-3 ];
+      const vert2 : [1..3] real = [  1.0472440944881889763779527559055118110236220472441e+0,
+                                     1.5174506828528072837632776934749620637329286798179e-3,
+                                    -1.9830028328611898016997167138810198300283286118980e-2 ];
+      const vert3 : [1..3] real = [  1.0052413242807748377966353727258180499742236362837e+0,
+                                     1.9781486945054348981743425265972475239538496550704e+0,
+                                    -3.7933372255520781960666895242258112418885586133838e-2 ];
+      const vert4 : [1..3] real = [  2.3738872403560830860534124629080118694362017804154e-2,
+                                     1.9934138309549945115257958287596048298572996706915e+0,
+                                    -1.6597510373443983402489626556016597510373443983402e-2 ];
+      const vert5 : [1..3] real = [ -1.0118043844856661045531197301854974704890387858347e-2,
+                                    -4.1916167664670658682634730538922155688622754491018e-2,
+                                     3.0031201248049921996879875195007800312012480499220e+0 ];
+      const vert6 : [1..3] real = [  9.7091855204967826520077260335877485377610528085053e-1,
+                                    -5.1536506888283435473522093887582675766656712870591e-2,
+                                     3.0041651072071832178859815959600809484731556420752e+0 ];
+      const vert7 : [1..3] real = [  8.9474675213241119537897024534668256086146853085362e-1,
+                                     1.8199116052025052422032508877600218964698897674390e+0,
+                                     4.4081237748435055697809484989569817863820657771572e+0 ];
+      const vert8 : [1..3] real = [ -4.6639390399799550175081311359315688855140302186572e-2,
+                                     1.8351629033273894051855318360721711249111735321387e+0,
+                                     4.4116391275403188403028577535296135156280577507533e+0 ];
+
+      // Reference values
+      const LineCharLeng : real = 1.0095537166582577686828933158331283089967683434117e+0;
+      const TriaCharLeng : real = 8.9361432579282310476118100755966934326463688804176e-1;
+      const QuadCharLeng : real = 1.0090861045298942923515333317876425756813824966488e+0;
+      const TetrCharLeng : real = 8.4495650133317678516378493575905710319629504752832e-1;
+      const PyraCharLeng : real = 9.4482836877434877107756908549626460820538193643161e-1;
+      const PrisCharLeng : real = 8.9229626157848543100704494613623558312367332736129e-1;
+      const HexaCharLeng : real = 1.0079388647889108935072665768907527132658799181828e+0;
+
+      writeln();
+      writef("Using the topology specific funtions:\n");
+      writef("Elem Topo      | Reference           | Calculated          | Abs Error | Rel Error\n");
+      writef("  LineCharLeng | %19.12er | %19.12er | %9.2er | %9.2er\n", LineCharLeng, line_leng(vert1, vert2),
+                                                                   error(LineCharLeng, line_leng(vert1, vert2)),
+                                                          relative_error(LineCharLeng, line_leng(vert1, vert2)));
+      writef("  TriaCharLeng | %19.12er | %19.12er | %9.2er | %9.2er\n", TriaCharLeng, tria_min_height(vert1, vert2, vert4),
+                                                                   error(TriaCharLeng, tria_min_height(vert1, vert2, vert4)),
+                                                          relative_error(TriaCharLeng, tria_min_height(vert1, vert2, vert4)));
+      writef("  QuadCharLeng | %19.12er | %19.12er | %9.2er | %9.2er\n", QuadCharLeng, quad_min_height(vert1, vert2, vert3, vert4),
+                                                                   error(QuadCharLeng, quad_min_height(vert1, vert2, vert3, vert4)),
+                                                          relative_error(QuadCharLeng, quad_min_height(vert1, vert2, vert3, vert4)));
+      writef("  TetrCharLeng | %19.12er | %19.12er | %9.2er | %9.2er\n", TetrCharLeng, tetr_min_height(vert1, vert2, vert4, vert5),
+                                                                   error(TetrCharLeng, tetr_min_height(vert1, vert2, vert4, vert5)),
+                                                          relative_error(TetrCharLeng, tetr_min_height(vert1, vert2, vert4, vert5)));
+      writef("  PyraCharLeng | %19.12er | %19.12er | %9.2er | %9.2er\n", PyraCharLeng, pyra_min_height(vert1, vert2, vert3, vert4, vert5),
+                                                                   error(PyraCharLeng, pyra_min_height(vert1, vert2, vert3, vert4, vert5)),
+                                                          relative_error(PyraCharLeng, pyra_min_height(vert1, vert2, vert3, vert4, vert5)));
+      writef("  PrisCharLeng | %19.12er | %19.12er | %9.2er | %9.2er\n", PrisCharLeng,
+                                     pris_min_height(vert1, vert2, vert4, vert5, vert6, vert8),
+                 error(PrisCharLeng, pris_min_height(vert1, vert2, vert4, vert5, vert6, vert8)),
+        relative_error(PrisCharLeng, pris_min_height(vert1, vert2, vert4, vert5, vert6, vert8)));
+      writef("  HexaCharLeng | %19.12er | %19.12er | %9.2er | %9.2er\n", HexaCharLeng,
+                                     hexa_min_height(vert1, vert2, vert3, vert4, vert5, vert6, vert7, vert8),
+                 error(HexaCharLeng, hexa_min_height(vert1, vert2, vert3, vert4, vert5, vert6, vert7, vert8)),
+        relative_error(HexaCharLeng, hexa_min_height(vert1, vert2, vert3, vert4, vert5, vert6, vert7, vert8)));
+
+      writeln();
+      writef("Using the mesh class methods:\n");
+      writef("Test mesh cell | elem_char_leng()\n");
+      for cellIdx in test_mesh.cellList.domain do
+        writef("  Cell %2i size | %19.12er\n", cellIdx,
+          test_mesh.elem_char_leng(test_mesh.cellList[cellIdx].elemTopo(), test_mesh.cellList[cellIdx].nodes)
         );
     }
   }
