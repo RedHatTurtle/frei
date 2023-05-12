@@ -127,6 +127,7 @@ module FREI
     // 5. Initialize FR mesh
     frMesh.allocate_fr_vars();      // Allocate SP and FP solution/flux/residue arrays
     frMesh.set_points_locations();  // Calculate coordinate transformations and point coordinates
+    frMesh.build_cell_char_leng();  // Calculate the characteristic length of the mesh cells
 
     // 6. Save mesh file in internal format
 

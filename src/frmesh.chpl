@@ -527,6 +527,7 @@ module FRMesh {
     // Get number of physical dimensions from mesh or input
     var test_frmesh = new unmanaged fr_mesh_c(nDims=1, nVars=3, solOrder=2);
     test_frmesh.import_gmesh2(test_gmesh2);
+    test_mesh.build_cell_char_leng();
     test_frmesh.allocate_fr_vars();
 
     writeln("Test 2: Allocate FR variables");

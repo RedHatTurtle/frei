@@ -41,6 +41,8 @@ module Mesh
     var bocoList : [bocoList_d] boco_r;
     var famlList : [famlList_d] faml_r;
 
+    var cellCharLeng : [cellList_d] real; // Characteristic length used for variable time step
+
     proc import_gmesh2(gmesh : gmesh2_c)
     {
       use Gmesh;
@@ -369,6 +371,12 @@ module Mesh
         faceTypes.add(face.elemType);
         faceTopos.add(face.elemTopo());
       }
+    }
+
+    proc build_cell_char_leng()
+    {
+      for cellIdx in this.cellList.domain do
+        cellCharLeng[cellIdx] = elem_char_leng(this.cellList[cellIdx].elemTopo(), this.cellList[cellIdx].nodes);
     }
 
     proc set_families(inputFamlList)
@@ -1650,6 +1658,7 @@ module Mesh
     // Get number of physical dimensions from mesh or input
     var test_mesh = new unmanaged mesh_c(nDims=1);
     test_mesh.import_gmesh2(test_gmesh2);
+    test_mesh.build_cell_char_leng();
     writeln();
     writeln(test_mesh);
 
