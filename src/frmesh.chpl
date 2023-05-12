@@ -129,13 +129,13 @@ module FRMesh {
       }
 
       // Build the face list for Riemann solver iteration
-      this.face_list_builder();
+      this.build_face_list();
 
       // Build the sets of cell and face element types and topologies present in this mesh
-      this.elem_set_builder();
+      this.build_elem_sets();
     }
 
-    override proc face_list_builder()
+    override proc build_face_list()
     {
       use Parameters.ParamMesh;
       use Parameters.ParamGmesh;

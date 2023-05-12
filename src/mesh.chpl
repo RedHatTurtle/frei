@@ -121,13 +121,13 @@ module Mesh
       }
 
       // Build the face list for Riemann solver iteration
-      this.face_list_builder();
+      this.build_face_list();
 
       // Build the sets of cell and face element types and topologies present in this mesh
-      this.elem_set_builder();
+      this.build_elem_sets();
     }
 
-    proc face_list_builder()
+    proc build_face_list()
     {
       use Parameters.ParamMesh;
       use Parameters.ParamGmesh;
@@ -356,6 +356,21 @@ module Mesh
       }
     }
 
+    proc build_elem_sets()
+    {
+      for cell in this.cellList
+      {
+        cellTypes.add(cell.elemType);
+        cellTopos.add(cell.elemTopo());
+      }
+
+      for face in this.faceList
+      {
+        faceTypes.add(face.elemType);
+        faceTopos.add(face.elemTopo());
+      }
+    }
+
     proc set_families(inputFamlList)
     {
       // Loop through the mesh families
@@ -374,21 +389,6 @@ module Mesh
             continue;
           }
         }
-      }
-    }
-
-    proc elem_set_builder()
-    {
-      for cell in this.cellList
-      {
-        cellTypes.add(cell.elemType);
-        cellTopos.add(cell.elemTopo());
-      }
-
-      for face in this.faceList
-      {
-        faceTypes.add(face.elemType);
-        faceTopos.add(face.elemTopo());
       }
     }
 
