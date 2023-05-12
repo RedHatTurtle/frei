@@ -1072,10 +1072,10 @@ module Mesh
       {
         select faceType
         {
-          when 1 do faceNodes = [1, 3, 2];
-          when 2 do faceNodes = [1, 2, 4];
-          when 3 do faceNodes = [2, 3, 4];
-          when 4 do faceNodes = [3, 1, 4];
+          when 1 do faceNodes = [1, 3, 2]; // Zeta min
+          when 2 do faceNodes = [1, 2, 4]; // Eta min
+          when 3 do faceNodes = [2, 3, 4]; // Xi + Eta + Zeta = Const
+          when 4 do faceNodes = [3, 1, 4]; // Xi min
         }
       }
       when TYPE_TETR_10
@@ -1083,10 +1083,10 @@ module Mesh
         select faceType
         {
           //                     Corners | Mid-Edge
-          when 1 do faceNodes = [ 1, 3, 2, 7,  6,  5];
-          when 2 do faceNodes = [ 1, 2, 4, 5,  9,  8];
-          when 3 do faceNodes = [ 2, 3, 4, 6, 10,  9];
-          when 4 do faceNodes = [ 3, 1, 4, 7,  8, 10];
+          when 1 do faceNodes = [ 1, 3, 2, 7,  6,  5]; // Zeta min
+          when 2 do faceNodes = [ 1, 2, 4, 5,  9,  8]; // Eta min
+          when 3 do faceNodes = [ 2, 3, 4, 6, 10,  9]; // Xi + Eta + Zeta = Const
+          when 4 do faceNodes = [ 3, 1, 4, 7,  8, 10]; // Xi min
         }
       }
       when TYPE_TETR_20
@@ -1094,10 +1094,10 @@ module Mesh
         select faceType
         {
           //                     Corners | Mid-Edge              | Mid-Face
-          when 1 do faceNodes = [ 1, 3, 2, 10,  9,  8,  7,  6,  5, 17];
-          when 2 do faceNodes = [ 1, 2, 4,  5,  6, 13, 14, 12, 11, 18];
-          when 3 do faceNodes = [ 2, 3, 4,  7,  8, 15, 16, 14, 13, 19];
-          when 4 do faceNodes = [ 3, 1, 4,  9, 10, 11, 12, 16, 15, 20];
+          when 1 do faceNodes = [ 1, 3, 2, 10,  9,  8,  7,  6,  5, 17]; // Zeta min
+          when 2 do faceNodes = [ 1, 2, 4,  5,  6, 13, 14, 12, 11, 18]; // Eta min
+          when 3 do faceNodes = [ 2, 3, 4,  7,  8, 15, 16, 14, 13, 19]; // Xi + Eta + Zeta = Const
+          when 4 do faceNodes = [ 3, 1, 4,  9, 10, 11, 12, 16, 15, 20]; // Xi min
         }
       }
       when TYPE_TETR_35
@@ -1105,155 +1105,155 @@ module Mesh
         select faceType
         {
           //                     Corners | Mid-Edge                          | Mid-Face
-          when 1 do faceNodes = [ 1, 3, 2, 13, 12, 11, 10,  9,  8,  7,  6,  5, 23, 24, 25];
-          when 2 do faceNodes = [ 1, 2, 4,  5,  6,  7, 17, 18, 19, 16, 15, 14, 26, 27, 28];
-          when 3 do faceNodes = [ 2, 3, 4,  8,  9, 10, 20, 21, 22, 19, 18, 17, 29, 30, 31];
-          when 4 do faceNodes = [ 3, 1, 4, 11, 12, 13, 14, 15, 16, 22, 21, 20, 32, 33, 34];
+          when 1 do faceNodes = [ 1, 3, 2, 13, 12, 11, 10,  9,  8,  7,  6,  5, 23, 24, 25]; // Zeta min
+          when 2 do faceNodes = [ 1, 2, 4,  5,  6,  7, 17, 18, 19, 16, 15, 14, 26, 27, 28]; // Eta min
+          when 3 do faceNodes = [ 2, 3, 4,  8,  9, 10, 20, 21, 22, 19, 18, 17, 29, 30, 31]; // Xi + Eta + Zeta = Const
+          when 4 do faceNodes = [ 3, 1, 4, 11, 12, 13, 14, 15, 16, 22, 21, 20, 32, 33, 34]; // Xi min
         }
       }
       when TYPE_PYRA_5
       {
         select faceType
         {
-          when 1 do faceNodes = [1, 4, 3, 2];
-          when 2 do faceNodes = [   1, 2, 5];
-          when 3 do faceNodes = [   2, 3, 5];
-          when 4 do faceNodes = [   3, 4, 5];
-          when 5 do faceNodes = [   4, 1, 5];
+          when 1 do faceNodes = [1, 4, 3, 2]; // Zeta min
+          when 2 do faceNodes = [   1, 2, 5]; // Eta min
+          when 3 do faceNodes = [   2, 3, 5]; // 
+          when 4 do faceNodes = [   3, 4, 5]; // 
+          when 5 do faceNodes = [   4, 1, 5]; // Xi min
         }
       }
       when TYPE_PYRA_14
       {
         select faceType
         {
-          //                       Corners |      Mid-Edge | Mid-Face
-          when 1 do faceNodes = [1, 4, 3, 2,  9,  8,  7,  6, 14];
-          when 2 do faceNodes = [   1, 2, 5,      6, 11, 10];
-          when 3 do faceNodes = [   2, 3, 5,      7, 12, 11];
-          when 4 do faceNodes = [   3, 4, 5,      8, 13, 12];
-          when 5 do faceNodes = [   4, 1, 5,      9, 10, 13];
+          //                       Corners | Mid-Edge      | Mid-Face
+          when 1 do faceNodes = [1, 4, 3, 2,  9,  8,  7,  6, 14]; // Zeta min
+          when 2 do faceNodes = [   1, 2, 5,      6, 11, 10    ]; // Eta min
+          when 3 do faceNodes = [   2, 3, 5,      7, 12, 11    ]; // 
+          when 4 do faceNodes = [   3, 4, 5,      8, 13, 12    ]; // 
+          when 5 do faceNodes = [   4, 1, 5,      9, 10, 13    ]; // Xi min
         }
       }
       when TYPE_PYRA_30
       {
         select faceType
         {
-          //                       Corners |                      Mid-Edge |       Mid-Face
-          when 1 do faceNodes = [1, 4, 3, 2, 12, 13, 11, 10,  9,  8,  7,  6, 22, 25, 24, 23];
-          when 2 do faceNodes = [   1, 2, 5,          6,  7, 16, 16, 15, 14,             26];
-          when 3 do faceNodes = [   2, 3, 5,          8,  9, 18, 19, 17, 16,             27];
-          when 4 do faceNodes = [   3, 4, 5,         10, 11, 20, 21, 19, 18,             28];
-          when 5 do faceNodes = [   4, 1, 5,         12, 13, 14, 15, 21, 22,             29];
+          //                       Corners | Mid-Edge                      | Mid-Face
+          when 1 do faceNodes = [1, 4, 3, 2, 12, 13, 11, 10,  9,  8,  7,  6, 22, 25, 24, 23]; // Zeta min
+          when 2 do faceNodes = [   1, 2, 5,          6,  7, 16, 16, 15, 14,             26]; // Eta min
+          when 3 do faceNodes = [   2, 3, 5,          8,  9, 18, 19, 17, 16,             27]; // 
+          when 4 do faceNodes = [   3, 4, 5,         10, 11, 20, 21, 19, 18,             28]; // 
+          when 5 do faceNodes = [   4, 1, 5,         12, 13, 14, 15, 21, 22,             29]; // Xi min
         }
       }
       when TYPE_PYRA_55
       {
         select faceType
         {
-          //                       Corners |                                      Mid-Edge |                           Mid-Face
-          when 1 do faceNodes = [1, 4, 3, 2, 17, 16, 15, 14, 13, 12, 11, 10,  9,  8,  7,  6, 30, 31, 32, 33, 34, 35, 36, 37, 38];
-          when 2 do faceNodes = [   1, 2, 5,              6,  7,  8, 21, 22, 23, 20, 19, 18,                         39, 40, 41];
-          when 3 do faceNodes = [   2, 3, 5,              9, 10, 11, 24, 25, 26, 23, 22, 21,                         42, 43, 44];
-          when 4 do faceNodes = [   3, 4, 5,             12, 13, 14, 27, 28, 29, 26, 25, 24,                         45, 46, 47];
-          when 5 do faceNodes = [   4, 1, 5,             15, 16, 17, 18, 19, 20, 29, 28, 27,                         48, 49, 50];
+          //                       Corners | Mid-Edge                                      | Mid-Face
+          when 1 do faceNodes = [1, 4, 3, 2, 17, 16, 15, 14, 13, 12, 11, 10,  9,  8,  7,  6, 30, 31, 32, 33, 34, 35, 36, 37, 38]; // Zeta min
+          when 2 do faceNodes = [   1, 2, 5,              6,  7,  8, 21, 22, 23, 20, 19, 18,                         39, 40, 41]; // Eta min
+          when 3 do faceNodes = [   2, 3, 5,              9, 10, 11, 24, 25, 26, 23, 22, 21,                         42, 43, 44]; // 
+          when 4 do faceNodes = [   3, 4, 5,             12, 13, 14, 27, 28, 29, 26, 25, 24,                         45, 46, 47]; // 
+          when 5 do faceNodes = [   4, 1, 5,             15, 16, 17, 18, 19, 20, 29, 28, 27,                         48, 49, 50]; // Xi min
         }
       }
       when TYPE_PRIS_6
       {
         select faceType
         {
-          when 1 do faceNodes = [1, 2, 5, 4];
-          when 2 do faceNodes = [2, 3, 6, 5];
-          when 3 do faceNodes = [3, 1, 4, 6];
-          when 4 do faceNodes = [   1, 3, 2];
-          when 5 do faceNodes = [   4, 5, 6];
+          when 1 do faceNodes = [1, 2, 5, 4]; // Eta min
+          when 2 do faceNodes = [2, 3, 6, 5]; // Xi + Eta = Const
+          when 3 do faceNodes = [3, 1, 4, 6]; // Xi min
+          when 4 do faceNodes = [   1, 3, 2]; // Zeta min
+          when 5 do faceNodes = [   4, 5, 6]; // Zeta max
         }
       }
       when TYPE_PRIS_18
       {
         select faceType
         {
-          //                       Corners |      Mid-Edge | Mid-Face
-          when 1 do faceNodes = [1, 2, 5, 4,  7, 11, 13, 10, 16];
-          when 2 do faceNodes = [2, 3, 6, 5,  8, 12, 14, 11, 17];
-          when 3 do faceNodes = [3, 1, 4, 6,  9, 10, 15, 12, 18];
-          when 4 do faceNodes = [   1, 3, 2,      9,  8,  7];
-          when 5 do faceNodes = [   4, 5, 6,     13, 14, 15];
+          //                       Corners | Mid-Edge      | Mid-Face
+          when 1 do faceNodes = [1, 2, 5, 4,  7, 11, 13, 10, 16]; // Eta min
+          when 2 do faceNodes = [2, 3, 6, 5,  8, 12, 14, 11, 17]; // Xi + Eta = Const
+          when 3 do faceNodes = [3, 1, 4, 6,  9, 10, 15, 12, 18]; // Xi min
+          when 4 do faceNodes = [   1, 3, 2,      9,  8,  7    ]; // Zeta min
+          when 5 do faceNodes = [   4, 5, 6,     13, 14, 15    ]; // Zeta max
         }
       }
       when TYPE_PRIS_40
       {
         select faceType
         {
-          //                       Corners |                      Mid-Edge |       Mid-Face
-          when 1 do faceNodes = [1, 2, 5, 4,  7,  8, 15, 16, 20, 19, 14, 13, 26, 27, 28, 29];
-          when 2 do faceNodes = [2, 3, 6, 5,  9, 10, 17, 18, 22, 21, 16, 15, 30, 31, 32, 33];
-          when 3 do faceNodes = [3, 1, 4, 6, 11, 12, 13, 14, 24, 23, 18, 17, 34, 35, 36, 37];
-          when 4 do faceNodes = [   1, 3, 2,         12, 11, 10,  9,  8,  7,             25];
-          when 5 do faceNodes = [   4, 5, 6,         19, 20, 21, 22, 23, 24,             38];
+          //                       Corners | Mid-Edge                      | Mid-Face
+          when 1 do faceNodes = [1, 2, 5, 4,  7,  8, 15, 16, 20, 19, 14, 13, 26, 27, 28, 29]; // Eta min
+          when 2 do faceNodes = [2, 3, 6, 5,  9, 10, 17, 18, 22, 21, 16, 15, 30, 31, 32, 33]; // Xi + Eta = Const
+          when 3 do faceNodes = [3, 1, 4, 6, 11, 12, 13, 14, 24, 23, 18, 17, 34, 35, 36, 37]; // Xi min
+          when 4 do faceNodes = [   1, 3, 2,         12, 11, 10,  9,  8,  7,             25]; // Zeta min
+          when 5 do faceNodes = [   4, 5, 6,         19, 20, 21, 22, 23, 24,             38]; // Zeta max
         }
       }
       when TYPE_PRIS_75
       {
         select faceType
         {
-          //                       Corners |                                      Mid-Edge |                           Mid-Face
-          when 1 do faceNodes = [1, 2, 5, 4,  7,  8,  9, 19, 20, 21, 27, 26, 25, 18, 17, 16, 37, 38, 39, 40, 41, 42, 43, 44, 45];
-          when 2 do faceNodes = [2, 3, 6, 5, 10, 11, 12, 22, 23, 24, 30, 29, 28, 21, 20, 19, 46, 47, 48, 49, 50, 51, 52, 53, 54];
-          when 3 do faceNodes = [3, 1, 4, 6, 13, 14, 15, 16, 17, 18, 33, 32, 31, 24, 23, 22, 55, 56, 57, 58, 59, 60, 61, 62, 63];
-          when 4 do faceNodes = [   1, 3, 2,             15, 14, 13, 12, 11, 10,  9,  8,  7,                         34, 35, 36];
-          when 5 do faceNodes = [   4, 5, 6,             25, 26, 27, 28, 29, 30, 31, 32, 33,                         64, 65, 66];
+          //                       Corners | Mid-Edge                                      | Mid-Face
+          when 1 do faceNodes = [1, 2, 5, 4,  7,  8,  9, 19, 20, 21, 27, 26, 25, 18, 17, 16, 37, 38, 39, 40, 41, 42, 43, 44, 45]; // Eta min
+          when 2 do faceNodes = [2, 3, 6, 5, 10, 11, 12, 22, 23, 24, 30, 29, 28, 21, 20, 19, 46, 47, 48, 49, 50, 51, 52, 53, 54]; // Xi + Eta = Const
+          when 3 do faceNodes = [3, 1, 4, 6, 13, 14, 15, 16, 17, 18, 33, 32, 31, 24, 23, 22, 55, 56, 57, 58, 59, 60, 61, 62, 63]; // Xi min
+          when 4 do faceNodes = [   1, 3, 2,             15, 14, 13, 12, 11, 10,  9,  8,  7,                         34, 35, 36]; // Zeta min
+          when 5 do faceNodes = [   4, 5, 6,             25, 26, 27, 28, 29, 30, 31, 32, 33,                         64, 65, 66]; // Zeta max
         }
       }
       when TYPE_HEXA_8
       {
         select faceType
         {
-          when 1 do faceNodes = [1, 4, 3, 2];
-          when 2 do faceNodes = [1, 2, 6, 5];
-          when 3 do faceNodes = [2, 3, 7, 6];
-          when 4 do faceNodes = [3, 4, 8, 7];
-          when 5 do faceNodes = [1, 5, 8, 4];
-          when 6 do faceNodes = [5, 6, 7, 8];
+          when 1 do faceNodes = [1, 4, 3, 2]; // Zeta min
+          when 2 do faceNodes = [1, 2, 6, 5]; // Eta min
+          when 3 do faceNodes = [2, 3, 7, 6]; // Xi min
+          when 4 do faceNodes = [3, 4, 8, 7]; // Zeta max
+          when 5 do faceNodes = [1, 5, 8, 4]; // Eta max
+          when 6 do faceNodes = [5, 6, 7, 8]; // Xi max
         }
       }
       when TYPE_HEXA_27
       {
         select faceType
         {
-          //                       Corners |      Mid-Edge | Mid-Face
-          when 1 do faceNodes = [1, 4, 3, 2, 12, 11, 10,  9, 21];
-          when 2 do faceNodes = [1, 2, 6, 5,  9, 14, 17, 13, 22];
-          when 3 do faceNodes = [2, 3, 7, 6, 10, 15, 18, 14, 23];
-          when 4 do faceNodes = [3, 4, 8, 7, 11, 16, 19, 15, 24];
-          when 5 do faceNodes = [1, 5, 8, 4, 13, 20, 16, 12, 25];
-          when 6 do faceNodes = [5, 6, 7, 8, 17, 18, 19, 20, 26];
+          //                       Corners | Mid-Edge      | Mid-Face
+          when 1 do faceNodes = [1, 4, 3, 2, 12, 11, 10,  9, 21]; // Zeta min
+          when 2 do faceNodes = [1, 2, 6, 5,  9, 14, 17, 13, 22]; // Eta min
+          when 3 do faceNodes = [2, 3, 7, 6, 10, 15, 18, 14, 23]; // Xi min
+          when 4 do faceNodes = [3, 4, 8, 7, 11, 16, 19, 15, 24]; // Zeta max
+          when 5 do faceNodes = [1, 5, 8, 4, 13, 20, 16, 12, 25]; // Eta max
+          when 6 do faceNodes = [5, 6, 7, 8, 17, 18, 19, 20, 26]; // Xi max
         }
       }
       when TYPE_HEXA_64
       {
         select faceType
         {
-          //                       Corners |                      Mid-Edge |       Mid-Face
-          when 1 do faceNodes = [1, 4, 3, 2, 16, 15, 14, 13, 12, 11, 10,  9, 33, 36, 35, 34];
-          when 2 do faceNodes = [1, 2, 6, 5,  9, 10, 19, 20, 26, 25, 18, 17, 37, 38, 39, 40];
-          when 3 do faceNodes = [2, 3, 7, 6, 11, 12, 21, 22, 28, 27, 20, 19, 41, 42, 43, 44];
-          when 4 do faceNodes = [3, 4, 8, 7, 13, 14, 23, 24, 30, 29, 22, 21, 45, 46, 47, 48];
-          when 5 do faceNodes = [1, 5, 8, 4, 17, 18, 32, 31, 24, 23, 15, 16, 49, 50, 51, 52];
-          when 6 do faceNodes = [5, 6, 7, 8, 25, 26, 27, 28, 29, 30, 31, 32, 53, 54, 55, 56];
+          //                       Corners | Mid-Edge                      | Mid-Face
+          when 1 do faceNodes = [1, 4, 3, 2, 16, 15, 14, 13, 12, 11, 10,  9, 33, 36, 35, 34]; // Zeta min
+          when 2 do faceNodes = [1, 2, 6, 5,  9, 10, 19, 20, 26, 25, 18, 17, 37, 38, 39, 40]; // Eta min
+          when 3 do faceNodes = [2, 3, 7, 6, 11, 12, 21, 22, 28, 27, 20, 19, 41, 42, 43, 44]; // Xi min
+          when 4 do faceNodes = [3, 4, 8, 7, 13, 14, 23, 24, 30, 29, 22, 21, 45, 46, 47, 48]; // Zeta max
+          when 5 do faceNodes = [1, 5, 8, 4, 17, 18, 32, 31, 24, 23, 15, 16, 49, 50, 51, 52]; // Eta max
+          when 6 do faceNodes = [5, 6, 7, 8, 25, 26, 27, 28, 29, 30, 31, 32, 53, 54, 55, 56]; // Xi max
         }
       }
       when TYPE_HEXA_125
       {
         select faceType
         {
-          //                       Corners |                                      Mid-Edge |                           Mid-Face
-          when 1 do faceNodes = [1, 4, 3, 2, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10,  9, 45, 46, 47, 48, 49, 50, 51, 52, 53];
-          when 2 do faceNodes = [1, 2, 6, 5,  9, 10, 11, 24, 25, 26, 35, 34, 33, 23, 22, 21, 54, 55, 56, 57, 58, 59, 60, 61, 62];
-          when 3 do faceNodes = [2, 3, 7, 6, 12, 13, 14, 27, 28, 29, 38, 37, 36, 26, 25, 24, 63, 64, 65, 66, 67, 68, 69, 70, 71];
-          when 4 do faceNodes = [3, 4, 8, 7, 15, 16, 17, 30, 31, 32, 41, 40, 39, 29, 28, 27, 72, 73, 74, 75, 76, 77, 78, 79, 80];
-          when 5 do faceNodes = [1, 5, 8, 4, 21, 22, 23, 44, 43, 42, 32, 31, 30, 18, 19, 20, 81, 82, 83, 84, 85, 86, 87, 88, 89];
-          when 6 do faceNodes = [5, 6, 7, 8, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 90, 91, 92, 93, 94, 95, 96, 97, 98];
+          //                       Corners | Mid-Edge                                      | Mid-Face
+          when 1 do faceNodes = [1, 4, 3, 2, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10,  9, 45, 46, 47, 48, 49, 50, 51, 52, 53]; // Zeta min
+          when 2 do faceNodes = [1, 2, 6, 5,  9, 10, 11, 24, 25, 26, 35, 34, 33, 23, 22, 21, 54, 55, 56, 57, 58, 59, 60, 61, 62]; // Eta min
+          when 3 do faceNodes = [2, 3, 7, 6, 12, 13, 14, 27, 28, 29, 38, 37, 36, 26, 25, 24, 63, 64, 65, 66, 67, 68, 69, 70, 71]; // Xi min
+          when 4 do faceNodes = [3, 4, 8, 7, 15, 16, 17, 30, 31, 32, 41, 40, 39, 29, 28, 27, 72, 73, 74, 75, 76, 77, 78, 79, 80]; // Zeta max
+          when 5 do faceNodes = [1, 5, 8, 4, 21, 22, 23, 44, 43, 42, 32, 31, 30, 18, 19, 20, 81, 82, 83, 84, 85, 86, 87, 88, 89]; // Eta max
+          when 6 do faceNodes = [5, 6, 7, 8, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 90, 91, 92, 93, 94, 95, 96, 97, 98]; // Xi max
         }
       }
       otherwise do return [-1];
