@@ -41,8 +41,10 @@ module Mesh
     var bocoList : [bocoList_d] boco_r;
     var famlList : [famlList_d] faml_r;
 
-    // Characteristic length used for variable time step
-    var cellCharLeng : [cellList_d] real;
+    // Variable time step variables
+    var cellTimeStep : [cellList_d] real; // Current calculated time-step
+    var cellCharLeng : [cellList_d] real; // Cell characteristic length
+    var minTimeStep : real;
     var minCharLeng : real;
 
     proc import_gmesh2(gmesh : gmesh2_c)
