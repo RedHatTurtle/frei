@@ -6,7 +6,7 @@ module Input
   import Mesh.faml_r;
 
   //parPhysics
-  var nDims            : int = 1;
+  var nDims            : int = 3;
   var eqSet            : int = EQ_EULER;
 
   //parConvection
@@ -59,14 +59,14 @@ module Input
   var pRef    : real = 1.0;          // Reference pressure for non-dimensionalization
 
   //parFamilies
-  var nFaml : int = 1;
+  var nFaml : int = 0;
   var famlList_d : domain(1);
   var famlList   : [famlList_d] faml_r;
 
   //////////////////////////////////////////////////////////////////////////////
 
   // Derived data
-  var nEqs    : int = 1;
+  var nEqs    : int = 5;
   var nDOF    : int = 1;
   var nGhosts : int = 1;
   var nPoints : int = nCells+1;
@@ -200,7 +200,6 @@ module Input
     }
 
     // Calculate some basic derived configurations
-    nPoints = nCells + 1;
     select eqSet {
       when EQ_CONVECTION     do nEqs=nDims;
       when EQ_INVBURGERS     do nEqs=1;
@@ -215,5 +214,8 @@ module Input
         writeln("Undefined number or equations \"nEqs\"");
       }
     }
+
+    // Mesh Generation parametrs
+    nPoints = nCells + 1;
   }
 }
