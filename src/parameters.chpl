@@ -94,6 +94,11 @@ module Parameters
     param TIME_TVDRK_O3S5 : int = 8;
     param TIME_TVDRK_O4S5 : int = 9;
 
+    // Time step methods
+    param DT_GLOBAL_CONST: int = 0;    // Constant time step for all cells on all interations
+    param DT_GLOBAL_CFL  : int = 1;    // Time step calculated at each cell on all iterations, minimum used for all mesh
+    param DT_LOCAL_CFL   : int = 2;    // Time step calculated at each cell on all iterations
+
     //////////////////////
     //   Family Types   //
     //////////////////////
