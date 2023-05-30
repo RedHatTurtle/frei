@@ -540,16 +540,13 @@ module FREI
         {
           mainWatch.clear();
 
+          frMesh.calc_time_step();
+
           // Loop through cells
           forall cellIdx in frMesh.cellList.domain
           {
             ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
             ref cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
-
-            // Calculate dt for this cell
-            var dt : real = Input.timeStep;
-            //if variableTimeStep then
-            //  dt = time_step();
 
             // Convert the residual from the computational to the physical domain
             forall meshSP in cellSPini.. #cellSPcnt do
@@ -559,7 +556,8 @@ module FREI
             frMesh.solSP[.., cellSPini.. #cellSPcnt] = time_advance(frMesh.oldSolSP[.., cellSPini.. #cellSPcnt],
                                                                     frMesh.solSP[   .., cellSPini.. #cellSPcnt],
                                                                     frMesh.resSP[   .., cellSPini.. #cellSPcnt],
-                                                                    dt, stage, Input.timeScheme                );
+                                                                    frMesh.cellTimeStep[cellIdx],
+                                                                    stage, Input.timeScheme                     );
           }
 
           // Zero out residue
