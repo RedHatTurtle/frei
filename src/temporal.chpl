@@ -1,4 +1,4 @@
-module Temporal_Methods
+module Temporal
 {
   /*
     This module contains the time iterating functions.
@@ -45,42 +45,46 @@ module Temporal_Methods
     return newSol;
   }
 
-  proc time_step(cfl : real, consVars : [] real) : real
+  proc max_wave_speed(consVars : [] real) : real
   {
-    import Flux.pressure_cv;
-    import Flux.temperature_cv;
+    use LinearAlgebra;
     import Flux.sound_speed_cv;
+    import Flux.velocity_magnitude_cv;
 
-    // Calculate time step size for variable time stepping / constant CFL time marching
+    // Calculate the maximum wave speed at all points in this cell
+    const velocity   : real = velocity_magnitude_cv(consVars);
+    const soundSpeed : real = sound_speed_cv(consVars);
 
-    var idxRho : int   = consVars.domain.dim(0).low;           // First element is density
-    var idxMom : range = consVars.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
-    var idxEne : int   = consVars.domain.dim(0).high;          // Last element is energy
+    const maxWaveSpeed : real = soundSpeed + velocity;
 
-    var velocity   : real = norm(consVars[idxMom]) / consVars[idxRho];
-    var soundSpeed : real = sound_speed_cv(consVars);
+    return maxWaveSpeed;
+  }
 
-    var maxEigenvalue = soundSpeed + velocity;
+  proc max_wave_speed_array(consVarsArray : [] real) : real
+  {
+    use LinearAlgebra;
+    import Flux.sound_speed_cv;
+    import Flux.velocity_magnitude_cv;
 
-    // Placeholder values
-    var clength = 1;
-    var timeStep : real;
+    var maxWaveSpeed : real = 0.0;
 
-    //if ( isViscous == 1 ) then
-    //    getTimeStep = min( clength**2 * reynolds * consVars[inxRho] * dt / viscosity_cv( consVars ), clength * h /
-    //        maxEigenvalue);
-    //else
-        timeStep = cfl * clength / maxEigenvalue;
+    // Calculate the maximum wave speed at all points in this cell
+    for spIdx in consVarsArray.domain.dim(1)
+    {
+      // Pick maximum wave speed at any SP
+      maxWaveSpeed = max( maxWaveSpeed, max_wave_speed(consVarsArray[.., spIdx]));
+    }
 
-    return timeStep;
+    return maxWaveSpeed;
   }
 
   proc adjust_cfl()
   {
     // Dynamic CFL setting mainly for implicit time stepping schemes
     // Proposed features:
+    //   0. Constant CFL
     //   1. Linear CFL ramp
-    //   2. Exponential CFL rampo
+    //   2. Exponential CFL ramp
     //   3. Backtrack ramping if residue or solution diverges
   }
 

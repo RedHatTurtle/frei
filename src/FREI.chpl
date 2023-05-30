@@ -29,7 +29,7 @@ module FREI
     use FR;
     use LinearAlgebra;
     use SourceTerm;
-    use Temporal_Methods;
+    use Temporal;
 
     // Declare timing variables
     var initTime      : real = 0.0;
