@@ -15,11 +15,17 @@ module Input
   //parDiffusion
   var diffusionCoef : real = 1.0;
 
-  //parFluid
-  var fGamma : real =     1.4;                                                  // Set the ratio of heat coefficients Cp/Cv
-  var fCp    : real = 1_004.64748888351860802319961333977767037216046399226680; // Set the heat coefficients at constant pressure Cp
-  var fCv    : real =   717.60534920251329144514258095698405026582890285161914; // Set the heat coefficients at constant volume Cv
-  var fR     : real =   287.04213968100531657805703238279362010633156114064766; // Set the specific gas constant J/(kg*K)
+  // parFluid
+  // SI defined constant as the product of the Avogadro number and the Boltzman constant. Calculated with values defined
+  // in the 2018 CODATA report
+  param gasR   : real = 8.314462618; // Ideal Gas Constant (2018 CODATA), J/(mol*K)
+  // Gatley et al., A Twenty-First Century Molar Mass for Dry Air - DOI:10.1080/10789669.2008.10391032
+  var fMolMass : real = 2.8966e-2;   // Molar Mass of the fluid mixture, kg/mol
+  // Assuming an Ideal Gas
+  var fGamma   : real = 1.4;         // Set the ratio of heat coefficients, Cp/Cv
+  // Standard values for dry air from https://www.engineeringtoolbox.com/dry-air-properties-d_973.html
+  var fVisc    : real = 1.78792e-5;  // Dynamic viscosity coefficient, kg/(m*s)
+  var fKappa   : real = 2.52992e-2;  // Thermal Conductivity, W/(m*K)
 
   //parMesh
   var meshFormat    : int = MESH_GENERATE;
@@ -70,6 +76,11 @@ module Input
   var nDOF    : int = 1;
   var nGhosts : int = 1;
   var nPoints : int = nCells+1;
+
+  var fR        : real = gasR/fMolMass;    // Calculate the specific gas constant for this fluid, J/(kg*K)
+  var fCp       : real = fR/(1-1/fGamma);  // Calculate the heat coefficients at constant pressure Cp, J/(kg*K)
+  var fCv       : real = fR/(fGamma-1);    // Calculate the heat coefficients at constant volume Cv, J/(kg*K)
+  var fPrandtl  : real = fVisc*fCp/fKappa; // Calculate the Prandtl number of the fluid
 
   //////////////////////////////////////////////////////////////////////////////
 
@@ -132,10 +143,10 @@ module Input
       // parFluid
       if (eqSet == EQ_EULER || eqSet == EQ_NAVIERSTOKES || eqSet == EQ_QUASI_1D_EULER)
       {
-        fGamma = tomlData!["parFluid"]!["fGamma"]!.re : real;
-        fCp    = tomlData!["parFluid"]!["fCp"]!.re : real;
-        fCv    = tomlData!["parFluid"]!["fCv"]!.re : real;
-        fR     = tomlData!["parFluid"]!["fR"]!.re : real;
+        fMolMass = tomlData!["parFluid"]!["fMolMass"]!.re : real;
+        fGamma   = tomlData!["parFluid"]!["fGamma"]!.re : real;
+        fVisc    = tomlData!["parFluid"]!["fVisc"]!.re : real;
+        fKappa   = tomlData!["parFluid"]!["fKappa"]!.re : real;
       }
 
       // parMesh
@@ -215,7 +226,13 @@ module Input
       }
     }
 
-    // Mesh Generation parametrs
+    // Calculate derived fluid properties from input
+    fR       = gasR/fMolMass;
+    fCp      = fR/(1-1/fGamma);
+    fCv      = fR/(fGamma-1);
+    fPrandtl = fVisc*fCp/fKappa;
+
+    // Mesh Generation parameters
     nPoints = nCells + 1;
   }
 }
