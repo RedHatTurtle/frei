@@ -458,6 +458,43 @@ module FRMesh {
         }
       }
     }
+
+    proc calc_time_step()
+    {
+      use Parameters.ParamInput;
+      import Temporal.max_wave_speed;
+      import Input.timeStepMethod;
+      import Input.timeStep;
+
+      // Option 1: More legible code
+      forall cellIdx in this.cellList.domain do
+        select timeStepMethod
+        {
+          when DT_GLOBAL_CONST do cellTimeStep[cellIdx] = Input.timeStep;
+          when DT_GLOBAL_CFL   do cellTimeStep[cellIdx] = time_step_cell(cellIdx);
+          when DT_LOCAL_CFL    do cellTimeStep[cellIdx] = time_step_cell(cellIdx);
+        }
+
+      this.minTimeStep = min reduce(cellTimeStep);
+
+      if timeStepMethod == DT_GLOBAL_CFL then
+        this.cellTimeStep = this.minTimeStep;
+    }
+
+    proc time_step_cell(cellIdx : int)
+    {
+      import Temporal.max_wave_speed_array;
+      import Input.cfl;
+
+      ref cellSPini : int = this.cellSPidx[cellIdx, 1];
+      ref cellSPcnt : int = this.cellSPidx[cellIdx, 2];
+
+      const spWaveSpeed : real = max_wave_speed_array(this.solSP[.., cellSPini.. #cellSPcnt]);
+
+      const timeStep : real = cfl * this.cellCharLeng[cellIdx] / spWaveSpeed;
+
+      return timeStep;
+    }
   }
 
   proc n_cell_sps(in elemTopo : int, in solOrder) : int

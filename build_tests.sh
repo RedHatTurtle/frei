@@ -71,6 +71,8 @@ chpl -o tests/interpolation_tests                                 \
                                  src/polynomials.chpl             \
                                  src/mapping.chpl                 \
                                  src/frmesh.chpl                  \
+                                 src/temporal.chpl                \
+                                 src/flux.chpl                    \
                                  src/mesh.chpl                    \
                                  src/gmesh.chpl                   \
                                  src/input.chpl                   \
@@ -120,6 +122,8 @@ chpl -o tests/correction_tests                                    \
                               src/input.chpl                      \
                               src/mapping.chpl                    \
                               src/frmesh.chpl                     \
+                              src/temporal.chpl                   \
+                              src/flux.chpl                       \
                               src/mesh.chpl                       \
                               src/gmesh.chpl                      \
                               src/config.chpl                     \
@@ -143,6 +147,8 @@ chpl -o tests/gmesh_tests                                         \
      --main-module Gmesh src/gmesh.chpl                           \
                          src/mesh.chpl                            \
                          src/frmesh.chpl                          \
+                         src/temporal.chpl                        \
+                         src/flux.chpl                            \
                          src/mapping.chpl                         \
                          src/interpolation.chpl                   \
                          src/polynomials.chpl                     \
@@ -170,6 +176,8 @@ chpl -o tests/mesh_tests                                          \
                         src/interpolation.chpl                    \
                         src/mapping.chpl                          \
                         src/frmesh.chpl                           \
+                        src/temporal.chpl                         \
+                        src/flux.chpl                             \
                         src/input.chpl                            \
                         src/functions/determinant.chpl            \
                         src/functions/sorttuple.chpl              \
@@ -194,6 +202,8 @@ chpl -o tests/frmesh_tests                                        \
      -L $LIBGFORTRAN -lgfortran                                   \
      -L $LAPACK_BINARIES -llapacke -llapack -lcblas               \
      --main-module FRMesh src/frmesh.chpl                         \
+                          src/temporal.chpl                       \
+                          src/flux.chpl                           \
                           src/interpolation.chpl                  \
                           src/polynomials.chpl                    \
                           src/mesh.chpl                           \
@@ -227,6 +237,8 @@ chpl -o tests/mapping_tests                                       \
                            src/interpolation.chpl                 \
                            src/polynomials.chpl                   \
                            src/frmesh.chpl                        \
+                           src/temporal.chpl                      \
+                           src/flux.chpl                          \
                            src/mesh.chpl                          \
                            src/gmesh.chpl                         \
                            src/input.chpl                         \
@@ -252,6 +264,8 @@ chpl -o tests/flux_tests                                          \
                         src/polynomials.chpl                      \
                         src/input.chpl                            \
                         src/frmesh.chpl                           \
+                        src/temporal.chpl                         \
+                        src/flux.chpl                             \
                         src/mesh.chpl                             \
                         src/gmesh.chpl                            \
                         src/mapping.chpl                          \
@@ -283,6 +297,8 @@ chpl -o tests/riemann_tests                                       \
                            src/flux.chpl                          \
                            src/input.chpl                         \
                            src/frmesh.chpl                        \
+                           src/temporal.chpl                      \
+                           src/flux.chpl                          \
                            src/mesh.chpl                          \
                            src/gmesh.chpl                         \
                            src/mapping.chpl                       \
@@ -308,6 +324,8 @@ chpl -o tests/ringleb_tests                                       \
                            src/polynomials.chpl                   \
                            src/input.chpl                         \
                            src/frmesh.chpl                        \
+                           src/temporal.chpl                      \
+                           src/flux.chpl                          \
                            src/mesh.chpl                          \
                            src/gmesh.chpl                         \
                            src/mapping.chpl                       \
@@ -336,6 +354,7 @@ chpl -o tests/init_tests                                          \
                         src/config.chpl                           \
                         src/input.chpl                            \
                         src/frmesh.chpl                           \
+                        src/temporal.chpl                         \
                         src/mesh.chpl                             \
                         src/gmesh.chpl                            \
                         src/mapping.chpl                          \
@@ -363,6 +382,7 @@ chpl -o tests/boundary_tests                                      \
                             src/ringleb.chpl                      \
                             src/flux.chpl                         \
                             src/frmesh.chpl                       \
+                            src/temporal.chpl                     \
                             src/mesh.chpl                         \
                             src/gmesh.chpl                        \
                             src/mapping.chpl                      \
