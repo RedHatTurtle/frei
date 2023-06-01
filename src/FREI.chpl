@@ -12,6 +12,7 @@ module FREI
     use Parameters.ParamMesh;
     use Config;
     use Input;
+    use Dimensional;
     use Flux;
     use Riemann;
     use Interpolation;
@@ -77,6 +78,7 @@ module FREI
 
     // 2. Process input data and configure program
     //configure();
+    init_scales(lengRef=Input.lengRef, velMRef=Input.velMRef, tempRef=Input.tempRef, presRef=Input.presRef);
     var timeStepStages : int;
     select timeScheme
     {

@@ -60,9 +60,11 @@ module Input
   var maxTime : real = 1.00;         // Maximum time to simulate
   var outError: int =     0;         // Calculate and output solution error
 
-  //parRef
-  var rhoRef  : real = 1.0;          // Reference density for non-dimensionalization
-  var pRef    : real = 1.0;          // Reference pressure for non-dimensionalization
+  // parRef
+  var lengRef : real = 1.0;          // Reference length for non-dimensionalization
+  var velMRef : real = 1.0;          // Reference velocity for non-dimensionalition
+  var tempRef : real =    288.15;    // Reference temperature for non-dimensionalization
+  var presRef : real = 101325.0;     // Reference pressure for non-dimensionalization
 
   //parFamilies
   var nFaml : int = 0;
@@ -78,8 +80,8 @@ module Input
   var nPoints : int = nCells+1;
 
   var fR        : real = gasR/fMolMass;    // Calculate the specific gas constant for this fluid, J/(kg*K)
-  var fCp       : real = fR/(1-1/fGamma);  // Calculate the heat coefficients at constant pressure Cp, J/(kg*K)
-  var fCv       : real = fR/(fGamma-1);    // Calculate the heat coefficients at constant volume Cv, J/(kg*K)
+  var fCp       : real = fR/(1.0-1.0/fGamma);  // Calculate the heat coefficients at constant pressure Cp, J/(kg*K)
+  var fCv       : real = fR/(fGamma-1.0);    // Calculate the heat coefficients at constant volume Cv, J/(kg*K)
   var fPrandtl  : real = fVisc*fCp/fKappa; // Calculate the Prandtl number of the fluid
 
   //////////////////////////////////////////////////////////////////////////////
@@ -189,8 +191,10 @@ module Input
       outError = tomlData!["parOutput"]!["outError"]!.i : int;
 
       // parRef
-      rhoRef   = tomlData!["parRef"]!["rhoRef"]!.re : real;
-      pRef     = tomlData!["parRef"]!["pRef"]!.re : real;
+      lengRef  = tomlData!["parRef"]!["lengRef"]!.re : real;
+      velMRef  = tomlData!["parRef"]!["velMRef"]!.re : real;
+      tempRef  = tomlData!["parRef"]!["tempRef"]!.re : real;
+      presRef  = tomlData!["parRef"]!["presRef"]!.re : real;
 
       // parFamilies
       nFaml    = tomlData!["parFamilies"]!["nFamilies"]!.i : int;
