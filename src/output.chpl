@@ -186,6 +186,7 @@ module Output
     use Flux;
     use Interpolation;
     use Parameters.ParamMesh;
+    import Dimensional.scales;
     import Mesh.elem_vertices;
     import Input.fGamma;
     import Input.fR;
@@ -333,14 +334,17 @@ module Output
             if flagNormals then for dimIdx in 1..frMesh.nDims do
               outputWriter.writef(realFormat, 0.0);
 
-            // Loop through conserved variables
-            for varIdx in 1..frMesh.nVars do
-              outputWriter.writef(realFormat, frMesh.solSP[varIdx, spIdx]);
+            // Dimensionalize the conserved variables
+            const dimConsVars : [1..frMesh.nVars] real = scales!.non2dim_cv(frMesh.solSP[.., spIdx]);
 
-            if flagPressure    then outputWriter.writef(realFormat,    pressure_cv(frMesh.solSP[.., spIdx], fGamma));
-            if flagTemperature then outputWriter.writef(realFormat, temperature_cv(frMesh.solSP[.., spIdx], fGamma, fR));
-            if flagMach        then outputWriter.writef(realFormat,        mach_cv(frMesh.solSP[.., spIdx], fGamma));
-            if flagEntropy     then outputWriter.writef(realFormat,     entropy_cv(frMesh.solSP[.., spIdx], fGamma));
+            // Loop through the dimensionalized conserved variables
+            for varIdx in 1..frMesh.nVars do
+              outputWriter.writef(realFormat, dimConsVars[varIdx]);
+
+            if flagPressure    then outputWriter.writef(realFormat,    pressure_cv(dimConsVars, fGamma));
+            if flagTemperature then outputWriter.writef(realFormat, temperature_cv(dimConsVars, fGamma, fR));
+            if flagMach        then outputWriter.writef(realFormat,        mach_cv(dimConsVars, fGamma));
+            if flagEntropy     then outputWriter.writef(realFormat,     entropy_cv(dimConsVars, fGamma));
 
             outputWriter.writef("\n");
           }
@@ -350,7 +354,9 @@ module Output
           {
             outputWriter.writef(pointIdxFormat, spCnt + fpIdx);
 
-            var avgSol : [1..frMesh.nVars] real = ( frMesh.solFP[fpIdx, 1, ..] + frMesh.solFP[fpIdx, 2, ..] )/2.0;
+            // Average and dimensionalize variables
+            const avgSol : [1..frMesh.nVars] real = (frMesh.solFP[fpIdx, 1, ..] + frMesh.solFP[fpIdx, 2, ..])/2.0;
+            const dimAvgConsVars : [1..frMesh.nVars] real = scales!.non2dim_cv(avgSol);
 
             // Loop through spatial coordinates
             for dimIdx in 1..frMesh.nDims do
@@ -361,12 +367,12 @@ module Output
 
             // Loop through conserved variables
             for varIdx in 1..frMesh.nVars do
-              outputWriter.writef(realFormat, avgSol[varIdx]);
+              outputWriter.writef(realFormat, dimAvgConsVars[varIdx]);
 
-            if flagPressure    then outputWriter.writef(realFormat,    pressure_cv(avgSol, fGamma));
-            if flagTemperature then outputWriter.writef(realFormat, temperature_cv(avgSol, fGamma, fR));
-            if flagMach        then outputWriter.writef(realFormat,        mach_cv(avgSol, fGamma));
-            if flagEntropy     then outputWriter.writef(realFormat,     entropy_cv(avgSol, fGamma));
+            if flagPressure    then outputWriter.writef(realFormat,    pressure_cv(dimAvgConsVars, fGamma));
+            if flagTemperature then outputWriter.writef(realFormat, temperature_cv(dimAvgConsVars, fGamma, fR));
+            if flagMach        then outputWriter.writef(realFormat,        mach_cv(dimAvgConsVars, fGamma));
+            if flagEntropy     then outputWriter.writef(realFormat,     entropy_cv(dimAvgConsVars, fGamma));
 
             outputWriter.writef("\n");
           }
@@ -379,7 +385,9 @@ module Output
 
             outputWriter.writef(pointIdxFormat, spCnt + fpCnt + nodeVertMap[nodeIdx]);
 
-            solNode[nodeIdx, ..] = solNode[nodeIdx, ..]/nodeCellCnt[nodeIdx];
+            // Average and dimensionalize variables
+            const avgSol : [1..frMesh.nVars] real = solNode[nodeIdx, ..]/nodeCellCnt[nodeIdx];
+            const dimAvgConsVars : [1..frMesh.nVars] real = scales!.non2dim_cv(avgSol);
 
             // Loop through spatial coordinates
             for dimIdx in 1..frMesh.nDims do
@@ -390,12 +398,12 @@ module Output
 
             // Loop through conserved variables
             for varIdx in 1..frMesh.nVars do
-              outputWriter.writef(realFormat, solNode[nodeIdx, varIdx]);
+              outputWriter.writef(realFormat, dimAvgConsVars[varIdx]);
 
-            if flagPressure    then outputWriter.writef(realFormat,    pressure_cv(solNode[nodeIdx, ..], fGamma));
-            if flagTemperature then outputWriter.writef(realFormat, temperature_cv(solNode[nodeIdx, ..], fGamma, fR));
-            if flagMach        then outputWriter.writef(realFormat,        mach_cv(solNode[nodeIdx, ..], fGamma));
-            if flagEntropy     then outputWriter.writef(realFormat,     entropy_cv(solNode[nodeIdx, ..], fGamma));
+            if flagPressure    then outputWriter.writef(realFormat,    pressure_cv(dimAvgConsVars, fGamma));
+            if flagTemperature then outputWriter.writef(realFormat, temperature_cv(dimAvgConsVars, fGamma, fR));
+            if flagMach        then outputWriter.writef(realFormat,        mach_cv(dimAvgConsVars, fGamma));
+            if flagEntropy     then outputWriter.writef(realFormat,     entropy_cv(dimAvgConsVars, fGamma));
 
             outputWriter.writef("\n");
           }
@@ -579,6 +587,7 @@ module Output
     use Parameters.ParamMesh;
     import Input.fGamma;
     import Input.fR;
+    import Dimensional.scales;
 
     //param fileRoot : string = "sol_gnuplt";
     param fileExt  : string = ".dat";
@@ -709,6 +718,7 @@ module Output
 
           // Loop though all cells calculating averages of the conserved variables
           var solAvg : [1..frMesh.nCells, 1..frMesh.nVars] real;
+          var dimSolAvg : [1..frMesh.nCells, 1..frMesh.nVars] real;
 
           for cellIdx in frMesh.cellList.domain
           {
@@ -722,13 +732,15 @@ module Output
                          frMesh.cellList[cellIdx].elemTopo(),
                          frMesh.solOrder
                 );
+
+            dimSolAvg[cellIdx, ..] = scales!.non2dim_cv(solAvg[cellIdx, ..]);
           }
 
           // Loop through conserved variables
           for varIdx in 1..frMesh.nVars do
           {
             for cellIdx in 1..frMesh.nCells do
-              outputWriter.writef(realFormat, solAvg[cellIdx, varIdx]);
+              outputWriter.writef(realFormat, dimSolAvg[cellIdx, varIdx]);
 
             outputWriter.writef("\n");
           }
@@ -736,7 +748,7 @@ module Output
           if flagPressure
           {
             for cellIdx in 1..frMesh.nCells do
-              outputWriter.writef(realFormat, pressure_cv(solAvg[cellIdx, ..], fGamma));
+              outputWriter.writef(realFormat, pressure_cv(dimSolAvg[cellIdx, ..], fGamma));
 
             outputWriter.writef("\n");
           }
@@ -744,7 +756,7 @@ module Output
           if flagTemperature then
           {
             for cellIdx in 1..frMesh.nCells do
-              outputWriter.writef(realFormat, temperature_cv(solAvg[cellIdx, ..], fGamma, fR));
+              outputWriter.writef(realFormat, temperature_cv(dimSolAvg[cellIdx, ..], fGamma, fR));
 
             outputWriter.writef("\n");
           }
@@ -752,7 +764,7 @@ module Output
           if flagMach then
           {
             for cellIdx in 1..frMesh.nCells do
-              outputWriter.writef(realFormat, mach_cv(solAvg[cellIdx, ..], fGamma));
+              outputWriter.writef(realFormat, mach_cv(dimSolAvg[cellIdx, ..], fGamma));
 
             outputWriter.writef("\n");
           }
@@ -760,7 +772,7 @@ module Output
           if flagEntropy then
           {
             for cellIdx in 1..frMesh.nCells do
-              outputWriter.writef(realFormat, entropy_cv(solAvg[cellIdx, ..], fGamma));
+              outputWriter.writef(realFormat, entropy_cv(dimSolAvg[cellIdx, ..], fGamma));
 
             outputWriter.writef("\n");
           }
@@ -825,4 +837,3 @@ module Output
       flagPressure : bool = false, flagMach : bool = false)
   {}
 }
-

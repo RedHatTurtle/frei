@@ -15,6 +15,7 @@ module Init
 
   proc flow_condition(familySubType : int, familyParameters : [] real, xyz : [] real) : [] real
   {
+    import Dimensional.scales;
     use Ringleb;
 
     var flowVars : [xyz.domain.dim(0), 1..Input.nEqs] real;
@@ -210,12 +211,12 @@ module Init
       when IC_RINGLEB
       {
         for i in xyz.domain.dim(0) do
-          flowVars[i,1..4] = ringleb_sol(xyz[i,1..2]);
+          flowVars[i,1..4] = scales!.dim2non_cv(ringleb_sol(xyz[i,1..2]));
       }
       when IC_GENERIC_MEANFLOW
       {
         for ptIdx in xyz.domain.dim(0) do
-          flowVars[ptIdx, 1..Input.nEqs] = familyParameters[1..Input.nEqs];
+          flowVars[ptIdx, 1..Input.nEqs] = scales!.dim2non_cv(familyParameters[1..Input.nEqs]);
       }
     }
 
@@ -292,7 +293,7 @@ module Init
 
   proc freestream(familyParameters : [] real) : real
   {
-    // Calculate the conserved varaibles given:
+    // Calculate the conserved variables given:
     // - Mach
     // - Alpha (Angle of Attack)
     // - Beta (Sideslip)

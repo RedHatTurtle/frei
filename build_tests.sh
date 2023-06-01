@@ -362,6 +362,7 @@ chpl -o tests/init_tests                                          \
                         src/interpolation.chpl                    \
                         src/polynomials.chpl                      \
                         src/ringleb.chpl                          \
+                        src/dimensional.chpl                      \
                         src/flux.chpl                             \
                         src/config.chpl                           \
                         src/input.chpl                            \
@@ -392,6 +393,7 @@ chpl -o tests/boundary_tests                                      \
                             src/polynomials.chpl                  \
                             src/init.chpl                         \
                             src/ringleb.chpl                      \
+                            src/dimensional.chpl                  \
                             src/flux.chpl                         \
                             src/frmesh.chpl                       \
                             src/temporal.chpl                     \
