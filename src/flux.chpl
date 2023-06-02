@@ -45,6 +45,20 @@ module Flux
     return temperature;
   }
 
+  proc velocity_magnitude_cv(cons : [] real) : real
+  {
+    import LinearAlgebra.norm;
+    import LinearAlgebra.normType;
+
+    var idxDens : int   = cons.domain.dim(0).low;           // First element is density
+    var idxMomV : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
+    var idxEner : int   = cons.domain.dim(0).high;          // Last element is energy
+
+    var velM : real = norm(cons[idxMomV], normType.norm2)/cons[idxDens];
+
+    return velM;
+  }
+
   proc entropy_cv(cons : [] real) : real
   {
     import Input.fGamma;

@@ -116,6 +116,8 @@ if [[ $BUILD_GENERIC == "true" ]]; then
                                   src/ringleb.chpl                 \
                                   src/config.chpl                  \
                                   src/input.chpl                   \
+                                  src/functions/determinant.chpl   \
+                                  src/functions/sorttuple.chpl     \
                                   src/parameters.chpl              \
                                   src/testing.chpl                 \
             2>&1 | tee build/frei_dbg.$EXTENSION.log
@@ -168,6 +170,8 @@ if [[ $BUILD_GENERIC == "true" ]]; then
                                   src/ringleb.chpl                 \
                                   src/config.chpl                  \
                                   src/input.chpl                   \
+                                  src/functions/determinant.chpl   \
+                                  src/functions/sorttuple.chpl     \
                                   src/parameters.chpl              \
                                   src/testing.chpl                 \
             2>&1 | tee build/frei_opt.$EXTENSION.log
@@ -233,6 +237,8 @@ if [[ $BUILD_OPENBLAS == "true" ]]; then
                                   src/ringleb.chpl                 \
                                   src/config.chpl                  \
                                   src/input.chpl                   \
+                                  src/functions/determinant.chpl   \
+                                  src/functions/sorttuple.chpl     \
                                   src/parameters.chpl              \
                                   src/testing.chpl                 \
             2>&1 | tee build/frei_dbg_openblas.$EXTENSION.log
@@ -282,6 +288,8 @@ if [[ $BUILD_OPENBLAS == "true" ]]; then
                                   src/ringleb.chpl                 \
                                   src/config.chpl                  \
                                   src/input.chpl                   \
+                                  src/functions/determinant.chpl   \
+                                  src/functions/sorttuple.chpl     \
                                   src/parameters.chpl              \
                                   src/testing.chpl                 \
             2>&1 | tee build/frei_opt_openblas.$EXTENSION.log
@@ -344,6 +352,8 @@ if [[ $BUILD_INTEL == "true" ]]; then
                                   src/ringleb.chpl                 \
                                   src/config.chpl                  \
                                   src/input.chpl                   \
+                                  src/functions/determinant.chpl   \
+                                  src/functions/sorttuple.chpl     \
                                   src/parameters.chpl              \
                                   src/testing.chpl                 \
             2>&1 | tee build/frei_dbg_mkl.$EXTENSION.log
@@ -393,6 +403,8 @@ if [[ $BUILD_INTEL == "true" ]]; then
                                   src/ringleb.chpl                 \
                                   src/config.chpl                  \
                                   src/input.chpl                   \
+                                  src/functions/determinant.chpl   \
+                                  src/functions/sorttuple.chpl     \
                                   src/parameters.chpl              \
                                   src/testing.chpl                 \
             2>&1 | tee build/frei_opt_mkl.$EXTENSION.log
@@ -453,6 +465,8 @@ if [[ $BUILD_AMD == "true" ]]; then
                                   src/ringleb.chpl                 \
                                   src/config.chpl                  \
                                   src/input.chpl                   \
+                                  src/functions/determinant.chpl   \
+                                  src/functions/sorttuple.chpl     \
                                   src/parameters.chpl              \
                                   src/testing.chpl                 \
             2>&1 | tee build/frei_dbg_amd.$EXTENSION.log
@@ -500,6 +514,8 @@ if [[ $BUILD_AMD == "true" ]]; then
                                   src/ringleb.chpl                 \
                                   src/config.chpl                  \
                                   src/input.chpl                   \
+                                  src/functions/determinant.chpl   \
+                                  src/functions/sorttuple.chpl     \
                                   src/parameters.chpl              \
                                   src/testing.chpl                 \
             2>&1 | tee build/frei_opt_amd.$EXTENSION.log

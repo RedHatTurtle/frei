@@ -5,103 +5,9 @@ module Mesh
   use UnitTest;
   use Set;
 
-  // Internal mesh structure
-
-  record node_r
-  {
-    // Arrays
-    var xyz : [1..3] real;
-  }
-
-  record edge_r
-  {
-    // Geometric properties
-    var elemType : int;
-
-    // Arrays
-    var nodes : [1..2] int;
-
-    proc elemTopo() : int
-    {
-      return elem_topology(this.elemType);
-    }
-  }
-
-  record face_r
-  {
-    // Geometric properties
-    var elemType : int;
-
-    // Array sizing domains
-    var nodes_d : domain(1);
-    //var edges_d : domain(1);
-
-    // Arrays
-    var nodes : [nodes_d] int;
-    //var edges : [edges_d] int;
-    var cells : [1..2] int;
-
-    proc elemTopo() : int
-    {
-      return elem_topology(this.elemType);
-    }
-  }
-
-  record cell_r
-  {
-    // Geometric properties
-    var elemType : int;
-
-    // Array sizing domains
-    var nodes_d : domain(1);
-    //var edges_d : domain(1);
-    var faces_d : domain(1);
-
-    // Arrays
-    var nodes : [nodes_d] int;
-    //var edges : [edges_d] int;
-    var faces : [faces_d] int;
-    var sides : [faces_d] int; // Side of the face this cell is on (1-Left / 2-Right)
-
-    var family : int;
-
-    proc elemTopo() : int
-    {
-      return elem_topology(this.elemType);
-    }
-  }
-
-  record boco_r
-  {
-    // Geometric properties
-    var elemType : int;
-
-    // Array sizing domains
-    var nodes_d : domain(1);
-    //var edges_d : domain(1);
-
-    // Arrays
-    var nodes : [nodes_d] int;
-    //var edges : [edges_d] int;
-    var face : int;
-
-    var family : int;
-
-    proc elemTopo() : int
-    {
-      return elem_topology(this.elemType);
-    }
-  }
-
-  record faml_r
-  {
-    var name : string;
-    var nDim : int;
-
-    // Boco definition
-    var bocoType, bocoSubType : int;
-    var bocoProperties : [1..9] real;
-  }
+  //////////////////
+  //  Mesh Class  //
+  //////////////////
 
   class mesh_c
   {
@@ -134,6 +40,12 @@ module Mesh
     var cellList : [cellList_d] cell_r;
     var bocoList : [bocoList_d] boco_r;
     var famlList : [famlList_d] faml_r;
+
+    // Variable time step variables
+    var cellTimeStep : [cellList_d] real; // Current calculated time-step
+    var cellCharLeng : [cellList_d] real; // Cell characteristic length
+    var minTimeStep : real;
+    var minCharLeng : real;
 
     proc import_gmesh2(gmesh : gmesh2_c)
     {
@@ -215,16 +127,17 @@ module Mesh
       }
 
       // Build the face list for Riemann solver iteration
-      this.face_list_builder();
+      this.build_face_list();
 
       // Build the sets of cell and face element types and topologies present in this mesh
-      this.elem_set_builder();
+      this.build_elem_sets();
     }
 
-    proc face_list_builder()
+    proc build_face_list()
     {
       use Parameters.ParamMesh;
       use Parameters.ParamGmesh;
+      import SortTuple.sort_tuple;
 
       // Build face list
       var faceVerts : [1..6] 4*int;
@@ -449,6 +362,29 @@ module Mesh
       }
     }
 
+    proc build_elem_sets()
+    {
+      for cell in this.cellList
+      {
+        cellTypes.add(cell.elemType);
+        cellTopos.add(cell.elemTopo());
+      }
+
+      for face in this.faceList
+      {
+        faceTypes.add(face.elemType);
+        faceTopos.add(face.elemTopo());
+      }
+    }
+
+    proc build_cell_char_leng()
+    {
+      forall cellIdx in this.cellList.domain do
+        cellCharLeng[cellIdx] = elem_char_leng(this.cellList[cellIdx].elemTopo(), this.cellList[cellIdx].nodes);
+
+      this.minCharLeng = min reduce (cellCharLeng);
+    }
+
     proc set_families(inputFamlList)
     {
       // Loop through the mesh families
@@ -467,21 +403,6 @@ module Mesh
             continue;
           }
         }
-      }
-    }
-
-    proc elem_set_builder()
-    {
-      for cell in this.cellList
-      {
-        cellTypes.add(cell.elemType);
-        cellTopos.add(cell.elemTopo());
-      }
-
-      for face in this.faceList
-      {
-        faceTypes.add(face.elemType);
-        faceTopos.add(face.elemTopo());
       }
     }
 
@@ -552,7 +473,189 @@ module Mesh
 
       return face_count;
     }
+
+    proc elem_char_leng(elemTopo : int, elemNodes : [] int) : real
+    {
+      use Parameters.ParamMesh;
+
+      select elemTopo
+      {
+        when TOPO_NODE do return 0.0;
+
+        when TOPO_LINE do return line_leng( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz );
+
+        when TOPO_TRIA do return tria_min_height( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                                  this.nodeList[elemNodes[3]].xyz );
+
+        when TOPO_QUAD do return quad_min_height( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                                  this.nodeList[elemNodes[3]].xyz, this.nodeList[elemNodes[4]].xyz );
+
+        when TOPO_TETR do return  tetr_min_height( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                                   this.nodeList[elemNodes[3]].xyz, this.nodeList[elemNodes[4]].xyz );
+
+        when TOPO_PYRA do return  pyra_min_height( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                                   this.nodeList[elemNodes[3]].xyz, this.nodeList[elemNodes[4]].xyz,
+                                                   this.nodeList[elemNodes[5]].xyz );
+
+        when TOPO_PRIS do return  pris_min_height( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                                   this.nodeList[elemNodes[3]].xyz, this.nodeList[elemNodes[4]].xyz,
+                                                   this.nodeList[elemNodes[5]].xyz, this.nodeList[elemNodes[6]].xyz );
+
+        when TOPO_HEXA do return  hexa_min_height( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                                   this.nodeList[elemNodes[3]].xyz, this.nodeList[elemNodes[4]].xyz,
+                                                   this.nodeList[elemNodes[5]].xyz, this.nodeList[elemNodes[6]].xyz,
+                                                   this.nodeList[elemNodes[7]].xyz, this.nodeList[elemNodes[8]].xyz );
+        otherwise {
+          writeln("Error calculating mesh element characteristic length");
+          writeln("Invalid element topology: ", elemTopo);
+          return -1.0;
+        }
+      }
+    }
+
+    proc elem_size (elemTopo : int, elemNodes : [] int) : real
+    {
+      use Parameters.ParamMesh;
+
+      select elemTopo
+      {
+        when TOPO_NODE do return 0.0;
+
+        when TOPO_LINE do return line_leng( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz );
+
+        when TOPO_TRIA do return tria_area( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                            this.nodeList[elemNodes[3]].xyz );
+
+        when TOPO_QUAD do return quad_area( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                            this.nodeList[elemNodes[3]].xyz, this.nodeList[elemNodes[4]].xyz );
+
+        when TOPO_TETR do return  tetr_vol( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                            this.nodeList[elemNodes[3]].xyz, this.nodeList[elemNodes[4]].xyz );
+
+        when TOPO_PYRA do return  pyra_vol( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                            this.nodeList[elemNodes[3]].xyz, this.nodeList[elemNodes[4]].xyz,
+                                            this.nodeList[elemNodes[5]].xyz );
+
+        when TOPO_PRIS do return  pris_vol( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                            this.nodeList[elemNodes[3]].xyz, this.nodeList[elemNodes[4]].xyz,
+                                            this.nodeList[elemNodes[5]].xyz, this.nodeList[elemNodes[6]].xyz );
+
+        when TOPO_HEXA do return  hexa_vol( this.nodeList[elemNodes[1]].xyz, this.nodeList[elemNodes[2]].xyz,
+                                            this.nodeList[elemNodes[3]].xyz, this.nodeList[elemNodes[4]].xyz,
+                                            this.nodeList[elemNodes[5]].xyz, this.nodeList[elemNodes[6]].xyz,
+                                            this.nodeList[elemNodes[7]].xyz, this.nodeList[elemNodes[8]].xyz );
+        otherwise {
+          writeln("Error calculating mesh element size");
+          writeln("Invalid element topology: ", elemTopo);
+          return -1.0;
+        }
+      }
+    }
   }
+
+  ///////////////////////
+  //  Mesh Components  //
+  ///////////////////////
+
+  record node_r
+  {
+    // Arrays
+    var xyz : [1..3] real;
+  }
+
+  record edge_r
+  {
+    // Geometric properties
+    var elemType : int;
+
+    // Arrays
+    var nodes : [1..2] int;
+
+    proc elemTopo() : int
+    {
+      return elem_topology(this.elemType);
+    }
+  }
+
+  record face_r
+  {
+    // Geometric properties
+    var elemType : int;
+
+    // Array sizing domains
+    var nodes_d : domain(1);
+    //var edges_d : domain(1);
+
+    // Arrays
+    var nodes : [nodes_d] int;
+    //var edges : [edges_d] int;
+    var cells : [1..2] int;
+
+    proc elemTopo() : int
+    {
+      return elem_topology(this.elemType);
+    }
+  }
+
+  record cell_r
+  {
+    // Geometric properties
+    var elemType : int;
+
+    // Array sizing domains
+    var nodes_d : domain(1);
+    //var edges_d : domain(1);
+    var faces_d : domain(1);
+
+    // Arrays
+    var nodes : [nodes_d] int;
+    //var edges : [edges_d] int;
+    var faces : [faces_d] int;
+    var sides : [faces_d] int; // Side of the face this cell is on (1-Left / 2-Right)
+
+    var family : int;
+
+    proc elemTopo() : int
+    {
+      return elem_topology(this.elemType);
+    }
+  }
+
+  record boco_r
+  {
+    // Geometric properties
+    var elemType : int;
+
+    // Array sizing domains
+    var nodes_d : domain(1);
+    //var edges_d : domain(1);
+
+    // Arrays
+    var nodes : [nodes_d] int;
+    //var edges : [edges_d] int;
+    var face : int;
+
+    var family : int;
+
+    proc elemTopo() : int
+    {
+      return elem_topology(this.elemType);
+    }
+  }
+
+  record faml_r
+  {
+    var name : string;
+    var nDim : int;
+
+    // Boco definition
+    var bocoType, bocoSubType : int;
+    var bocoProperties : [1..9] real;
+  }
+
+  /////////////////////////////////
+  //  Element Probing Functions  //
+  /////////////////////////////////
 
   proc elem_type_gmsh2mesh(in elemTypeGmsh : int) : int
   {
@@ -983,10 +1086,10 @@ module Mesh
       {
         select faceType
         {
-          when 1 do faceNodes = [1, 3, 2];
-          when 2 do faceNodes = [1, 2, 4];
-          when 3 do faceNodes = [2, 3, 4];
-          when 4 do faceNodes = [3, 1, 4];
+          when 1 do faceNodes = [1, 3, 2]; // Zeta min
+          when 2 do faceNodes = [1, 2, 4]; // Eta min
+          when 3 do faceNodes = [2, 3, 4]; // Xi + Eta + Zeta = Const
+          when 4 do faceNodes = [3, 1, 4]; // Xi min
         }
       }
       when TYPE_TETR_10
@@ -994,10 +1097,10 @@ module Mesh
         select faceType
         {
           //                     Corners | Mid-Edge
-          when 1 do faceNodes = [ 1, 3, 2, 7,  6,  5];
-          when 2 do faceNodes = [ 1, 2, 4, 5,  9,  8];
-          when 3 do faceNodes = [ 2, 3, 4, 6, 10,  9];
-          when 4 do faceNodes = [ 3, 1, 4, 7,  8, 10];
+          when 1 do faceNodes = [ 1, 3, 2, 7,  6,  5]; // Zeta min
+          when 2 do faceNodes = [ 1, 2, 4, 5,  9,  8]; // Eta min
+          when 3 do faceNodes = [ 2, 3, 4, 6, 10,  9]; // Xi + Eta + Zeta = Const
+          when 4 do faceNodes = [ 3, 1, 4, 7,  8, 10]; // Xi min
         }
       }
       when TYPE_TETR_20
@@ -1005,10 +1108,10 @@ module Mesh
         select faceType
         {
           //                     Corners | Mid-Edge              | Mid-Face
-          when 1 do faceNodes = [ 1, 3, 2, 10,  9,  8,  7,  6,  5, 17];
-          when 2 do faceNodes = [ 1, 2, 4,  5,  6, 13, 14, 12, 11, 18];
-          when 3 do faceNodes = [ 2, 3, 4,  7,  8, 15, 16, 14, 13, 19];
-          when 4 do faceNodes = [ 3, 1, 4,  9, 10, 11, 12, 16, 15, 20];
+          when 1 do faceNodes = [ 1, 3, 2, 10,  9,  8,  7,  6,  5, 17]; // Zeta min
+          when 2 do faceNodes = [ 1, 2, 4,  5,  6, 13, 14, 12, 11, 18]; // Eta min
+          when 3 do faceNodes = [ 2, 3, 4,  7,  8, 15, 16, 14, 13, 19]; // Xi + Eta + Zeta = Const
+          when 4 do faceNodes = [ 3, 1, 4,  9, 10, 11, 12, 16, 15, 20]; // Xi min
         }
       }
       when TYPE_TETR_35
@@ -1016,155 +1119,155 @@ module Mesh
         select faceType
         {
           //                     Corners | Mid-Edge                          | Mid-Face
-          when 1 do faceNodes = [ 1, 3, 2, 13, 12, 11, 10,  9,  8,  7,  6,  5, 23, 24, 25];
-          when 2 do faceNodes = [ 1, 2, 4,  5,  6,  7, 17, 18, 19, 16, 15, 14, 26, 27, 28];
-          when 3 do faceNodes = [ 2, 3, 4,  8,  9, 10, 20, 21, 22, 19, 18, 17, 29, 30, 31];
-          when 4 do faceNodes = [ 3, 1, 4, 11, 12, 13, 14, 15, 16, 22, 21, 20, 32, 33, 34];
+          when 1 do faceNodes = [ 1, 3, 2, 13, 12, 11, 10,  9,  8,  7,  6,  5, 23, 24, 25]; // Zeta min
+          when 2 do faceNodes = [ 1, 2, 4,  5,  6,  7, 17, 18, 19, 16, 15, 14, 26, 27, 28]; // Eta min
+          when 3 do faceNodes = [ 2, 3, 4,  8,  9, 10, 20, 21, 22, 19, 18, 17, 29, 30, 31]; // Xi + Eta + Zeta = Const
+          when 4 do faceNodes = [ 3, 1, 4, 11, 12, 13, 14, 15, 16, 22, 21, 20, 32, 33, 34]; // Xi min
         }
       }
       when TYPE_PYRA_5
       {
         select faceType
         {
-          when 1 do faceNodes = [1, 4, 3, 2];
-          when 2 do faceNodes = [   1, 2, 5];
-          when 3 do faceNodes = [   2, 3, 5];
-          when 4 do faceNodes = [   3, 4, 5];
-          when 5 do faceNodes = [   4, 1, 5];
+          when 1 do faceNodes = [1, 4, 3, 2]; // Zeta min
+          when 2 do faceNodes = [   1, 2, 5]; // Eta min
+          when 3 do faceNodes = [   2, 3, 5]; // 
+          when 4 do faceNodes = [   3, 4, 5]; // 
+          when 5 do faceNodes = [   4, 1, 5]; // Xi min
         }
       }
       when TYPE_PYRA_14
       {
         select faceType
         {
-          //                       Corners |      Mid-Edge | Mid-Face
-          when 1 do faceNodes = [1, 4, 3, 2,  9,  8,  7,  6, 14];
-          when 2 do faceNodes = [   1, 2, 5,      6, 11, 10];
-          when 3 do faceNodes = [   2, 3, 5,      7, 12, 11];
-          when 4 do faceNodes = [   3, 4, 5,      8, 13, 12];
-          when 5 do faceNodes = [   4, 1, 5,      9, 10, 13];
+          //                       Corners | Mid-Edge      | Mid-Face
+          when 1 do faceNodes = [1, 4, 3, 2,  9,  8,  7,  6, 14]; // Zeta min
+          when 2 do faceNodes = [   1, 2, 5,      6, 11, 10    ]; // Eta min
+          when 3 do faceNodes = [   2, 3, 5,      7, 12, 11    ]; // 
+          when 4 do faceNodes = [   3, 4, 5,      8, 13, 12    ]; // 
+          when 5 do faceNodes = [   4, 1, 5,      9, 10, 13    ]; // Xi min
         }
       }
       when TYPE_PYRA_30
       {
         select faceType
         {
-          //                       Corners |                      Mid-Edge |       Mid-Face
-          when 1 do faceNodes = [1, 4, 3, 2, 12, 13, 11, 10,  9,  8,  7,  6, 22, 25, 24, 23];
-          when 2 do faceNodes = [   1, 2, 5,          6,  7, 16, 16, 15, 14,             26];
-          when 3 do faceNodes = [   2, 3, 5,          8,  9, 18, 19, 17, 16,             27];
-          when 4 do faceNodes = [   3, 4, 5,         10, 11, 20, 21, 19, 18,             28];
-          when 5 do faceNodes = [   4, 1, 5,         12, 13, 14, 15, 21, 22,             29];
+          //                       Corners | Mid-Edge                      | Mid-Face
+          when 1 do faceNodes = [1, 4, 3, 2, 12, 13, 11, 10,  9,  8,  7,  6, 22, 25, 24, 23]; // Zeta min
+          when 2 do faceNodes = [   1, 2, 5,          6,  7, 16, 16, 15, 14,             26]; // Eta min
+          when 3 do faceNodes = [   2, 3, 5,          8,  9, 18, 19, 17, 16,             27]; // 
+          when 4 do faceNodes = [   3, 4, 5,         10, 11, 20, 21, 19, 18,             28]; // 
+          when 5 do faceNodes = [   4, 1, 5,         12, 13, 14, 15, 21, 22,             29]; // Xi min
         }
       }
       when TYPE_PYRA_55
       {
         select faceType
         {
-          //                       Corners |                                      Mid-Edge |                           Mid-Face
-          when 1 do faceNodes = [1, 4, 3, 2, 17, 16, 15, 14, 13, 12, 11, 10,  9,  8,  7,  6, 30, 31, 32, 33, 34, 35, 36, 37, 38];
-          when 2 do faceNodes = [   1, 2, 5,              6,  7,  8, 21, 22, 23, 20, 19, 18,                         39, 40, 41];
-          when 3 do faceNodes = [   2, 3, 5,              9, 10, 11, 24, 25, 26, 23, 22, 21,                         42, 43, 44];
-          when 4 do faceNodes = [   3, 4, 5,             12, 13, 14, 27, 28, 29, 26, 25, 24,                         45, 46, 47];
-          when 5 do faceNodes = [   4, 1, 5,             15, 16, 17, 18, 19, 20, 29, 28, 27,                         48, 49, 50];
+          //                       Corners | Mid-Edge                                      | Mid-Face
+          when 1 do faceNodes = [1, 4, 3, 2, 17, 16, 15, 14, 13, 12, 11, 10,  9,  8,  7,  6, 30, 31, 32, 33, 34, 35, 36, 37, 38]; // Zeta min
+          when 2 do faceNodes = [   1, 2, 5,              6,  7,  8, 21, 22, 23, 20, 19, 18,                         39, 40, 41]; // Eta min
+          when 3 do faceNodes = [   2, 3, 5,              9, 10, 11, 24, 25, 26, 23, 22, 21,                         42, 43, 44]; // 
+          when 4 do faceNodes = [   3, 4, 5,             12, 13, 14, 27, 28, 29, 26, 25, 24,                         45, 46, 47]; // 
+          when 5 do faceNodes = [   4, 1, 5,             15, 16, 17, 18, 19, 20, 29, 28, 27,                         48, 49, 50]; // Xi min
         }
       }
       when TYPE_PRIS_6
       {
         select faceType
         {
-          when 1 do faceNodes = [1, 2, 5, 4];
-          when 2 do faceNodes = [2, 3, 6, 5];
-          when 3 do faceNodes = [3, 1, 4, 6];
-          when 4 do faceNodes = [   1, 3, 2];
-          when 5 do faceNodes = [   4, 5, 6];
+          when 1 do faceNodes = [1, 2, 5, 4]; // Eta min
+          when 2 do faceNodes = [2, 3, 6, 5]; // Xi + Eta = Const
+          when 3 do faceNodes = [3, 1, 4, 6]; // Xi min
+          when 4 do faceNodes = [   1, 3, 2]; // Zeta min
+          when 5 do faceNodes = [   4, 5, 6]; // Zeta max
         }
       }
       when TYPE_PRIS_18
       {
         select faceType
         {
-          //                       Corners |      Mid-Edge | Mid-Face
-          when 1 do faceNodes = [1, 2, 5, 4,  7, 11, 13, 10, 16];
-          when 2 do faceNodes = [2, 3, 6, 5,  8, 12, 14, 11, 17];
-          when 3 do faceNodes = [3, 1, 4, 6,  9, 10, 15, 12, 18];
-          when 4 do faceNodes = [   1, 3, 2,      9,  8,  7];
-          when 5 do faceNodes = [   4, 5, 6,     13, 14, 15];
+          //                       Corners | Mid-Edge      | Mid-Face
+          when 1 do faceNodes = [1, 2, 5, 4,  7, 11, 13, 10, 16]; // Eta min
+          when 2 do faceNodes = [2, 3, 6, 5,  8, 12, 14, 11, 17]; // Xi + Eta = Const
+          when 3 do faceNodes = [3, 1, 4, 6,  9, 10, 15, 12, 18]; // Xi min
+          when 4 do faceNodes = [   1, 3, 2,      9,  8,  7    ]; // Zeta min
+          when 5 do faceNodes = [   4, 5, 6,     13, 14, 15    ]; // Zeta max
         }
       }
       when TYPE_PRIS_40
       {
         select faceType
         {
-          //                       Corners |                      Mid-Edge |       Mid-Face
-          when 1 do faceNodes = [1, 2, 5, 4,  7,  8, 15, 16, 20, 19, 14, 13, 26, 27, 28, 29];
-          when 2 do faceNodes = [2, 3, 6, 5,  9, 10, 17, 18, 22, 21, 16, 15, 30, 31, 32, 33];
-          when 3 do faceNodes = [3, 1, 4, 6, 11, 12, 13, 14, 24, 23, 18, 17, 34, 35, 36, 37];
-          when 4 do faceNodes = [   1, 3, 2,         12, 11, 10,  9,  8,  7,             25];
-          when 5 do faceNodes = [   4, 5, 6,         19, 20, 21, 22, 23, 24,             38];
+          //                       Corners | Mid-Edge                      | Mid-Face
+          when 1 do faceNodes = [1, 2, 5, 4,  7,  8, 15, 16, 20, 19, 14, 13, 26, 27, 28, 29]; // Eta min
+          when 2 do faceNodes = [2, 3, 6, 5,  9, 10, 17, 18, 22, 21, 16, 15, 30, 31, 32, 33]; // Xi + Eta = Const
+          when 3 do faceNodes = [3, 1, 4, 6, 11, 12, 13, 14, 24, 23, 18, 17, 34, 35, 36, 37]; // Xi min
+          when 4 do faceNodes = [   1, 3, 2,         12, 11, 10,  9,  8,  7,             25]; // Zeta min
+          when 5 do faceNodes = [   4, 5, 6,         19, 20, 21, 22, 23, 24,             38]; // Zeta max
         }
       }
       when TYPE_PRIS_75
       {
         select faceType
         {
-          //                       Corners |                                      Mid-Edge |                           Mid-Face
-          when 1 do faceNodes = [1, 2, 5, 4,  7,  8,  9, 19, 20, 21, 27, 26, 25, 18, 17, 16, 37, 38, 39, 40, 41, 42, 43, 44, 45];
-          when 2 do faceNodes = [2, 3, 6, 5, 10, 11, 12, 22, 23, 24, 30, 29, 28, 21, 20, 19, 46, 47, 48, 49, 50, 51, 52, 53, 54];
-          when 3 do faceNodes = [3, 1, 4, 6, 13, 14, 15, 16, 17, 18, 33, 32, 31, 24, 23, 22, 55, 56, 57, 58, 59, 60, 61, 62, 63];
-          when 4 do faceNodes = [   1, 3, 2,             15, 14, 13, 12, 11, 10,  9,  8,  7,                         34, 35, 36];
-          when 5 do faceNodes = [   4, 5, 6,             25, 26, 27, 28, 29, 30, 31, 32, 33,                         64, 65, 66];
+          //                       Corners | Mid-Edge                                      | Mid-Face
+          when 1 do faceNodes = [1, 2, 5, 4,  7,  8,  9, 19, 20, 21, 27, 26, 25, 18, 17, 16, 37, 38, 39, 40, 41, 42, 43, 44, 45]; // Eta min
+          when 2 do faceNodes = [2, 3, 6, 5, 10, 11, 12, 22, 23, 24, 30, 29, 28, 21, 20, 19, 46, 47, 48, 49, 50, 51, 52, 53, 54]; // Xi + Eta = Const
+          when 3 do faceNodes = [3, 1, 4, 6, 13, 14, 15, 16, 17, 18, 33, 32, 31, 24, 23, 22, 55, 56, 57, 58, 59, 60, 61, 62, 63]; // Xi min
+          when 4 do faceNodes = [   1, 3, 2,             15, 14, 13, 12, 11, 10,  9,  8,  7,                         34, 35, 36]; // Zeta min
+          when 5 do faceNodes = [   4, 5, 6,             25, 26, 27, 28, 29, 30, 31, 32, 33,                         64, 65, 66]; // Zeta max
         }
       }
       when TYPE_HEXA_8
       {
         select faceType
         {
-          when 1 do faceNodes = [1, 4, 3, 2];
-          when 2 do faceNodes = [1, 2, 6, 5];
-          when 3 do faceNodes = [2, 3, 7, 6];
-          when 4 do faceNodes = [3, 4, 8, 7];
-          when 5 do faceNodes = [1, 5, 8, 4];
-          when 6 do faceNodes = [5, 6, 7, 8];
+          when 1 do faceNodes = [1, 4, 3, 2]; // Zeta min
+          when 2 do faceNodes = [1, 2, 6, 5]; // Eta min
+          when 3 do faceNodes = [2, 3, 7, 6]; // Xi min
+          when 4 do faceNodes = [3, 4, 8, 7]; // Zeta max
+          when 5 do faceNodes = [1, 5, 8, 4]; // Eta max
+          when 6 do faceNodes = [5, 6, 7, 8]; // Xi max
         }
       }
       when TYPE_HEXA_27
       {
         select faceType
         {
-          //                       Corners |      Mid-Edge | Mid-Face
-          when 1 do faceNodes = [1, 4, 3, 2, 12, 11, 10,  9, 21];
-          when 2 do faceNodes = [1, 2, 6, 5,  9, 14, 17, 13, 22];
-          when 3 do faceNodes = [2, 3, 7, 6, 10, 15, 18, 14, 23];
-          when 4 do faceNodes = [3, 4, 8, 7, 11, 16, 19, 15, 24];
-          when 5 do faceNodes = [1, 5, 8, 4, 13, 20, 16, 12, 25];
-          when 6 do faceNodes = [5, 6, 7, 8, 17, 18, 19, 20, 26];
+          //                       Corners | Mid-Edge      | Mid-Face
+          when 1 do faceNodes = [1, 4, 3, 2, 12, 11, 10,  9, 21]; // Zeta min
+          when 2 do faceNodes = [1, 2, 6, 5,  9, 14, 17, 13, 22]; // Eta min
+          when 3 do faceNodes = [2, 3, 7, 6, 10, 15, 18, 14, 23]; // Xi min
+          when 4 do faceNodes = [3, 4, 8, 7, 11, 16, 19, 15, 24]; // Zeta max
+          when 5 do faceNodes = [1, 5, 8, 4, 13, 20, 16, 12, 25]; // Eta max
+          when 6 do faceNodes = [5, 6, 7, 8, 17, 18, 19, 20, 26]; // Xi max
         }
       }
       when TYPE_HEXA_64
       {
         select faceType
         {
-          //                       Corners |                      Mid-Edge |       Mid-Face
-          when 1 do faceNodes = [1, 4, 3, 2, 16, 15, 14, 13, 12, 11, 10,  9, 33, 36, 35, 34];
-          when 2 do faceNodes = [1, 2, 6, 5,  9, 10, 19, 20, 26, 25, 18, 17, 37, 38, 39, 40];
-          when 3 do faceNodes = [2, 3, 7, 6, 11, 12, 21, 22, 28, 27, 20, 19, 41, 42, 43, 44];
-          when 4 do faceNodes = [3, 4, 8, 7, 13, 14, 23, 24, 30, 29, 22, 21, 45, 46, 47, 48];
-          when 5 do faceNodes = [1, 5, 8, 4, 17, 18, 32, 31, 24, 23, 15, 16, 49, 50, 51, 52];
-          when 6 do faceNodes = [5, 6, 7, 8, 25, 26, 27, 28, 29, 30, 31, 32, 53, 54, 55, 56];
+          //                       Corners | Mid-Edge                      | Mid-Face
+          when 1 do faceNodes = [1, 4, 3, 2, 16, 15, 14, 13, 12, 11, 10,  9, 33, 36, 35, 34]; // Zeta min
+          when 2 do faceNodes = [1, 2, 6, 5,  9, 10, 19, 20, 26, 25, 18, 17, 37, 38, 39, 40]; // Eta min
+          when 3 do faceNodes = [2, 3, 7, 6, 11, 12, 21, 22, 28, 27, 20, 19, 41, 42, 43, 44]; // Xi min
+          when 4 do faceNodes = [3, 4, 8, 7, 13, 14, 23, 24, 30, 29, 22, 21, 45, 46, 47, 48]; // Zeta max
+          when 5 do faceNodes = [1, 5, 8, 4, 17, 18, 32, 31, 24, 23, 15, 16, 49, 50, 51, 52]; // Eta max
+          when 6 do faceNodes = [5, 6, 7, 8, 25, 26, 27, 28, 29, 30, 31, 32, 53, 54, 55, 56]; // Xi max
         }
       }
       when TYPE_HEXA_125
       {
         select faceType
         {
-          //                       Corners |                                      Mid-Edge |                           Mid-Face
-          when 1 do faceNodes = [1, 4, 3, 2, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10,  9, 45, 46, 47, 48, 49, 50, 51, 52, 53];
-          when 2 do faceNodes = [1, 2, 6, 5,  9, 10, 11, 24, 25, 26, 35, 34, 33, 23, 22, 21, 54, 55, 56, 57, 58, 59, 60, 61, 62];
-          when 3 do faceNodes = [2, 3, 7, 6, 12, 13, 14, 27, 28, 29, 38, 37, 36, 26, 25, 24, 63, 64, 65, 66, 67, 68, 69, 70, 71];
-          when 4 do faceNodes = [3, 4, 8, 7, 15, 16, 17, 30, 31, 32, 41, 40, 39, 29, 28, 27, 72, 73, 74, 75, 76, 77, 78, 79, 80];
-          when 5 do faceNodes = [1, 5, 8, 4, 21, 22, 23, 44, 43, 42, 32, 31, 30, 18, 19, 20, 81, 82, 83, 84, 85, 86, 87, 88, 89];
-          when 6 do faceNodes = [5, 6, 7, 8, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 90, 91, 92, 93, 94, 95, 96, 97, 98];
+          //                       Corners | Mid-Edge                                      | Mid-Face
+          when 1 do faceNodes = [1, 4, 3, 2, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10,  9, 45, 46, 47, 48, 49, 50, 51, 52, 53]; // Zeta min
+          when 2 do faceNodes = [1, 2, 6, 5,  9, 10, 11, 24, 25, 26, 35, 34, 33, 23, 22, 21, 54, 55, 56, 57, 58, 59, 60, 61, 62]; // Eta min
+          when 3 do faceNodes = [2, 3, 7, 6, 12, 13, 14, 27, 28, 29, 38, 37, 36, 26, 25, 24, 63, 64, 65, 66, 67, 68, 69, 70, 71]; // Xi min
+          when 4 do faceNodes = [3, 4, 8, 7, 15, 16, 17, 30, 31, 32, 41, 40, 39, 29, 28, 27, 72, 73, 74, 75, 76, 77, 78, 79, 80]; // Zeta max
+          when 5 do faceNodes = [1, 5, 8, 4, 21, 22, 23, 44, 43, 42, 32, 31, 30, 18, 19, 20, 81, 82, 83, 84, 85, 86, 87, 88, 89]; // Eta max
+          when 6 do faceNodes = [5, 6, 7, 8, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 90, 91, 92, 93, 94, 95, 96, 97, 98]; // Xi max
         }
       }
       otherwise do return [-1];
@@ -1173,40 +1276,631 @@ module Mesh
     return faceNodes;
   }
 
-  proc sort_tuple(in tuple : 4*int) : 4*int
+  ///////////////////////////////////
+  //  Mesh Element Size Functions  //
+  ///////////////////////////////////
+
+  proc elem_size(elemTopo : int, xyz : [] real) : real
   {
-    if tuple[0] < tuple[2] then tuple[0] <=> tuple[2];
-    if tuple[1] < tuple[3] then tuple[1] <=> tuple[3];
-    if tuple[0] < tuple[1] then tuple[0] <=> tuple[1];
-    if tuple[2] < tuple[3] then tuple[2] <=> tuple[3];
-    if tuple[1] < tuple[2] then tuple[1] <=> tuple[2];
-    return tuple;
+    use Parameters.ParamMesh;
+
+    select elemTopo
+    {
+      when TOPO_NODE do return 0.0;
+      when TOPO_LINE do return line_leng( xyz[1, 1..3], xyz[2, 1..3] );
+      when TOPO_TRIA do return tria_area( xyz[1, 1..3], xyz[2, 1..3], xyz[3, 1..3] );
+      when TOPO_QUAD do return quad_area( xyz[1, 1..3], xyz[2, 1..3], xyz[3, 1..3], xyz[4, 1..3] );
+      when TOPO_TETR do return  tetr_vol( xyz[1, 1..3], xyz[2, 1..3], xyz[3, 1..3], xyz[4, 1..3] );
+      when TOPO_PYRA do return  pyra_vol( xyz[1, 1..3], xyz[2, 1..3], xyz[3, 1..3], xyz[4, 1..3], xyz[5, 1..3] );
+      when TOPO_PRIS do return  pris_vol( xyz[1, 1..3], xyz[2, 1..3], xyz[3, 1..3],
+                                          xyz[4, 1..3], xyz[5, 1..3], xyz[6, 1..3] );
+      when TOPO_HEXA do return  hexa_vol( xyz[1, 1..3], xyz[2, 1..3], xyz[3, 1..3], xyz[4, 1..3],
+                                          xyz[5, 1..3], xyz[6, 1..3], xyz[7, 1..3], xyz[8, 1..3] );
+      otherwise {
+        writeln("Error calculating mesh element size");
+        writeln("Invalid element topology: ", elemTopo);
+        return -1.0;
+      }
+    }
   }
+
+  proc line_leng( vert1 : [1..3] real, vert2 : [1..3] real ) : real
+  {
+    // Use the matrix formula to calculate the area of a triangle
+
+    use LinearAlgebra;
+
+    const edge12 : [1..3] real = vert2 - vert1;
+
+    return norm(edge12, normType.norm2);
+  }
+
+  proc tria_area( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real ) : real
+  {
+    // Use the matrix formula to calculate the area of a triangle
+
+    use LinearAlgebra;
+
+    const edge12 : [1..3] real = vert2 - vert1;
+    const edge13 : [1..3] real = vert3 - vert1;
+
+    return 0.5*norm(cross(edge12, edge13), normType.norm2);
+  }
+
+  proc quad_area( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
+                  vert4 : [1..3] real                                           ) : real
+  {
+    // Split the quadrilateral into 2 triangles and use the matrix formula to calculate their areas
+
+    use LinearAlgebra;
+
+    const edge12 : [1..3] real = vert2 - vert1;
+    const diag13 : [1..3] real = vert3 - vert1;
+    const edge14 : [1..3] real = vert4 - vert1;
+
+    const area1 : [1..3] real = cross(edge12, diag13);
+    const area2 : [1..3] real = cross(diag13, edge14);
+
+    return 0.5*(norm( area1, normType.norm2 ) + norm( area2, normType.norm2 ));
+  }
+
+  proc tetr_vol( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
+                 vert4 : [1..3] real                                           ) : real
+  {
+    import Determinant.determinant;
+
+    var matrix : [1..3, 1..3] real;
+    var volume : real = 0.0;
+
+    matrix[1, 1..3] = vert2[1..3] - vert1[1..3];
+    matrix[2, 1..3] = vert3[1..3] - vert1[1..3];
+    matrix[3, 1..3] = vert4[1..3] - vert1[1..3];
+
+    volume = determinant(matrix)/6.0;
+
+    return volume;
+  }
+
+  proc pyra_vol( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
+                 vert4 : [1..3] real, vert5 : [1..3]                           ) : real
+  {
+    import Determinant.determinant;
+
+    var matrix : [1..3, 1..3] real;
+    var volume : real = 0.0;
+
+    //writeln();
+    //writeln("Calculating Pyramid Cell Volume");
+
+    matrix[1, 1..3] = vert2[1..3] - vert1[1..3];
+    matrix[2, 1..3] = vert3[1..3] - vert1[1..3];
+    matrix[3, 1..3] = vert5[1..3] - vert1[1..3];
+    //writeln("  Tetra1: ", determinant(matrix)/6.0);
+    volume = determinant(matrix);
+
+    matrix[1, 1..3] = vert3[1..3] - vert1[1..3];
+    matrix[2, 1..3] = vert4[1..3] - vert1[1..3];
+    matrix[3, 1..3] = vert5[1..3] - vert1[1..3];
+    //writeln("  Tetra2: ", determinant(matrix)/6.0);
+    volume += determinant(matrix);
+
+    return volume/6.0;
+  }
+
+  proc pris_vol( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
+                 vert4 : [1..3] real, vert5 : [1..3] real, vert6 : [1..3] real ) : real
+  {
+    import Determinant.determinant;
+
+    var matrix : [1..3, 1..3] real;
+    var volume : real = 0.0;
+
+    //writeln();
+    //writeln("Calculating Prism Cell Volume");
+
+    matrix[1, 1..3] = vert2[1..3] - vert1[1..3];
+    matrix[2, 1..3] = vert3[1..3] - vert1[1..3];
+    matrix[3, 1..3] = vert4[1..3] - vert1[1..3];
+    //writeln("  Tetra1: ", determinant(matrix)/6.0);
+    volume = determinant(matrix);
+
+    matrix[1, 1..3] = vert4[1..3] - vert6[1..3];
+    matrix[2, 1..3] = vert3[1..3] - vert6[1..3];
+    matrix[3, 1..3] = vert5[1..3] - vert6[1..3];
+    //writeln("  Tetra2: ", determinant(matrix)/6.0);
+    volume += determinant(matrix);
+
+    matrix[1, 1..3] = vert4[1..3] - vert5[1..3];
+    matrix[2, 1..3] = vert3[1..3] - vert5[1..3];
+    matrix[3, 1..3] = vert2[1..3] - vert5[1..3];
+    //writeln("  Tetra3: ", determinant(matrix)/6.0);
+    volume += determinant(matrix);
+
+    return volume/6.0;
+  }
+
+  proc hexa_vol( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
+                 vert4 : [1..3] real, vert5 : [1..3] real, vert6 : [1..3] real,
+                 vert7 : [1..3] real, vert8 : [1..3] real                      ) : real
+  {
+    import Determinant.determinant;
+
+    var matrix : [1..3, 1..3] real;
+    var volume : real = 0.0;
+
+    //writeln();
+    //writeln("Calculating Hexahedron Cell Volume");
+
+    // First z=0 base tetra
+    matrix[1, 1..3] = vert2[1..3] - vert1[1..3];
+    matrix[2, 1..3] = vert4[1..3] - vert1[1..3];
+    matrix[3, 1..3] = vert5[1..3] - vert1[1..3];
+    //writeln("  Tetra1: ", determinant(matrix)/6.0);
+    volume = determinant(matrix);
+
+    // Second z=0 base tetra
+    matrix[1, 1..3] = vert2[1..3] - vert3[1..3];
+    matrix[2, 1..3] = vert7[1..3] - vert3[1..3];
+    matrix[3, 1..3] = vert4[1..3] - vert3[1..3];
+    //writeln("  Tetra2: ", determinant(matrix)/6.0);
+    volume += determinant(matrix);
+
+    // First z=1 base tetra
+    matrix[1, 1..3] = vert2[1..3] - vert6[1..3];
+    matrix[2, 1..3] = vert5[1..3] - vert6[1..3];
+    matrix[3, 1..3] = vert7[1..3] - vert6[1..3];
+    //writeln("  Tetra3: ", determinant(matrix)/6.0);
+    volume += determinant(matrix);
+
+    // Second z=1 base tetra
+    matrix[1, 1..3] = vert5[1..3] - vert8[1..3];
+    matrix[2, 1..3] = vert4[1..3] - vert8[1..3];
+    matrix[3, 1..3] = vert7[1..3] - vert8[1..3];
+    //writeln("  Tetra4: ", determinant(matrix)/6.0);
+    volume += determinant(matrix);
+
+    // Internal volume left
+    matrix[1, 1..3] = vert2[1..3] - vert5[1..3];
+    matrix[2, 1..3] = vert4[1..3] - vert5[1..3];
+    matrix[3, 1..3] = vert7[1..3] - vert5[1..3];
+    //writeln("  Tetra5: ", determinant(matrix)/6.0);
+    volume += determinant(matrix);
+
+    return volume/6.0;
+  }
+
+  ////////////////////////////////////////////
+  //  Cell Characteristic Length Functions  //
+  ////////////////////////////////////////////
+
+  proc tria_min_height( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real ) : real
+  {
+    // Calculate the shortest height of a triangle from the coordinates of it's vertices
+
+    use LinearAlgebra;
+
+    // Get the double of the triangle area using the shoelace formula
+    var area : real = tria_area(vert1, vert2, vert3);
+
+    const edge12 : [1..3] real = vert2 - vert1;
+    const edge23 : [1..3] real = vert3 - vert2;
+    const edge31 : [1..3] real = vert1 - vert3;
+
+    // Calculate the length of all sides and pick the largest
+    var baseMax : real = max( norm(edge12, normType.norm2) ,
+                              norm(edge23, normType.norm2) ,
+                              norm(edge31, normType.norm2) );
+
+    // The minimum height is the area divided by the largest base/side
+    return 2.0*area/baseMax;
+  }
+
+  proc quad_min_height( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
+                        vert4 : [1..3] real                                           ) : real
+  {
+    // Calculate the minimum height of the quadrilateral
+
+    use LinearAlgebra;
+
+    // Calculate the length of each side
+    const edge12 : [1..3] real = vert2-vert1;
+    const edge23 : [1..3] real = vert3-vert2;
+    const edge34 : [1..3] real = vert4-vert3;
+    const edge41 : [1..3] real = vert1-vert4;
+
+    var len12 : real = norm(edge12, normType.norm2);
+    var len23 : real = norm(edge23, normType.norm2);
+    var len34 : real = norm(edge34, normType.norm2);
+    var len41 : real = norm(edge41, normType.norm2);
+
+    // Get the area of each subtriangle
+    var area234 : real = tria_area(vert2, vert3, vert4);
+    var area341 : real = tria_area(vert3, vert4, vert1);
+    var area412 : real = tria_area(vert4, vert1, vert2);
+    var area123 : real = tria_area(vert1, vert2, vert3);
+
+    // Calculate the distance of the 2 opposing vertices to each side and pick the maximum
+    // Then select the shortest if these 4 heights
+    var heightMin : real = 2.0*min( max(area412, area123)/len12 ,
+                                    max(area234, area123)/len23 ,
+                                    max(area234, area341)/len34 ,
+                                    max(area341, area412)/len41 );
+
+    return heightMin;
+  }
+
+  proc tetr_min_height( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
+                        vert4 : [1..3] real                                           ) : real
+  {
+    // Volume = (1/3) * BaseArea * Height
+    // Height = 3 * Volume / BaseArea
+
+    var base : real = max(tria_area(vert2, vert3, vert4),
+                          tria_area(vert1, vert4, vert3),
+                          tria_area(vert1, vert2, vert4),
+                          tria_area(vert1, vert3, vert2) );
+
+    return 3.0*tetr_vol(vert1, vert2, vert3, vert4)/base;
+  }
+
+  proc pyra_min_height( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
+                        vert4 : [1..3] real, vert5 : [1..3] real                      ) : real
+  {
+    return 3.0*min( // Face 1 heights
+                    tetr_vol(vert1, vert2, vert4, vert5)/tria_area(vert1, vert4, vert2),
+
+                    // Face 2 heights
+                    max( tetr_vol(vert1, vert5, vert2, vert3),
+                         tetr_vol(vert1, vert5, vert2, vert4) )/tria_area(vert1, vert2, vert5),
+
+                    // Face 3 heights
+                    max( tetr_vol(vert2, vert5, vert3, vert1),
+                         tetr_vol(vert2, vert5, vert3, vert4) )/tria_area(vert2, vert3, vert5),
+
+                    // Face 4 heights
+                    max( tetr_vol(vert3, vert5, vert4, vert1),
+                         tetr_vol(vert3, vert5, vert4, vert2) )/tria_area(vert3, vert4, vert5),
+
+                    // Face 5 heights
+                    max( tetr_vol(vert4, vert5, vert1, vert2),
+                         tetr_vol(vert4, vert5, vert1, vert3) )/tria_area(vert4, vert1, vert5)
+                  );
+  }
+
+  proc pris_min_height( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
+                        vert4 : [1..3] real, vert5 : [1..3] real, vert6 : [1..3] real ) : real
+  {
+    return 3.0*min( // Face 1 heights
+                    max( tetr_vol(vert1, vert4, vert2, vert3),
+                         tetr_vol(vert1, vert4, vert2, vert6) )/tria_area(vert1, vert2, vert4),
+
+                    // Face 2 heights
+                    max( tetr_vol(vert2, vert5, vert3, vert1),
+                         tetr_vol(vert2, vert5, vert3, vert4) )/tria_area(vert2, vert3, vert5),
+
+                    // Face 3 heights
+                    max( tetr_vol(vert1, vert3, vert4, vert2),
+                         tetr_vol(vert1, vert3, vert4, vert5) )/tria_area(vert1, vert4, vert3),
+
+                    // Face 4 heights
+                    max( tetr_vol(vert1, vert2, vert3, vert4),
+                         tetr_vol(vert1, vert2, vert3, vert5),
+                         tetr_vol(vert1, vert2, vert3, vert6) )/tria_area(vert1, vert3, vert2),
+
+                    // Face 5 heights
+                    max( tetr_vol(vert4, vert6, vert5, vert1),
+                         tetr_vol(vert4, vert6, vert5, vert2),
+                         tetr_vol(vert4, vert6, vert5, vert3) )/tria_area(vert4, vert5, vert6)
+                  );
+  }
+
+  proc hexa_min_height( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
+                        vert4 : [1..3] real, vert5 : [1..3] real, vert6 : [1..3] real,
+                        vert7 : [1..3] real, vert8 : [1..3] real                      ) : real
+  {
+    return 3.0*min( // Face 1 heights
+                    max( tetr_vol(vert1, vert2, vert4, vert5),
+                         tetr_vol(vert1, vert2, vert4, vert6),
+                         tetr_vol(vert1, vert2, vert4, vert7),
+                         tetr_vol(vert1, vert2, vert4, vert8) )/tria_area(vert1, vert2, vert4),
+
+                    // Face 2 heights
+                    max( tetr_vol(vert1, vert5, vert2, vert4),
+                         tetr_vol(vert1, vert5, vert2, vert8),
+                         tetr_vol(vert1, vert5, vert2, vert7),
+                         tetr_vol(vert1, vert5, vert2, vert3) )/tria_area(vert1, vert2, vert5),
+
+                    // Face 3 heights
+                    max( tetr_vol(vert1, vert4, vert5, vert2),
+                         tetr_vol(vert1, vert4, vert5, vert3),
+                         tetr_vol(vert1, vert4, vert5, vert7),
+                         tetr_vol(vert1, vert4, vert5, vert6) )/tria_area(vert1, vert4, vert5),
+
+                    // Face 4 heights
+                    max( tetr_vol(vert5, vert8, vert6, vert1),
+                         tetr_vol(vert5, vert8, vert6, vert4),
+                         tetr_vol(vert5, vert8, vert6, vert3),
+                         tetr_vol(vert5, vert8, vert6, vert2) )/tria_area(vert5, vert6, vert8),
+
+                    // Face 5 heights
+                    max( tetr_vol(vert4, vert3, vert8, vert1),
+                         tetr_vol(vert4, vert3, vert8, vert2),
+                         tetr_vol(vert4, vert3, vert8, vert6),
+                         tetr_vol(vert4, vert3, vert8, vert5) )/tria_area(vert4, vert3, vert8),
+
+                    // Face 6 heights
+                    max( tetr_vol(vert2, vert6, vert3, vert1),
+                         tetr_vol(vert2, vert6, vert3, vert5),
+                         tetr_vol(vert2, vert6, vert3, vert8),
+                         tetr_vol(vert2, vert6, vert3, vert4) )/tria_area(vert2, vert3, vert6)
+                  );
+  }
+
+  /////////////////////////
+  //  Testing Procedure  //
+  /////////////////////////
 
   proc main()
   {
     use Gmesh;
+    use Testing;
+    use Parameters.ParamMesh;
+
+    writeln();
+    writeln("--------------------------------------------------------------------------------");
+    writeln();
+    writeln("Test 1: Generate a random 1D mesh - Gmesh:");
 
     var test_gmesh2 = new unmanaged gmesh2_c();
     test_gmesh2.random1D(nCells=6, xMin=-1.0, xMax=1.0);
-
-    writeln("Test 1: Random 1D mesh - Gmesh:");
-    writeln(test_gmesh2);
     writeln();
+    writeln(test_gmesh2);
+
+    writeln();
+    writeln("--------------------------------------------------------------------------------");
+    writeln();
+    writeln("Test 2: Convert random mesh from Gmesh => Native:");
 
     // Get number of physical dimensions from mesh or input
     var test_mesh = new unmanaged mesh_c(nDims=1);
     test_mesh.import_gmesh2(test_gmesh2);
-
-    writeln("Test 2: Random 1D mesh - Gmesh => Native:");
-    writeln(test_mesh);
+    test_mesh.build_cell_char_leng();
     writeln();
+    writeln(test_mesh);
 
+    writeln();
+    writeln("--------------------------------------------------------------------------------");
+    writeln();
     writeln("Test 3: Cell and Face counts by topology:");
+    writeln();
     writeln("Cell counts:");
     writeln(test_mesh.cell_count());
     writeln("Face counts:");
     writeln(test_mesh.face_count());
+
     writeln();
+    writeln("--------------------------------------------------------------------------------");
+    writeln();
+    writeln("Test 4: Calculate mesh element length/area/volume:");
+    {
+      // Vertices and reference values calculated with Mathematica script "MeshElementSize.m"
+      // All vertices on quadrilateral faces must be coplanar
+      const vert1 : [1..3] real = [  3.7974683544303797468354430379746835443037974683544e-2,
+                                     1.1004126547455295735900962861072902338376891334250e-2,
+                                     2.1691973969631236442516268980477223427331887201735e-3 ];
+      const vert2 : [1..3] real = [  1.0472440944881889763779527559055118110236220472441e+0,
+                                     1.5174506828528072837632776934749620637329286798179e-3,
+                                    -1.9830028328611898016997167138810198300283286118980e-2 ];
+      const vert3 : [1..3] real = [  1.0052413242807748377966353727258180499742236362837e+0,
+                                     1.9781486945054348981743425265972475239538496550704e+0,
+                                    -3.7933372255520781960666895242258112418885586133838e-2 ];
+      const vert4 : [1..3] real = [  2.3738872403560830860534124629080118694362017804154e-2,
+                                     1.9934138309549945115257958287596048298572996706915e+0,
+                                    -1.6597510373443983402489626556016597510373443983402e-2 ];
+      const vert5 : [1..3] real = [ -1.0118043844856661045531197301854974704890387858347e-2,
+                                    -4.1916167664670658682634730538922155688622754491018e-2,
+                                     3.0031201248049921996879875195007800312012480499220e+0 ];
+      const vert6 : [1..3] real = [  9.7091855204967826520077260335877485377610528085053e-1,
+                                    -5.1536506888283435473522093887582675766656712870591e-2,
+                                     3.0041651072071832178859815959600809484731556420752e+0 ];
+      const vert7 : [1..3] real = [  8.9474675213241119537897024534668256086146853085362e-1,
+                                     1.8199116052025052422032508877600218964698897674390e+0,
+                                     4.4081237748435055697809484989569817863820657771572e+0 ];
+      const vert8 : [1..3] real = [ -4.6639390399799550175081311359315688855140302186572e-2,
+                                     1.8351629033273894051855318360721711249111735321387e+0,
+                                     4.4116391275403188403028577535296135156280577507533e+0 ];
+
+      // Reference values
+      const LineLeng : real = 1.0095537166582577686828933158331283089967683434117;
+      const TriaArea : real = 1.0006111071724500240791894523022772118776921443961;
+      const QuadArea : real = 1.9706018705641267330507965937128075578107481314163;
+      const TetrVol  : real = 1.0001214782656461611348893435338889368568025784744;
+      const PyraVol  : real = 1.9696375961994772192617584288865276601214484332378;
+      const PrisVol  : real = 3.3755561111825761236808689900659946291972459913852;
+      const HexaVol  : real = 7.0829400120134946303608705716380832379163203260756;
+
+      writeln();
+      writef("Using the topology specific funtions:\n");
+      writef("Elem Topo  | Reference           | Calculated          | Abs Error | Rel Error\n");
+      writef("  LineLeng | %19.12er | %19.12er | %9.2er | %9.2er\n", LineLeng, line_leng(vert1, vert2),
+                                                               error(LineLeng, line_leng(vert1, vert2)),
+                                                      relative_error(LineLeng, line_leng(vert1, vert2)));
+      writef("  TriaArea | %19.12er | %19.12er | %9.2er | %9.2er\n", TriaArea, tria_area(vert1, vert2, vert4),
+                                                               error(TriaArea, tria_area(vert1, vert2, vert4)),
+                                                      relative_error(TriaArea, tria_area(vert1, vert2, vert4)));
+      writef("  QuadArea | %19.12er | %19.12er | %9.2er | %9.2er\n", QuadArea, quad_area(vert1, vert2, vert3, vert4),
+                                                               error(QuadArea, quad_area(vert1, vert2, vert3, vert4)),
+                                                      relative_error(QuadArea, quad_area(vert1, vert2, vert3, vert4)));
+      writef("  TetrVol  | %19.12er | %19.12er | %9.2er | %9.2er\n", TetrVol , tetr_vol( vert1, vert2, vert4, vert5),
+                                                               error(TetrVol , tetr_vol( vert1, vert2, vert4, vert5)),
+                                                      relative_error(TetrVol , tetr_vol( vert1, vert2, vert4, vert5)));
+      writef("  PyraVol  | %19.12er | %19.12er | %9.2er | %9.2er\n", PyraVol , pyra_vol( vert1, vert2, vert3, vert4, vert5),
+                                                               error(PyraVol , pyra_vol( vert1, vert2, vert3, vert4, vert5)),
+                                                      relative_error(PyraVol , pyra_vol( vert1, vert2, vert3, vert4, vert5)));
+      writef("  PrisVol  | %19.12er | %19.12er | %9.2er | %9.2er\n", PrisVol ,
+                                 pris_vol( vert1, vert2, vert4, vert5, vert6, vert8),
+                 error(PrisVol , pris_vol( vert1, vert2, vert4, vert5, vert6, vert8)),
+        relative_error(PrisVol , pris_vol( vert1, vert2, vert4, vert5, vert6, vert8)));
+      writef("  HexaVol  | %19.12er | %19.12er | %9.2er | %9.2er\n", HexaVol ,
+                                 hexa_vol( vert1, vert2, vert3, vert4, vert5, vert6, vert7, vert8),
+                 error(HexaVol , hexa_vol( vert1, vert2, vert3, vert4, vert5, vert6, vert7, vert8)),
+        relative_error(HexaVol , hexa_vol( vert1, vert2, vert3, vert4, vert5, vert6, vert7, vert8)));
+
+      var xyzLine : [1..2, 1..3] real;
+      xyzLine[1, 1..3] = vert1;
+      xyzLine[2, 1..3] = vert2;
+
+      var xyzTria : [1..3, 1..3] real;
+      xyzTria[1, 1..3] = vert1;
+      xyzTria[2, 1..3] = vert2;
+      xyzTria[3, 1..3] = vert4;
+
+      var xyzQuad : [1..4, 1..3] real;
+      xyzQuad[1, 1..3] = vert1;
+      xyzQuad[2, 1..3] = vert2;
+      xyzQuad[3, 1..3] = vert3;
+      xyzQuad[4, 1..3] = vert4;
+
+      var xyzTetr : [1..4, 1..3] real;
+      xyzTetr[1, 1..3] = vert1;
+      xyzTetr[2, 1..3] = vert2;
+      xyzTetr[3, 1..3] = vert4;
+      xyzTetr[4, 1..3] = vert5;
+
+      var xyzPyra : [1..6, 1..3] real;
+      xyzPyra[1, 1..3] = vert1;
+      xyzPyra[2, 1..3] = vert2;
+      xyzPyra[3, 1..3] = vert3;
+      xyzPyra[4, 1..3] = vert4;
+      xyzPyra[5, 1..3] = vert5;
+
+      var xyzPris : [1..6, 1..3] real;
+      xyzPris[1, 1..3] = vert1;
+      xyzPris[2, 1..3] = vert2;
+      xyzPris[3, 1..3] = vert4;
+      xyzPris[4, 1..3] = vert5;
+      xyzPris[5, 1..3] = vert6;
+      xyzPris[6, 1..3] = vert8;
+
+      var xyzHexa : [1..8, 1..3] real;
+      xyzHexa[1, 1..3] = vert1;
+      xyzHexa[2, 1..3] = vert2;
+      xyzHexa[3, 1..3] = vert3;
+      xyzHexa[4, 1..3] = vert4;
+      xyzHexa[5, 1..3] = vert5;
+      xyzHexa[6, 1..3] = vert6;
+      xyzHexa[7, 1..3] = vert7;
+      xyzHexa[8, 1..3] = vert8;
+
+      writeln();
+      writef("Using the generic elem_size function:\n");
+      writef("Elem Topo  | Reference           | Calculated          | Abs Error | Rel Error\n");
+      writef("  LineLeng | %19.12er | %19.12er | %9.2er | %9.2er\n", LineLeng, elem_size(TOPO_LINE, xyzLine),
+                                                               error(LineLeng, elem_size(TOPO_LINE, xyzLine)),
+                                                      relative_error(LineLeng, elem_size(TOPO_LINE, xyzLine)));
+      writef("  TriaArea | %19.12er | %19.12er | %9.2er | %9.2er\n", TriaArea, elem_size(TOPO_TRIA, xyzTria),
+                                                               error(TriaArea, elem_size(TOPO_TRIA, xyzTria)),
+                                                      relative_error(TriaArea, elem_size(TOPO_TRIA, xyzTria)));
+      writef("  QuadArea | %19.12er | %19.12er | %9.2er | %9.2er\n", QuadArea, elem_size(TOPO_QUAD, xyzQuad),
+                                                               error(QuadArea, elem_size(TOPO_QUAD, xyzQuad)),
+                                                      relative_error(QuadArea, elem_size(TOPO_QUAD, xyzQuad)));
+      writef("  TetrVol  | %19.12er | %19.12er | %9.2er | %9.2er\n", TetrVol , elem_size(TOPO_TETR, xyzTetr),
+                                                               error(TetrVol , elem_size(TOPO_TETR, xyzTetr)),
+                                                      relative_error(TetrVol , elem_size(TOPO_TETR, xyzTetr)));
+      writef("  PyraVol  | %19.12er | %19.12er | %9.2er | %9.2er\n", PyraVol , elem_size(TOPO_PYRA, xyzPyra),
+                                                               error(PyraVol , elem_size(TOPO_PYRA, xyzPyra)),
+                                                      relative_error(PyraVol , elem_size(TOPO_PYRA, xyzPyra)));
+      writef("  PrisVol  | %19.12er | %19.12er | %9.2er | %9.2er\n", PrisVol , elem_size(TOPO_PRIS, xyzPris),
+                                                               error(PrisVol , elem_size(TOPO_PRIS, xyzPris)),
+                                                      relative_error(PrisVol , elem_size(TOPO_PRIS, xyzPris)));
+      writef("  HexaVol  | %19.12er | %19.12er | %9.2er | %9.2er\n", HexaVol , elem_size(TOPO_HEXA, xyzHexa),
+                                                               error(HexaVol , elem_size(TOPO_HEXA, xyzHexa)),
+                                                      relative_error(HexaVol , elem_size(TOPO_HEXA, xyzHexa)));
+
+      writeln();
+      writef("Using the mesh class methods:\n");
+      writef("Test mesh cell | elem_size()\n");
+      for cellIdx in test_mesh.cellList.domain do
+        writef("  Cell %2i size | %19.12er\n", cellIdx,
+          test_mesh.elem_size(test_mesh.cellList[cellIdx].elemTopo(), test_mesh.cellList[cellIdx].nodes)
+        );
+    }
+
+    writeln();
+    writeln("--------------------------------------------------------------------------------");
+    writeln();
+    writeln("Test 5: Calculate mesh element shortest passthrough distance:");
+    {
+      // Vertices and reference values calculated with Mathematica script "MeshElementCharLeng.m"
+      // All vertices on quadrilateral faces must be coplanar
+      const vert1 : [1..3] real = [  3.7974683544303797468354430379746835443037974683544e-2,
+                                     1.1004126547455295735900962861072902338376891334250e-2,
+                                     2.1691973969631236442516268980477223427331887201735e-3 ];
+      const vert2 : [1..3] real = [  1.0472440944881889763779527559055118110236220472441e+0,
+                                     1.5174506828528072837632776934749620637329286798179e-3,
+                                    -1.9830028328611898016997167138810198300283286118980e-2 ];
+      const vert3 : [1..3] real = [  1.0052413242807748377966353727258180499742236362837e+0,
+                                     1.9781486945054348981743425265972475239538496550704e+0,
+                                    -3.7933372255520781960666895242258112418885586133838e-2 ];
+      const vert4 : [1..3] real = [  2.3738872403560830860534124629080118694362017804154e-2,
+                                     1.9934138309549945115257958287596048298572996706915e+0,
+                                    -1.6597510373443983402489626556016597510373443983402e-2 ];
+      const vert5 : [1..3] real = [ -1.0118043844856661045531197301854974704890387858347e-2,
+                                    -4.1916167664670658682634730538922155688622754491018e-2,
+                                     3.0031201248049921996879875195007800312012480499220e+0 ];
+      const vert6 : [1..3] real = [  9.7091855204967826520077260335877485377610528085053e-1,
+                                    -5.1536506888283435473522093887582675766656712870591e-2,
+                                     3.0041651072071832178859815959600809484731556420752e+0 ];
+      const vert7 : [1..3] real = [  8.9474675213241119537897024534668256086146853085362e-1,
+                                     1.8199116052025052422032508877600218964698897674390e+0,
+                                     4.4081237748435055697809484989569817863820657771572e+0 ];
+      const vert8 : [1..3] real = [ -4.6639390399799550175081311359315688855140302186572e-2,
+                                     1.8351629033273894051855318360721711249111735321387e+0,
+                                     4.4116391275403188403028577535296135156280577507533e+0 ];
+
+      // Reference values
+      const LineCharLeng : real = 1.0095537166582577686828933158331283089967683434117e+0;
+      const TriaCharLeng : real = 8.9361432579282310476118100755966934326463688804176e-1;
+      const QuadCharLeng : real = 1.0090861045298942923515333317876425756813824966488e+0;
+      const TetrCharLeng : real = 8.4495650133317678516378493575905710319629504752832e-1;
+      const PyraCharLeng : real = 9.4482836877434877107756908549626460820538193643161e-1;
+      const PrisCharLeng : real = 8.9229626157848543100704494613623558312367332736129e-1;
+      const HexaCharLeng : real = 1.0079388647889108935072665768907527132658799181828e+0;
+
+      writeln();
+      writef("Using the topology specific funtions:\n");
+      writef("Elem Topo      | Reference           | Calculated          | Abs Error | Rel Error\n");
+      writef("  LineCharLeng | %19.12er | %19.12er | %9.2er | %9.2er\n", LineCharLeng, line_leng(vert1, vert2),
+                                                                   error(LineCharLeng, line_leng(vert1, vert2)),
+                                                          relative_error(LineCharLeng, line_leng(vert1, vert2)));
+      writef("  TriaCharLeng | %19.12er | %19.12er | %9.2er | %9.2er\n", TriaCharLeng, tria_min_height(vert1, vert2, vert4),
+                                                                   error(TriaCharLeng, tria_min_height(vert1, vert2, vert4)),
+                                                          relative_error(TriaCharLeng, tria_min_height(vert1, vert2, vert4)));
+      writef("  QuadCharLeng | %19.12er | %19.12er | %9.2er | %9.2er\n", QuadCharLeng, quad_min_height(vert1, vert2, vert3, vert4),
+                                                                   error(QuadCharLeng, quad_min_height(vert1, vert2, vert3, vert4)),
+                                                          relative_error(QuadCharLeng, quad_min_height(vert1, vert2, vert3, vert4)));
+      writef("  TetrCharLeng | %19.12er | %19.12er | %9.2er | %9.2er\n", TetrCharLeng, tetr_min_height(vert1, vert2, vert4, vert5),
+                                                                   error(TetrCharLeng, tetr_min_height(vert1, vert2, vert4, vert5)),
+                                                          relative_error(TetrCharLeng, tetr_min_height(vert1, vert2, vert4, vert5)));
+      writef("  PyraCharLeng | %19.12er | %19.12er | %9.2er | %9.2er\n", PyraCharLeng, pyra_min_height(vert1, vert2, vert3, vert4, vert5),
+                                                                   error(PyraCharLeng, pyra_min_height(vert1, vert2, vert3, vert4, vert5)),
+                                                          relative_error(PyraCharLeng, pyra_min_height(vert1, vert2, vert3, vert4, vert5)));
+      writef("  PrisCharLeng | %19.12er | %19.12er | %9.2er | %9.2er\n", PrisCharLeng,
+                                     pris_min_height(vert1, vert2, vert4, vert5, vert6, vert8),
+                 error(PrisCharLeng, pris_min_height(vert1, vert2, vert4, vert5, vert6, vert8)),
+        relative_error(PrisCharLeng, pris_min_height(vert1, vert2, vert4, vert5, vert6, vert8)));
+      writef("  HexaCharLeng | %19.12er | %19.12er | %9.2er | %9.2er\n", HexaCharLeng,
+                                     hexa_min_height(vert1, vert2, vert3, vert4, vert5, vert6, vert7, vert8),
+                 error(HexaCharLeng, hexa_min_height(vert1, vert2, vert3, vert4, vert5, vert6, vert7, vert8)),
+        relative_error(HexaCharLeng, hexa_min_height(vert1, vert2, vert3, vert4, vert5, vert6, vert7, vert8)));
+
+      writeln();
+      writef("Using the mesh class methods:\n");
+      writef("Test mesh cell | elem_char_leng()\n");
+      for cellIdx in test_mesh.cellList.domain do
+        writef("  Cell %2i size | %19.12er\n", cellIdx,
+          test_mesh.elem_char_leng(test_mesh.cellList[cellIdx].elemTopo(), test_mesh.cellList[cellIdx].nodes)
+        );
+    }
   }
 }

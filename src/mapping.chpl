@@ -660,7 +660,7 @@ module Mapping
     use Parameters.ParamTest;
     use Parameters.ParamMesh;
     use Polynomials;
-    import FRMesh.determinant;
+    import Determinant.determinant;
 
     // Create a set with the element types contained in a hypothetical test mesh
     var cellTypes : set(int);

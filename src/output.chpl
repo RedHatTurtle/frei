@@ -90,8 +90,10 @@ module Output
       output_gnuplot(outputDir, "sol_sp_gnuplt", stringIter, frMesh.xyzSP, frMesh.solSP, true, true);
       output_gnuplot(outputDir, "res_sp_gnuplt", stringIter, frMesh.xyzSP, frMesh.resSP);
     }
-    if frMesh.nDims == 2 then
-      output_tecplot_dat(outputDir, "sol_ho_tecplot", stringIter, frMesh, flagNormals = flagNormals);
+    if frMesh.nDims == 2 {
+      output_fr_tecplot_dat(outputDir, "sol_ho_tecplot", stringIter, frMesh, flagNormals = flagNormals);
+      output_fr_avg_tecplot_dat(outputDir, "sol_lo_tecplot", stringIter, frMesh);
+    }
 
     // Delete old output directories if necessary
   }
@@ -172,7 +174,7 @@ module Output
     try! outputFile.close();
   }
 
-  proc output_tecplot_dat(outputDir : string, fileRoot : string, fileSulfix : string,
+  proc output_fr_tecplot_dat(outputDir : string, fileRoot : string, fileSulfix : string,
       frMesh : fr_mesh_c,
       flagPressure : bool = true, flagTemperature : bool = false, flagMach : bool = true, flagEntropy : bool = true,
       flagNormals : bool = false, flagDouble : bool = false)
@@ -560,6 +562,255 @@ module Output
       writeln("Failed to write solution to Tecplot file");
     }
   }
+
+  proc output_fr_avg_tecplot_dat(outputDir : string, fileRoot : string, fileSulfix : string,
+      frMesh : fr_mesh_c,
+      flagPressure : bool = true, flagTemperature : bool = false, flagMach : bool = true, flagEntropy : bool = false,
+      flagDouble : bool = false)
+  {
+    use FileSystem;
+    use IO;
+    use Path;
+    use Flux;
+    use Quadrature;
+    use Parameters.ParamMesh;
+
+    //param fileRoot : string = "sol_gnuplt";
+    param fileExt  : string = ".dat";
+    param nameSep  : string = "-";
+    var realFormat : string = "  %{ 14.7er}\n";
+
+    var fileName   : string = fileRoot + nameSep + fileSulfix + fileExt;
+    var outputFile : file;
+
+    try {
+      outputFile = open(outputDir + pathSep + fileName , ioMode.cw);
+    } catch {
+      try! stdout.writeln("Unknown Error creating/opening output file.");
+      try! stderr.writeln("Unknown Error creating/opening output file.");
+    }
+
+    var vertCnt : int = 0;
+    var nodeVertMap : [frMesh.nodeList.domain] int = 0;
+    for thisCell in frMesh.cellList
+    {
+      // Loop though this cell's vertices
+      for cellNodeIdx in 1..4//elem_vertices(thisCell.elemTopo())
+      {
+        // If this vertex has not been indexed yet
+        if nodeVertMap[thisCell.nodes[cellNodeIdx]] == 0
+        {
+          vertCnt += 1;
+          nodeVertMap[thisCell.nodes[cellNodeIdx]] = vertCnt;
+        }
+      }
+    }
+
+    try {
+      var outputWriter = outputFile.writer();
+
+      // File Header
+      {
+        var tecplotTitle : string = "FREI CELL_AVERAGED_OUTPUT";
+        var tecplotFileType : string = "FULL";
+        var tecplotVariables : string = "\"NodeIdx\"";
+
+        var dimName : [1..3] string = ["\"X\"", "\"Y\"", "\"Z\""];
+        //if input.eqSet == EULER
+        //{
+        //  if frMesh.nDims == 3 then
+        //    var varName : [1..frMesh.nVars] string = ["\"Density\"", "\"Momentum-X\"", "\"Energy\""];
+        //  if frMesh.nDims == 4 then
+            var varName : [1..frMesh.nVars] string = ["\"Density\"", "\"Momentum-X\"", "\"Momentum-Y\"", "\"Energy\""];
+        //  if frMesh.nDims == 5 then
+        //    var varName : [1..frMesh.nVars] string = ["\"Density\"", "\"Momentum-X\"", "\"Momentum-Y\"", "\"Momentum-Z\"", "\"Energy\""];
+        //}
+
+        for dimIdx in 1..frMesh.nDims do
+          tecplotVariables += ", "+dimName[dimIdx];
+
+        tecplotVariables += ", \"CharLength\"";
+
+        for varIdx in 1..frMesh.nVars do
+          tecplotVariables += ", "+varName[varIdx];
+
+        if flagPressure    then tecplotVariables += ", \"Pressure\"";
+        if flagTemperature then tecplotVariables += ", \"Temperature\"";
+        if flagMach        then tecplotVariables += ", \"Mach\"";
+        if flagEntropy     then tecplotVariables += ", \"Entropy\"";
+
+        outputWriter.writef("TITLE = %\"S\n", tecplotTitle);
+        outputWriter.writef("FILETYPE = %\"S\n", tecplotFileType);
+        outputWriter.writef("VARIABLES = %s\n", tecplotVariables);
+      }
+
+      // Initially every family is combined into one single zone, but in the future more zones should be added
+      // correnpoding to each mesh family.
+      //
+      // Ex 1, Ringleb Flow: Zone 1 = Inlet
+      //                     Zone 2 = Outlet
+      //                     Zone 3 = Inner Wall
+      //                     Zone 4 = Outer Wall
+      //                     Zone 5 = Mesh Interior / Flow
+      //
+      // Ex 2, Airfoil Flow: Zone 1 = Farfield
+      //                     Zone 2 = Airfoil
+      //                     Zone 3 = Mesh Interior / Flow
+
+      // Finite Element Zone Record (Mesh Interior / Flow)
+      {
+        // Control Line
+        outputWriter.writef("ZONE\n");
+
+        // Zone Header
+        {
+          var tecplotZoneTitle : string = "Flow";
+
+          outputWriter.writef("T = %\"S", tecplotZoneTitle);
+          outputWriter.writef(", ZONETYPE = FEQUADRILATERAL");
+          outputWriter.writef(", DATAPACKING = BLOCK"); // Default is BLOCK
+          outputWriter.writef(", VARLOCATION = ([4-10] = CELLCENTERED)"); // Default is NODAL
+          outputWriter.writef(", NODES = %i, ELEMENTS = %i", vertCnt, frMesh.nCells);
+          outputWriter.writef(", NV = 1"); // Position of the variable with the node index, assumed to be ordered
+          outputWriter.writef("\n");
+
+          if flagDouble // Default is SINGLE
+          {
+            outputWriter.writef("DT = (DOUBLE, DOUBLE, DOUBLE ...)");
+            realFormat = "  %{ 22.15er}\n";
+            outputWriter.writef("\n");
+          }
+          //outputWriter.writef("\n");
+        }
+
+        // Zone Data
+        {
+          var pointIdxFormat : string = "  %" + ceil(log10(vertCnt+1)):int:string + "i\n";
+
+          // Loop through spatial coordinates printing locations of all nodes
+          for nodeIdx in frMesh.nodeList.domain do
+            if nodeVertMap[nodeIdx] != 0 then
+              outputWriter.writef(pointIdxFormat, nodeVertMap[nodeIdx]);
+
+          // Loop through spatial coordinates printing locations of all nodes
+          for dimIdx in 1..frMesh.nDims do
+            for nodeIdx in frMesh.nodeList.domain do
+              if nodeVertMap[nodeIdx] != 0 then
+                outputWriter.writef(realFormat, frMesh.nodeList[nodeIdx].xyz[dimIdx]);
+
+          // Cell characteristic length
+          for cellIdx in 1..frMesh.nCells do
+            outputWriter.writef(realFormat, frMesh.cellCharLeng[cellIdx]);
+
+          // Loop though all cells calculating averages of the conserved variables
+          var solAvg : [1..frMesh.nCells, 1..frMesh.nVars] real;
+
+          for cellIdx in frMesh.cellList.domain
+          {
+            ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
+            ref cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
+
+            for varIdx in 1..frMesh.nVars do
+              solAvg[cellIdx, varIdx] =
+                average( frMesh.solSP[varIdx, cellSPini.. #cellSPcnt],
+                         frMesh.jacSP[        cellSPini.. #cellSPcnt],
+                         frMesh.cellList[cellIdx].elemTopo(),
+                         frMesh.solOrder
+                );
+          }
+
+          // Loop through conserved variables
+          for varIdx in 1..frMesh.nVars do
+          {
+            for cellIdx in 1..frMesh.nCells do
+              outputWriter.writef(realFormat, solAvg[cellIdx, varIdx]);
+
+            outputWriter.writef("\n");
+          }
+
+          if flagPressure
+          {
+            for cellIdx in 1..frMesh.nCells do
+              outputWriter.writef(realFormat, pressure_cv(solAvg[cellIdx, ..]));
+
+            outputWriter.writef("\n");
+          }
+
+          if flagTemperature then
+          {
+            for cellIdx in 1..frMesh.nCells do
+              outputWriter.writef(realFormat, temperature_cv(solAvg[cellIdx, ..]));
+
+            outputWriter.writef("\n");
+          }
+
+          if flagMach then
+          {
+            for cellIdx in 1..frMesh.nCells do
+              outputWriter.writef(realFormat, mach_cv(solAvg[cellIdx, ..]));
+
+            outputWriter.writef("\n");
+          }
+
+          if flagEntropy then
+          {
+            for cellIdx in 1..frMesh.nCells do
+              outputWriter.writef(realFormat, entropy_cv(solAvg[cellIdx, ..]));
+
+            outputWriter.writef("\n");
+          }
+
+          outputWriter.writef("\n");
+        }
+
+        // Connectivity Data
+        {
+          for thisCell in frMesh.cellList do
+            select thisCell.elemTopo()
+            {
+              when TOPO_QUAD
+              {
+                var connectivityFormat : string = "  %" + ceil(log10(vertCnt+1)):int:string + "i"
+                                                 +"  %" + ceil(log10(vertCnt+1)):int:string + "i"
+                                                 +"  %" + ceil(log10(vertCnt+1)):int:string + "i"
+                                                 +"  %" + ceil(log10(vertCnt+1)):int:string + "i"
+                                                 +"\n";
+
+                // Get the global index of the corner node
+                var node1Idx : int = nodeVertMap[thisCell.nodes[1]];
+                var node2Idx : int = nodeVertMap[thisCell.nodes[2]];
+                var node3Idx : int = nodeVertMap[thisCell.nodes[3]];
+                var node4Idx : int = nodeVertMap[thisCell.nodes[4]];
+
+                outputWriter.writef(connectivityFormat, node1Idx, node2Idx, node3Idx, node4Idx);
+              }
+            }
+        }
+
+        // Zone Footer
+        {}
+      }
+
+      // Text Record
+      {}
+
+      // Geometry Record
+      {}
+
+      // Custom Labels Record
+      {}
+
+      // Data Set Auxiliary Data Record
+      {}
+
+      // Variable Auxiliary Data Record
+      {}
+    }
+    catch {
+      writeln("Failed to write solution to Tecplot file");
+    }
+  }
+
 
   proc output_tecplot_plt(outputDir : string, fileRoot : string, fileSulfix : string, xyz : [] real, vars : [] real,
       flagPressure : bool = false, flagMach : bool = false)

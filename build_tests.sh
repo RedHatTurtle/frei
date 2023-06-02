@@ -71,9 +71,13 @@ chpl -o tests/interpolation_tests                                 \
                                  src/polynomials.chpl             \
                                  src/mapping.chpl                 \
                                  src/frmesh.chpl                  \
+                                 src/temporal.chpl                \
+                                 src/flux.chpl                    \
                                  src/mesh.chpl                    \
                                  src/gmesh.chpl                   \
                                  src/input.chpl                   \
+                                 src/functions/determinant.chpl   \
+                                 src/functions/sorttuple.chpl     \
                                  src/parameters.chpl              \
                                  src/testing.chpl                 \
     2>&1 | tee tests/interpolation_build.log
@@ -118,9 +122,13 @@ chpl -o tests/correction_tests                                    \
                               src/input.chpl                      \
                               src/mapping.chpl                    \
                               src/frmesh.chpl                     \
+                              src/temporal.chpl                   \
+                              src/flux.chpl                       \
                               src/mesh.chpl                       \
                               src/gmesh.chpl                      \
                               src/config.chpl                     \
+                              src/functions/determinant.chpl      \
+                              src/functions/sorttuple.chpl        \
                               src/parameters.chpl                 \
                               src/testing.chpl                    \
     2>&1 | tee tests/correction_build.log
@@ -139,10 +147,14 @@ chpl -o tests/gmesh_tests                                         \
      --main-module Gmesh src/gmesh.chpl                           \
                          src/mesh.chpl                            \
                          src/frmesh.chpl                          \
+                         src/temporal.chpl                        \
+                         src/flux.chpl                            \
                          src/mapping.chpl                         \
                          src/interpolation.chpl                   \
                          src/polynomials.chpl                     \
                          src/input.chpl                           \
+                         src/functions/determinant.chpl           \
+                         src/functions/sorttuple.chpl             \
                          src/parameters.chpl                      \
                          src/testing.chpl                         \
     2>&1 | tee tests/gmesh_build.log
@@ -164,7 +176,11 @@ chpl -o tests/mesh_tests                                          \
                         src/interpolation.chpl                    \
                         src/mapping.chpl                          \
                         src/frmesh.chpl                           \
+                        src/temporal.chpl                         \
+                        src/flux.chpl                             \
                         src/input.chpl                            \
+                        src/functions/determinant.chpl            \
+                        src/functions/sorttuple.chpl              \
                         src/parameters.chpl                       \
                         src/testing.chpl                          \
     2>&1 | tee tests/mesh_build.log
@@ -186,6 +202,8 @@ chpl -o tests/frmesh_tests                                        \
      -L $LIBGFORTRAN -lgfortran                                   \
      -L $LAPACK_BINARIES -llapacke -llapack -lcblas               \
      --main-module FRMesh src/frmesh.chpl                         \
+                          src/temporal.chpl                       \
+                          src/flux.chpl                           \
                           src/interpolation.chpl                  \
                           src/polynomials.chpl                    \
                           src/mesh.chpl                           \
@@ -193,6 +211,8 @@ chpl -o tests/frmesh_tests                                        \
                           src/mapping.chpl                        \
                           src/config.chpl                         \
                           src/input.chpl                          \
+                          src/functions/determinant.chpl          \
+                          src/functions/sorttuple.chpl            \
                           src/parameters.chpl                     \
                           src/testing.chpl                        \
     2>&1 | tee tests/frmesh_build.log
@@ -217,9 +237,13 @@ chpl -o tests/mapping_tests                                       \
                            src/interpolation.chpl                 \
                            src/polynomials.chpl                   \
                            src/frmesh.chpl                        \
+                           src/temporal.chpl                      \
+                           src/flux.chpl                          \
                            src/mesh.chpl                          \
                            src/gmesh.chpl                         \
                            src/input.chpl                         \
+                           src/functions/determinant.chpl         \
+                           src/functions/sorttuple.chpl           \
                            src/parameters.chpl                    \
                            src/testing.chpl                       \
      2>&1 | tee tests/mapping_build.log
@@ -240,9 +264,13 @@ chpl -o tests/flux_tests                                          \
                         src/polynomials.chpl                      \
                         src/input.chpl                            \
                         src/frmesh.chpl                           \
+                        src/temporal.chpl                         \
+                        src/flux.chpl                             \
                         src/mesh.chpl                             \
                         src/gmesh.chpl                            \
                         src/mapping.chpl                          \
+                        src/functions/determinant.chpl            \
+                        src/functions/sorttuple.chpl              \
                         src/parameters.chpl                       \
                         src/testing.chpl                          \
     2>&1 | tee tests/flux_build.log
@@ -269,9 +297,13 @@ chpl -o tests/riemann_tests                                       \
                            src/flux.chpl                          \
                            src/input.chpl                         \
                            src/frmesh.chpl                        \
+                           src/temporal.chpl                      \
+                           src/flux.chpl                          \
                            src/mesh.chpl                          \
                            src/gmesh.chpl                         \
                            src/mapping.chpl                       \
+                           src/functions/determinant.chpl         \
+                           src/functions/sorttuple.chpl           \
                            src/parameters.chpl                    \
                            src/testing.chpl                       \
     2>&1 | tee tests/riemann_build.log
@@ -292,9 +324,13 @@ chpl -o tests/ringleb_tests                                       \
                            src/polynomials.chpl                   \
                            src/input.chpl                         \
                            src/frmesh.chpl                        \
+                           src/temporal.chpl                      \
+                           src/flux.chpl                          \
                            src/mesh.chpl                          \
                            src/gmesh.chpl                         \
                            src/mapping.chpl                       \
+                           src/functions/determinant.chpl         \
+                           src/functions/sorttuple.chpl           \
                            src/parameters.chpl                    \
                            src/testing.chpl                       \
    2>&1 | tee tests/ringleb_build.log
@@ -318,9 +354,12 @@ chpl -o tests/init_tests                                          \
                         src/config.chpl                           \
                         src/input.chpl                            \
                         src/frmesh.chpl                           \
+                        src/temporal.chpl                         \
                         src/mesh.chpl                             \
                         src/gmesh.chpl                            \
                         src/mapping.chpl                          \
+                        src/functions/determinant.chpl            \
+                        src/functions/sorttuple.chpl              \
                         src/parameters.chpl                       \
                         src/testing.chpl                          \
     2>&1 | tee tests/init_build.log
@@ -343,11 +382,14 @@ chpl -o tests/boundary_tests                                      \
                             src/ringleb.chpl                      \
                             src/flux.chpl                         \
                             src/frmesh.chpl                       \
+                            src/temporal.chpl                     \
                             src/mesh.chpl                         \
                             src/gmesh.chpl                        \
                             src/mapping.chpl                      \
                             src/config.chpl                       \
                             src/input.chpl                        \
+                            src/functions/determinant.chpl        \
+                            src/functions/sorttuple.chpl          \
                             src/parameters.chpl                   \
                             src/testing.chpl                      \
     2>&1 | tee tests/boundary_build.log
@@ -372,6 +414,7 @@ chpl -o tests/limiter_tests                                       \
                            src/projection.chpl                    \
                            src/quadrature.chpl                    \
                            src/polynomials.chpl                   \
+                           src/functions/sorttuple.chpl           \
                            src/parameters.chpl                    \
                            src/testing.chpl                       \
     2>&1 | tee tests/limiter_build.log

@@ -1,4 +1,8 @@
-Test 1: Random 1D mesh - Gmesh:
+
+--------------------------------------------------------------------------------
+
+Test 1: Generate a random 1D mesh - Gmesh:
+
 {nodes_d = {1..7, 1..3}, elements_d = {1..8}, families_d = {1..3}, nodes = -1.0 0.0 0.0
 0.167753 0.0 0.0
 -0.851556 0.0 0.0
@@ -7,12 +11,73 @@ Test 1: Random 1D mesh - Gmesh:
 -0.281396 0.0 0.0
 0.534046 0.0 0.0, elements = (elemType = 15, tags_d = {1..1}, tags = 3, nodes_d = {1..1}, nodes = 5) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 6 2) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 1 3) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 3 4) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 7 5) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 4 6) (elemType = 1, tags_d = {1..1}, tags = 1, nodes_d = {1..2}, nodes = 2 7) (elemType = 15, tags_d = {1..1}, tags = 2, nodes_d = {1..1}, nodes = 1), families = (tag = 1, nDim = 1, name = flow) (tag = 2, nDim = 0, name = left) (tag = 3, nDim = 0, name = right)}
 
-Test 2: Random 1D mesh - Gmesh => Native:
-{nDims = 1, nNodes = 7, nEdges = 0, nFaces = 7, nCells = 6, nBocos = 2, nFamls = 3, faceTopos = {1}, faceTypes = {10}, cellTopos = {2}, cellTypes = {21}, nodeList_d = {1..7}, edgeList_d = {1..0}, faceList_d = {1..7}, cellList_d = {1..6}, bocoList_d = {1..2}, famlList_d = {1..3}, nodeList = (xyz = -1.0 0.0 0.0) (xyz = 0.167753 0.0 0.0) (xyz = -0.851556 0.0 0.0) (xyz = -0.358397 0.0 0.0) (xyz = 1.0 0.0 0.0) (xyz = -0.281396 0.0 0.0) (xyz = 0.534046 0.0 0.0), edgeList = , faceList = (elemType = 10, nodes_d = {1..1}, nodes = 5, cells = 4 -1) (elemType = 10, nodes_d = {1..1}, nodes = 1, cells = 2 -2) (elemType = 10, nodes_d = {1..1}, nodes = 6, cells = 5 1) (elemType = 10, nodes_d = {1..1}, nodes = 2, cells = 6 1) (elemType = 10, nodes_d = {1..1}, nodes = 3, cells = 3 2) (elemType = 10, nodes_d = {1..1}, nodes = 4, cells = 5 3) (elemType = 10, nodes_d = {1..1}, nodes = 7, cells = 6 4), cellList = (elemType = 21, nodes_d = {1..2}, faces_d = {1..2}, nodes = 6 2, faces = 3 4, sides = 2 2, family = 1) (elemType = 21, nodes_d = {1..2}, faces_d = {1..2}, nodes = 1 3, faces = 2 5, sides = 1 2, family = 1) (elemType = 21, nodes_d = {1..2}, faces_d = {1..2}, nodes = 3 4, faces = 5 6, sides = 1 2, family = 1) (elemType = 21, nodes_d = {1..2}, faces_d = {1..2}, nodes = 7 5, faces = 7 1, sides = 2 1, family = 1) (elemType = 21, nodes_d = {1..2}, faces_d = {1..2}, nodes = 4 6, faces = 6 3, sides = 1 1, family = 1) (elemType = 21, nodes_d = {1..2}, faces_d = {1..2}, nodes = 2 7, faces = 4 7, sides = 1 1, family = 1), bocoList = (elemType = 10, nodes_d = {1..1}, nodes = 5, face = 1, family = 3) (elemType = 10, nodes_d = {1..1}, nodes = 1, face = 2, family = 2), famlList = (name = flow, nDim = 1, bocoType = 0, bocoSubType = 0, bocoProperties = 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0) (name = left, nDim = 0, bocoType = 0, bocoSubType = 0, bocoProperties = 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0) (name = right, nDim = 0, bocoType = 0, bocoSubType = 0, bocoProperties = 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0)}
+--------------------------------------------------------------------------------
+
+Test 2: Convert random mesh from Gmesh => Native:
+
+{nDims = 1, nNodes = 7, nEdges = 0, nFaces = 7, nCells = 6, nBocos = 2, nFamls = 3, faceTopos = {1}, faceTypes = {10}, cellTopos = {2}, cellTypes = {21}, nodeList_d = {1..7}, edgeList_d = {1..0}, faceList_d = {1..7}, cellList_d = {1..6}, bocoList_d = {1..2}, famlList_d = {1..3}, nodeList = (xyz = -1.0 0.0 0.0) (xyz = 0.167753 0.0 0.0) (xyz = -0.851556 0.0 0.0) (xyz = -0.358397 0.0 0.0) (xyz = 1.0 0.0 0.0) (xyz = -0.281396 0.0 0.0) (xyz = 0.534046 0.0 0.0), edgeList = , faceList = (elemType = 10, nodes_d = {1..1}, nodes = 5, cells = 4 -1) (elemType = 10, nodes_d = {1..1}, nodes = 1, cells = 2 -2) (elemType = 10, nodes_d = {1..1}, nodes = 6, cells = 5 1) (elemType = 10, nodes_d = {1..1}, nodes = 2, cells = 6 1) (elemType = 10, nodes_d = {1..1}, nodes = 3, cells = 3 2) (elemType = 10, nodes_d = {1..1}, nodes = 4, cells = 5 3) (elemType = 10, nodes_d = {1..1}, nodes = 7, cells = 6 4), cellList = (elemType = 21, nodes_d = {1..2}, faces_d = {1..2}, nodes = 6 2, faces = 3 4, sides = 2 2, family = 1) (elemType = 21, nodes_d = {1..2}, faces_d = {1..2}, nodes = 1 3, faces = 2 5, sides = 1 2, family = 1) (elemType = 21, nodes_d = {1..2}, faces_d = {1..2}, nodes = 3 4, faces = 5 6, sides = 1 2, family = 1) (elemType = 21, nodes_d = {1..2}, faces_d = {1..2}, nodes = 7 5, faces = 7 1, sides = 2 1, family = 1) (elemType = 21, nodes_d = {1..2}, faces_d = {1..2}, nodes = 4 6, faces = 6 3, sides = 1 1, family = 1) (elemType = 21, nodes_d = {1..2}, faces_d = {1..2}, nodes = 2 7, faces = 4 7, sides = 1 1, family = 1), bocoList = (elemType = 10, nodes_d = {1..1}, nodes = 5, face = 1, family = 3) (elemType = 10, nodes_d = {1..1}, nodes = 1, face = 2, family = 2), famlList = (name = flow, nDim = 1, bocoType = 0, bocoSubType = 0, bocoProperties = 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0) (name = left, nDim = 0, bocoType = 0, bocoSubType = 0, bocoProperties = 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0) (name = right, nDim = 0, bocoType = 0, bocoSubType = 0, bocoProperties = 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0), cellTimeStep = 0.0 0.0 0.0 0.0 0.0 0.0, cellCharLeng = 0.44915 0.148444 0.49316 0.465954 0.0770005 0.366293, minTimeStep = 0.0, minCharLeng = 0.0770005}
+
+--------------------------------------------------------------------------------
 
 Test 3: Cell and Face counts by topology:
+
 Cell counts:
 2 6
 Face counts:
 1 7
 
+--------------------------------------------------------------------------------
+
+Test 4: Calculate mesh element length/area/volume:
+
+Using the topology specific funtions:
+Elem Topo  | Reference           | Calculated          | Abs Error | Rel Error
+  LineLeng |  1.009553716658e+00 |  1.009553716658e+00 |  0.00e+00 |  0.00e+00
+  TriaArea |  1.000611107172e+00 |  1.000611107172e+00 |  2.22e-16 |  2.22e-16
+  QuadArea |  1.970601870564e+00 |  1.970601870564e+00 |  0.00e+00 |  0.00e+00
+  TetrVol  |  1.000121478266e+00 |  1.000121478266e+00 | -2.22e-16 | -2.22e-16
+  PyraVol  |  1.969637596199e+00 |  1.969637596199e+00 |  0.00e+00 |  0.00e+00
+  PrisVol  |  3.375556111183e+00 |  3.375556111183e+00 |  0.00e+00 |  0.00e+00
+  HexaVol  |  7.082940012013e+00 |  7.082940012013e+00 |  0.00e+00 |  0.00e+00
+
+Using the generic elem_size function:
+Elem Topo  | Reference           | Calculated          | Abs Error | Rel Error
+  LineLeng |  1.009553716658e+00 |  1.009553716658e+00 |  0.00e+00 |  0.00e+00
+  TriaArea |  1.000611107172e+00 |  1.000611107172e+00 |  2.22e-16 |  2.22e-16
+  QuadArea |  1.970601870564e+00 |  1.970601870564e+00 |  0.00e+00 |  0.00e+00
+  TetrVol  |  1.000121478266e+00 |  1.000121478266e+00 | -2.22e-16 | -2.22e-16
+  PyraVol  |  1.969637596199e+00 |  1.969637596199e+00 |  0.00e+00 |  0.00e+00
+  PrisVol  |  3.375556111183e+00 |  3.375556111183e+00 |  0.00e+00 |  0.00e+00
+  HexaVol  |  7.082940012013e+00 |  7.082940012013e+00 |  0.00e+00 |  0.00e+00
+
+Using the mesh class methods:
+Test mesh cell | elem_size()
+  Cell  1 size |  4.491496685374e-01
+  Cell  2 size |  1.484437116066e-01
+  Cell  3 size |  4.931595048200e-01
+  Cell  4 size |  4.659536229356e-01
+  Cell  5 size |  7.700047110048e-02
+  Cell  6 size |  3.662930210000e-01
+
+--------------------------------------------------------------------------------
+
+Test 5: Calculate mesh element shortest passthrough distance:
+
+Using the topology specific funtions:
+Elem Topo      | Reference           | Calculated          | Abs Error | Rel Error
+  LineCharLeng |  1.009553716658e+00 |  1.009553716658e+00 |  0.00e+00 |  0.00e+00
+  TriaCharLeng |  8.936143257928e-01 |  8.936143257928e-01 |  2.22e-16 |  2.48e-16
+  QuadCharLeng |  1.009086104530e+00 |  1.009086104530e+00 |  2.22e-16 |  2.20e-16
+  TetrCharLeng |  8.449565013332e-01 |  8.449565013332e-01 |  1.11e-16 |  1.31e-16
+  PyraCharLeng |  9.448283687743e-01 |  9.448283687743e-01 | -1.11e-16 | -1.18e-16
+  PrisCharLeng |  8.922962615785e-01 |  8.922962615785e-01 |  1.11e-16 |  1.24e-16
+  HexaCharLeng |  1.007938864789e+00 |  1.007938864789e+00 | -4.44e-16 | -4.41e-16
+
+Using the mesh class methods:
+Test mesh cell | elem_char_leng()
+  Cell  1 size |  4.491496685374e-01
+  Cell  2 size |  1.484437116066e-01
+  Cell  3 size |  4.931595048200e-01
+  Cell  4 size |  4.659536229356e-01
+  Cell  5 size |  7.700047110048e-02
+  Cell  6 size |  3.662930210000e-01

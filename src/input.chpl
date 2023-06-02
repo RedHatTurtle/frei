@@ -43,7 +43,9 @@ module Input
 
   //parTime
   var timeScheme : int = TIME_TVDRK_O2S3;
+  var timeStepMethod : int = DT_LOCAL_CFL;
   var timeStep   : real = 1e-6;
+  var cfl : real = 1.0;
 
   //parOutput
   var ioIter  : int =   100;         // Number of iterations between output dumps
@@ -164,7 +166,9 @@ module Input
 
       // parTime
       timeScheme = tomlData!["parTime"]!["timeScheme"]!.i : int;
+      timeStepMethod = tomlData!["parTime"]!["timeStepMethod"]!.i : int;
       timeStep   = tomlData!["parTime"]!["timeStep"]!.re  : real;
+      cfl        = tomlData!["parTime"]!["cfl"]!.re  : real;
 
       // parOutput
       ioIter   = tomlData!["parOutput"]!["ioIter"]!.i : int;
