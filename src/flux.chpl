@@ -298,21 +298,21 @@ module Flux
     param fPrandtl : real = fVisc*fCp/fKappa;       // Calculate the Prandtl number of the fluid
 
     // Flow defining variables
-    param temp : real = 288.15;
+    param temp : real =     288.15;
     param pres : real = 101_325.0;
     param mach : real = 0.6;
     param alph : real = 0.03490658503988659153847381536977225426885743777083; // 2.0 degrees in Radians
     param beta : real = 0.00872664625997164788461845384244306356721435944271; // 0.5 degree  in Radians
 
     // Calculated with 50 digits of precision
-    param dens : real =           1.22504581154325263871323932326963696202399523031669; // Pres/(fR*Temp)
-    param aSpd : real =         340.28762770443822699513075710728002306623909230587339; // sqrt(fGamma*fR*Temp)
-    param velM : real =         204.17257662266293619707845426436801383974345538352403; // Mach*aSpd
-    param ener : real =     278_846.40000000000000000000000000000000000000000000000000; // Pres/(fGamma-1) + 0.5*Dens*velM^2
-    param entr : real =      76_261.15011769449782489957624473444208242962290561088006; // Pres/(Dens**fGamma)
-    param enth : real =     354_637.50000000000000000000000000000000000000000000000000; // EnerInt + Pres
+    param dens     : real =       1.22504581154325263871323932326963696202399523031669; // Pres/(fR*Temp)
+    param aSpd     : real =     340.28762770443822699513075710728002306623909230587339; // sqrt(fGamma*fR*Temp)
+    param velM     : real =     204.17257662266293619707845426436801383974345538352403; // Mach*aSpd
+    param ener     : real = 278_846.40000000000000000000000000000000000000000000000000; // Pres/(fGamma-1) + 0.5*Dens*velM^2
+    param entr     : real =  76_261.15011769449782489957624473444208242962290561088006; // Pres/(Dens**fGamma)
     param enthStag : real = 380_171.40000000000000000000000000000000000000000000000000; // Ener + Pres
-    param enerInt : real =  253_312.50000000000000000000000000000000000000000000000000; // fCv*Pres/fR
+    param enerInt  : real = 253_312.50000000000000000000000000000000000000000000000000; // fCv*Pres/fR
+    param enth     : real = 354_637.50000000000000000000000000000000000000000000000000; // EnerInt + Pres
 
     const velV1d : [1..1] real = [velM                                                              ];
     const velV2d : [1..2] real = [velM*cos(alph)          , velM*sin(alph)                          ];
