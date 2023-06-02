@@ -31,11 +31,11 @@ module ErrorCalc
     var error_d : domain(1);
     var errors  : [error_d] (string,real);
 
-    var l1ErrorAbs, l1ErrorRel : [1..frMesh.nVars] real = 0;
-    var l2ErrorAbs, l2ErrorRel : [1..frMesh.nVars] real = 0;
-    var lfErrorAbs, lfErrorRel : [1..frMesh.nVars] real = 0;
-    var l1EntrErrorAbs, l2EntrErrorAbs, lfEntrErrorAbs : real;
-    var l1EntrErrorRel, l2EntrErrorRel, lfEntrErrorRel : real;
+    var l1ErrorAbs, l1ErrorRel : [1..frMesh.nVars] atomic real = 0;
+    var l2ErrorAbs, l2ErrorRel : [1..frMesh.nVars] atomic real = 0;
+    var lfErrorAbs, lfErrorRel : [1..frMesh.nVars] atomic real = 0;
+    var l1EntrErrorAbs, l2EntrErrorAbs, lfEntrErrorAbs : atomic real;
+    var l1EntrErrorRel, l2EntrErrorRel, lfEntrErrorRel : atomic real;
 
     // Calculate mesh length/area/volume
     if (meshVol <= 0.0) then
@@ -46,7 +46,7 @@ module ErrorCalc
       }
 
     // Loop through cells
-    for cellIdx in frMesh.cellList.domain
+    forall cellIdx in frMesh.cellList.domain
     {
       // Get the reference values for the points in this cell
       var solRef : [1..frMesh.nVars, 1..frMesh.cellSPidx[cellIdx, 2]] real;
@@ -77,39 +77,39 @@ module ErrorCalc
           //Conserved Variables
           for varIdx in 1..frMesh.nVars
           {
-            var ptErrorAbs2 = ptErrorAbs[varIdx, ..]**2;
-            l2ErrorAbs[varIdx] += integrate( ptErrorAbs2, jacobian, TOPO_QUAD, frMesh.solOrder );
+            const ptErrorAbs2 = ptErrorAbs[varIdx, ..]**2;
+            l2ErrorAbs[varIdx].add( integrate( ptErrorAbs2, jacobian, TOPO_QUAD, frMesh.solOrder ) );
           }
 
           //Entropy
-          var ptEntrErrorAbs2 = ptEntrErrorAbs**2;
-          l2EntrErrorAbs += integrate( ptEntrErrorAbs2, jacobian, TOPO_QUAD, frMesh.solOrder );
+          const ptEntrErrorAbs2 = ptEntrErrorAbs**2;
+          l2EntrErrorAbs.add( integrate( ptEntrErrorAbs2, jacobian, TOPO_QUAD, frMesh.solOrder ) );
         }
         // Lf Errors
         {
           //Conserved Variables
           for varIdx in 1..frMesh.nVars
           {
-            var ptErrorAbsM : real = max reduce (ptErrorAbs[varIdx, ..]);
-            lfErrorAbs = max(lfErrorAbs, ptErrorAbsM);
+            const ptErrorAbsM : real = max reduce (ptErrorAbs[varIdx, ..]);
+            lfErrorAbs[varIdx].write( max(lfErrorAbs[varIdx].read(), ptErrorAbsM) );
           }
 
           //Entropy
-          var ptEntrErrorAbsM : real = max reduce (ptEntrErrorAbs);
-          lfEntrErrorAbs = max(lfEntrErrorAbs, ptEntrErrorAbsM);
+          const ptEntrErrorAbsM : real = max reduce (ptEntrErrorAbs);
+          lfEntrErrorAbs.write( max(lfEntrErrorAbs.read(), ptEntrErrorAbsM) );
         }
         // L1 Errors
         {
           //Conserved Variables
           for varIdx in 1..frMesh.nVars
           {
-            var ptErrorAbs1 = ptErrorAbs[varIdx, ..];
-            l1ErrorAbs[varIdx] += integrate( ptErrorAbs1, jacobian, TOPO_QUAD, frMesh.solOrder );
+            const ptErrorAbs1 = ptErrorAbs[varIdx, ..];
+            l1ErrorAbs[varIdx].add( integrate( ptErrorAbs1, jacobian, TOPO_QUAD, frMesh.solOrder ) );
           }
 
           //Entropy
-          var ptEntrErrorAbs1 = ptEntrErrorAbs;
-          l1EntrErrorAbs += integrate( ptEntrErrorAbs1, jacobian, TOPO_QUAD, frMesh.solOrder );
+          const ptEntrErrorAbs1 = ptEntrErrorAbs;
+          l1EntrErrorAbs.add( integrate( ptEntrErrorAbs1, jacobian, TOPO_QUAD, frMesh.solOrder ) );
         }
       }
 
@@ -120,43 +120,42 @@ module ErrorCalc
           //Conserved Variables
           for varIdx in 1..frMesh.nVars
           {
-            var ptErrorRel2 = ptErrorRel[varIdx, ..]**2;
-            l2ErrorRel[varIdx] += integrate( ptErrorRel2, jacobian, TOPO_QUAD, frMesh.solOrder );
+            const ptErrorRel2 = ptErrorRel[varIdx, ..]**2;
+            l2ErrorRel[varIdx].add( integrate( ptErrorRel2, jacobian, TOPO_QUAD, frMesh.solOrder ) );
           }
 
           //Entropy
-          var ptEntrErrorRel2 = ptEntrErrorRel**2;
-          l2EntrErrorRel += integrate( ptEntrErrorRel2, jacobian, TOPO_QUAD, frMesh.solOrder );
+          const ptEntrErrorRel2 = ptEntrErrorRel**2;
+          l2EntrErrorRel.add( integrate( ptEntrErrorRel2, jacobian, TOPO_QUAD, frMesh.solOrder ) );
         }
         // Lf Errors
         {
           //Conserved Variables
           for varIdx in 1..frMesh.nVars
           {
-            var ptErrorRelM : real = max reduce (ptErrorRel[varIdx, ..]);
-            lfErrorRel = max(lfErrorRel, ptErrorRelM);
+            const ptErrorRelM : real = max reduce (ptErrorRel[varIdx, ..]);
+            lfErrorRel[varIdx].write( max(lfErrorRel[varIdx].read(), ptErrorRelM) );
           }
 
           //Entropy
-          var ptEntrErrorRelM : real = max reduce (ptEntrErrorRel);
-          lfEntrErrorRel = max(lfEntrErrorRel, ptEntrErrorRelM);
+          const ptEntrErrorRelM : real = max reduce (ptEntrErrorRel);
+          lfEntrErrorRel.write( max(lfEntrErrorRel.read(), ptEntrErrorRelM) );
         }
         // L1 Errors
         {
           //Conserved Variables
           for varIdx in 1..frMesh.nVars
           {
-            var ptErrorRel1 = ptErrorRel[varIdx, ..];
-            l1ErrorRel[varIdx] += integrate( ptErrorRel1, jacobian, TOPO_QUAD, frMesh.solOrder );
+            const ptErrorRel1 = ptErrorRel[varIdx, ..];
+            l1ErrorRel[varIdx].add( integrate( ptErrorRel1, jacobian, TOPO_QUAD, frMesh.solOrder ) );
           }
 
           //Entropy
-          var ptEntrErrorRel1 = ptEntrErrorRel;
-          l1EntrErrorRel += integrate( ptEntrErrorRel1, jacobian, TOPO_QUAD, frMesh.solOrder );
+          const ptEntrErrorRel1 = ptEntrErrorRel;
+          l1EntrErrorRel.add( integrate( ptEntrErrorRel1, jacobian, TOPO_QUAD, frMesh.solOrder ) );
         }
       }
     }
-
 
     // Absolute errors
     {
@@ -164,31 +163,31 @@ module ErrorCalc
       for varIdx in 1..frMesh.nVars
       {
         error_d = {1..errors.domain.high+1};
-        try! errors[errors.domain.high] = ("L2(Error(Sol[%1i]))".format(varIdx), l2ErrorAbs[varIdx]/meshVol);
+        try! errors[errors.domain.high] = ("L2(Error(Sol[%1i]))".format(varIdx), l2ErrorAbs[varIdx].read()/meshVol);
       }
       // Entropy
       error_d = {1..errors.domain.high+1};
-      try! errors[errors.domain.high] = ("L2(Error(%6s))".format("Entr"), l2EntrErrorAbs/meshVol);
+      try! errors[errors.domain.high] = ("L2(Error(%6s))".format("Entr"), l2EntrErrorAbs.read()/meshVol);
 
       //Conserved Variables
       for varIdx in 1..frMesh.nVars
       {
         error_d = {1..errors.domain.high+1};
-        try! errors[errors.domain.high] = ("Lf(Error(Sol[%1i]))".format(varIdx), lfErrorAbs[varIdx]/meshVol);
+        try! errors[errors.domain.high] = ("Lf(Error(Sol[%1i]))".format(varIdx), lfErrorAbs[varIdx].read()/meshVol);
       }
       // Entropy
       error_d = {1..errors.domain.high+1};
-      try! errors[errors.domain.high] = ("Lf(Error(%6s))".format("Entr"), lfEntrErrorAbs/meshVol);
+      try! errors[errors.domain.high] = ("Lf(Error(%6s))".format("Entr"), lfEntrErrorAbs.read()/meshVol);
 
       //Conserved Variables
       for varIdx in 1..frMesh.nVars
       {
         error_d = {1..errors.domain.high+1};
-        try! errors[errors.domain.high] = ("L1(Error(Sol[%1i]))".format(varIdx), l1ErrorAbs[varIdx]/meshVol);
+        try! errors[errors.domain.high] = ("L1(Error(Sol[%1i]))".format(varIdx), l1ErrorAbs[varIdx].read()/meshVol);
       }
       // Entropy
       error_d = {1..errors.domain.high+1};
-      try! errors[errors.domain.high] = ("L1(Error(%6s))".format("Entr"), l1EntrErrorAbs/meshVol);
+      try! errors[errors.domain.high] = ("L1(Error(%6s))".format("Entr"), l1EntrErrorAbs.read()/meshVol);
     }
 
     // Relative errors
@@ -197,31 +196,31 @@ module ErrorCalc
       for varIdx in 1..frMesh.nVars
       {
         error_d = {1..errors.domain.high+1};
-        try! errors[errors.domain.high] = ("L2(%%Error(Sol[%1i]))".format(varIdx), l2ErrorRel[varIdx]/meshVol);
+        try! errors[errors.domain.high] = ("L2(%%Error(Sol[%1i]))".format(varIdx), l2ErrorRel[varIdx].read()/meshVol);
       }
       // Entropy
       error_d = {1..errors.domain.high+1};
-      try! errors[errors.domain.high] = ("L2(%%Error(%6s))".format("Entr"), l2EntrErrorRel/meshVol);
+      try! errors[errors.domain.high] = ("L2(%%Error(%6s))".format("Entr"), l2EntrErrorRel.read()/meshVol);
 
       //Conserved Variables
       for varIdx in 1..frMesh.nVars
       {
         error_d = {1..errors.domain.high+1};
-        try! errors[errors.domain.high] = ("Lf(%%Error(Sol[%1i]))".format(varIdx), lfErrorRel[varIdx]/meshVol);
+        try! errors[errors.domain.high] = ("Lf(%%Error(Sol[%1i]))".format(varIdx), lfErrorRel[varIdx].read()/meshVol);
       }
       // Entropy
       error_d = {1..errors.domain.high+1};
-      try! errors[errors.domain.high] = ("Lf(%%Error(%6s))".format("Entr"), lfEntrErrorRel/meshVol);
+      try! errors[errors.domain.high] = ("Lf(%%Error(%6s))".format("Entr"), lfEntrErrorRel.read()/meshVol);
 
       //Conserved Variables
       for varIdx in 1..frMesh.nVars
       {
         error_d = {1..errors.domain.high+1};
-        try! errors[errors.domain.high] = ("L1(%%Error(Sol[%1i]))".format(varIdx), l1ErrorRel[varIdx]/meshVol);
+        try! errors[errors.domain.high] = ("L1(%%Error(Sol[%1i]))".format(varIdx), l1ErrorRel[varIdx].read()/meshVol);
       }
       // Entropy
       error_d = {1..errors.domain.high+1};
-      try! errors[errors.domain.high] = ("L1(%%Error(%6s))".format("Entr"), l1EntrErrorRel/meshVol);
+      try! errors[errors.domain.high] = ("L1(%%Error(%6s))".format("Entr"), l1EntrErrorRel.read()/meshVol);
     }
 
     // Return some stats for the command line logs
