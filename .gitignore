@@ -35,6 +35,7 @@ test_frei.sh
 
 # Output files and images
 *.log
+!tests/*.log
 *.out
 *.dat
 *.svg
