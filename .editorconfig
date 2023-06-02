@@ -1,0 +1,29 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# Top-most EditorConfig file for this repository
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+end_of_line = lf
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Markdown settings
+[*.{md}]
+charset = utf-8
+indent_style = space
+max_line_length = 120
+
+# Settings for Chapel source files
+[*.{chpl}]
+charset = utf-8
+indent_size = 2
+indent_style = space
+max_line_length = 132
+
+# Mathematica scripts
+[*.{m}]
+indent_style = tab
+indent_size = 4
