@@ -52,7 +52,6 @@ module Interpolation
     use Time;
     use Parameters.ParamMesh;
     use Polynomials;
-    use Mesh;
 
     writeln();
     writeln("Initializing SP -> FP Interpolation matrices");
@@ -103,12 +102,13 @@ module Interpolation
           var spDistLine : [1..interpOrder+1] real = nodes_legendre_gauss(interpOrder+1);
           var fpDistLine : [1..2] real = [-1.0, 1.0];
 
-          for cellFace in 1..elem_faces(TOPO_QUAD) do
+          for cellFace in 1..4 do
             for faceFP in 1..interpOrder+1
             {
               var  xiFP : real;
               var etaFP : real;
 
+              // Get xi and eta depending on the cell face
               select cellFace
               {
                 when 1
