@@ -600,60 +600,67 @@ module FREI
         }
       }
 
-      // Print solver status / log
-
-      // Save restart file
-
-      // Calculate and print convergence metrics
+      // IO
       {
-        // Calculate solution delta from previous iteration
-        const l1SolDeltaAbs : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars]
-              + reduce abs(frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]);
-        const l2SolDeltaAbs : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars] sqrt(
-              + reduce    (frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..])**2);
-        const lfSolDeltaAbs : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars]
-            max reduce abs(frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]);
-        const l1SolDeltaRel : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars]
-              + reduce abs((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..]);
-        const l2SolDeltaRel : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars] sqrt(
-              + reduce    ((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..] )**2);
-        const lfSolDeltaRel : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars]
-            max reduce abs((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..]);
+        // Save restart file
 
-        // Save deltas from first iterations as reference
-        if iteration == 1 then
-          l2SolDeltaAbsIni = l2SolDeltaAbs;
+        // Check if we should write the solution this iteration
+        if iteration % ioIter == 0 then
+          iterOutput(iteration, frMesh);
 
-        // Output summarized convergence metrics to stdOut
-        writef("Iteration %9i | Time %{ 10.2dr}ms | Log10(L2(ΔSol)/L2(ΔSol0)) = %{ 7.4dr}",
-            iteration, iterWatch.elapsed()*1000, log10(norm(l2SolDeltaAbs)/norm(l2SolDeltaAbsIni)));
-
-        // Output full state to log file
-        log_convergence(convergenceLogWriter, iteration, l1SolDeltaAbs, l2SolDeltaAbs, lfSolDeltaAbs,
-                                                         l1SolDeltaRel, l2SolDeltaRel, lfSolDeltaRel);
-
+        // Calculate solution error and write to error log
         if Input.outError > 0
         {
-          // Output all calculated errors
           var errors = error_calc(Input.outError, frMesh);
           print_log(errorLogWriter, iteration, errors);
         }
 
-        if iteration % ioIter == 0 then
-          writef(" | Saving solution file\n");
-        else
-          writef("\n");
+        // Calculate and print convergence metrics
+        {
+          // Calculate solution delta from previous iteration
+          const l1SolDeltaAbs : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars]
+                + reduce abs(frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]);
+          const l2SolDeltaAbs : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars] sqrt(
+                + reduce    (frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..])**2);
+          const lfSolDeltaAbs : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars]
+              max reduce abs(frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]);
+          const l1SolDeltaRel : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars]
+                + reduce abs((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..]);
+          const l2SolDeltaRel : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars] sqrt(
+                + reduce    ((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..] )**2);
+          const lfSolDeltaRel : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars]
+              max reduce abs((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..]);
+
+          // Save deltas from first iterations as reference
+          if iteration == 1 then
+            l2SolDeltaAbsIni = l2SolDeltaAbs;
+
+          // Output full state to log file
+          log_convergence(convergenceLogWriter, iteration, l1SolDeltaAbs, l2SolDeltaAbs, lfSolDeltaAbs,
+                                                           l1SolDeltaRel, l2SolDeltaRel, lfSolDeltaRel);
+
+          // Output summarized convergence metrics to stdOut
+          writef("Iteration %9i | Time %{ 10.2dr}ms | Log10(L2(ΔSol)/L2(ΔSol0)) = %{ 7.4dr}",
+              iteration, iterWatch.elapsed()*1000, log10(norm(l2SolDeltaAbs)/norm(l2SolDeltaAbsIni)));
+
+          if iteration % ioIter == 0 then
+            writef(" | Solution file saved\n");
+          else
+            writef("\n");
+        }
+
+        // Check if input file changed
+        {}
+
       }
-
-      // Check if we should write the solution this iteration
-      if iteration % ioIter == 0 then
-        iterOutput(iteration, frMesh);
-
-      // Check if input file changed
     }
 
+    /////////////////////////////
+    // Output and Finalization //
+    /////////////////////////////
+
     // Output the final solution
-    //iterOutput(iteration, frMesh);
+    iterOutput(iteration, frMesh);
 
     var totalTime : real = totalWatch.elapsed();
     writeln();
