@@ -606,26 +606,19 @@ module FREI
 
       // Calculate and print convergence metrics
       {
-        var l1SolDeltaAbs : [1..frMesh.nVars] real;
-        var l2SolDeltaAbs : [1..frMesh.nVars] real;
-        var lfSolDeltaAbs : [1..frMesh.nVars] real;
-        var l1SolDeltaRel : [1..frMesh.nVars] real;
-        var l2SolDeltaRel : [1..frMesh.nVars] real;
-        var lfSolDeltaRel : [1..frMesh.nVars] real;
-
         // Calculate solution delta from previous iteration
-        forall varIdx in 1..frMesh.nVars
-        {
-          l1SolDeltaAbs[varIdx] =     (  + reduce  abs(frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..])   );
-          l2SolDeltaAbs[varIdx] = sqrt(  + reduce     (frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..])**2);
-          lfSolDeltaAbs[varIdx] =     (max reduce  abs(frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..])   );
-          l1SolDeltaRel[varIdx] =     (  + reduce abs((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..])
-                                                      /                           frMesh.oldSolSP[varIdx, ..] )   );
-          l2SolDeltaRel[varIdx] = sqrt(  + reduce    ((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..])
-                                                      /                           frMesh.oldSolSP[varIdx, ..] )**2);
-          lfSolDeltaRel[varIdx] =     (max reduce abs((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..])
-                                                      /                           frMesh.oldSolSP[varIdx, ..] )   );
-        }
+        const l1SolDeltaAbs : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars]
+              + reduce abs(frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]);
+        const l2SolDeltaAbs : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars] sqrt(
+              + reduce    (frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..])**2);
+        const lfSolDeltaAbs : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars]
+            max reduce abs(frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]);
+        const l1SolDeltaRel : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars]
+              + reduce abs((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..]);
+        const l2SolDeltaRel : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars] sqrt(
+              + reduce    ((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..] )**2);
+        const lfSolDeltaRel : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars]
+            max reduce abs((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..]);
 
         // Save deltas from first iterations as reference
         if iteration == 1 then
