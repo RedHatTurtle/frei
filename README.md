@@ -29,6 +29,30 @@ chpl -o frei --main-module "Control" frei.chpl
 
 ## Git Standards
 
+### Commit Messages
+Inspired by (conventional commits)[https://www.conventionalcommits.org/en/v1.0.0/]
+
+Default commit title naming:
+```
+<type>[optional scope]: <description>
+
+[optional body]
+```
+- Commit title cant be over 50 characters long
+- Commit body lines can't be over 72 characters
+- `Commit Scope`: Usually the name of the module
+- `Commit Type` : One of
+  + `dbg`  : Debug versions of the code, never expected to be merged to main.
+  + `wip`  : Work in Progress, for unfinished development branches.
+  + `feat` : Finished new feature development branch, to be or already merged.
+  + `refac`: Refactoring production code, no expected behavior change.
+  + `fix`  : Bug fixes on Main or Dev trunks.
+  + `build`: Changes in build script
+  + `patch`: Updates for compatibility reasons with no expected behavior change.
+  + `style`: Code formatting changes only, no expected behavior change.
+  + `test` : Test case configurations update only.
+  + `docs` : Update to comments or documentation only.
+
 ### Branch Naming
 
 Main branches:
@@ -41,17 +65,16 @@ Default branch naming: `<author>/<branch-type>/<issueID>-<branch-name>`
 - `Issue ID`: ID# of bug fix, feature request, etc, if existing.
 - `Branch Name`: Short descriptive name of work done, ~3 words in camelCase.
 - `Branch Type`: One of
-  + `fix`: Bug fixes on main trunk.
-  + `wip`: Work in Progress, for unfinished development branches.
-  + `feat`: Finished new feature development branch, to be or already merged.
-  + `dbg`: Debug versions of the code, never expected to be merged to main.
-  + `test`: Test case configurations update only.
-  + `patch`: Updates for compatibility reasons with no intended behavior change.
-  + `docs` : Update to documentation only
-
-style: (formatting, missing semi colons, etc; no production code change)
-refactor: (refactoring production code, eg. renaming a variable)
-test: (adding missing tests, refactoring tests; no production code change)
+  + `dbg`  : Debug versions of the code, never expected to be merged to main.
+  + `wip`  : Work in Progress, for unfinished development branches.
+  + `feat` : Finished new feature development branch, to be or already merged.
+  + `refac`: Refactoring production code, no expected behavior change.
+  + `fix`  : Bug fixes on Main or Dev trunks.
+  + `build`: Changes in build script
+  + `patch`: Updates for compatibility reasons with no expected behavior change.
+  + `style`: Code formatting changes only, no expected behavior change.
+  + `test` : Test case configurations update only.
+  + `docs` : Update to comments or documentation only.
 
 Examples:
 - `rht/fix/47-isothermalWallEnergy` Fixing the energy gradient on an isothermal wall boundary condition
