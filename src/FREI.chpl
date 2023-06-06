@@ -32,45 +32,63 @@ module FREI
     use SourceTerm;
     use Temporal;
 
-    // Declare timing variables
+    /////////////////////////////////
+    // Declare profiling variables //
+    /////////////////////////////////
+
+    // Main program stowatch
+    var programWatch  : stopwatch;
+    var programTime   : real = 0.0;
+
+    // Program steps stopwatch
+    var totalWatch    : stopwatch;
     var initTime      : real = 0.0;
-    var iterTime      : real = 0.0;
+    var solveTime     : real = 0.0;
+    var outputTime    : real = 0.0;
+
+    // Iteration time stopwatch
+    var solveWatch    : stopwatch;
+    var oldSolTime    : real = 0.0;
+    var residueTime   : real = 0.0;
     var timeStepTime  : real = 0.0;
     var stabilizeTime : real = 0.0;
-    var iterWatch     : stopwatch;
-    var totalWatch    : stopwatch;
-    totalWatch.start();
+    var ioIterTime    : real = 0.0;
 
+    // Stopwatch and variables for residue's components
     var residueWatch : stopwatch;
-    var residueTime  : real = 0.0;
-    residueWatch.start();
-
-    var mainWatch  : stopwatch;
     var srcTermTime : real = 0.0;
     var dscFluxTime : real = 0.0;
     var cntFluxTime : real = 0.0;
-    mainWatch.start();
 
-    var dscFluxWatch : stopwatch;
-    var dscFluxTime1 : real = 0.0;
-    var dscFluxTime2 : real = 0.0;
-    var dscFluxTime3 : real = 0.0;
-    var dscFluxTime4 : real = 0.0;
-    dscFluxWatch.start();
+    // Stopwatch and variables for discontinuous flux component's internal steps
+    //var dscFluxWatch : stopwatch;
+    //var dscFluxTime1 : real = 0.0;
+    //var dscFluxTime2 : real = 0.0;
+    //var dscFluxTime3 : real = 0.0;
+    //var dscFluxTime4 : real = 0.0;
 
+    // Stopwatch and variables for continuous flux component's internal steps
     var cntFluxWatch : stopwatch;
     var cntFluxTime1 : real = 0.0;
     var cntFluxTime2 : real = 0.0;
     var cntFluxTime3 : real = 0.0;
-    var cntFluxTime4 : real = 0.0;
-    cntFluxWatch.start();
 
-    var jumpCorrectionWatch : stopwatch;
-    var riemTime : real = 0.0;
-    var jumpTime : real = 0.0;
-    var corrTime : real = 0.0;
-    jumpCorrectionWatch.start();
+    // Stopwatch and variables for the components of the 3rd step of the continuous flux calculation
+    //var correctionWatch : stopwatch;
+    //var riemTime : real = 0.0;
+    //var jumpTime : real = 0.0;
+    //var corrTime : real = 0.0;
 
+    // Start stopwatches
+    programWatch.start();
+    totalWatch.start();
+
+    ///////////////////////////
+    // Solver Initialization //
+    ///////////////////////////
+
+    // 0. Initialize iteration count and stopwatch
+    var iterWatch : stopwatch;
     var iteration : int = 0;
 
     // 1. Read input data
@@ -243,36 +261,42 @@ module FREI
     var       errorLogWriter = try!       errorLogFile.writer();
 
     writeln();
-    initTime = mainWatch.elapsed();
+    initTime = totalWatch.elapsed();
     writef("Initialization Time: %10.2dr ms\n", initTime*1000);
+
+    ///////////////////////////
+    // Main Solver Iteration //
+    ///////////////////////////
+
     writeln();
     writef("Start Iterating\n");
+    totalWatch.restart();
 
-    // Main: Solve flow
-    iterWatch.start();
     for iteration in 1..Input.maxIter
     {
-      iterWatch.clear();
+      iterWatch.restart();
+      solveWatch.restart();
 
       // Save initial solution
       frMesh.oldSolSP = frMesh.solSP;
+      oldSolTime += solveWatch.elapsed();
 
       // Iterate RK stages
       for stage in 1..timeStepStages
       {
         // Calculate residue for this iteration
         {
+          solveWatch.restart();
           // The residue has 3 components:
           //   1. Continuous Flux
           //   2. Discontinuous Flux
           //   3. Source terms
           //
           // The residual array is reset in the time stepping procedure
-          residueWatch.clear();
 
           // Component 1: Source Term
           {
-            mainWatch.clear();
+            residueWatch.restart();
 
             if Input.eqSet == EQ_QUASI_1D_EULER then
               forall spIdx in frMesh.resSP.domain.dim(1) do
@@ -281,12 +305,12 @@ module FREI
                                                              Input.eqSet                 )
                                                * frMesh.jacSP[spIdx];
 
-            srcTermTime += mainWatch.elapsed();
+            srcTermTime += residueWatch.elapsed();
           }
 
           // Component 2: Discontinuous Flux
           {
-            mainWatch.clear();
+            residueWatch.restart();
 
             // Calculate flux at SPs and it's divergence
             forall cellIdx in frMesh.cellList.domain
@@ -301,7 +325,7 @@ module FREI
               var flxSP : [1..frMesh.nDims, 1..frMesh.nVars, 1..cellSPcnt] real;
 
               // Step 1: Calculate fluxes at SPs
-              //dscFluxWatch.clear();
+              //dscFluxWatch.restart();
               for meshSP in cellSPini.. #cellSPcnt do
                 select Input.eqSet
                 {
@@ -317,7 +341,7 @@ module FREI
               //dscFluxTime1 += dscFluxWatch.elapsed();
 
               // Step 2: Interpolate fluxes to FPs and save the FP normal flux
-              //dscFluxWatch.clear();
+              //dscFluxWatch.restart();
               for cellFace in thisCell.faces.domain
               {
                 // Get loop variables
@@ -357,7 +381,7 @@ module FREI
               //dscFluxTime2 += dscFluxWatch.elapsed();
 
               // Step 3: Convert fluxes from physical to computational domain
-              //dscFluxWatch.clear();
+              //dscFluxWatch.restart();
               for meshSP in cellSPini.. #cellSPcnt
               {
                 // Multiply the flux vector by the inverse Jacobian matrix and by the Jacobian determinant
@@ -367,7 +391,7 @@ module FREI
               //dscFluxTime3 += dscFluxWatch.elapsed();
 
               // Step 4: Calculate flux divergence
-              //dscFluxWatch.clear();
+              //dscFluxWatch.restart();
               for cellSP in 1..cellSPcnt
               {
                 var meshSP = cellSPini + cellSP - 1;
@@ -380,15 +404,16 @@ module FREI
               }
               //dscFluxTime4 += dscFluxWatch.elapsed();
             }
-            dscFluxTime += mainWatch.elapsed();
+
+            dscFluxTime += residueWatch.elapsed();
           }
 
           // Component 3: Continuous Flux
           {
-            mainWatch.clear();
+            residueWatch.restart();
 
             // Step 1: Interpolate solution to FPs
-            cntFluxWatch.clear();
+            cntFluxWatch.restart();
             forall cellIdx in frMesh.cellList.domain
             {
               ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
@@ -418,7 +443,7 @@ module FREI
             cntFluxTime1 += cntFluxWatch.elapsed();
 
             // Step 2: Apply boundary conditions
-            cntFluxWatch.clear();
+            cntFluxWatch.restart();
             forall faceIdx in frMesh.faceList.domain
             {
               // Get loop variables
@@ -445,7 +470,7 @@ module FREI
             cntFluxTime2 += cntFluxWatch.elapsed();
 
             // Step 3: Calculate interface correction
-            cntFluxWatch.clear();
+            cntFluxWatch.restart();
             forall cellIdx in frMesh.cellList.domain
             {
               // Get loop variables
@@ -465,7 +490,7 @@ module FREI
                   var jump : [1..frMesh.nVars] real;
 
                   // Operation 1: Calculate Riemann flux at the FP
-                  //jumpCorrectionWatch.clear();
+                  //correctionWatch.restart();
                   select Input.eqSet
                   {
                     when EQ_CONVECTION do
@@ -477,10 +502,10 @@ module FREI
                     when EQ_EULER do
                       jump = roe(frMesh.solFP[meshFP, 1, ..], frMesh.solFP[meshFP, 2, ..], frMesh.nrmFP[meshFP, ..]);
                   }
-                  //riemTime += jumpCorrectionWatch.elapsed();
+                  //riemTime += correctionWatch.elapsed();
 
                   // Operation 2: Calculate jump at a FP and convert it to the physical domain
-                  //jumpCorrectionWatch.clear();
+                  //correctionWatch.restart();
                   {
                     // Calculate the flux jump = -1*(local_flux) + numerical_flux
                     jump -= frMesh.flxFP[meshFP, faceSide, ..];
@@ -507,10 +532,10 @@ module FREI
                       }
                     }
                   }
-                  //jumpTime += jumpCorrectionWatch.elapsed();
+                  //jumpTime += correctionWatch.elapsed();
 
                   // Operation 3: Apply the correction to the residue matrix
-                  //jumpCorrectionWatch.clear();
+                  //correctionWatch.restart();
                   {
                     // For 1D each face has 1 FP therefore the FP and the Face have the same index Relative to it's
                     // position in the cell
@@ -526,21 +551,21 @@ module FREI
                     frMesh.resSP[.., cellSPini.. #cellSPcnt] += outer(jump[..]                          ,
                         flux_correction[(cellTopo, frMesh.solOrder+1)]!.correction[cellFP, 1..cellSPcnt]);
                   }
-                  //corrTime += jumpCorrectionWatch.elapsed();
+                  //corrTime += correctionWatch.elapsed();
                 }
               }
             }
             cntFluxTime3 += cntFluxWatch.elapsed();
 
-            cntFluxTime += mainWatch.elapsed();
+            cntFluxTime += residueWatch.elapsed();
           }
 
-          residueTime += residueWatch.elapsed();
+          residueTime += solveWatch.elapsed();
         }
 
         // Advance RK Stage
         {
-          mainWatch.clear();
+          solveWatch.restart();
 
           frMesh.calc_time_step();
 
@@ -565,12 +590,12 @@ module FREI
           // Zero out residue
           frMesh.resSP = 0.0;
 
-          timeStepTime += mainWatch.elapsed();
+          timeStepTime += solveWatch.elapsed();
         }
 
         // Stabilize Solution
         {
-          mainWatch.clear();
+          solveWatch.restart();
 
           if Input.limiterScheme != LIMITER_NONE
           {
@@ -596,12 +621,14 @@ module FREI
             }
           }
 
-          stabilizeTime += mainWatch.elapsed();
+          stabilizeTime += solveWatch.elapsed();
         }
       }
 
       // IO
       {
+        solveWatch.restart();
+
         // Save restart file
 
         // Check if we should write the solution this iteration
@@ -652,40 +679,64 @@ module FREI
         // Check if input file changed
         {}
 
+        ioIterTime += solveWatch.elapsed();
       }
     }
+
+    solveTime = totalWatch.elapsed();
 
     /////////////////////////////
     // Output and Finalization //
     /////////////////////////////
 
     // Output the final solution
+    totalWatch.restart();
     iterOutput(iteration, frMesh);
+    outputTime = totalWatch.elapsed();
 
-    var totalTime : real = totalWatch.elapsed();
+    // Finalize program stopwatch and calculate agregate times for major program steps
+    programTime = programWatch.elapsed();
+
     writeln();
     writef("Time splits:\n");
-    writef("- Init      : %11.2dr ms - %4.1dr%% of Run-Time\n",      initTime*1000,      initTime/totalTime   *100);
-    writef("- Residue   : %11.2dr ms - %4.1dr%% of Run-Time\n",   residueTime*1000,   residueTime/totalTime   *100);
-    writef("  - Src Term: %11.2dr ms - %4.1dr%% of Run-Time\n",   srcTermTime*1000,   srcTermTime/totalTime   *100);
-    writef("  - Dsc Flux: %11.2dr ms - %4.1dr%% of Run-Time\n",   dscFluxTime*1000,   dscFluxTime/totalTime   *100);
-    //writef("    - Step 1: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime1*1000,  dscFluxTime1/dscFluxTime *100);
-    //writef("    - Step 2: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime2*1000,  dscFluxTime2/dscFluxTime *100);
-    //writef("    - Step 3: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime3*1000,  dscFluxTime3/dscFluxTime *100);
-    //writef("    - Step 4: %11.2dr ms - %4.1dr%% of Dsc Flux\n",  dscFluxTime4*1000,  dscFluxTime4/dscFluxTime *100);
-    writef("  - Cnt Flux: %11.2dr ms - %4.1dr%% of Run-Time\n",   cntFluxTime*1000,   cntFluxTime/totalTime   *100);
-    writef("    - Step 1: %11.2dr ms - %4.1dr%% of Cnt Flux\n",  cntFluxTime1*1000,  cntFluxTime1/cntFluxTime *100);
-    writef("    - Step 2: %11.2dr ms - %4.1dr%% of Cnt Flux\n",  cntFluxTime2*1000,  cntFluxTime2/cntFluxTime *100);
-    writef("    - Step 3: %11.2dr ms - %4.1dr%% of Cnt Flux\n",  cntFluxTime3*1000,  cntFluxTime3/cntFluxTime *100);
-    //writef("      - Op 1: %11.2dr ms - %4.1dr%% of St3 Flux\n",      riemTime*1000,      riemTime/cntFluxTime3*100);
-    //writef("      - Op 2: %11.2dr ms - %4.1dr%% of St3 Flux\n",      jumpTime*1000,      jumpTime/cntFluxTime3*100);
-    //writef("      - Op 3: %11.2dr ms - %4.1dr%% of St3 Flux\n",      corrTime*1000,      corrTime/cntFluxTime3*100);
-    writef("- Stabilize : %11.2dr ms - %4.1dr%% of Run-Time\n", stabilizeTime*1000, stabilizeTime/totalTime   *100);
-    writef("- Time-Step : %11.2dr ms - %4.1dr%% of Run-Time\n",  timeStepTime*1000,  timeStepTime/totalTime   *100);
+    writef("- Init        : %11.2dr ms - %4.1dr%% of Run-Time\n",       initTime*1000,      initTime/programTime  *100);
+    writef("- Iterations  : %11.2dr ms - %4.1dr%% of Run-Time\n",      solveTime*1000,     solveTime/programTime  *100);
+    writef("  - Residue   : %11.2dr ms - %4.1dr%% of Iteration\n",   residueTime*1000,   residueTime/solveTime    *100);
+    writef("    - Src Term: %11.2dr ms - %4.1dr%% of Residue\n",     srcTermTime*1000,   srcTermTime/residueTime  *100);
+    writef("    - Dsc Flux: %11.2dr ms - %4.1dr%% of Residue\n",     dscFluxTime*1000,   dscFluxTime/residueTime  *100);
+  //writef("      - Step 1: %11.2dr ms - %4.1dr%% of Dsc Flux\n",   dscFluxTime1*1000,  dscFluxTime1/dscFluxTime  *100);
+  //writef("      - Step 2: %11.2dr ms - %4.1dr%% of Dsc Flux\n",   dscFluxTime2*1000,  dscFluxTime2/dscFluxTime  *100);
+  //writef("      - Step 3: %11.2dr ms - %4.1dr%% of Dsc Flux\n",   dscFluxTime3*1000,  dscFluxTime3/dscFluxTime  *100);
+  //writef("      - Step 4: %11.2dr ms - %4.1dr%% of Dsc Flux\n",   dscFluxTime4*1000,  dscFluxTime4/dscFluxTime  *100);
+    writef("    - Cnt Flux: %11.2dr ms - %4.1dr%% of Residue\n",     cntFluxTime*1000,   cntFluxTime/residueTime  *100);
+    writef("      - Step 1: %11.2dr ms - %4.1dr%% of Cnt Flux\n",   cntFluxTime1*1000,  cntFluxTime1/cntFluxTime  *100);
+    writef("      - Step 2: %11.2dr ms - %4.1dr%% of Cnt Flux\n",   cntFluxTime2*1000,  cntFluxTime2/cntFluxTime  *100);
+    writef("      - Step 3: %11.2dr ms - %4.1dr%% of Cnt Flux\n",   cntFluxTime3*1000,  cntFluxTime3/cntFluxTime  *100);
+  //writef("        - Op 1: %11.2dr ms - %4.1dr%% of St3 Flux\n",       riemTime*1000,      riemTime/cntFluxTime3 *100);
+  //writef("        - Op 2: %11.2dr ms - %4.1dr%% of St3 Flux\n",       jumpTime*1000,      jumpTime/cntFluxTime3 *100);
+  //writef("        - Op 3: %11.2dr ms - %4.1dr%% of St3 Flux\n",       corrTime*1000,      corrTime/cntFluxTime3 *100);
+    writef("  - Time-Step : %11.2dr ms - %4.1dr%% of Iteration\n",  timeStepTime*1000,  timeStepTime/solveTime    *100);
+    writef("  - Stabilize : %11.2dr ms - %4.1dr%% of Iteration\n", stabilizeTime*1000, stabilizeTime/solveTime    *100);
+    writef("  - Iter IO   : %11.2dr ms - %4.1dr%% of Iteration\n",    ioIterTime*1000,    ioIterTime/solveTime    *100);
+    writef("- Output      : %11.2dr ms - %4.1dr%% of Run-Time\n",     outputTime*1000,    outputTime/programTime  *100);
     writef("---------------------------------------------------------\n");
-    var sumTime : real = initTime + srcTermTime + dscFluxTime + cntFluxTime + stabilizeTime + timeStepTime;
-    writef("  Sum       : %11.2dr ms - %4.1dr%% of Run-Time\n",  sumTime*1000,  sumTime/totalTime*100);
-    writef("  Run-time  : %11.2dr ms\n", totalTime*1000);
+    writef("  Run-time    : %11.2dr ms\n", programTime*1000);
+
+  //var  dscFluxSumTime : real = dscFluxTime1 + dscFluxTime2 + dscFluxTime3 + dscFluxTime4;
+    var  cntFluxSumTime : real = cntFluxTime1 + cntFluxTime2 + cntFluxTime3 ;
+  //var cntStep3SumTime : real = riemTime + jumpTime + corrTime;
+    var  residueSumTime : real = srcTermTime + dscFluxTime + cntFluxTime;
+    var     iterSumTime : real = residueTime + stabilizeTime + timeStepTime + ioIterTime;
+    var  programSumTime : real = initTime + solveTime + outputTime;
+
+    writeln();
+    writef("Split verifications:\n");
+  //writef("  Dsc Flux  Sum: %11.2dr ms - %4.1dr%% of Dsc Flux\n",   dscFluxSumTime*1000,  dscFluxSumTime/dscFluxTime *100);
+    writef("  Cnt Flux  Sum: %11.2dr ms - %4.1dr%% of Cnt Flux\n",   cntFluxSumTime*1000,  cntFluxSumTime/cntFluxTime *100);
+  //writef("  Cnt Step3 Sum: %11.2dr ms - %4.1dr%% of Cnt Step3\n", cntStep3SumTime*1000, cntStep3SumTime/cntFluxTime3*100);
+    writef("  Residue   Sum: %11.2dr ms - %4.1dr%% of Residue\n",    residueSumTime*1000,  residueSumTime/residueTime *100);
+    writef("  Iter      Sum: %11.2dr ms - %4.1dr%% of Solve\n",         iterSumTime*1000,     iterSumTime/solveTime   *100);
+    writef("  Program   Sum: %11.2dr ms - %4.1dr%% of Program\n",    programSumTime*1000,  programSumTime/programTime *100);
 
     writeln();
     writeln("Fin");
