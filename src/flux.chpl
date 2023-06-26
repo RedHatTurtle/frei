@@ -203,9 +203,11 @@ module Flux
     return flux;
   }
 
-  proc convection_flux_cv(cons : real, convVelV : real) : [] real
+  proc convection_flux_cv(cons : real, convVelV : [] real) : [] real
   {
-    return cons*convVelV;
+    const flux : real = cons * convVelV;
+
+    return flux;
   }
 
   proc burgers_flux_cv_1d(cons : real) : real
