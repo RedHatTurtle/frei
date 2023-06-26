@@ -32,7 +32,7 @@ module Flux
     const idxDens : int   = cons.domain.dim(0).low;           // First element is density
 
     const pres : real = pressure_cv(cons, fGamma);
-    const temperature : real = pres/(cons[idxDens]*fR);
+    const temperature : real = pres/cons[idxDens]/fR;
 
     return temperature;
   }
@@ -138,7 +138,7 @@ module Flux
 
   proc density(temp : real, pres : real, fR : real) : real
   {
-    const dens : real = pres/(temp*fR);
+    const dens : real = pres/temp/fR;
 
     return dens;
   }
