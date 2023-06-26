@@ -283,17 +283,6 @@ chpl -o tests/flux_tests                                          \
      --warnings                                                   \
      --warn-unstable                                              \
      --main-module Flux src/flux.chpl                             \
-                        src/interpolation.chpl                    \
-                        src/polynomials.chpl                      \
-                        src/input.chpl                            \
-                        src/frmesh.chpl                           \
-                        src/temporal.chpl                         \
-                        src/flux.chpl                             \
-                        src/mesh.chpl                             \
-                        src/gmesh.chpl                            \
-                        src/mapping.chpl                          \
-                        src/functions/determinant.chpl            \
-                        src/functions/sorttuple.chpl              \
                         src/parameters.chpl                       \
                         src/testing.chpl                          \
     2>&1 | tee tests/flux_build.log

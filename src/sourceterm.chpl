@@ -32,10 +32,11 @@ module SourceTerm
 
   proc quasi_1d_euler(consVars : [1..3] real, area : real, dArea : real) : [1..3] real
   {
+    import Input.fGamma;
     import Flux.pressure_cv;
 
     var sourceTerm : [1..3] real;
-    var p : real = pressure_cv(consVars);
+    var p : real = pressure_cv(consVars, fGamma);
 
     sourceTerm[1] = consVars[2];
     sourceTerm[2] = consVars[2]*consVars[2]/consVars[1];

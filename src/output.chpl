@@ -119,6 +119,7 @@ module Output
     use IO;
     use Path;
     use Flux;
+    import Input.fGamma;
 
     //param fileRoot : string = "sol_gnuplt";
     param fileExt  : string = ".dat";
@@ -159,9 +160,9 @@ module Output
         for varIdx in vars.domain.dim(0) do
           outputWriter.writef("  %{ 14.7er}", vars[varIdx, dof]);
         if flagPressure then
-          outputWriter.writef("  %{ 14.7er}", pressure_cv(vars[.., dof]));
+          outputWriter.writef("  %{ 14.7er}", pressure_cv(vars[.., dof], fGamma));
         if flagMach then
-          outputWriter.writef("  %{ 14.7er}", mach_cv(vars[.., dof]));
+          outputWriter.writef("  %{ 14.7er}", mach_cv(vars[.., dof], fGamma));
         outputWriter.writeln();
       }
 
@@ -186,6 +187,8 @@ module Output
     use Interpolation;
     use Parameters.ParamMesh;
     import Mesh.elem_vertices;
+    import Input.fGamma;
+    import Input.fR;
 
     //param fileRoot : string = "sol_gnuplt";
     param fileExt  : string = ".dat";
@@ -334,10 +337,10 @@ module Output
             for varIdx in 1..frMesh.nVars do
               outputWriter.writef(realFormat, frMesh.solSP[varIdx, spIdx]);
 
-            if flagPressure    then outputWriter.writef(realFormat,    pressure_cv(frMesh.solSP[.., spIdx]));
-            if flagTemperature then outputWriter.writef(realFormat, temperature_cv(frMesh.solSP[.., spIdx]));
-            if flagMach        then outputWriter.writef(realFormat,        mach_cv(frMesh.solSP[.., spIdx]));
-            if flagEntropy     then outputWriter.writef(realFormat,     entropy_cv(frMesh.solSP[.., spIdx]));
+            if flagPressure    then outputWriter.writef(realFormat,    pressure_cv(frMesh.solSP[.., spIdx], fGamma));
+            if flagTemperature then outputWriter.writef(realFormat, temperature_cv(frMesh.solSP[.., spIdx], fGamma, fR));
+            if flagMach        then outputWriter.writef(realFormat,        mach_cv(frMesh.solSP[.., spIdx], fGamma));
+            if flagEntropy     then outputWriter.writef(realFormat,     entropy_cv(frMesh.solSP[.., spIdx], fGamma));
 
             outputWriter.writef("\n");
           }
@@ -360,10 +363,10 @@ module Output
             for varIdx in 1..frMesh.nVars do
               outputWriter.writef(realFormat, avgSol[varIdx]);
 
-            if flagPressure    then outputWriter.writef(realFormat,    pressure_cv(avgSol));
-            if flagTemperature then outputWriter.writef(realFormat, temperature_cv(avgSol));
-            if flagMach        then outputWriter.writef(realFormat,        mach_cv(avgSol));
-            if flagEntropy     then outputWriter.writef(realFormat,     entropy_cv(avgSol));
+            if flagPressure    then outputWriter.writef(realFormat,    pressure_cv(avgSol, fGamma));
+            if flagTemperature then outputWriter.writef(realFormat, temperature_cv(avgSol, fGamma, fR));
+            if flagMach        then outputWriter.writef(realFormat,        mach_cv(avgSol, fGamma));
+            if flagEntropy     then outputWriter.writef(realFormat,     entropy_cv(avgSol, fGamma));
 
             outputWriter.writef("\n");
           }
@@ -389,10 +392,10 @@ module Output
             for varIdx in 1..frMesh.nVars do
               outputWriter.writef(realFormat, solNode[nodeIdx, varIdx]);
 
-            if flagPressure    then outputWriter.writef(realFormat,    pressure_cv(solNode[nodeIdx, ..]));
-            if flagTemperature then outputWriter.writef(realFormat, temperature_cv(solNode[nodeIdx, ..]));
-            if flagMach        then outputWriter.writef(realFormat,        mach_cv(solNode[nodeIdx, ..]));
-            if flagEntropy     then outputWriter.writef(realFormat,     entropy_cv(solNode[nodeIdx, ..]));
+            if flagPressure    then outputWriter.writef(realFormat,    pressure_cv(solNode[nodeIdx, ..], fGamma));
+            if flagTemperature then outputWriter.writef(realFormat, temperature_cv(solNode[nodeIdx, ..], fGamma, fR));
+            if flagMach        then outputWriter.writef(realFormat,        mach_cv(solNode[nodeIdx, ..], fGamma));
+            if flagEntropy     then outputWriter.writef(realFormat,     entropy_cv(solNode[nodeIdx, ..], fGamma));
 
             outputWriter.writef("\n");
           }
@@ -574,6 +577,8 @@ module Output
     use Flux;
     use Quadrature;
     use Parameters.ParamMesh;
+    import Input.fGamma;
+    import Input.fR;
 
     //param fileRoot : string = "sol_gnuplt";
     param fileExt  : string = ".dat";
@@ -731,7 +736,7 @@ module Output
           if flagPressure
           {
             for cellIdx in 1..frMesh.nCells do
-              outputWriter.writef(realFormat, pressure_cv(solAvg[cellIdx, ..]));
+              outputWriter.writef(realFormat, pressure_cv(solAvg[cellIdx, ..], fGamma));
 
             outputWriter.writef("\n");
           }
@@ -739,7 +744,7 @@ module Output
           if flagTemperature then
           {
             for cellIdx in 1..frMesh.nCells do
-              outputWriter.writef(realFormat, temperature_cv(solAvg[cellIdx, ..]));
+              outputWriter.writef(realFormat, temperature_cv(solAvg[cellIdx, ..], fGamma, fR));
 
             outputWriter.writef("\n");
           }
@@ -747,7 +752,7 @@ module Output
           if flagMach then
           {
             for cellIdx in 1..frMesh.nCells do
-              outputWriter.writef(realFormat, mach_cv(solAvg[cellIdx, ..]));
+              outputWriter.writef(realFormat, mach_cv(solAvg[cellIdx, ..], fGamma));
 
             outputWriter.writef("\n");
           }
@@ -755,7 +760,7 @@ module Output
           if flagEntropy then
           {
             for cellIdx in 1..frMesh.nCells do
-              outputWriter.writef(realFormat, entropy_cv(solAvg[cellIdx, ..]));
+              outputWriter.writef(realFormat, entropy_cv(solAvg[cellIdx, ..], fGamma));
 
             outputWriter.writef("\n");
           }

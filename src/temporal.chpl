@@ -48,12 +48,13 @@ module Temporal
   proc max_wave_speed(consVars : [] real) : real
   {
     use LinearAlgebra;
+    import Input.fGamma;
     import Flux.sound_speed_cv;
     import Flux.velocity_magnitude_cv;
 
     // Calculate the maximum wave speed at all points in this cell
     const velocity   : real = velocity_magnitude_cv(consVars);
-    const soundSpeed : real = sound_speed_cv(consVars);
+    const soundSpeed : real = sound_speed_cv(consVars, fGamma);
 
     const maxWaveSpeed : real = soundSpeed + velocity;
 

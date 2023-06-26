@@ -307,6 +307,7 @@ module Init
     use Flux;
 
     const nNodes = 21;
+    param fGamma = 1.4;
     var xyz : [1..nNodes, 1..3] real;
     var sol : [1..nNodes, 1..3] real;
 
@@ -338,7 +339,7 @@ module Init
       writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3],   Pressure,       Mach");
       for i in xyz.domain.dim(0) do
         writef("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er\n", i, xyz[i, 1], xyz[i, 2],
-            xyz[i, 3], sol[i, 1], sol[i, 2], sol[i, 3], pressure_cv(sol[i,..]), mach_cv(sol[i,..]));
+            xyz[i, 3], sol[i, 1], sol[i, 2], sol[i, 3], pressure_cv(sol[i,..], fGamma), mach_cv(sol[i,..], fGamma));
 
       writeln();
       writeln("1D Nozzle Flow - Smooth Transonic");
@@ -347,7 +348,7 @@ module Init
       writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3],   Pressure,       Mach");
       for i in xyz.domain.dim(0) do
         writef("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er\n", i, xyz[i, 1], xyz[i, 2],
-            xyz[i, 3], sol[i, 1], sol[i, 2], sol[i, 3], pressure_cv(sol[i,..]), mach_cv(sol[i,..]));
+            xyz[i, 3], sol[i, 1], sol[i, 2], sol[i, 3], pressure_cv(sol[i,..], fGamma), mach_cv(sol[i,..], fGamma));
 
       writeln();
       writeln("1D Nozzle Flow - Shocked Transonic");
@@ -356,7 +357,7 @@ module Init
       writeln("Point #,    X-Coord,    Y-Coord,    Z-Coord,     Sol[1],     Sol[2],     Sol[3],   Pressure,       Mach");
       for i in xyz.domain.dim(0) do
         writef("%7i, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er, %10.3er\n", i, xyz[i, 1], xyz[i, 2],
-            xyz[i, 3], sol[i, 1], sol[i, 2], sol[i, 3], pressure_cv(sol[i,..]), mach_cv(sol[i,..]));
+            xyz[i, 3], sol[i, 1], sol[i, 2], sol[i, 3], pressure_cv(sol[i,..], fGamma), mach_cv(sol[i,..], fGamma));
     }
 
     writeln();
