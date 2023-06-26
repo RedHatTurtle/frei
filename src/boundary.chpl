@@ -4,8 +4,6 @@ module Boundary
   use UnitTest;
   import LinearAlgebra.norm;
   import Mesh.faml_r;
-  import Input.fGamma;
-  import Input.fR;
 
   proc boundary(hostConsVars : [] real, faml : faml_r, xyz : [] real, nrm : [] real) : [hostConsVars.domain] real
   {
@@ -145,7 +143,7 @@ module Boundary
     ghstConsVars = bocoProperties[hostConsVars.domain.dim(0)];
 
     // Get the interior pressure
-    var presHost = pressure_cv( hostConsVars );
+    var presHost = pressure_cv(hostConsVars, fGamma);
 
     // Compute the total energy using interior pressure and free stream specific kinetic energy
     ghstConsVars[idxEne] = presHost/(fGamma-1) + eneKin;
@@ -208,7 +206,7 @@ module Boundary
     // Check if the normal velocity is supersonic
     // if (abs(vn_int)/aspd_int >= one) then
          // If it's supersonic set the ghost pressure to the total pressure
-         // ghstPres = total_pressure_cv(bocoConsVars);
+         // ghstPres = total_pressure_cv(bocoConsVars, fGamma);
     // else
          // If it's subsonic set the ghost pressure to the BoCo pressure
          var ghstPres = bocoProperties[1];
@@ -238,6 +236,8 @@ module Boundary
 
   proc riemann(hostConsVars : [] real, bocoProperties : [] real, nrm : [] real) : [hostConsVars.domain] real
   {
+    import Input.fGamma;
+    import Input.fR;
     import Parameters.ParamConstants.PI;
     import Flux.density;
     import Flux.sound_speed;
@@ -256,8 +256,8 @@ module Boundary
     var  velInt : [idxMom] real = hostConsVars[idxMom]/densInt;
     var enerInt : real = hostConsVars[idxEner];
 
-    var presInt : real = pressure_cv(hostConsVars);
-    var    aInt : real = sound_speed_cv(hostConsVars);
+    var presInt : real = pressure_cv(hostConsVars, fGamma);
+    var    aInt : real = sound_speed_cv(hostConsVars, fGamma);
 
     // Compute the internal invariants
     var velNrmInt : real = dot(velInt, uniNrm);
@@ -270,8 +270,8 @@ module Boundary
     var  presExt = bocoProperties[4];
     var  tempExt = bocoProperties[5];
 
-    var densExt : real = density(presExt, tempExt);
-    var    aExt : real = sound_speed(tempExt);
+    var densExt : real = density(temp=tempExt, pres=presExt, fR=fR);
+    var    aExt : real = sound_speed_temp(temp=tempExt, fGamma=fGamma, fR=fR);
 
     var velVExt : [idxMom] real;
     velVExt[idxMom.low] = machExt*aExt*cos(betaExt/180*PI)*cos(alphaExt/180*PI);

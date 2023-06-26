@@ -1,17 +1,14 @@
 module Flux
 {
-  proc pressure(dens : real, temp : real) : real
+  proc pressure(dens : real, temp : real, fR : real) : real
   {
-    import Input.fR;
-
     var pressure : real = fR*dens*temp;
 
     return pressure;
   }
 
-  proc pressure_cv(cons : [] real) : real
+  proc pressure_cv(cons : [] real, fGamma : real) : real
   {
-    import Input.fGamma;
     import LinearAlgebra.dot;
 
     var idxDens : int   = cons.domain.dim(0).low;           // First element is density
@@ -23,22 +20,18 @@ module Flux
     return pressure;
   }
 
-  proc temperature(dens : real, pres : real) : real
+  proc temperature(dens : real, pres : real, fR : real) : real
   {
-    import Input.fR;
-
     var temperature : real = pres/dens/fR;
 
     return temperature;
   }
 
-  proc temperature_cv(cons : [] real) : real
+  proc temperature_cv(cons : [] real, fGamma : real, fR : real) : real
   {
-    import Input.fR;
-
     var idxDens : int   = cons.domain.dim(0).low;           // First element is density
 
-    var pres : real = pressure_cv(cons);
+    var pres : real = pressure_cv(cons, fGamma);
 
     var temperature : real = pres/(cons[idxDens]*fR);
 
@@ -59,88 +52,74 @@ module Flux
     return velM;
   }
 
-  proc entropy_cv(cons : [] real) : real
+  proc entropy_cv(cons : [] real, fGamma : real) : real
   {
-    import Input.fGamma;
-
     var idxDens : int   = cons.domain.dim(0).low;          // First element is density
 
-    var pressure : real = pressure_cv(cons);
+    var pressure : real = pressure_cv(cons, fGamma);
 
     var entropy : real = pressure/(cons[idxDens]**fGamma);
 
     return entropy;
   }
 
-  proc internal_energy_cv(cons : [] real) : real
+  proc internal_energy_cv(cons : [] real, fGamma : real, fR : real, fCv : real) : real
   {
-    import Input.fCv;
-    import Input.fR;
-
-    var p : real = pressure_cv(cons);
+    var p : real = pressure_cv(cons, fGamma);
 
     var internalEnergy : real = fCv*p/fR;
 
     return internalEnergy;
   }
 
-  proc enthalpy_cv(cons : [] real) : real
+  proc enthalpy_cv(cons : [] real, fGamma : real, fR : real, fCv : real) : real
   {
-    var enerInt : real = internal_energy_cv(cons);
-    var pres    : real = pressure_cv(cons);
+    var enerInt : real = internal_energy_cv(cons, fGamma, fR, fCv);
+    var pres    : real = pressure_cv(cons, fGamma);
 
     var enthalpy : real = enerInt + pres;
 
     return enthalpy;
   }
 
-  proc enthalpy_stagnation_cv(cons : [] real) : real
+  proc enthalpy_stagnation_cv(cons : [] real, fGamma : real) : real
   {
     var idxEner : int   = cons.domain.dim(0).high;         // Last element is energy
 
-    var pres    : real = pressure_cv(cons);
+    var pres    : real = pressure_cv(cons, fGamma);
 
     var enthalpyStagnation : real = cons[idxEner] + pres;
 
     return enthalpyStagnation;
   }
 
-  proc sound_speed(dens : real, pres : real) : real
+  proc sound_speed(dens : real, pres : real, fGamma : real) : real
   {
-    import Input.fGamma;
-
     var a : real = sqrt(fGamma*pres/dens);
 
     return a;
   }
 
-  proc sound_speed(temp : real) : real
+  proc sound_speed_temp(temp : real, fGamma : real, fR : real) : real
   {
-    import Input.fGamma;
-    import Input.fR;
-
     var a : real = sqrt(fGamma*fR*temp);
 
     return a;
   }
 
-  proc sound_speed_cv(cons : [] real) : real
+  proc sound_speed_cv(cons : [] real, fGamma : real) : real
   {
-    import Input.fGamma;
-
     var idxDens : int   = cons.domain.dim(0).low;           // First element is density
     var idxMomV : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
     var idxEner : int   = cons.domain.dim(0).high;          // Last element is energy
 
-    var p : real = pressure_cv(cons);
+    var p : real = pressure_cv(cons, fGamma);
 
     return sqrt(fGamma*p/cons[idxDens]);
   }
 
-  proc sound_speed_pv(prim : [] real) : real
+  proc sound_speed_pv(prim : [] real, fGamma : real) : real
   {
-    import Input.fGamma;
-
     var idxDens : int   = prim.domain.dim(0).low;           // First element is density
     var idxVelV : range = prim.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
     var idxPres : int   = prim.domain.dim(0).high;          // Last element is the pressure
@@ -148,7 +127,7 @@ module Flux
     return sqrt(fGamma*prim[idxPres]/prim[idxDens]);
   }
 
-  proc mach_cv(cons : [] real) : real
+  proc mach_cv(cons : [] real, fGamma : real) : real
   {
     import LinearAlgebra.norm;
 
@@ -158,23 +137,20 @@ module Flux
 
     var velV : [idxMomV] real = cons[idxMomV]/cons[idxDens];
 
-    var mach : real = norm(velV) / sound_speed_cv(cons);
+    var mach : real = norm(velV) / sound_speed_cv(cons, fGamma);
 
     return mach;
   }
 
-  proc density(temp : real, pres : real) : real
+  proc density(temp : real, pres : real, fR : real) : real
   {
-    import Input.fR;
-
     var dens : real = pres/(temp*fR);
 
     return dens;
   }
 
-  proc energy_pv(prim : [] real) : real
+  proc energy_pv(prim : [] real, fGamma : real) : real
   {
-    import Input.fGamma;
     import LinearAlgebra.dot;
 
     var idxDens : int   = prim.domain.dim(0).low;           // First element is density
@@ -186,7 +162,7 @@ module Flux
     return ener;
   }
 
-  proc cons2prim(cons : [] real) : [] real
+  proc cons2prim(cons : [] real, fGamma : real) : [] real
   {
     var idxDens : int   = cons.domain.dim(0).low;           // First element is density
     var idxMomV : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the momentum vector
@@ -199,12 +175,12 @@ module Flux
 
     prim[idxDens] = cons[idxDens];
     prim[idxVelV] = cons[idxMomV]/cons[idxDens];
-    prim[idxPres] = pressure_cv(cons);
+    prim[idxPres] = pressure_cv(cons, fGamma);
 
     return prim;
   }
 
-  proc prim2cons(prim : [] real) : [] real
+  proc prim2cons(prim : [] real, fGamma : real) : [] real
   {
     var idxDens : int   = prim.domain.dim(0).low;           // First element is density
     var idxVelV : range = prim.domain.dim(0).expand(-1);    // Intermediary elements are the velocity vector
@@ -217,24 +193,19 @@ module Flux
 
     cons[idxDens] = prim[idxDens];
     cons[idxMomV] = prim[idxDens]*prim[idxVelV];
-    cons[idxEner] = energy_pv(prim);
+    cons[idxEner] = energy_pv(prim, fGamma);
 
     return cons;
   }
 
-  proc convection_flux_cv_1d(cons : real) : real
+  proc convection_flux_cv_1d(cons : real, convVelV : real) : real
   {
-    import Input.convectionSpeed;
-
-    return cons*convectionSpeed[1];
+    return cons*convVelV;
   }
 
-  proc convection_flux_cv(cons : real) : [] real
+  proc convection_flux_cv(cons : real, convVelV : real) : [] real
   {
-    import Input.convectionSpeed;
-    import Input.nEqs;
-
-    return cons*convectionSpeed[1..nEqs];
+    return cons*convVelV;
   }
 
   proc burgers_flux_cv_1d(cons : real) : real
@@ -242,10 +213,10 @@ module Flux
     return 0.5*cons**2.0;
   }
 
-  proc euler_flux_cv_1d(cons : [1..3] real) : [1..3] real
+  proc euler_flux_cv_1d(cons : [1..3] real, fGamma : real) : [1..3] real
   {
     var euler_flux_cv : [cons.domain] real;
-    var p : real = pressure_cv(cons);
+    var p : real = pressure_cv(cons, fGamma);
 
     euler_flux_cv[1] = cons[2];
     euler_flux_cv[2] = cons[2]*cons[2]/cons[1] + p;
@@ -254,7 +225,7 @@ module Flux
     return euler_flux_cv;
   }
 
-  proc euler_flux_cv(cons : [] real) : [] real
+  proc euler_flux_cv(cons : [] real, fGamma : real) : [] real
   {
     var idxDens : int   = cons.domain.dim(0).low;           // First element is density
     var idxMomV : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
@@ -263,7 +234,7 @@ module Flux
     var euler_flux_cv : [idxMomV-1, cons.domain.dim(0)] real;
 
     var velV : [idxMomV] real = cons[idxMomV] / cons[idxDens];
-    var pres : real = pressure_cv(cons);
+    var pres : real = pressure_cv(cons, fGamma);
 
     for idxDir in idxMomV-1
     {
@@ -277,9 +248,8 @@ module Flux
     return euler_flux_cv;
   }
 
-  proc euler_flux_pv(prim : [] real) : [] real
+  proc euler_flux_pv(prim : [] real, fGamma : real) : [] real
   {
-    use Input;
     import LinearAlgebra.dot;
 
     var idxDens : int   = prim.domain.dim(0).low;           // First element is density
@@ -310,6 +280,17 @@ module Flux
 
   proc main()
   {
+    // Fluid properties
+    param gasR     : real = 8.314462618;            // Ideal Gas Constant (2018 CODATA), J/(mol*K)
+    param fMolMass : real = 2.8966e-2;              // Molar Mass of the fluid mixture, kg/mol
+    param fGamma   : real = 1.4;                    // Ideal diatomic gas specific heat ratio
+    param fVisc    : real = 1.78792e-5;             // Dynamic viscosity coefficient, kg/(m*s)
+    param fKappa   : real = 2.52992e-2;             // Thermal Conductivity, W/(m*K)
+    param fR       : real = gasR/fMolMass;          // Calculate the specific gas constant for this fluid, J/(kg*K)
+    param fCp      : real = fR/(1.0-1.0/fGamma);    // Calculate the heat coefficients at constant pressure Cp, J/(kg*K)
+    param fCv      : real = fR/(fGamma-1.0);        // Calculate the heat coefficients at constant volume Cv, J/(kg*K)
+    param fPrandtl : real = fVisc*fCp/fKappa;       // Calculate the Prandtl number of the fluid
+
     // Flow defining variables
     param temp : real = 288.15;
     param pres : real = 101_325.0;
@@ -323,9 +304,9 @@ module Flux
     param velM : real =         204.17257662266293619707845426436801383974345538352403; // Mach*aSpd
     param ener : real =     278_846.40000000000000000000000000000000000000000000000000; // Pres/(fGamma-1) + 0.5*Dens*velM^2
     param entr : real =      76_261.15011769449782489957624473444208242962290561088006; // Pres/(Dens**fGamma)
+    param enth : real =     354_637.50000000000000000000000000000000000000000000000000; // EnerInt + Pres
     param enthStag : real = 380_171.40000000000000000000000000000000000000000000000000; // Ener + Pres
     param enerInt : real =  253_312.50000000000000000000000000000000000000000000000000; // fCv*Pres/fR
-    param enth : real =     354_637.50000000000000000000000000000000000000000000000000; // EnerInt + Pres
 
     const velV1d : [1..1] real = [velM                                                              ];
     const velV2d : [1..2] real = [velM*cos(alph)          , velM*sin(alph)                          ];
@@ -341,97 +322,97 @@ module Flux
 
     writef("Conserved variables, Density (kg/m^3), XYZ Momentum components (kg*m/s*m^3), Energy (J/m^3):\n");
     writef("  1D - Test Reference: %.8ht\n", cons1d);
-    writef("            prim2cons: %.8ht\n", prim2cons(prim1d));
+    writef("            prim2cons: %.8ht\n", prim2cons(prim1d, fGamma));
     writef("  2D - Test Reference: %.8ht\n", cons2d);
-    writef("            prim2cons: %.8ht\n", prim2cons(prim2d));
+    writef("            prim2cons: %.8ht\n", prim2cons(prim2d, fGamma));
     writef("  3D - Test Reference: %.8ht\n", cons3d);
-    writef("            prim2cons: %.8ht\n", prim2cons(prim3d));
+    writef("            prim2cons: %.8ht\n", prim2cons(prim3d, fGamma));
     writef("\n");
     writef("Primitive Variables, Density (kg/m^3), XYZ Velocity components (m/s), Pressure (Pa):\n");
     writef("  1D - Test Reference: %.8ht\n", prim1d);
-    writef("            cons2prim: %.8ht\n", cons2prim(cons1d));
+    writef("            cons2prim: %.8ht\n", cons2prim(cons1d, fGamma));
     writef("  2D - Test Reference: %.8ht\n", prim2d);
-    writef("            cons2prim: %.8ht\n", cons2prim(cons2d));
+    writef("            cons2prim: %.8ht\n", cons2prim(cons2d, fGamma));
     writef("  3D - Test Reference: %.8ht\n", prim3d);
-    writef("            cons2prim: %.8ht\n", cons2prim(cons3d));
+    writef("            cons2prim: %.8ht\n", cons2prim(cons3d, fGamma));
     writef("\n");
     writef("Pressure (Pa) functions:\n");
     writef("      Test Reference: %19.12er\n", pres);
-    writef("  From Dens and Temp: %19.12er\n", pressure(dens, temp));
-    writef("  1D - From ConsVars: %19.12er\n", pressure_cv(cons1d));
-    writef("  2D - From ConsVars: %19.12er\n", pressure_cv(cons1d));
-    writef("  3D - From ConsVars: %19.12er\n", pressure_cv(cons1d));
+    writef("  From Dens and Temp: %19.12er\n", pressure(dens, temp, fR));
+    writef("  1D - From ConsVars: %19.12er\n", pressure_cv(cons1d, fGamma));
+    writef("  2D - From ConsVars: %19.12er\n", pressure_cv(cons1d, fGamma));
+    writef("  3D - From ConsVars: %19.12er\n", pressure_cv(cons1d, fGamma));
     writef("\n");
     writef("Temperature (K) functions:\n");
     writef("      Test Reference: %19.12er\n", temp);
-    writef("  From Dens and Pres: %19.12er\n", temperature(dens, pres));
-    writef("  1D - from ConsVars: %19.12er\n", temperature_cv(cons1d));
-    writef("  2D - from ConsVars: %19.12er\n", temperature_cv(cons2d));
-    writef("  3D - from ConsVars: %19.12er\n", temperature_cv(cons3d));
+    writef("  From Dens and Pres: %19.12er\n", temperature(dens, pres, fR));
+    writef("  1D - from ConsVars: %19.12er\n", temperature_cv(cons1d, fGamma, fR));
+    writef("  2D - from ConsVars: %19.12er\n", temperature_cv(cons2d, fGamma, fR));
+    writef("  3D - from ConsVars: %19.12er\n", temperature_cv(cons3d, fGamma, fR));
     writef("\n");
     writef("Density (kg/m^3) functions:\n");
     writef("      Test Reference: %19.12er\n", dens);
-    writef("  From Temp and Pres: %19.12er\n", density(temp, pres));
+    writef("  From Temp and Pres: %19.12er\n", density(temp, pres, fR));
     writef("\n");
     writef("Energy (J/m^3) functions:\n");
     writef("      Test Reference: %19.12er\n", ener);
-    writef("  1D - From PrimVars: %19.12er\n", energy_pv(prim1d));
-    writef("  2D - From PrimVars: %19.12er\n", energy_pv(prim2d));
-    writef("  3D - From PrimVars: %19.12er\n", energy_pv(prim3d));
+    writef("  1D - From PrimVars: %19.12er\n", energy_pv(prim1d, fGamma));
+    writef("  2D - From PrimVars: %19.12er\n", energy_pv(prim2d, fGamma));
+    writef("  3D - From PrimVars: %19.12er\n", energy_pv(prim3d, fGamma));
     writef("\n");
     writef("Internal Energy (J/m^3) functions:\n");
     writef("      Test Reference: %19.12er\n", enerInt);
-    writef("  1D - From ConsVars: %19.12er\n", internal_energy_cv(cons1d));
-    writef("  2D - From ConsVars: %19.12er\n", internal_energy_cv(cons2d));
-    writef("  3D - From ConsVars: %19.12er\n", internal_energy_cv(cons3d));
+    writef("  1D - From ConsVars: %19.12er\n", internal_energy_cv(cons1d, fGamma, fR, fCv));
+    writef("  2D - From ConsVars: %19.12er\n", internal_energy_cv(cons2d, fGamma, fR, fCv));
+    writef("  3D - From ConsVars: %19.12er\n", internal_energy_cv(cons3d, fGamma, fR, fCv));
     writef("\n");
     writef("Entropy () functions:\n");
     writef("      Test Reference: %19.12er\n", entr);
-    writef("  1D - From ConsVars: %19.12er\n", entropy_cv(cons1d));
-    writef("  2D - From ConsVars: %19.12er\n", entropy_cv(cons2d));
-    writef("  3D - From ConsVars: %19.12er\n", entropy_cv(cons3d));
+    writef("  1D - From ConsVars: %19.12er\n", entropy_cv(cons1d, fGamma));
+    writef("  2D - From ConsVars: %19.12er\n", entropy_cv(cons2d, fGamma));
+    writef("  3D - From ConsVars: %19.12er\n", entropy_cv(cons3d, fGamma));
     writef("\n");
     writef("Enthalpy (J/m^3) functions:\n");
     writef("      Test Reference: %19.12er\n", enth);
-    writef("  1D - From ConsVars: %19.12er\n", enthalpy_cv(cons1d));
-    writef("  2D - From ConsVars: %19.12er\n", enthalpy_cv(cons2d));
-    writef("  3D - From ConsVars: %19.12er\n", enthalpy_cv(cons3d));
+    writef("  1D - From ConsVars: %19.12er\n", enthalpy_cv(cons1d, fGamma, fR, fCv));
+    writef("  2D - From ConsVars: %19.12er\n", enthalpy_cv(cons2d, fGamma, fR, fCv));
+    writef("  3D - From ConsVars: %19.12er\n", enthalpy_cv(cons3d, fGamma, fR, fCv));
     writef("\n");
     writef("Stagnation Enthalpy (J/m^3) functions:\n");
     writef("      Test Reference: %19.12er\n", enthStag);
-    writef("  1D - From ConsVars: %19.12er\n", enthalpy_stagnation_cv(cons1d));
-    writef("  2D - From ConsVars: %19.12er\n", enthalpy_stagnation_cv(cons2d));
-    writef("  3D - From ConsVars: %19.12er\n", enthalpy_stagnation_cv(cons3d));
+    writef("  1D - From ConsVars: %19.12er\n", enthalpy_stagnation_cv(cons1d, fGamma));
+    writef("  2D - From ConsVars: %19.12er\n", enthalpy_stagnation_cv(cons2d, fGamma));
+    writef("  3D - From ConsVars: %19.12er\n", enthalpy_stagnation_cv(cons3d, fGamma));
     writef("\n");
     writef("Speed of Sound (m/s) and Mach (non-dimensional) functions:\n");
     writef("  Speed of Sound from Dens and Pres: %19.12er,     from Temp: %19.12er\n",
-        sound_speed(dens, pres), sound_speed(temp));
+        sound_speed(dens, pres, fGamma), sound_speed_temp(temp, fGamma, fR));
     writef("  1D - Speed of Sound from ConsVars: %19.12er, from PrimVars: %19.12er - Mach: %19.12er\n",
-        sound_speed_cv(cons1d), sound_speed_pv(prim1d), mach_cv(cons1d));
+        sound_speed_cv(cons1d, fGamma), sound_speed_pv(prim1d, fGamma), mach_cv(cons1d, fGamma));
     writef("  2D - Speed of Sound from ConsVars: %19.12er, from PrimVars: %19.12er - Mach: %19.12er\n",
-        sound_speed_cv(cons2d), sound_speed_pv(prim2d), mach_cv(cons2d));
+        sound_speed_cv(cons2d, fGamma), sound_speed_pv(prim2d, fGamma), mach_cv(cons2d, fGamma));
     writef("  3D - Speed of Sound from ConsVars: %19.12er, from PrimVars: %19.12er - Mach: %19.12er\n",
-        sound_speed_cv(cons3d), sound_speed_pv(prim3d), mach_cv(cons3d));
+        sound_speed_cv(cons3d, fGamma), sound_speed_pv(prim3d, fGamma), mach_cv(cons3d, fGamma));
     writef("\n");
     writef("Euler flux functions:\n");
     writef("  1D Fluxes:\n");
-    writef("    1D  Euler Flux (ConsVars): %.8t\n", euler_flux_cv_1d(cons1d));
-    writef("    Gen Euler Flux (ConsVars): %.8t\n", euler_flux_cv(cons1d));
-    writef("    Gen Euler Flux (PrimVars): %.8t\n", euler_flux_pv(prim1d));
+    writef("    1D  Euler Flux (ConsVars): %.8t\n", euler_flux_cv_1d(cons1d, fGamma));
+    writef("    Gen Euler Flux (ConsVars): %.8t\n", euler_flux_cv(cons1d, fGamma));
+    writef("    Gen Euler Flux (PrimVars): %.8t\n", euler_flux_pv(prim1d, fGamma));
     writef("\n");
     writef("  2D Fluxes:\n");
-    writef("    Gen Euler Flux (ConsVars): %.8t\n", euler_flux_cv(cons2d)[1,..]);
-    writef("                               %.8t\n", euler_flux_cv(cons2d)[2,..]);
-    writef("    Gen Euler Flux (PrimVars): %.8t\n", euler_flux_pv(prim2d)[1,..]);
-    writef("                               %.8t\n", euler_flux_pv(prim2d)[2,..]);
+    writef("    Gen Euler Flux (ConsVars): %.8t\n", euler_flux_cv(cons2d, fGamma)[1,..]);
+    writef("                               %.8t\n", euler_flux_cv(cons2d, fGamma)[2,..]);
+    writef("    Gen Euler Flux (PrimVars): %.8t\n", euler_flux_pv(prim2d, fGamma)[1,..]);
+    writef("                               %.8t\n", euler_flux_pv(prim2d, fGamma)[2,..]);
     writef("\n");
     writef("  3D Fluxes:\n");
-    writef("    Gen Euler Flux (ConsVars): %.8t\n", euler_flux_cv(cons3d)[1,..]);
-    writef("                               %.8t\n", euler_flux_cv(cons3d)[2,..]);
-    writef("                               %.8t\n", euler_flux_cv(cons3d)[3,..]);
-    writef("    Gen Euler Flux (PrimVars): %.8t\n", euler_flux_pv(prim3d)[1,..]);
-    writef("                               %.8t\n", euler_flux_pv(prim3d)[2,..]);
-    writef("                               %.8t\n", euler_flux_pv(prim3d)[3,..]);
+    writef("    Gen Euler Flux (ConsVars): %.8t\n", euler_flux_cv(cons3d, fGamma)[1,..]);
+    writef("                               %.8t\n", euler_flux_cv(cons3d, fGamma)[2,..]);
+    writef("                               %.8t\n", euler_flux_cv(cons3d, fGamma)[3,..]);
+    writef("    Gen Euler Flux (PrimVars): %.8t\n", euler_flux_pv(prim3d, fGamma)[1,..]);
+    writef("                               %.8t\n", euler_flux_pv(prim3d, fGamma)[2,..]);
+    writef("                               %.8t\n", euler_flux_pv(prim3d, fGamma)[3,..]);
     //writef("\n");
     //writef("Generic Viscous flux function (conserver vars):\n");
     //writef("  Viscous 1D Flux:\n", visc_flux_cv(cons1d));
