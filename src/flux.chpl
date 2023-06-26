@@ -2,9 +2,9 @@ module Flux
 {
   proc pressure(dens : real, temp : real, fR : real) : real
   {
-    const pressure : real = fR*dens*temp;
+    const pres : real = fR*dens*temp;
 
-    return pressure;
+    return pres;
   }
 
   proc pressure_cv(const cons : [] real, fGamma : real) : real
@@ -15,16 +15,16 @@ module Flux
     const idxMomV : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
     const idxEner : int   = cons.domain.dim(0).high;          // Last element is energy
 
-    const pressure : real = (fGamma-1.0)*(cons[idxEner] - 0.5*dot(cons[idxMomV],cons[idxMomV])/cons[idxDens]);
+    const pres : real = (fGamma-1.0)*(cons[idxEner] - 0.5*dot(cons[idxMomV],cons[idxMomV])/cons[idxDens]);
 
-    return pressure;
+    return pres;
   }
 
   proc temperature(dens : real, pres : real, fR : real) : real
   {
-    const temperature : real = pres/dens/fR;
+    const temp : real = pres/dens/fR;
 
-    return temperature;
+    return temp;
   }
 
   proc temperature_cv(const cons : [] real, fGamma : real, fR : real) : real
@@ -32,9 +32,9 @@ module Flux
     const idxDens : int   = cons.domain.dim(0).low;           // First element is density
 
     const pres : real = pressure_cv(cons, fGamma);
-    const temperature : real = pres/cons[idxDens]/fR;
+    const temp : real = pres/cons[idxDens]/fR;
 
-    return temperature;
+    return temp;
   }
 
   proc velocity_magnitude_cv(const cons : [] real) : real
@@ -55,51 +55,51 @@ module Flux
   {
     const idxDens : int   = cons.domain.dim(0).low;          // First element is density
 
-    const pressure : real = pressure_cv(cons, fGamma);
-    const entropy : real = pressure/(cons[idxDens]**fGamma);
+    const pres : real = pressure_cv(cons, fGamma);
+    const entr : real = pres/(cons[idxDens]**fGamma);
 
-    return entropy;
+    return entr;
   }
 
   proc internal_energy_cv(const cons : [] real, fGamma : real, fR : real, fCv : real) : real
   {
-    const p : real = pressure_cv(cons, fGamma);
-    const internalEnergy : real = fCv*p/fR;
+    const pres    : real = pressure_cv(cons, fGamma);
+    const enerInt : real = fCv*pres/fR;
 
-    return internalEnergy;
+    return enerInt;
   }
 
   proc enthalpy_cv(const cons : [] real, fGamma : real, fR : real, fCv : real) : real
   {
     const enerInt : real = internal_energy_cv(cons, fGamma, fR, fCv);
     const pres    : real = pressure_cv(cons, fGamma);
-    const enthalpy : real = enerInt + pres;
+    const enth    : real = enerInt + pres;
 
-    return enthalpy;
+    return enth;
   }
 
   proc enthalpy_stagnation_cv(const cons : [] real, fGamma : real) : real
   {
     const idxEner : int   = cons.domain.dim(0).high;         // Last element is energy
 
-    const pres    : real = pressure_cv(cons, fGamma);
-    const enthalpyStagnation : real = cons[idxEner] + pres;
+    const pres     : real = pressure_cv(cons, fGamma);
+    const enthStag : real = cons[idxEner] + pres;
 
-    return enthalpyStagnation;
+    return enthStag;
   }
 
   proc sound_speed(dens : real, pres : real, fGamma : real) : real
   {
-    const a : real = sqrt(fGamma*pres/dens);
+    const aSpd : real = sqrt(fGamma*pres/dens);
 
-    return a;
+    return aSpd;
   }
 
   proc sound_speed_temp(temp : real, fGamma : real, fR : real) : real
   {
-    const a : real = sqrt(fGamma*fR*temp);
+    const aSpd : real = sqrt(fGamma*fR*temp);
 
-    return a;
+    return aSpd;
   }
 
   proc sound_speed_cv(const cons : [] real, fGamma : real) : real
@@ -108,9 +108,9 @@ module Flux
     const idxMomV : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
     const idxEner : int   = cons.domain.dim(0).high;          // Last element is energy
 
-    const p : real = pressure_cv(cons, fGamma);
+    const pres : real = pressure_cv(cons, fGamma);
 
-    return sqrt(fGamma*p/cons[idxDens]);
+    return sqrt(fGamma*pres/cons[idxDens]);
   }
 
   proc sound_speed_pv(const prim : [] real, fGamma : real) : real
@@ -209,12 +209,13 @@ module Flux
 
   proc euler_flux_cv_1d(const cons : [1..3] real, fGamma : real) : [1..3] real
   {
+    const pres : real = pressure_cv(cons, fGamma);
+
     var euler_flux_cv : [cons.domain] real;
-    const p : real = pressure_cv(cons, fGamma);
 
     euler_flux_cv[1] = cons[2];
-    euler_flux_cv[2] = cons[2]*cons[2]/cons[1] + p;
-    euler_flux_cv[3] = cons[2]/cons[1]*(cons[3] + p);
+    euler_flux_cv[2] = cons[2]*cons[2]/cons[1] + pres;
+    euler_flux_cv[3] = cons[2]/cons[1]*(cons[3] + pres);
 
     return euler_flux_cv;
   }
