@@ -2,7 +2,7 @@ module Flux
 {
   proc pressure(dens : real, temp : real, fR : real) : real
   {
-    var pressure : real = fR*dens*temp;
+    const pressure : real = fR*dens*temp;
 
     return pressure;
   }
@@ -11,29 +11,28 @@ module Flux
   {
     import LinearAlgebra.dot;
 
-    var idxDens : int   = cons.domain.dim(0).low;           // First element is density
-    var idxMomV : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
-    var idxEner : int   = cons.domain.dim(0).high;          // Last element is energy
+    const idxDens : int   = cons.domain.dim(0).low;           // First element is density
+    const idxMomV : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
+    const idxEner : int   = cons.domain.dim(0).high;          // Last element is energy
 
-    var pressure : real = (fGamma-1.0)*(cons[idxEner] - 0.5*dot(cons[idxMomV],cons[idxMomV])/cons[idxDens]);
+    const pressure : real = (fGamma-1.0)*(cons[idxEner] - 0.5*dot(cons[idxMomV],cons[idxMomV])/cons[idxDens]);
 
     return pressure;
   }
 
   proc temperature(dens : real, pres : real, fR : real) : real
   {
-    var temperature : real = pres/dens/fR;
+    const temperature : real = pres/dens/fR;
 
     return temperature;
   }
 
   proc temperature_cv(const cons : [] real, fGamma : real, fR : real) : real
   {
-    var idxDens : int   = cons.domain.dim(0).low;           // First element is density
+    const idxDens : int   = cons.domain.dim(0).low;           // First element is density
 
-    var pres : real = pressure_cv(cons, fGamma);
-
-    var temperature : real = pres/(cons[idxDens]*fR);
+    const pres : real = pressure_cv(cons, fGamma);
+    const temperature : real = pres/(cons[idxDens]*fR);
 
     return temperature;
   }
@@ -43,86 +42,82 @@ module Flux
     import LinearAlgebra.norm;
     import LinearAlgebra.normType;
 
-    var idxDens : int   = cons.domain.dim(0).low;           // First element is density
-    var idxMomV : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
-    var idxEner : int   = cons.domain.dim(0).high;          // Last element is energy
+    const idxDens : int   = cons.domain.dim(0).low;           // First element is density
+    const idxMomV : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
+    const idxEner : int   = cons.domain.dim(0).high;          // Last element is energy
 
-    var velM : real = norm(cons[idxMomV], normType.norm2)/cons[idxDens];
+    const velM : real = norm(cons[idxMomV], normType.norm2)/cons[idxDens];
 
     return velM;
   }
 
   proc entropy_cv(const cons : [] real, fGamma : real) : real
   {
-    var idxDens : int   = cons.domain.dim(0).low;          // First element is density
+    const idxDens : int   = cons.domain.dim(0).low;          // First element is density
 
-    var pressure : real = pressure_cv(cons, fGamma);
-
-    var entropy : real = pressure/(cons[idxDens]**fGamma);
+    const pressure : real = pressure_cv(cons, fGamma);
+    const entropy : real = pressure/(cons[idxDens]**fGamma);
 
     return entropy;
   }
 
   proc internal_energy_cv(const cons : [] real, fGamma : real, fR : real, fCv : real) : real
   {
-    var p : real = pressure_cv(cons, fGamma);
-
-    var internalEnergy : real = fCv*p/fR;
+    const p : real = pressure_cv(cons, fGamma);
+    const internalEnergy : real = fCv*p/fR;
 
     return internalEnergy;
   }
 
   proc enthalpy_cv(const cons : [] real, fGamma : real, fR : real, fCv : real) : real
   {
-    var enerInt : real = internal_energy_cv(cons, fGamma, fR, fCv);
-    var pres    : real = pressure_cv(cons, fGamma);
-
-    var enthalpy : real = enerInt + pres;
+    const enerInt : real = internal_energy_cv(cons, fGamma, fR, fCv);
+    const pres    : real = pressure_cv(cons, fGamma);
+    const enthalpy : real = enerInt + pres;
 
     return enthalpy;
   }
 
   proc enthalpy_stagnation_cv(const cons : [] real, fGamma : real) : real
   {
-    var idxEner : int   = cons.domain.dim(0).high;         // Last element is energy
+    const idxEner : int   = cons.domain.dim(0).high;         // Last element is energy
 
-    var pres    : real = pressure_cv(cons, fGamma);
-
-    var enthalpyStagnation : real = cons[idxEner] + pres;
+    const pres    : real = pressure_cv(cons, fGamma);
+    const enthalpyStagnation : real = cons[idxEner] + pres;
 
     return enthalpyStagnation;
   }
 
   proc sound_speed(dens : real, pres : real, fGamma : real) : real
   {
-    var a : real = sqrt(fGamma*pres/dens);
+    const a : real = sqrt(fGamma*pres/dens);
 
     return a;
   }
 
   proc sound_speed_temp(temp : real, fGamma : real, fR : real) : real
   {
-    var a : real = sqrt(fGamma*fR*temp);
+    const a : real = sqrt(fGamma*fR*temp);
 
     return a;
   }
 
   proc sound_speed_cv(const cons : [] real, fGamma : real) : real
   {
-    var idxDens : int   = cons.domain.dim(0).low;           // First element is density
-    var idxMomV : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
-    var idxEner : int   = cons.domain.dim(0).high;          // Last element is energy
+    const idxDens : int   = cons.domain.dim(0).low;           // First element is density
+    const idxMomV : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
+    const idxEner : int   = cons.domain.dim(0).high;          // Last element is energy
 
-    var p : real = pressure_cv(cons, fGamma);
+    const p : real = pressure_cv(cons, fGamma);
 
     return sqrt(fGamma*p/cons[idxDens]);
   }
 
   proc sound_speed_pv(const prim : [] real, fGamma : real) : real
   {
-    var idxDens : int   = prim.domain.dim(0).low;           // First element is density
-    var idxVelV : range = prim.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
-    var idxPres : int   = prim.domain.dim(0).high;          // Last element is the pressure
+    const idxDens : int   = prim.domain.dim(0).low;           // First element is density
+    const idxVelV : range = prim.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
+    const idxPres : int   = prim.domain.dim(0).high;          // Last element is the pressure
 
     return sqrt(fGamma*prim[idxPres]/prim[idxDens]);
   }
@@ -131,20 +126,19 @@ module Flux
   {
     import LinearAlgebra.norm;
 
-    var idxDens : int   = cons.domain.dim(0).low;           // First element is density
-    var idxMomV : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
-    var idxEner : int   = cons.domain.dim(0).high;          // Last element is energy
+    const idxDens : int   = cons.domain.dim(0).low;           // First element is density
+    const idxMomV : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
+    const idxEner : int   = cons.domain.dim(0).high;          // Last element is energy
 
-    var velV : [idxMomV] real = cons[idxMomV]/cons[idxDens];
-
-    var mach : real = norm(velV) / sound_speed_cv(cons, fGamma);
+    const velV : [idxMomV] real = cons[idxMomV]/cons[idxDens];
+    const mach : real = norm(velV) / sound_speed_cv(cons, fGamma);
 
     return mach;
   }
 
   proc density(temp : real, pres : real, fR : real) : real
   {
-    var dens : real = pres/(temp*fR);
+    const dens : real = pres/(temp*fR);
 
     return dens;
   }
@@ -153,23 +147,23 @@ module Flux
   {
     import LinearAlgebra.dot;
 
-    var idxDens : int   = prim.domain.dim(0).low;           // First element is density
-    var idxVelV : range = prim.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
-    var idxPres : int   = prim.domain.dim(0).high;          // Last element is pressure
+    const idxDens : int   = prim.domain.dim(0).low;           // First element is density
+    const idxVelV : range = prim.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
+    const idxPres : int   = prim.domain.dim(0).high;          // Last element is pressure
 
-    var ener : real = prim[idxPres]/(fGamma-1) + 0.5*prim[idxDens]*dot(prim[idxVelV], prim[idxVelV]);
+    const ener : real = prim[idxPres]/(fGamma-1) + 0.5*prim[idxDens]*dot(prim[idxVelV], prim[idxVelV]);
 
     return ener;
   }
 
   proc cons2prim(const cons : [] real, fGamma : real) : [] real
   {
-    var idxDens : int   = cons.domain.dim(0).low;           // First element is density
-    var idxMomV : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the momentum vector
-    var idxEner : int   = cons.domain.dim(0).high;          // Last element is energy
+    const idxDens : int   = cons.domain.dim(0).low;           // First element is density
+    const idxMomV : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the momentum vector
+    const idxEner : int   = cons.domain.dim(0).high;          // Last element is energy
 
-    var idxVelV : range = idxMomV;
-    var idxPres : int   = idxEner;
+    const idxVelV : range = idxMomV;
+    const idxPres : int   = idxEner;
 
     var prim : [cons.domain] real;
 
@@ -182,12 +176,12 @@ module Flux
 
   proc prim2cons(const prim : [] real, fGamma : real) : [] real
   {
-    var idxDens : int   = prim.domain.dim(0).low;           // First element is density
-    var idxVelV : range = prim.domain.dim(0).expand(-1);    // Intermediary elements are the velocity vector
-    var idxPres : int   = prim.domain.dim(0).high;          // Last element is pressure
+    const idxDens : int   = prim.domain.dim(0).low;           // First element is density
+    const idxVelV : range = prim.domain.dim(0).expand(-1);    // Intermediary elements are the velocity vector
+    const idxPres : int   = prim.domain.dim(0).high;          // Last element is pressure
 
-    var idxMomV : range = idxVelV;
-    var idxEner : int   = idxPres;
+    const idxMomV : range = idxVelV;
+    const idxEner : int   = idxPres;
 
     var cons : [prim.domain] real;
 
@@ -216,7 +210,7 @@ module Flux
   proc euler_flux_cv_1d(const cons : [1..3] real, fGamma : real) : [1..3] real
   {
     var euler_flux_cv : [cons.domain] real;
-    var p : real = pressure_cv(cons, fGamma);
+    const p : real = pressure_cv(cons, fGamma);
 
     euler_flux_cv[1] = cons[2];
     euler_flux_cv[2] = cons[2]*cons[2]/cons[1] + p;
@@ -227,14 +221,14 @@ module Flux
 
   proc euler_flux_cv(const cons : [] real, fGamma : real) : [] real
   {
-    var idxDens : int   = cons.domain.dim(0).low;           // First element is density
-    var idxMomV : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
-    var idxEner : int   = cons.domain.dim(0).high;          // Last element is energy
+    const idxDens : int   = cons.domain.dim(0).low;           // First element is density
+    const idxMomV : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
+    const idxEner : int   = cons.domain.dim(0).high;          // Last element is energy
 
     var euler_flux_cv : [idxMomV-1, cons.domain.dim(0)] real;
 
-    var velV : [idxMomV] real = cons[idxMomV] / cons[idxDens];
-    var pres : real = pressure_cv(cons, fGamma);
+    const velV : [idxMomV] real = cons[idxMomV] / cons[idxDens];
+    const pres : real = pressure_cv(cons, fGamma);
 
     for idxDir in idxMomV-1
     {
@@ -252,9 +246,9 @@ module Flux
   {
     import LinearAlgebra.dot;
 
-    var idxDens : int   = prim.domain.dim(0).low;           // First element is density
-    var idxVelV : range = prim.domain.dim(0).expand(-1);    // Intermediary elements are the velocity components
-    var idxPres : int   = prim.domain.dim(0).high;          // Last element is pressure
+    const idxDens : int   = prim.domain.dim(0).low;           // First element is density
+    const idxVelV : range = prim.domain.dim(0).expand(-1);    // Intermediary elements are the velocity components
+    const idxPres : int   = prim.domain.dim(0).high;          // Last element is pressure
 
     var euler_flux_pv : [idxVelV-1, prim.domain.dim(0)] real;
 
