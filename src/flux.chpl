@@ -110,7 +110,9 @@ module Flux
 
     const pres : real = pressure_cv(cons, fGamma);
 
-    return sqrt(fGamma*pres/cons[idxDens]);
+    const aSpd : real = sqrt(fGamma*pres/cons[idxDens]);
+
+    return aSpd;
   }
 
   proc sound_speed_pv(const prim : [] real, fGamma : real) : real
@@ -119,7 +121,9 @@ module Flux
     const idxVelV : range = prim.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
     const idxPres : int   = prim.domain.dim(0).high;          // Last element is the pressure
 
-    return sqrt(fGamma*prim[idxPres]/prim[idxDens]);
+    const aSpd : real = sqrt(fGamma*prim[idxPres]/prim[idxDens]);
+
+    return aSpd;
   }
 
   proc mach_cv(const cons : [] real, fGamma : real) : real
@@ -194,7 +198,9 @@ module Flux
 
   proc convection_flux_cv_1d(cons : real, convVelV : real) : real
   {
-    return cons*convVelV;
+    const flux : real = cons * convVelV;
+
+    return flux;
   }
 
   proc convection_flux_cv(cons : real, convVelV : real) : [] real
@@ -204,7 +210,9 @@ module Flux
 
   proc burgers_flux_cv_1d(cons : real) : real
   {
-    return 0.5*cons**2.0;
+    const flux : real = 0.5*cons**2.0;
+
+    return flux;
   }
 
   proc euler_flux_cv_1d(const cons : [1..3] real, fGamma : real) : [1..3] real
@@ -226,10 +234,10 @@ module Flux
     const idxMomV : range = cons.domain.dim(0).expand(-1);    // Intermediary elements are the velocities
     const idxEner : int   = cons.domain.dim(0).high;          // Last element is energy
 
-    var euler_flux_cv : [idxMomV-1, cons.domain.dim(0)] real;
-
     const velV : [idxMomV] real = cons[idxMomV] / cons[idxDens];
     const pres : real = pressure_cv(cons, fGamma);
+
+    var euler_flux_cv : [idxMomV-1, cons.domain.dim(0)] real;
 
     for idxDir in idxMomV-1
     {
@@ -257,7 +265,8 @@ module Flux
     {
       euler_flux_pv[idxDir, idxDens] = prim[idxDens+idxDir]*prim[idxDens];
       euler_flux_pv[idxDir, idxVelV] = prim[idxDens+idxDir]*prim[idxDens]*prim[idxVelV];
-      euler_flux_pv[idxDir, idxPres] = prim[idxDens+idxDir]*(prim[idxPres]*fGamma/(fGamma-1.0)+0.5*prim[idxDens]*dot(prim[idxVelV],prim[idxVelV]));
+      euler_flux_pv[idxDir, idxPres] = prim[idxDens+idxDir]*(prim[idxPres]*fGamma/(fGamma-1.0)
+                                                             +0.5*prim[idxDens]*dot(prim[idxVelV],prim[idxVelV]));
 
       euler_flux_pv[idxDir, idxDir+1] += prim[idxPres];
     }
