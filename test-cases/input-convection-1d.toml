@@ -33,8 +33,10 @@
   maxTime = 1.00
 
 [parRef]
-  rhoRef  = 1.0
-  pRef    = 1.0
+  lengRef  = 1.0
+  tempRef  = 288.150
+  presRef  = 141855.0
+  viscRef  = 1.787920e-5
 
 [parFamilies]
   nFamilies = 3

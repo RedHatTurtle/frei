@@ -140,6 +140,29 @@ fi
 echo
 echo "------------------------------------------------------------"
 echo
+echo -e "Building Dimensional Tests:"
+chpl -o tests/dimensional_tests                                   \
+     --warnings                                                   \
+     --warn-unstable                                              \
+     --detailed-errors                                            \
+     --main-module Dimensional     src/dimensional.chpl           \
+                                   src/flux.chpl                  \
+                                   src/mesh.chpl                  \
+                                   src/gmesh.chpl                 \
+                                   src/input.chpl                 \
+                                   src/functions/determinant.chpl \
+                                   src/functions/sorttuple.chpl   \
+                                   src/parameters.chpl            \
+                                   src/testing.chpl               \
+    2>&1 | tee tests/dimensional_build.log
+if [ ${PIPESTATUS[0]} -eq 0 ]; then
+  echo -e "${BGreen}Done${Color_Off}"
+else
+  echo -e "${BRed}Fail${Color_Off}"
+fi
+echo
+echo "------------------------------------------------------------"
+echo
 echo -e "Building Gmesh Tests:"
 chpl -o tests/gmesh_tests                                         \
      --warnings                                                   \
@@ -260,17 +283,6 @@ chpl -o tests/flux_tests                                          \
      --warnings                                                   \
      --warn-unstable                                              \
      --main-module Flux src/flux.chpl                             \
-                        src/interpolation.chpl                    \
-                        src/polynomials.chpl                      \
-                        src/input.chpl                            \
-                        src/frmesh.chpl                           \
-                        src/temporal.chpl                         \
-                        src/flux.chpl                             \
-                        src/mesh.chpl                             \
-                        src/gmesh.chpl                            \
-                        src/mapping.chpl                          \
-                        src/functions/determinant.chpl            \
-                        src/functions/sorttuple.chpl              \
                         src/parameters.chpl                       \
                         src/testing.chpl                          \
     2>&1 | tee tests/flux_build.log
@@ -350,6 +362,7 @@ chpl -o tests/init_tests                                          \
                         src/interpolation.chpl                    \
                         src/polynomials.chpl                      \
                         src/ringleb.chpl                          \
+                        src/dimensional.chpl                      \
                         src/flux.chpl                             \
                         src/config.chpl                           \
                         src/input.chpl                            \
@@ -380,6 +393,7 @@ chpl -o tests/boundary_tests                                      \
                             src/polynomials.chpl                  \
                             src/init.chpl                         \
                             src/ringleb.chpl                      \
+                            src/dimensional.chpl                  \
                             src/flux.chpl                         \
                             src/frmesh.chpl                       \
                             src/temporal.chpl                     \
@@ -450,6 +464,7 @@ echo
 ./tests/projection_tests    &> tests/projection_tests.log
 
 ./tests/correction_tests    &> tests/correction_tests.log
+./tests/dimensional_tests   &> tests/dimensional_tests.log
 
 ./tests/gmesh_tests         &> tests/gmesh_tests.log
 ./tests/mesh_tests          &> tests/mesh_tests.log

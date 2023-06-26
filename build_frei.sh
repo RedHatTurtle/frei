@@ -116,6 +116,7 @@ if [[ $BUILD_GENERIC == "true" ]]; then
                                   src/mesh.chpl                    \
                                   src/gmesh.chpl                   \
                                   src/riemann.chpl                 \
+                                  src/dimensional.chpl             \
                                   src/flux.chpl                    \
                                   src/correction.chpl              \
                                   src/limiter.chpl                 \
@@ -170,6 +171,7 @@ if [[ $BUILD_GENERIC == "true" ]]; then
                                   src/mesh.chpl                    \
                                   src/gmesh.chpl                   \
                                   src/riemann.chpl                 \
+                                  src/dimensional.chpl             \
                                   src/flux.chpl                    \
                                   src/correction.chpl              \
                                   src/limiter.chpl                 \
@@ -236,6 +238,7 @@ if [[ $BUILD_OPENBLAS == "true" ]]; then
                                   src/mesh.chpl                    \
                                   src/gmesh.chpl                   \
                                   src/riemann.chpl                 \
+                                  src/dimensional.chpl             \
                                   src/flux.chpl                    \
                                   src/correction.chpl              \
                                   src/limiter.chpl                 \
@@ -288,6 +291,7 @@ if [[ $BUILD_OPENBLAS == "true" ]]; then
                                   src/mesh.chpl                    \
                                   src/gmesh.chpl                   \
                                   src/riemann.chpl                 \
+                                  src/dimensional.chpl             \
                                   src/flux.chpl                    \
                                   src/correction.chpl              \
                                   src/limiter.chpl                 \
@@ -478,6 +482,7 @@ if [[ $BUILD_INTEL == "true" ]]; then
                                   src/mesh.chpl                    \
                                   src/gmesh.chpl                   \
                                   src/riemann.chpl                 \
+                                  src/dimensional.chpl             \
                                   src/flux.chpl                    \
                                   src/correction.chpl              \
                                   src/limiter.chpl                 \
@@ -531,6 +536,7 @@ if [[ $BUILD_INTEL == "true" ]]; then
                                   src/mesh.chpl                    \
                                   src/gmesh.chpl                   \
                                   src/riemann.chpl                 \
+                                  src/dimensional.chpl             \
                                   src/flux.chpl                    \
                                   src/correction.chpl              \
                                   src/limiter.chpl                 \
@@ -599,6 +605,7 @@ if [[ $BUILD_AMD == "true" ]]; then
                                   src/mesh.chpl                    \
                                   src/gmesh.chpl                   \
                                   src/riemann.chpl                 \
+                                  src/dimensional.chpl             \
                                   src/flux.chpl                    \
                                   src/correction.chpl              \
                                   src/limiter.chpl                 \
@@ -650,6 +657,7 @@ if [[ $BUILD_AMD == "true" ]]; then
                                   src/mesh.chpl                    \
                                   src/gmesh.chpl                   \
                                   src/riemann.chpl                 \
+                                  src/dimensional.chpl             \
                                   src/flux.chpl                    \
                                   src/correction.chpl              \
                                   src/limiter.chpl                 \

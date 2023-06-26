@@ -25,6 +25,8 @@ module ErrorCalc
     use Quadrature;
     use Ringleb;
     use Flux;
+    import Input.fGamma;
+    import Dimensional.scales;
 
     var error_d : domain(1);
     var errors  : [error_d] (string,real);
@@ -51,16 +53,20 @@ module ErrorCalc
       for spIdx in 1..frMesh.cellSPidx[cellIdx, 2] do
         solRef[.., spIdx] = ringleb_sol(frMesh.xyzSP[frMesh.cellSPidx[cellIdx, 1]+spIdx-1, 1..2]);
 
-      var entrRef : real = entropy_cv(solRef[.., 1]);
+      var entrRef : real = entropy_cv(solRef[.., 1], fGamma);
 
       // Calculate the errors at each point
       var jacobian   = frMesh.jacSP[frMesh.cellSPidx[cellIdx, 1].. #frMesh.cellSPidx[cellIdx, 2]];
-      var ptErrorAbs = abs(frMesh.solSP[1..4, frMesh.cellSPidx[cellIdx, 1].. #frMesh.cellSPidx[cellIdx, 2]] - solRef[1..4, 1..frMesh.cellSPidx[cellIdx, 2]]);
+
+      var ptErrorAbs : [1..4, 1..frMesh.cellSPidx[cellIdx, 2]] real;
+      for spIdx in 1..frMesh.cellSPidx[cellIdx, 2] do
+        ptErrorAbs[1..4, spIdx] = abs(scales!.non2dim_cv(frMesh.solSP[1..4, frMesh.cellSPidx[cellIdx, 1]+spIdx-1]) - solRef[1..4, spIdx]);
+
       var ptErrorRel = ptErrorAbs/abs(solRef[1..4, 1..frMesh.cellSPidx[cellIdx, 2]]);
 
       var ptEntrErrorAbs : [1..frMesh.cellSPidx[cellIdx, 2]] real;
       for spIdx in 1..frMesh.cellSPidx[cellIdx, 2] do
-        ptEntrErrorAbs[spIdx] = abs(entropy_cv(frMesh.solSP[1..4, frMesh.cellSPidx[cellIdx, 1]+spIdx-1]) - entrRef);
+        ptEntrErrorAbs[spIdx] = abs(entropy_cv(scales!.non2dim_cv(frMesh.solSP[1..4, frMesh.cellSPidx[cellIdx, 1]+spIdx-1]), fGamma) - entrRef);
 
       var ptEntrErrorRel = ptEntrErrorAbs/abs(entrRef);
 

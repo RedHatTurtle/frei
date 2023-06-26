@@ -3,10 +3,10 @@
   eqSet  =  6
 
 [parFluid]
-  fGamma =    1.4
-  fCp    = 1004.5
-  fCv    =  717.5
-  fR     =  287.0
+  fMolMass = 0.0289660
+  fGamma   = 1.40
+  fVisc    = 0.00001787920
+  fKappa   = 0.02529920
 
 [parMesh]
   meshFormat    = 1
@@ -35,8 +35,10 @@
   maxTime = 0.00
 
 [parRef]
-  rhoRef  = 1.0
-  pRef    = 1.0
+  lengRef  = 1.0
+  tempRef  = 288.150
+  presRef  = 141855.0
+  viscRef  = 1.787920e-5
 
 [parFamilies]
   nFamilies = 4

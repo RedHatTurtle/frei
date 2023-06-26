@@ -12,6 +12,7 @@ module FREI
     use Parameters.ParamMesh;
     use Config;
     use Input;
+    use Dimensional;
     use Flux;
     use Riemann;
     use Interpolation;
@@ -77,6 +78,7 @@ module FREI
 
     // 2. Process input data and configure program
     //configure();
+    init_scales(lengRef=Input.lengRef, velMRef=Input.velMRef, tempRef=Input.tempRef, presRef=Input.presRef);
     var timeStepStages : int;
     select timeScheme
     {
@@ -304,13 +306,13 @@ module FREI
                 select Input.eqSet
                 {
                   when EQ_CONVECTION do
-                    flxSP[ 1, .., meshSP-cellSPini+1] = convection_flux_cv_1d(frMesh.solSP[.., meshSP]);
+                    flxSP[ 1, .., meshSP-cellSPini+1] = convection_flux_cv_1d(frMesh.solSP[.., meshSP], Input.convectionSpeed);
                   when EQ_INVBURGERS do
                     flxSP[ 1, .., meshSP-cellSPini+1] = burgers_flux_cv_1d(frMesh.solSP[.., meshSP]);
                   when EQ_QUASI_1D_EULER do
-                    flxSP[ 1, .., meshSP-cellSPini+1] = euler_flux_cv_1d(frMesh.solSP[.., meshSP]);
+                    flxSP[ 1, .., meshSP-cellSPini+1] = euler_flux_cv_1d(frMesh.solSP[.., meshSP], Input.fGamma);
                   when EQ_EULER do
-                    flxSP[.., .., meshSP-cellSPini+1] = euler_flux_cv(frMesh.solSP[.., meshSP]);
+                    flxSP[.., .., meshSP-cellSPini+1] = euler_flux_cv(frMesh.solSP[.., meshSP], Input.fGamma);
                 }
               //dscFluxTime1 += dscFluxWatch.elapsed();
 

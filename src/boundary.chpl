@@ -4,8 +4,6 @@ module Boundary
   use UnitTest;
   import LinearAlgebra.norm;
   import Mesh.faml_r;
-  import Input.fGamma;
-  import Input.fR;
 
   proc boundary(hostConsVars : [] real, faml : faml_r, xyz : [] real, nrm : [] real) : [hostConsVars.domain] real
   {
@@ -33,7 +31,7 @@ module Boundary
           when BC_SUBTYPE_SUB_OUTFLOW do
             ghstConsVars = sub_outflow(hostConsVars, faml.bocoProperties);
           when BC_SUBTYPE_SUP_OUTFLOW do
-            ghstConsVars = sup_outflow(hostConsVars, faml.bocoProperties);
+            ghstConsVars = sup_outflow(hostConsVars);
           when BC_SUBTYPE_MDOT_OUTFLOW {}
         }
       when BC_TYPE_OPENING do
@@ -131,6 +129,7 @@ module Boundary
     import Input.fGamma;
     import Flux.pressure_cv;
     import Flux.temperature_cv;
+    import Dimensional.scales;
 
     var ghstConsVars : [hostConsVars.domain] real;
 
@@ -139,13 +138,13 @@ module Boundary
     const idxEne : int   = hostConsVars.domain.dim(0).high;          // Last element is energy
 
     // Pre-compute the free stream specific kinetic energy
-    const eneKin = 0.5 * bocoProperties[idxRho] * dot(bocoProperties[idxMom], bocoProperties[idxMom]);
+    const eneKin = scales!.dim2non_ener(0.5 * bocoProperties[idxRho] * dot(bocoProperties[idxMom], bocoProperties[idxMom]));
 
     // Set all variables but pressure to free stream
     ghstConsVars = bocoProperties[hostConsVars.domain.dim(0)];
 
     // Get the interior pressure
-    var presHost = pressure_cv( hostConsVars );
+    var presHost = pressure_cv(hostConsVars, fGamma);
 
     // Compute the total energy using interior pressure and free stream specific kinetic energy
     ghstConsVars[idxEne] = presHost/(fGamma-1) + eneKin;
@@ -163,9 +162,11 @@ module Boundary
     //   - Free stream velocity components
     //   - Free stream static pressure
 
+    import Dimensional.scales;
+
     var ghstConsVars : [hostConsVars.domain] real;
 
-    ghstConsVars = bocoProperties[hostConsVars.domain.dim(0)];
+    ghstConsVars = scales!.dim2non_cv(bocoProperties[hostConsVars.domain.dim(0)]);
 
     return ghstConsVars;
   }
@@ -182,6 +183,7 @@ module Boundary
 
     import LinearAlgebra.norm;
     import Input.fGamma;
+    import Dimensional.scales;
 
     var ghstConsVars : [hostConsVars.domain] real;
 
@@ -208,10 +210,10 @@ module Boundary
     // Check if the normal velocity is supersonic
     // if (abs(vn_int)/aspd_int >= one) then
          // If it's supersonic set the ghost pressure to the total pressure
-         // ghstPres = total_pressure_cv(bocoConsVars);
+         // ghstPres = total_pressure_cv(bocoConsVars, fGamma);
     // else
          // If it's subsonic set the ghost pressure to the BoCo pressure
-         var ghstPres = bocoProperties[1];
+         var ghstPres = scales!.dim2non_pres(bocoProperties[1]);
     // end if
 
     // Calculate Energy based on the extrapolated kinetic energy and the BoCo pressure
@@ -221,7 +223,7 @@ module Boundary
     return ghstConsVars;
   }
 
-  proc sup_outflow(hostConsVars : [] real, bocoProperties : [] real) : [hostConsVars.domain] real
+  proc sup_outflow(hostConsVars : [] real) : [hostConsVars.domain] real
   {
     // Supersonic outflow boundary condition:
     //   - Extrapolate all variables
@@ -238,10 +240,13 @@ module Boundary
 
   proc riemann(hostConsVars : [] real, bocoProperties : [] real, nrm : [] real) : [hostConsVars.domain] real
   {
+    import Input.fGamma;
+    import Input.fR;
     import Parameters.ParamConstants.PI;
     import Flux.density;
     import Flux.sound_speed;
     import Flux.sound_speed_cv;
+    import Dimensional.scales;
 
     var idxDens : int   = hostConsVars.domain.dim(0).low;        // First element is density
     var idxMom  : range = hostConsVars.domain.dim(0).expand(-1); // Intermediary elements are the velocities
@@ -256,22 +261,23 @@ module Boundary
     var  velInt : [idxMom] real = hostConsVars[idxMom]/densInt;
     var enerInt : real = hostConsVars[idxEner];
 
-    var presInt : real = pressure_cv(hostConsVars);
-    var    aInt : real = sound_speed_cv(hostConsVars);
+    var presInt : real = pressure_cv(hostConsVars, fGamma);
+    var    aInt : real = sound_speed_cv(hostConsVars, fGamma);
 
     // Compute the internal invariants
     var velNrmInt : real = dot(velInt, uniNrm);
     var riemannP  : real = velNrmInt + 2.0*aInt/(fGamma-1);
 
-    // External boundary condition
+    // Get prescribed boundary condition and scale them
     var  machExt = bocoProperties[1];
     var alphaExt = bocoProperties[2];
     var  betaExt = bocoProperties[3];
-    var  presExt = bocoProperties[4];
-    var  tempExt = bocoProperties[5];
+    var  presExt = scales!.dim2non_pres(bocoProperties[4]);
+    var  tempExt = scales!.dim2non_temp(bocoProperties[5]);
 
-    var densExt : real = density(presExt, tempExt);
-    var    aExt : real = sound_speed(tempExt);
+    // Calculate flow properties with the prescribed conditions and scale them
+    var densExt : real = density(temp=tempExt, pres=presExt, fR=scales!.dim2non_heat(fR));
+    var    aExt : real = sound_speed_temp(temp=tempExt, fGamma=fGamma, fR=scales!.dim2non_heat(fR));
 
     var velVExt : [idxMom] real;
     velVExt[idxMom.low] = machExt*aExt*cos(betaExt/180*PI)*cos(alphaExt/180*PI);
@@ -329,10 +335,11 @@ module Boundary
     //   - Free stream density
     //   - Free stream momentum components
     //   - Free stream energy
+    import Dimensional.scales;
 
     var ghstConsVars : [hostConsVars.domain] real;
 
-    ghstConsVars = bocoProperties[hostConsVars.domain.dim(0)];
+    ghstConsVars = scales!.dim2non_cv(bocoProperties[hostConsVars.domain.dim(0)]);
 
     return ghstConsVars;
   }
@@ -406,10 +413,11 @@ module Boundary
   proc ringleb_dirichlet(xyz : [1..2] real)  : [1..4] real
   {
     import Ringleb.ringleb_sol;
+    import Dimensional.scales;
 
     var ghstConsVars : [1..4] real;
 
-    ghstConsVars = ringleb_sol(xyz[1..2]);
+    ghstConsVars = scales!.dim2non_cv(ringleb_sol(xyz[1..2]));
 
     return ghstConsVars;
   }
