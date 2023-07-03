@@ -184,6 +184,7 @@ module Polynomials
   proc nodes_jacobi_gauss(n : int, alpha : real, beta : real, out xi : [1..n] real, out dxi : [1..n] real)
   {
     use Parameters.ParamConstants;
+    import Math.cos;
 
     //.. Local Scalars ..
     var i, it : int;

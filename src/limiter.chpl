@@ -8,6 +8,7 @@ module Limiter
     use Parameters.ParamMesh;
     use Projection;
     use Quadrature;
+    import Math.half_pi;
 
     /*
       Resolution Indicator
@@ -65,6 +66,9 @@ module Limiter
     use Parameters.ParamMesh;
     use Projection;
     use Quadrature;
+    import Math.half_pi;
+    import Math.log10;
+    import Math.sin;
 
     /*
       Resolution Indicator
@@ -154,6 +158,10 @@ module Limiter
     use Polynomials;
     use Projection;
     use Quadrature;
+    import Math.half_pi;
+    import Math.exp;
+    import Math.log;
+    import Math.sin;
 
     // Create a set with the cell topologies contained in the hypothetical test mesh
     var cellTopos : set(int);

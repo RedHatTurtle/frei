@@ -186,6 +186,7 @@ module Output
     use Flux;
     use Interpolation;
     use Parameters.ParamMesh;
+    import Math.log10;
     import Dimensional.scales;
     import Mesh.elem_vertices;
     import Input.fGamma;
@@ -585,6 +586,7 @@ module Output
     use Flux;
     use Quadrature;
     use Parameters.ParamMesh;
+    import Math.log10;
     import Input.fGamma;
     import Input.fR;
     import Dimensional.scales;

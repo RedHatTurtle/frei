@@ -286,6 +286,9 @@ module Flux
 
   proc main()
   {
+    import Math.sin;
+    import Math.cos;
+
     // Fluid properties
     param gasR     : real = 8.314462618;            // Ideal Gas Constant (2018 CODATA), J/(mol*K)
     param fMolMass : real = 2.8966e-2;              // Molar Mass of the fluid mixture, kg/mol

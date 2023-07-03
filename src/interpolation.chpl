@@ -517,6 +517,8 @@ module Interpolation
     use Parameters.ParamTest;
     use Parameters.ParamMesh;
     use Polynomials;
+    import Math.half_pi;
+    import Math.cos;
 
     var randStream = new RandomStream(real);
     var randStreamSeeded = new RandomStream(real, RANDOM_SEED);

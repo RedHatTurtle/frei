@@ -31,6 +31,7 @@ module FREI
     use LinearAlgebra;
     use SourceTerm;
     use Temporal;
+    import Math.log10;
 
     /////////////////////////////////
     // Declare profiling variables //

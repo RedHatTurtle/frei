@@ -15,8 +15,11 @@ module Init
 
   proc flow_condition(familySubType : int, familyParameters : [] real, xyz : [] real) : [] real
   {
-    import Dimensional.scales;
     use Ringleb;
+    import Math.pi;
+    import Math.exp;
+    import Math.sin;
+    import Dimensional.scales;
 
     var flowVars : [xyz.domain.dim(0), 1..Input.nEqs] real;
 

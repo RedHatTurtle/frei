@@ -154,6 +154,7 @@ module Ringleb
 
   proc ringleb_j(c : real) : real
   {
+    import Math.log;
     import Input.fGamma;
 
     return 1/c + 1/(3*c**3) + 1/(5*c**5) - log((1.0+c)/(1.0-c))/2.0;

@@ -176,6 +176,8 @@ module Dimensional
   proc main()
   {
     use Testing;
+    import Math.sin;
+    import Math.cos;
 
     // Fluid properties
     param gasR     : real = 8.314462618;            // Ideal Gas Constant (2018 CODATA), J/(mol*K)

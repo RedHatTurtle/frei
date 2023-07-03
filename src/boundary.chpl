@@ -240,6 +240,8 @@ module Boundary
 
   proc riemann(hostConsVars : [] real, bocoProperties : [] real, nrm : [] real) : [hostConsVars.domain] real
   {
+    import Math.sin;
+    import Math.cos;
     import Input.fGamma;
     import Input.fR;
     import Parameters.ParamConstants.PI;
