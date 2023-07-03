@@ -272,7 +272,7 @@ module FREI
     writef("Start Iterating\n");
     totalWatch.restart();
 
-    for iteration in 1..Input.maxIter
+    label TIME_ITER for iteration in 1..Input.maxIter
     {
       iterWatch.restart();
       solveWatch.restart();
@@ -282,7 +282,7 @@ module FREI
       oldSolTime += solveWatch.elapsed();
 
       // Iterate RK stages
-      for stage in 1..timeStepStages
+      label RK_STAGE for stage in 1..timeStepStages
       {
         // Calculate residue for this iteration
         {
@@ -674,6 +674,9 @@ module FREI
             writef(" | Solution file saved\n");
           else
             writef("\n");
+
+          if !isfinite(l2SolDeltaAbs[1]) then
+            break TIME_ITER;
         }
 
         // Check if input file changed
