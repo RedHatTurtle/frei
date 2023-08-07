@@ -191,7 +191,7 @@ if [[ $BUILD_GENERIC == "true" ]]; then
     echo
     echo -e "Building $VER_LOCALE $VER_MODE $VER_LAPACK version of Frei..."
     echo
-    chpl $BLD_FLAG                                          \
+    chpl $FLAG_LOCALE $BLD_FLAG                             \
         -I$PATH_TO_BLAS_DIR                                 \
         -L$PATH_TO_BLAS_LIBS -lcblas                        \
         -I$PATH_TO_LAPACK_INCLUDE_DIR                       \
