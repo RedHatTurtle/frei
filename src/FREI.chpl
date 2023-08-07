@@ -122,7 +122,7 @@ module FREI
     }
 
     // 3. Read / define mesh
-    var gmesh2 = new unmanaged gmesh2_c();
+    const gmesh2 = new unmanaged gmesh2_c();
     select Input.meshFormat
     {
       when MESH_GENERATE
@@ -141,7 +141,7 @@ module FREI
     }
 
     // 4. Convert input mesh to solver mesh
-    var frMesh = new unmanaged fr_mesh_c(nDims=gmesh2.mesh_dimension(), nVars=Input.nEqs, solOrder=Input.iOrder);
+    const frMesh = new unmanaged fr_mesh_c(nDims=gmesh2.mesh_dimension(), nVars=Input.nEqs, solOrder=Input.iOrder);
     frMesh.import_gmesh2(gmesh2);   // Convert mesh to native format
     frMesh.set_families(famlList);  // Get families data from input file and write to mesh
 
@@ -478,7 +478,7 @@ module FREI
               ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
               ref cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
               ref thisCell = frMesh.cellList[cellIdx];
-              var cellTopo : int = thisCell.elemTopo();
+              const cellTopo : int = thisCell.elemTopo();
 
               for cellFace in thisCell.faces.domain
               {
@@ -541,7 +541,7 @@ module FREI
                     // For 1D each face has 1 FP therefore the FP and the Face have the same index Relative to it's
                     // position in the cell
                     var cellFP : int;
-                    var faceFP : int = meshFP - frMesh.faceFPidx[faceIdx, 1] + 1;
+                    const faceFP : int = meshFP - frMesh.faceFPidx[faceIdx, 1] + 1;
                     if faceSide == 1 then
                       cellFP = (cellFace-1)*(frMesh.solOrder+1) +  faceFP;
                     else
@@ -608,7 +608,7 @@ module FREI
 
               for varIdx in 1..frMesh.nVars
               {
-                var stableDegree : int = troubled_cell_marker(solPoly = frMesh.solSP[varIdx, cellSPini.. #cellSPcnt],
+                const stableDegree : int = troubled_cell_marker(solPoly = frMesh.solSP[varIdx, cellSPini.. #cellSPcnt],
                                                               jacobian = frMesh.jacSP[cellSPini.. #cellSPcnt]       ,
                                                               cellTopo = frMesh.cellList[cellIdx].elemTopo()        ,
                                                               solDegree = frMesh.solOrder                           );
@@ -639,7 +639,7 @@ module FREI
         // Calculate solution error and write to error log
         if Input.outError > 0
         {
-          var errors = error_calc(Input.outError, frMesh);
+          const errors = error_calc(Input.outError, frMesh);
           print_log(errorLogWriter, iteration, errors);
         }
 
