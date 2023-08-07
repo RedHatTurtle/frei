@@ -107,6 +107,7 @@ SRC_FILES="                          \
     src/functions/sorttuple.chpl     \
     src/parameters.chpl              \
     src/testing.chpl                 "
+#    src/dists/Block1DDist.chpl       "
 
 ##################################################
 ###   Configure Build Flags                    ###

@@ -449,16 +449,56 @@ module Gmesh
 
     proc write_gmesh_file() {}
 
-    proc mesh_dimension()
+    proc mesh_dimension() do return max reduce this.families[..].nDim;
+
+    proc node_cnt() : int do return this.nodes.domain.dim(0).size;
+
+    proc face_cnt() : int
     {
-      var meshDim : int = 0;
+      var nFaces : int = 0;
 
-      for family in this.families do
-        if family.nDim > meshDim then
-          meshDim = family.nDim;
+      for elem in this.elements
+      {
+        if elem.elemDim() == this.mesh_dimension() then
+          nFaces += elem.elemFaces();
+        else
+          nFaces += 1;
+      }
 
-      return meshDim;
+      return nFaces/2;
     }
+
+    proc cell_cnt() : int
+    {
+      var cellCnt : int = 0;
+
+      // Get cell element dimension
+      const cellDim : int = this.mesh_dimension();
+
+      // Iterate through elements searching for cells
+      for elem in this.elements do
+        if elem.elemDim() == cellDim then
+          cellCnt += 1;
+
+      return cellCnt;
+    }
+
+    proc boco_cnt() : int
+    {
+      var bocoCnt : int = 0;
+
+      // Get boco element dimension
+      const bocoDim : int = this.mesh_dimension()-1;
+
+      // Iterate through elements searching for boundary faces
+      for elem in this.elements do
+        if elem.elemDim() == bocoDim then
+          bocoCnt += 1;
+
+      return bocoCnt;
+    }
+
+    proc faml_cnt() : int do return this.families.domain.dim(0).size;
   }
 
   class gmesh4_c
@@ -549,10 +589,9 @@ module Gmesh
     var nodes_d  : domain(rank=1, idxType=int);
     var nodes    : [nodes_d] int;
 
-    proc elemDim() : int
-    {
-      return elem_dimension(this.elemType);
-    }
+    proc elemDim()   : int do return elem_dim(this.elemType);
+    proc elemTopo()  : int do return elem_topo(this.elemType);
+    proc elemFaces() : int do return elem_faces(this.elemTopo());
 
     proc ref setNodes()
     {
@@ -642,7 +681,7 @@ module Gmesh
     var name : string;
   }
 
-  proc elem_dimension(in elemType : int) : int
+  proc elem_dim(const ref elemType : int) : int
   {
     use Parameters.ParamGmesh;
 
@@ -705,6 +744,61 @@ module Gmesh
       when GMESH_HEX_512  do return 3;
       when GMESH_HEX_729  do return 3;
       when GMESH_HEX_1000 do return 3;
+      otherwise return -1;
+    }
+  }
+
+  proc elem_topo(const ref elemType : int) : int
+  {
+    use Parameters.ParamGmesh;
+
+    select elemType {
+      when GMESH_PNT_1   do return GMESH_PNT;
+      when GMESH_LIN_2   do return GMESH_LIN;
+      when GMESH_LIN_3   do return GMESH_LIN;
+      when GMESH_LIN_4   do return GMESH_LIN;
+      when GMESH_LIN_5   do return GMESH_LIN;
+      when GMESH_TRI_3   do return GMESH_TRI;
+      when GMESH_TRI_6   do return GMESH_TRI;
+      when GMESH_TRI_10  do return GMESH_TRI;
+      when GMESH_TRI_15  do return GMESH_TRI;
+      when GMESH_QUA_4   do return GMESH_QUA;
+      when GMESH_QUA_9   do return GMESH_QUA;
+      when GMESH_QUA_16  do return GMESH_QUA;
+      when GMESH_QUA_25  do return GMESH_QUA;
+      when GMESH_TET_4   do return GMESH_TET;
+      when GMESH_TET_10  do return GMESH_TET;
+      when GMESH_TET_20  do return GMESH_TET;
+      when GMESH_TET_35  do return GMESH_TET;
+      when GMESH_PYR_5   do return GMESH_PYR;
+      when GMESH_PYR_14  do return GMESH_PYR;
+      when GMESH_PYR_30  do return GMESH_PYR;
+      when GMESH_PYR_55  do return GMESH_PYR;
+      when GMESH_PRI_6   do return GMESH_PRI;
+      when GMESH_PRI_18  do return GMESH_PRI;
+      when GMESH_PRI_40  do return GMESH_PRI;
+      when GMESH_PRI_75  do return GMESH_PRI;
+      when GMESH_HEX_8   do return GMESH_HEX;
+      when GMESH_HEX_27  do return GMESH_HEX;
+      when GMESH_HEX_64  do return GMESH_HEX;
+      when GMESH_HEX_125 do return GMESH_HEX;
+      otherwise return -1;
+    }
+  }
+
+  proc elem_faces(const ref elemTopo : int) : int
+  { // Assuming this mesh element is a cell how many faces does it have
+    use Parameters.ParamGmesh;
+
+    select elemTopo {
+      when GMESH_PNT do return 0; // Vertex
+      when GMESH_LIN do return 2; // Edge
+      when GMESH_TRI do return 3; // Triangle
+      when GMESH_QUA do return 4; // Quadrilateral
+      when GMESH_TET do return 4; // Tetrahedron
+      when GMESH_PYR do return 5; // Pyramid
+      when GMESH_PRI do return 5; // Prism
+      when GMESH_HEX do return 6; // Hexahedron
       otherwise return -1;
     }
   }

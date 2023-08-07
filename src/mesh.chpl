@@ -4,6 +4,9 @@ module Mesh
   use Random;
   use UnitTest;
   use Set;
+  use BlockDist;
+  //use Block1DDist;
+  use ReplicatedDist;
 
   //////////////////
   //  Mesh Class  //
@@ -11,13 +14,55 @@ module Mesh
 
   class mesh_c
   {
+    // Mesh basic parameters
     const nDims : int;
-    var nNodes : int;
-    var nEdges : int;
-    var nFaces : int;
-    var nCells : int;
-    var nBocos : int;
-    var nFamls : int;
+
+    // Mesh mutable parameters
+    const nNodes : int = 0;
+    const nCells : int = 0;
+    const nFaces : int = 0;
+    const nBocos : int = 0;
+    const nEdges : int = 0;
+    const nFamls : int = 0;
+
+    // Array sizing domains
+    const nodeSpace : domain(rank=1, idxType=int) = {1..0};
+    const cellSpace : domain(rank=1, idxType=int) = {1..0};
+    const faceSpace : domain(rank=1, idxType=int) = {1..0};
+    const bocoSpace : domain(rank=1, idxType=int) = {1..0};
+    const edgeSpace : domain(rank=1, idxType=int) = {1..0};
+    const famlSpace : domain(rank=1, idxType=int) = {1..0};
+
+    // Single Locale Domains
+    //var nodeList_d : domain(rank=1, idxType=int);// dmapped nodeList_dist;
+    //var cellList_d : domain(rank=1, idxType=int);// dmapped cellList_dist;
+    //var faceList_d : domain(rank=1, idxType=int);// dmapped faceList_dist;
+    //var bocoList_d : domain(rank=1, idxType=int);// dmapped bocoList_dist;
+    //var edgeList_d : domain(rank=1, idxType=int);// dmapped edgeList_dist;
+
+    // Block Dist Domains
+    var nodeList_d = nodeSpace dmapped Block(boundingBox=nodeSpace);
+    var cellList_d = cellSpace dmapped Block(boundingBox=cellSpace);
+    var faceList_d = faceSpace dmapped Block(boundingBox=faceSpace);
+    var bocoList_d = bocoSpace dmapped Block(boundingBox=bocoSpace);
+    var edgeList_d = edgeSpace dmapped Block(boundingBox=edgeSpace);
+
+    // Block1D Dist Domains
+    //var nodeList_d = nodeSpace dmapped Block1D(boundingBox=nodeSpace);
+    //var cellList_d = cellSpace dmapped Block1D(boundingBox=cellSpace);
+    //var faceList_d = faceSpace dmapped Block1D(boundingBox=faceSpace);
+    //var bocoList_d = bocoSpace dmapped Block1D(boundingBox=bocoSpace);
+    //var edgeList_d = edgeSpace dmapped Block1D(boundingBox=edgeSpace);
+
+    var famlList_d : domain(rank=1, idxType=int) dmapped Replicated();
+
+    // Arrays
+    var nodeList : [nodeList_d] node_r;
+    var cellList : [cellList_d] cell_r;
+    var faceList : [faceList_d] face_r;
+    var bocoList : [bocoList_d] boco_r;
+    var edgeList : [edgeList_d] edge_r;
+    var famlList : [famlList_d] faml_r;
 
     // Lists of types of elements in this mesh
     var faceTopos : set(int); // Gmesh element topology/shape. Ex: point, line, triangle, hexahedron
@@ -25,40 +70,90 @@ module Mesh
     var cellTopos : set(int); // Gmesh element topology/shape. Ex: point, line, triangle, hexahedron
     var cellTypes : set(int); // CGNS element type, element topology + high-order spec. Ex: tetrahedron with 4 or 10 nodes
 
-    // Array sizing domains
-    var nodeList_d : domain(rank=1, idxType=int);
-    var edgeList_d : domain(rank=1, idxType=int);
-    var faceList_d : domain(rank=1, idxType=int);
-    var cellList_d : domain(rank=1, idxType=int);
-    var bocoList_d : domain(rank=1, idxType=int);
-    var famlList_d : domain(rank=1, idxType=int);
-
-    // Arrays
-    var nodeList : [nodeList_d] node_r;
-    var edgeList : [edgeList_d] edge_r;
-    var faceList : [faceList_d] face_r;
-    var cellList : [cellList_d] cell_r;
-    var bocoList : [bocoList_d] boco_r;
-    var famlList : [famlList_d] faml_r;
-
     // Variable time step variables
     var cellTimeStep : [cellList_d] real; // Current calculated time-step
     var cellCharLeng : [cellList_d] real; // Cell characteristic length
     var minTimeStep : real;
     var minCharLeng : real;
 
+    proc init(nDims : int, nNodes : int, nEdges : int, nFaces : int, nCells : int, nBocos : int, nFamls : int)
+    {
+      this.nDims = nDims;
+
+      this.nNodes = nNodes;
+      this.nCells = nCells;
+      this.nFaces = nFaces;
+      this.nBocos = nBocos;
+      this.nEdges = nEdges;
+      this.nFamls = nFamls;
+
+      this.nodeSpace = {1..#this.nNodes};
+      this.cellSpace = {1..#this.nCells};
+      this.faceSpace = {1..#this.nFaces};
+      this.bocoSpace = {1..#this.nBocos};
+      this.edgeSpace = {1..#this.nEdges};
+      this.famlSpace = {1..#this.nFamls};
+
+      this.nodeList_d = this.nodeSpace dmapped Block(boundingBox=this.nodeSpace);
+      this.cellList_d = this.cellSpace dmapped Block(boundingBox=this.cellSpace);
+      this.faceList_d = this.faceSpace dmapped Block(boundingBox=this.faceSpace);
+      this.bocoList_d = this.bocoSpace dmapped Block(boundingBox=this.bocoSpace);
+      //this.nodeList_d = this.nodeSpace dmapped Block1D(boundingBox=this.nodeSpace);
+      //this.cellList_d = this.cellSpace dmapped Block1D(boundingBox=this.cellSpace);
+      //this.faceList_d = this.faceSpace dmapped Block1D(boundingBox=this.faceSpace);
+      //this.bocoList_d = this.bocoSpace dmapped Block1D(boundingBox=this.bocoSpace);
+
+      this.edgeList_d = if (nEdges == 0) then {1..#this.nEdges} dmapped Block(boundingBox={1..1})
+                                         else {1..#this.nEdges} dmapped Block(boundingBox={1..#this.nEdges});
+      //this.edgeList_d = if (nEdges == 0) then {1..#this.nEdges} dmapped Block1D(boundingBox={1..1})
+      //                                   else {1..#this.nEdges} dmapped Block1D(boundingBox={1..#this.nEdges});
+
+      this.famlList_d = {1..#this.nFamls} dmapped Replicated();
+    }
+
+    proc init(mesh : gmesh2_c)
+    {
+      use Gmesh;
+
+      // Initialize basic constants
+      this.nDims = mesh.mesh_dimension();
+
+      // Initialize mesh element counts
+      this.nNodes = mesh.nodes.domain.dim(0).size;
+      this.nCells = mesh.cell_cnt();
+      this.nFaces = mesh.face_cnt();
+      this.nBocos = mesh.boco_cnt();
+      this.nEdges = 0;
+      this.nFamls = mesh.faml_cnt();
+
+      // Initialize non-distributed domains
+      this.nodeSpace = {1..#this.nNodes};
+      this.cellSpace = {1..#this.nCells};
+      this.faceSpace = {1..#this.nFaces};
+      this.bocoSpace = {1..#this.nBocos};
+      this.edgeSpace = {1..#this.nEdges};
+      this.famlSpace = {1..#this.nFamls};
+
+      // Initialize distributed domains
+      this.nodeList_d = this.nodeSpace dmapped Block(boundingBox=this.nodeSpace);
+      this.cellList_d = this.cellSpace dmapped Block(boundingBox=this.cellSpace);
+      this.faceList_d = this.faceSpace dmapped Block(boundingBox=this.faceSpace);
+      this.bocoList_d = this.bocoSpace dmapped Block(boundingBox=this.bocoSpace);
+      this.edgeList_d = if (nEdges == 0) then this.edgeSpace dmapped Block(boundingBox={1..1})
+                                         else this.edgeSpace dmapped Block(boundingBox=this.edgeSpace);
+      this.famlList_d = {1..#this.nFamls} dmapped Replicated();
+    }
+
     proc import_gmesh2(gmesh : gmesh2_c)
     {
       use Gmesh;
 
       // Copy nodes
-      this.nNodes = gmesh.nodes.domain.dim(0).high;
       this.nodeList_d = {1..this.nNodes};
       for node in this.nodeList_d do
         this.nodeList[node].xyz = gmesh.nodes[node,1..3];
 
       // Get family names and dimensions. These are used to sort the elements.
-      this.nFamls = gmesh.families.domain.dim(0).high;
       this.famlList_d = {1..this.nFamls};
       for faml in this.famlList_d
       {
@@ -67,6 +162,9 @@ module Mesh
       }
       var cellDim : int = max reduce this.famlList[..].nDim;
       var bocoDim : int = cellDim - 1;
+
+      var cellIdx : int = 0;
+      var bocoIdx : int = 0;
 
       // Sort elements into cells and boundaries and copy them
       for element in gmesh.elements.domain
@@ -93,26 +191,22 @@ module Mesh
           when cellDim
           {
             // Increment cell count with new element
-            this.nCells += 1;
-            // Resize domain to expand the array
-            this.cellList_d = {1..this.nCells};
+            cellIdx += 1;
             // Fill up the cell properties. Maybe this should be an initializer?
-            this.cellList[this.nCells].nodes_d  = gmesh.elements[element].nodes_d;
-            this.cellList[this.nCells].nodes    = gmesh.elements[element].nodes;
-            this.cellList[this.nCells].elemType = elem_type_gmsh2mesh(gmesh.elements[element].elemType);
-            this.cellList[this.nCells].family   = elemFamlIdx;
+            this.cellList[cellIdx].nodes_d  = gmesh.elements[element].nodes_d;
+            this.cellList[cellIdx].nodes    = gmesh.elements[element].nodes;
+            this.cellList[cellIdx].elemType = elem_type_gmsh2mesh(gmesh.elements[element].elemType);
+            this.cellList[cellIdx].family   = elemFamlIdx;
           }
           when bocoDim
           {
             // Increment boco count with new element
-            this.nBocos += 1;
-            // Resize domain to expand the array
-            this.bocoList_d = {1..this.nBocos};
+            bocoIdx += 1;
             // Fill up the boco properties. Maybe this should be an initializer?
-            this.bocoList[this.nBocos].nodes_d  = gmesh.elements[element].nodes_d;
-            this.bocoList[this.nBocos].nodes    = gmesh.elements[element].nodes;
-            this.bocoList[this.nBocos].elemType = elem_type_gmsh2mesh(gmesh.elements[element].elemType);
-            this.bocoList[this.nBocos].family   = elemFamlIdx;
+            this.bocoList[bocoIdx].nodes_d  = gmesh.elements[element].nodes_d;
+            this.bocoList[bocoIdx].nodes    = gmesh.elements[element].nodes;
+            this.bocoList[bocoIdx].elemType = elem_type_gmsh2mesh(gmesh.elements[element].elemType);
+            this.bocoList[bocoIdx].family   = elemFamlIdx;
           }
           otherwise do
           {
@@ -144,222 +238,167 @@ module Mesh
       var faceMap_d : domain(4*int);
       var faceMap : [faceMap_d] int;
 
+      var faceIdx : int = 0;
+
       // Add all boundaries to the face map
-      for boco in this.bocoList_d
+      for bocoIdx in this.bocoList.domain
       {
         // Each boundary defines a face. Build the face nodes tuple based on the element topology.
-        select elem_topology(this.bocoList[boco].elemType)
+        select elem_topology(this.bocoList[bocoIdx].elemType)
         {
-          when TOPO_NODE do faceVerts[1] = (this.bocoList[boco].nodes[1], 0, 0, 0);
-          when TOPO_LINE do faceVerts[1] = (this.bocoList[boco].nodes[1], this.bocoList[boco].nodes[2], 0, 0);
-          when TOPO_TRIA do faceVerts[1] = (this.bocoList[boco].nodes[1], this.bocoList[boco].nodes[2],
-                                            this.bocoList[boco].nodes[3], 0);
-          when TOPO_QUAD do faceVerts[1] = (this.bocoList[boco].nodes[1], this.bocoList[boco].nodes[2],
-                                            this.bocoList[boco].nodes[3], this.bocoList[boco].nodes[4]);
+          when TOPO_NODE do faceVerts[1] = (this.bocoList[bocoIdx].nodes[1], 0, 0, 0);
+          when TOPO_LINE do faceVerts[1] = (this.bocoList[bocoIdx].nodes[1], this.bocoList[bocoIdx].nodes[2], 0, 0);
+          when TOPO_TRIA do faceVerts[1] = (this.bocoList[bocoIdx].nodes[1], this.bocoList[bocoIdx].nodes[2],
+                                            this.bocoList[bocoIdx].nodes[3],                              0 );
+          when TOPO_QUAD do faceVerts[1] = (this.bocoList[bocoIdx].nodes[1], this.bocoList[bocoIdx].nodes[2],
+                                            this.bocoList[bocoIdx].nodes[3], this.bocoList[bocoIdx].nodes[4]);
           otherwise {}
         }
 
-        // Create the face element on the face list
-        // Increment cell count with new element
-        this.nFaces += 1;
-        // Resize domain to expand the array
-        this.faceList_d = {1..this.nFaces};
+        // Increment the face index for the current new face
+        faceIdx += 1;
 
-        // Fill up the face properties. Maybe this should be an initializer?
-        select elem_topology(this.bocoList[boco].elemType)
-        {
-          when TOPO_NODE
-          {
-            this.faceList[this.nFaces].elemType = this.bocoList[boco].elemType;
-            this.faceList[this.nFaces].nodes_d = {1..1};
-            this.faceList[this.nFaces].nodes[1] = faceVerts[1][0];
-          }
-          when TOPO_LINE
-          {
-            this.faceList[this.nFaces].elemType = this.bocoList[boco].elemType;
-            this.faceList[this.nFaces].nodes_d = {1..2};
-            this.faceList[this.nFaces].nodes[1] = faceVerts[1][0];
-            this.faceList[this.nFaces].nodes[2] = faceVerts[1][1];
-          }
-          when TOPO_TRIA
-          {
-            this.faceList[this.nFaces].elemType = this.bocoList[boco].elemType;
-            this.faceList[this.nFaces].nodes_d = {1..3};
-            this.faceList[this.nFaces].nodes[1] = faceVerts[1][0];
-            this.faceList[this.nFaces].nodes[2] = faceVerts[1][1];
-            this.faceList[this.nFaces].nodes[3] = faceVerts[1][2];
-          }
-          when TOPO_QUAD
-          {
-            this.faceList[this.nFaces].elemType = this.bocoList[boco].elemType;
-            this.faceList[this.nFaces].nodes_d = {1..4};
-            this.faceList[this.nFaces].nodes[1] = faceVerts[1][0];
-            this.faceList[this.nFaces].nodes[2] = faceVerts[1][1];
-            this.faceList[this.nFaces].nodes[3] = faceVerts[1][2];
-            this.faceList[this.nFaces].nodes[4] = faceVerts[1][3];
-          }
-          otherwise {}
-        }
+        // Fill the face properties
+        this.faceList[faceIdx].elemType = this.bocoList[bocoIdx].elemType;
 
         // Fill the right side neighbor ID, boundaries are always on the right side of a face.
         // Boundaries have negative indexes so they can be easily distinguished from mesh cells.
-        this.faceList[this.nFaces].cells[2] = -boco;
-        this.bocoList[boco].face = this.nFaces;
+        this.faceList[faceIdx].cells[2] = -bocoIdx;
+        this.bocoList[bocoIdx].face     = faceIdx;
 
-        // Add the face nodes to the face matching list and store the face index given to this face.
+        // Add the face vertices to the face matching list and store the face index given to this face.
         faceMap_d.add(sort_tuple(faceVerts[1]));
-        faceMap[sort_tuple(faceVerts[1])] = this.nFaces;
+        faceMap[sort_tuple(faceVerts[1])] = faceIdx;
       }
 
       // Add faces from cells to the face map and perform the matching
-      for cell in this.cellList_d
+      for cellIdx in this.cellList.domain
       {
         // Allocate this cell's local face list
-        this.cellList[cell].faces_d = {1..elem_faces(elem_topology(this.cellList[cell].elemType))};
+        this.cellList[cellIdx].faces_d = {1..elem_faces(elem_topology(this.cellList[cellIdx].elemType))};
 
         // Build the face nodes tuple
-        select elem_topology(this.cellList[cell].elemType)
+        select elem_topology(this.cellList[cellIdx].elemType)
         {
           when TOPO_LINE
           {
-            faceVerts[1] = (this.cellList[cell].nodes[1], 0, 0, 0);
-            faceVerts[2] = (this.cellList[cell].nodes[2], 0, 0, 0);
+            faceVerts[1] = (this.cellList[cellIdx].nodes[1], 0, 0, 0);
+            faceVerts[2] = (this.cellList[cellIdx].nodes[2], 0, 0, 0);
           }
           when TOPO_TRIA
           {
-            faceVerts[1] = (this.cellList[cell].nodes[1], this.cellList[cell].nodes[2], 0, 0);
-            faceVerts[2] = (this.cellList[cell].nodes[2], this.cellList[cell].nodes[3], 0, 0);
-            faceVerts[3] = (this.cellList[cell].nodes[3], this.cellList[cell].nodes[1], 0, 0);
+            faceVerts[1] = (this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[2], 0, 0);
+            faceVerts[2] = (this.cellList[cellIdx].nodes[2], this.cellList[cellIdx].nodes[3], 0, 0);
+            faceVerts[3] = (this.cellList[cellIdx].nodes[3], this.cellList[cellIdx].nodes[1], 0, 0);
           }
           when TOPO_QUAD
           {
-            faceVerts[1] = (this.cellList[cell].nodes[1], this.cellList[cell].nodes[2], 0, 0);
-            faceVerts[2] = (this.cellList[cell].nodes[2], this.cellList[cell].nodes[3], 0, 0);
-            faceVerts[3] = (this.cellList[cell].nodes[3], this.cellList[cell].nodes[4], 0, 0);
-            faceVerts[4] = (this.cellList[cell].nodes[4], this.cellList[cell].nodes[1], 0, 0);
+            faceVerts[1] = (this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[2], 0, 0);
+            faceVerts[2] = (this.cellList[cellIdx].nodes[2], this.cellList[cellIdx].nodes[3], 0, 0);
+            faceVerts[3] = (this.cellList[cellIdx].nodes[3], this.cellList[cellIdx].nodes[4], 0, 0);
+            faceVerts[4] = (this.cellList[cellIdx].nodes[4], this.cellList[cellIdx].nodes[1], 0, 0);
           }
           when TOPO_TETR
           {
-            faceVerts[1] = (this.cellList[cell].nodes[1], this.cellList[cell].nodes[3], this.cellList[cell].nodes[2],
-                            0);
-            faceVerts[2] = (this.cellList[cell].nodes[1], this.cellList[cell].nodes[2], this.cellList[cell].nodes[4],
-                            0);
-            faceVerts[3] = (this.cellList[cell].nodes[2], this.cellList[cell].nodes[3], this.cellList[cell].nodes[4],
-                            0);
-            faceVerts[4] = (this.cellList[cell].nodes[3], this.cellList[cell].nodes[1], this.cellList[cell].nodes[4],
-                            0);
+            faceVerts[1] = (this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[3],
+                            this.cellList[cellIdx].nodes[2],                              0 );
+            faceVerts[2] = (this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[2],
+                            this.cellList[cellIdx].nodes[4],                              0 );
+            faceVerts[3] = (this.cellList[cellIdx].nodes[2], this.cellList[cellIdx].nodes[3],
+                            this.cellList[cellIdx].nodes[4],                              0 );
+            faceVerts[4] = (this.cellList[cellIdx].nodes[3], this.cellList[cellIdx].nodes[1],
+                            this.cellList[cellIdx].nodes[4],                              0 );
           }
           when TOPO_PYRA
           {
-            faceVerts[1] = (this.cellList[cell].nodes[1], this.cellList[cell].nodes[4], this.cellList[cell].nodes[3],
-                            this.cellList[cell].nodes[2]);
-            faceVerts[2] = (this.cellList[cell].nodes[1], this.cellList[cell].nodes[2], this.cellList[cell].nodes[5],
-                            0);
-            faceVerts[3] = (this.cellList[cell].nodes[2], this.cellList[cell].nodes[3], this.cellList[cell].nodes[5],
-                            0);
-            faceVerts[4] = (this.cellList[cell].nodes[3], this.cellList[cell].nodes[4], this.cellList[cell].nodes[5],
-                            0);
-            faceVerts[5] = (this.cellList[cell].nodes[4], this.cellList[cell].nodes[1], this.cellList[cell].nodes[5],
-                            0);
+            faceVerts[1] = (this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[4],
+                            this.cellList[cellIdx].nodes[3], this.cellList[cellIdx].nodes[2]);
+            faceVerts[2] = (this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[2],
+                            this.cellList[cellIdx].nodes[5],                              0 );
+            faceVerts[3] = (this.cellList[cellIdx].nodes[2], this.cellList[cellIdx].nodes[3],
+                            this.cellList[cellIdx].nodes[5],                              0 );
+            faceVerts[4] = (this.cellList[cellIdx].nodes[3], this.cellList[cellIdx].nodes[4],
+                            this.cellList[cellIdx].nodes[5],                              0 );
+            faceVerts[5] = (this.cellList[cellIdx].nodes[4], this.cellList[cellIdx].nodes[1],
+                            this.cellList[cellIdx].nodes[5],                              0 );
           }
           when TOPO_PRIS
           {
-            faceVerts[1] = (this.cellList[cell].nodes[1], this.cellList[cell].nodes[2], this.cellList[cell].nodes[5],
-                            this.cellList[cell].nodes[4]);
-            faceVerts[2] = (this.cellList[cell].nodes[2], this.cellList[cell].nodes[3], this.cellList[cell].nodes[6],
-                            this.cellList[cell].nodes[5]);
-            faceVerts[3] = (this.cellList[cell].nodes[3], this.cellList[cell].nodes[1], this.cellList[cell].nodes[4],
-                            this.cellList[cell].nodes[6]);
-            faceVerts[4] = (this.cellList[cell].nodes[1], this.cellList[cell].nodes[3], this.cellList[cell].nodes[2],
-                            0);
-            faceVerts[5] = (this.cellList[cell].nodes[4], this.cellList[cell].nodes[5], this.cellList[cell].nodes[6],
-                            0);
+            faceVerts[1] = (this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[2],
+                            this.cellList[cellIdx].nodes[5], this.cellList[cellIdx].nodes[4]);
+            faceVerts[2] = (this.cellList[cellIdx].nodes[2], this.cellList[cellIdx].nodes[3],
+                            this.cellList[cellIdx].nodes[6], this.cellList[cellIdx].nodes[5]);
+            faceVerts[3] = (this.cellList[cellIdx].nodes[3], this.cellList[cellIdx].nodes[1],
+                            this.cellList[cellIdx].nodes[4], this.cellList[cellIdx].nodes[6]);
+            faceVerts[4] = (this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[3],
+                            this.cellList[cellIdx].nodes[2],                              0 );
+            faceVerts[5] = (this.cellList[cellIdx].nodes[4], this.cellList[cellIdx].nodes[5],
+                            this.cellList[cellIdx].nodes[6],                              0 );
           }
           when TOPO_HEXA
           {
-            faceVerts[1] = (this.cellList[cell].nodes[1], this.cellList[cell].nodes[4], this.cellList[cell].nodes[3],
-                            this.cellList[cell].nodes[2]);
-            faceVerts[2] = (this.cellList[cell].nodes[1], this.cellList[cell].nodes[2], this.cellList[cell].nodes[6],
-                            this.cellList[cell].nodes[5]);
-            faceVerts[3] = (this.cellList[cell].nodes[2], this.cellList[cell].nodes[3], this.cellList[cell].nodes[7],
-                            this.cellList[cell].nodes[6]);
-            faceVerts[4] = (this.cellList[cell].nodes[3], this.cellList[cell].nodes[4], this.cellList[cell].nodes[8],
-                            this.cellList[cell].nodes[7]);
-            faceVerts[5] = (this.cellList[cell].nodes[1], this.cellList[cell].nodes[5], this.cellList[cell].nodes[8],
-                            this.cellList[cell].nodes[4]);
-            faceVerts[6] = (this.cellList[cell].nodes[5], this.cellList[cell].nodes[6], this.cellList[cell].nodes[7],
-                            this.cellList[cell].nodes[8]);
+            faceVerts[1] = (this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[4],
+                            this.cellList[cellIdx].nodes[3], this.cellList[cellIdx].nodes[2]);
+            faceVerts[2] = (this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[2],
+                            this.cellList[cellIdx].nodes[6], this.cellList[cellIdx].nodes[5]);
+            faceVerts[3] = (this.cellList[cellIdx].nodes[2], this.cellList[cellIdx].nodes[3],
+                            this.cellList[cellIdx].nodes[7], this.cellList[cellIdx].nodes[6]);
+            faceVerts[4] = (this.cellList[cellIdx].nodes[3], this.cellList[cellIdx].nodes[4],
+                            this.cellList[cellIdx].nodes[8], this.cellList[cellIdx].nodes[7]);
+            faceVerts[5] = (this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[5],
+                            this.cellList[cellIdx].nodes[8], this.cellList[cellIdx].nodes[4]);
+            faceVerts[6] = (this.cellList[cellIdx].nodes[5], this.cellList[cellIdx].nodes[6],
+                            this.cellList[cellIdx].nodes[7], this.cellList[cellIdx].nodes[8]);
           }
           otherwise {}
         }
 
         // Iterate through this cell's faces
-        for cellFaceIdx in this.cellList[cell].faces.domain
+        for cellFaceIdx in this.cellList[cellIdx].faces.domain
         {
           // Check if this face is already in the map
           if faceMap_d.contains(sort_tuple(faceVerts[cellFaceIdx]))
-          {
-            // This a mapped face! :D
+          { // This a mapped face! :D
 
-            // Save the face ID to the cell element
-            this.cellList[cell].faces[cellFaceIdx] = faceMap[sort_tuple(faceVerts[cellFaceIdx])];
-            // The second element to map to a face is always defined to be on the left side of the face
-            this.cellList[cell].sides[cellFaceIdx] = 1;
+            // Get the face ID
+            const faceID : int = faceMap[sort_tuple(faceVerts[cellFaceIdx])];
+
             // Save the cell ID as the left neighbor of the face
-            this.faceList[faceMap[sort_tuple(faceVerts[cellFaceIdx])]].cells[1] = cell;
+            this.faceList[faceID].cells[1] = cellIdx;
+
+            // Fill face nodes from the left neighbors so that face are consistently oriented
+            this.faceList[faceID].nodes_d = {1..elem_nodes(this.faceList[faceID].elemType)};
+            this.faceList[faceID].nodes   = this.cellList[cellIdx].nodes[elem_face_nodes(this.cellList[cellIdx].elemType,
+                                                                                         cellFaceIdx                    )];
+
+            // Save the face ID and the side of the face this cell is on to the cell record
+            // The second element to map to a face is always defined to be on the left side of the face
+            this.cellList[cellIdx].faces[cellFaceIdx] = faceID;
+            this.cellList[cellIdx].sides[cellFaceIdx] = 1;
           }
           else
-          {
-            // This isn't a mapped face. But don't panic! D:
+          { // This isn't a mapped face. But don't panic! D:
 
-            // Increment cell count with new element
-            this.nFaces += 1;
-            // Resize domain to expand the array
-            this.faceList_d = {1..this.nFaces};
+            // Increment the face index for the current new face
+            faceIdx += 1;
 
-            // Save the face ID in the cell
-            this.cellList[cell].faces[cellFaceIdx] = this.nFaces;
-            // Save the side of the face this cell is on
-            this.cellList[cell].sides[cellFaceIdx] = 2;
+            // Fill up the face properties. First cell to contain a face is put of the right side of the face.
+            this.faceList[faceIdx].cells[2] = cellIdx;
+            this.faceList[faceIdx].elemType = elem_face_type(this.cellList[cellIdx].elemType, cellFaceIdx);
 
-            // Fill up the face properties. Maybe this should be an initializer?
-            select elem_topology(this.cellList[cell].elemType)
-            {
-              when TOPO_LINE
-              {
-                this.faceList[this.nFaces].elemType = TYPE_NODE;
-                this.faceList[this.nFaces].nodes_d = {1..1};
-                this.faceList[this.nFaces].nodes[1] = faceVerts[cellFaceIdx][0];
-              }
-              when TOPO_TRIA
-              {
-                this.faceList[this.nFaces].elemType = TYPE_LINE_2;
+            // Save the face index and the side of the face this cell is on to the cell record
+            // Boundaries are assumed to be always on the right side of a face and they are added first so we follow the same
+            // convention and put the first cell that contains a face in it'sright side.
+            this.cellList[cellIdx].faces[cellFaceIdx] = faceIdx;
+            this.cellList[cellIdx].sides[cellFaceIdx] = 2;
 
-                // Reverse the order of the face nodes since this node set is from the right side cell
-                this.faceList[this.nFaces].nodes_d = {1..2};
-                this.faceList[this.nFaces].nodes[1] = faceVerts[cellFaceIdx][1];
-                this.faceList[this.nFaces].nodes[2] = faceVerts[cellFaceIdx][0];
-              }
-              when TOPO_QUAD
-              {
-                this.faceList[this.nFaces].elemType = TYPE_LINE_2;
-
-                // Reverse the order of the face nodes since this node set is from the right side cell
-                this.faceList[this.nFaces].nodes_d = {1..2};
-                this.faceList[this.nFaces].nodes[1] = faceVerts[cellFaceIdx][1];
-                this.faceList[this.nFaces].nodes[2] = faceVerts[cellFaceIdx][0];
-              }
-              when TOPO_TETR {}
-              otherwise {}
-            }
-            this.faceList[this.nFaces].cells[2] = cell;
-
-            // Save nodes that define it in the map
+            // Add the tuple of nodes that define this face to the map and save this face's face index
             faceMap_d.add(sort_tuple(faceVerts[cellFaceIdx]));
-            faceMap[sort_tuple(faceVerts[cellFaceIdx])] = this.nFaces;
+            faceMap[sort_tuple(faceVerts[cellFaceIdx])] = faceIdx;
           }
         }
       }
+      // Check if all faces have been correctly identified?
     }
 
     proc build_elem_sets()
@@ -1131,8 +1170,8 @@ module Mesh
         {
           when 1 do faceNodes = [1, 4, 3, 2]; // Zeta min
           when 2 do faceNodes = [   1, 2, 5]; // Eta min
-          when 3 do faceNodes = [   2, 3, 5]; // 
-          when 4 do faceNodes = [   3, 4, 5]; // 
+          when 3 do faceNodes = [   2, 3, 5]; //
+          when 4 do faceNodes = [   3, 4, 5]; //
           when 5 do faceNodes = [   4, 1, 5]; // Xi min
         }
       }
@@ -1143,8 +1182,8 @@ module Mesh
           //                       Corners | Mid-Edge      | Mid-Face
           when 1 do faceNodes = [1, 4, 3, 2,  9,  8,  7,  6, 14]; // Zeta min
           when 2 do faceNodes = [   1, 2, 5,      6, 11, 10    ]; // Eta min
-          when 3 do faceNodes = [   2, 3, 5,      7, 12, 11    ]; // 
-          when 4 do faceNodes = [   3, 4, 5,      8, 13, 12    ]; // 
+          when 3 do faceNodes = [   2, 3, 5,      7, 12, 11    ]; //
+          when 4 do faceNodes = [   3, 4, 5,      8, 13, 12    ]; //
           when 5 do faceNodes = [   4, 1, 5,      9, 10, 13    ]; // Xi min
         }
       }
@@ -1155,8 +1194,8 @@ module Mesh
           //                       Corners | Mid-Edge                      | Mid-Face
           when 1 do faceNodes = [1, 4, 3, 2, 12, 13, 11, 10,  9,  8,  7,  6, 22, 25, 24, 23]; // Zeta min
           when 2 do faceNodes = [   1, 2, 5,          6,  7, 16, 16, 15, 14,             26]; // Eta min
-          when 3 do faceNodes = [   2, 3, 5,          8,  9, 18, 19, 17, 16,             27]; // 
-          when 4 do faceNodes = [   3, 4, 5,         10, 11, 20, 21, 19, 18,             28]; // 
+          when 3 do faceNodes = [   2, 3, 5,          8,  9, 18, 19, 17, 16,             27]; //
+          when 4 do faceNodes = [   3, 4, 5,         10, 11, 20, 21, 19, 18,             28]; //
           when 5 do faceNodes = [   4, 1, 5,         12, 13, 14, 15, 21, 22,             29]; // Xi min
         }
       }
@@ -1167,8 +1206,8 @@ module Mesh
           //                       Corners | Mid-Edge                                      | Mid-Face
           when 1 do faceNodes = [1, 4, 3, 2, 17, 16, 15, 14, 13, 12, 11, 10,  9,  8,  7,  6, 30, 31, 32, 33, 34, 35, 36, 37, 38]; // Zeta min
           when 2 do faceNodes = [   1, 2, 5,              6,  7,  8, 21, 22, 23, 20, 19, 18,                         39, 40, 41]; // Eta min
-          when 3 do faceNodes = [   2, 3, 5,              9, 10, 11, 24, 25, 26, 23, 22, 21,                         42, 43, 44]; // 
-          when 4 do faceNodes = [   3, 4, 5,             12, 13, 14, 27, 28, 29, 26, 25, 24,                         45, 46, 47]; // 
+          when 3 do faceNodes = [   2, 3, 5,              9, 10, 11, 24, 25, 26, 23, 22, 21,                         42, 43, 44]; //
+          when 4 do faceNodes = [   3, 4, 5,             12, 13, 14, 27, 28, 29, 26, 25, 24,                         45, 46, 47]; //
           when 5 do faceNodes = [   4, 1, 5,             15, 16, 17, 18, 19, 20, 29, 28, 27,                         48, 49, 50]; // Xi min
         }
       }

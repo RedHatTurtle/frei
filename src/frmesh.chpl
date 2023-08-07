@@ -2,13 +2,23 @@ module FRMesh {
   use Gmesh;
   use Input;
   use Mesh;
+  use BlockDist;
+  //use Block1DDist;
+  use ReplicatedDist;
 
   class fr_mesh_c : mesh_c
   {
     const nVars  : int;
     var solOrder : int;
 
+    // Array distributions
+    //const spDist = new dmap(new blockDist(boundingBox={1..1}));
+    //const fpDist = new dmap(new blockDist(boundingBox={1..1}));
+
     // Domains
+    var cellSPidx_d : domain(rank=2, idxType=int); // {1..nCells, 1..2}
+    var faceFPidx_d : domain(rank=2, idxType=int); // {1..nFaces, 1..2}
+
     var  xyzSP_d : domain(rank=2, idxType=int);    // {1..nSPs, 1..nDims}
     var  xyzFP_d : domain(rank=2, idxType=int);    // {1..nFPs, 1..nDims}
 
@@ -21,9 +31,6 @@ module FRMesh {
     // For future viscous flow implementation
     //var dSolSP_d : domain(rank=3, idxType=int);    // {1..nSPs, 1..nVars, 1..nVars}
     //var dSolFP_d : domain(rank=4, idxType=int);    // {1..nFPs, 1..2, 1..nVars, 1..nVars}
-
-    var cellSPidx_d : domain(rank=2, idxType=int); // {1..nCells, 1..2}
-    var faceFPidx_d : domain(rank=2, idxType=int); // {1..nFaces, 1..2}
 
     // FR solver variables
 
@@ -49,308 +56,65 @@ module FRMesh {
     var cellSPidx : [cellSPidx_d] int;  // Index of the first SP and number of SPs of a cell
     var faceFPidx : [faceFPidx_d] int;  // Index of the first FP and number of FPs of a face
 
-    override proc import_gmesh2(gmesh : gmesh2_c)
+    proc init(mesh : gmesh2_c, nVars : int, solOrder : int)
     {
-      use Gmesh;
+      super.init(mesh);
 
-      // Copy nodes
-      this.nNodes = gmesh.nodes.domain.dim(0).high;
-      this.nodeList_d = {1..this.nNodes};
-      for node in this.nodeList_d do
-        this.nodeList[node].xyz = gmesh.nodes[node,1..3];
-
-      // Get family names and dimensions. These are used to sort the elements.
-      this.nFamls = gmesh.families.domain.dim(0).high;
-      this.famlList_d = {1..this.nFamls};
-      for faml in this.famlList_d
-      {
-        this.famlList[faml].name = gmesh.families[faml].name;
-        this.famlList[faml].nDim = gmesh.families[faml].nDim;
-      }
-      var cellDim : int = max reduce this.famlList[..].nDim;
-      var bocoDim : int = cellDim - 1;
-
-      // Sort elements into cells and boundaries and copy them
-      for element in gmesh.elements.domain
-      {
-        var elemDim     : int;
-        var elemFamlIdx : int;
-
-        // Search though families for this element's family.
-        for famlIdx in gmesh.families.domain
-        {
-          // Gmesh family tags are not globally unique, they are unique within families with the same number of spatial
-          // dimensions therefore we search for a match of both criteria.
-          if gmesh.elements[element].tags[1]   == gmesh.families[famlIdx].tag
-          && gmesh.elements[element].elemDim() == gmesh.families[famlIdx].nDim
-          {
-            elemDim = gmesh.families[famlIdx].nDim;
-            elemFamlIdx = famlIdx;
-          }
-        }
-
-        // Add the mesh element to either the cell or boco list depending on the element/family dimension
-        select elemDim
-        {
-          when cellDim
-          {
-            // Increment cell count with new element
-            this.nCells += 1;
-            // Resize domain to expand the array
-            this.cellList_d = {1..this.nCells};
-            // Fill up the cell properties. Maybe this should be an initializer?
-            this.cellList[this.nCells].nodes_d  = gmesh.elements[element].nodes_d;
-            this.cellList[this.nCells].nodes    = gmesh.elements[element].nodes;
-            this.cellList[this.nCells].elemType = elem_type_gmsh2mesh(gmesh.elements[element].elemType);
-            this.cellList[this.nCells].family   = elemFamlIdx;
-          }
-          when bocoDim
-          {
-            // Increment boco count with new element
-            this.nBocos += 1;
-            // Resize domain to expand the array
-            this.bocoList_d = {1..this.nBocos};
-            // Fill up the boco properties. Maybe this should be an initializer?
-            this.bocoList[this.nBocos].nodes_d  = gmesh.elements[element].nodes_d;
-            this.bocoList[this.nBocos].nodes    = gmesh.elements[element].nodes;
-            this.bocoList[this.nBocos].elemType = elem_type_gmsh2mesh(gmesh.elements[element].elemType);
-            this.bocoList[this.nBocos].family   = elemFamlIdx;
-          }
-          otherwise do
-          {
-            writeln("Found element of unexpected dimension in mesh.");
-            writeln("   Maximum dimension element found: ", cellDim);
-            writeln("   Assumed cell dimension: ", cellDim);
-            writeln("   Assumed boco dimension: ", bocoDim);
-            writeln("Problematic element dimension: ", elemDim, " ID: ", element);
-            writeln();
-          }
-        }
-      }
-
-      // Build the face list for Riemann solver iteration
-      this.build_face_list();
-
-      // Build the sets of cell and face element types and topologies present in this mesh
-      this.build_elem_sets();
+      this.nVars = nVars;
+      this.solOrder = solOrder;
     }
 
-    override proc build_face_list()
+    override proc import_gmesh2(gmesh : gmesh2_c)
     {
-      use Parameters.ParamMesh;
-      use Parameters.ParamGmesh;
-      import SortTuple.sort_tuple;
-
-      // Build face list
-      var faceVerts : [1..6] 4*int;
-      var faceMap_d : domain(4*int);
-      var faceMap : [faceMap_d] int;
-
-      // Add all boundaries to the face map
-      for boco in this.bocoList_d
-      {
-        // Each boundary defines a face. Build the face nodes tuple based on the element topology.
-        select elem_topology(this.bocoList[boco].elemType)
-        {
-          when TOPO_NODE do faceVerts[1] = (this.bocoList[boco].nodes[1], 0, 0, 0);
-          when TOPO_LINE do faceVerts[1] = (this.bocoList[boco].nodes[1], this.bocoList[boco].nodes[2], 0, 0);
-          when TOPO_TRIA do faceVerts[1] = (this.bocoList[boco].nodes[1], this.bocoList[boco].nodes[2],
-                                            this.bocoList[boco].nodes[3], 0);
-          when TOPO_QUAD do faceVerts[1] = (this.bocoList[boco].nodes[1], this.bocoList[boco].nodes[2],
-                                            this.bocoList[boco].nodes[3], this.bocoList[boco].nodes[4]);
-          otherwise {}
-        }
-
-        // Create the face element on the face list
-        // Increment the face counter with the new face and expand the face list domain
-        this.nFaces += 1;
-        this.faceList_d = {1..this.nFaces};
-
-        // Add the face vertices to the face matching list and store the face index given to this face.
-        faceMap_d.add(sort_tuple(faceVerts[1]));
-        faceMap[sort_tuple(faceVerts[1])] = this.nFaces;
-
-        // Fill up the face properties. First cell to contain a face is put of the right side of the face.
-        this.faceList[this.nFaces].cells[2] = -boco;
-        this.faceList[this.nFaces].elemType = this.bocoList[boco].elemType;
-
-        // Fill the right side neighbor ID, boundaries are always on the right side of a face.
-        // Boundaries have negative indexes so they can be easily distinguished from mesh cells.
-        this.bocoList[boco].face = this.nFaces;
-      }
-
-      // Add faces from cells to the face map and perform the matching
-      for cellIdx in this.cellList_d
-      {
-        // Allocate this cell's local face list
-        this.cellList[cellIdx].faces_d = {1..elem_faces(elem_topology(this.cellList[cellIdx].elemType))};
-
-        // Build the face nodes tuple
-        select elem_topology(this.cellList[cellIdx].elemType)
-        {
-          when TOPO_LINE
-          {
-            faceVerts[1] = (this.cellList[cellIdx].nodes[1], 0, 0, 0);
-            faceVerts[2] = (this.cellList[cellIdx].nodes[2], 0, 0, 0);
-          }
-          when TOPO_TRIA
-          {
-            faceVerts[1] = (this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[2], 0, 0);
-            faceVerts[2] = (this.cellList[cellIdx].nodes[2], this.cellList[cellIdx].nodes[3], 0, 0);
-            faceVerts[3] = (this.cellList[cellIdx].nodes[3], this.cellList[cellIdx].nodes[1], 0, 0);
-          }
-          when TOPO_QUAD
-          {
-            faceVerts[1] = (this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[2], 0, 0);
-            faceVerts[2] = (this.cellList[cellIdx].nodes[2], this.cellList[cellIdx].nodes[3], 0, 0);
-            faceVerts[3] = (this.cellList[cellIdx].nodes[3], this.cellList[cellIdx].nodes[4], 0, 0);
-            faceVerts[4] = (this.cellList[cellIdx].nodes[4], this.cellList[cellIdx].nodes[1], 0, 0);
-          }
-          when TOPO_TETR
-          {
-            faceVerts[1] = (this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[3], this.cellList[cellIdx].nodes[2],
-                            0);
-            faceVerts[2] = (this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[2], this.cellList[cellIdx].nodes[4],
-                            0);
-            faceVerts[3] = (this.cellList[cellIdx].nodes[2], this.cellList[cellIdx].nodes[3], this.cellList[cellIdx].nodes[4],
-                            0);
-            faceVerts[4] = (this.cellList[cellIdx].nodes[3], this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[4],
-                            0);
-          }
-          when TOPO_PYRA
-          {
-            faceVerts[1] = (this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[4], this.cellList[cellIdx].nodes[3],
-                            this.cellList[cellIdx].nodes[2]);
-            faceVerts[2] = (this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[2], this.cellList[cellIdx].nodes[5],
-                            0);
-            faceVerts[3] = (this.cellList[cellIdx].nodes[2], this.cellList[cellIdx].nodes[3], this.cellList[cellIdx].nodes[5],
-                            0);
-            faceVerts[4] = (this.cellList[cellIdx].nodes[3], this.cellList[cellIdx].nodes[4], this.cellList[cellIdx].nodes[5],
-                            0);
-            faceVerts[5] = (this.cellList[cellIdx].nodes[4], this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[5],
-                            0);
-          }
-          when TOPO_PRIS
-          {
-            faceVerts[1] = (this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[2], this.cellList[cellIdx].nodes[5],
-                            this.cellList[cellIdx].nodes[4]);
-            faceVerts[2] = (this.cellList[cellIdx].nodes[2], this.cellList[cellIdx].nodes[3], this.cellList[cellIdx].nodes[6],
-                            this.cellList[cellIdx].nodes[5]);
-            faceVerts[3] = (this.cellList[cellIdx].nodes[3], this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[4],
-                            this.cellList[cellIdx].nodes[6]);
-            faceVerts[4] = (this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[3], this.cellList[cellIdx].nodes[2],
-                            0);
-            faceVerts[5] = (this.cellList[cellIdx].nodes[4], this.cellList[cellIdx].nodes[5], this.cellList[cellIdx].nodes[6],
-                            0);
-          }
-          when TOPO_HEXA
-          {
-            faceVerts[1] = (this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[4], this.cellList[cellIdx].nodes[3],
-                            this.cellList[cellIdx].nodes[2]);
-            faceVerts[2] = (this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[2], this.cellList[cellIdx].nodes[6],
-                            this.cellList[cellIdx].nodes[5]);
-            faceVerts[3] = (this.cellList[cellIdx].nodes[2], this.cellList[cellIdx].nodes[3], this.cellList[cellIdx].nodes[7],
-                            this.cellList[cellIdx].nodes[6]);
-            faceVerts[4] = (this.cellList[cellIdx].nodes[3], this.cellList[cellIdx].nodes[4], this.cellList[cellIdx].nodes[8],
-                            this.cellList[cellIdx].nodes[7]);
-            faceVerts[5] = (this.cellList[cellIdx].nodes[1], this.cellList[cellIdx].nodes[5], this.cellList[cellIdx].nodes[8],
-                            this.cellList[cellIdx].nodes[4]);
-            faceVerts[6] = (this.cellList[cellIdx].nodes[5], this.cellList[cellIdx].nodes[6], this.cellList[cellIdx].nodes[7],
-                            this.cellList[cellIdx].nodes[8]);
-          }
-          otherwise {}
-        }
-
-        // Iterate through this cell's faces
-        for cellFaceIdx in this.cellList[cellIdx].faces.domain
-        {
-          // Check if this face is already in the map
-          if faceMap_d.contains(sort_tuple(faceVerts[cellFaceIdx]))
-          { // This a mapped face! :D
-            var faceIdx : int = faceMap[sort_tuple(faceVerts[cellFaceIdx])];
-
-            // Save the cell ID as the left neighbor of the face
-            this.faceList[faceIdx].cells[1] = cellIdx;
-
-            // Fill face nodes fro mthe left neighbors so that face are consistently oriented
-            this.faceList[faceIdx].nodes_d = {1..elem_nodes(this.faceList[this.nFaces].elemType)};
-            this.faceList[faceIdx].nodes   = this.cellList[cellIdx].nodes[elem_face_nodes(this.cellList[cellIdx].elemType,
-                                                                                              cellFaceIdx                    )];
-
-            // Save the face index and the side of the face this cell is on to the cell record
-            this.cellList[cellIdx].faces[cellFaceIdx] = faceIdx;
-            this.cellList[cellIdx].sides[cellFaceIdx] = 1;
-          }
-          else
-          { // This isn't a mapped face. But don't panic! D:
-
-            // Increment the face counter with the new face and expand the face list domain
-            this.nFaces += 1;
-            this.faceList_d = {1..this.nFaces};
-
-            // Add the tuple if nodes that define this face to the map and save this face's face index
-            faceMap_d.add(sort_tuple(faceVerts[cellFaceIdx]));
-            faceMap[sort_tuple(faceVerts[cellFaceIdx])] = this.nFaces;
-
-            // Fill up the face properties. First cell to contain a face is put of the right side of the face.
-            this.faceList[this.nFaces].cells[2] = cellIdx;
-            this.faceList[this.nFaces].elemType = elem_face_type(this.cellList[cellIdx].elemType, cellFaceIdx);
-
-            // Save the face index and the side of the face this cell is on to the cell record
-            this.cellList[cellIdx].faces[cellFaceIdx] = this.nFaces;
-            this.cellList[cellIdx].sides[cellFaceIdx] = 2;
-          }
-        }
-      }
-      // Check if all faces have been correctly identified?
+      super.import_gmesh2(gmesh);
     }
 
     proc allocate_fr_vars()
     {
-      var nSPs : int;
-      var nFPs : int;
+      var spCnt : int = 0;
+      var fpCnt : int = 0;
 
       cellSPidx_d = {this.cellList_d.dim(0), 1..2};
       faceFPidx_d = {this.faceList_d.dim(0), 1..2};
 
-      for cell in this.cellList_d
+      for cellIdx in this.cellList.domain
       {
-        var cellSPcnt = n_cell_sps(this.cellList(cell).elemTopo(), this.solOrder);
+        var cellSPcnt = n_cell_sps(this.cellList(cellIdx).elemTopo(), this.solOrder);
 
         // Build the Cell -> SP map
-        cellSPidx[cell, 1] = nSPs+1;    // First SP of this cell
-        cellSPidx[cell, 2] = cellSPcnt; // Number of SPs on this cell (redundant info but convenient for programming)
+        cellSPidx[cellIdx, 1] = spCnt+1;    // First SP of this cell
+        cellSPidx[cellIdx, 2] = cellSPcnt; // Number of SPs on this cell (redundant info but convenient for programming)
 
         // Update the mesh total SP count
-        nSPs += cellSPcnt;
+        spCnt += cellSPcnt;
 
         // Resize the SP data arrays
-        xyzSP_d  = {1..nSPs, 1..this.nDims};
-        metSP_d  = {1..nSPs, 1..this.nDims, 1..this.nDims};
-        jacSP_d  = {1..nSPs};
-        solSP_d  = {1..this.nVars, 1..nSPs};
+        xyzSP_d  = {1..spCnt, 1..this.nDims};
+        metSP_d  = {1..spCnt, 1..this.nDims, 1..this.nDims};
+        jacSP_d  = {1..spCnt};
+        solSP_d  = {1..this.nVars, 1..spCnt};
 
         // For future viscous flow implementation
-        //dSolSP_d = {1..nSPs, 1..this.nVars, 1..this.nDims};
+        //dSolSP_d = {1..spCnt, 1..this.nVars, 1..this.nDims};
       }
 
-      for face in this.faceList_d
+      for faceIdx in this.faceList.domain
       {
-        var faceFPcnt = n_face_fps(this.faceList(face).elemTopo(), this.solOrder);
+        var faceFPcnt = n_face_fps(this.faceList(faceIdx).elemTopo(), this.solOrder);
 
         // Build the Face -> FP map
-        faceFPidx[face, 1] = nFPs+1;    // First FP of this face
-        faceFPidx[face, 2] = faceFPcnt; // Number of FPs on this face (redundant info but convenient for programming)
+        faceFPidx[faceIdx, 1] = fpCnt+1;    // First FP of this face
+        faceFPidx[faceIdx, 2] = faceFPcnt; // Number of FPs on this face (redundant info but convenient for programming)
 
-        nFPs += faceFPcnt;
+        fpCnt += faceFPcnt;
 
         // Resize the FP data arrays
-        xyzFP_d  = {1..nFPs, 1..this.nDims};
-        solFP_d  = {1..nFPs, 1..2, 1..this.nVars};
-        flxFP_d  = {1..nFPs, 1..2, 1..this.nVars};
+        xyzFP_d  = {1..fpCnt, 1..this.nDims};
+        solFP_d  = {1..fpCnt, 1..2, 1..this.nVars};
+        flxFP_d  = {1..fpCnt, 1..2, 1..this.nVars};
 
         // For future viscous flow implementation
-        //dSolFP_d = {1..nFPs, 1..2, 1..this.nVars, 1..this.nDims};
+        //dSolFP_d = {1..fpCnt, 1..2, 1..this.nVars, 1..this.nDims};
       }
     }
 
@@ -367,11 +131,11 @@ module FRMesh {
       init_mapping(minOrder=this.solOrder, maxOrder=this.solOrder, this.cellTypes|this.faceTypes);
       init_mapping_metrics(minOrder=this.solOrder, maxOrder=this.solOrder, this.cellTypes|this.faceTypes);
 
-      for cellIdx in this.cellList_d
+      for cellIdx in this.cellList.domain
       {
         // Get loop variables
-        ref cellSPini = this.cellSPidx[cellIdx, 1];
-        ref cellSPcnt = this.cellSPidx[cellIdx, 2];
+        const cellSPini = this.cellSPidx[cellIdx, 1];
+        const cellSPcnt = this.cellSPidx[cellIdx, 2];
 
         // Get the list of nodes that define this cell
         var elemNodes : [this.cellList[cellIdx].nodes_d] int = this.cellList[cellIdx].nodes;
@@ -410,7 +174,7 @@ module FRMesh {
         }
       }
 
-      for faceIdx in this.faceList_d
+      for faceIdx in this.faceList.domain
       {
         // Get the list of nodes that define this face
         var elemNodes : [this.faceList[faceIdx].nodes_d] int = this.faceList[faceIdx].nodes;

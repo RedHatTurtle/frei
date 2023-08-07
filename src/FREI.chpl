@@ -141,7 +141,8 @@ module FREI
     }
 
     // 4. Convert input mesh to solver mesh
-    const frMesh = new unmanaged fr_mesh_c(nDims=gmesh2.mesh_dimension(), nVars=Input.nEqs, solOrder=Input.iOrder);
+    //const frMesh = new unmanaged fr_mesh_c(nDims=gmesh2.mesh_dimension(), nVars=Input.nEqs, solOrder=Input.iOrder);
+    var frMesh = new unmanaged fr_mesh_c(mesh=gmesh2, nVars=Input.nEqs, solOrder=Input.iOrder);
     frMesh.import_gmesh2(gmesh2);   // Convert mesh to native format
     frMesh.set_families(famlList);  // Get families data from input file and write to mesh
 

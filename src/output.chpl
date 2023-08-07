@@ -75,7 +75,7 @@ module Output
   }
 
   // Select the adequate output routines that need to be run
-  proc iterOutput(nIter : int, frMesh : fr_mesh_c, flagNormals : bool = false)
+  proc iterOutput(nIter : int, ref frMesh : fr_mesh_c, flagNormals : bool = false)
   {
     use IO;
     use Path;
@@ -177,7 +177,7 @@ module Output
   }
 
   proc output_fr_tecplot_dat(outputDir : string, fileRoot : string, fileSulfix : string,
-      frMesh : fr_mesh_c,
+      ref frMesh : fr_mesh_c,
       flagPressure : bool = true, flagTemperature : bool = false, flagMach : bool = true, flagEntropy : bool = true,
       flagNormals : bool = false, flagDouble : bool = false)
   {
@@ -274,17 +274,17 @@ module Output
         // Interpolate solution from internal SPs to the face FPs
         forall cellIdx in frMesh.cellList.domain
         {
-          ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
-          ref cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
+          const cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
+          const cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
           ref thisCell = frMesh.cellList[cellIdx];
 
-          forall cellFace in thisCell.faces.domain
+          for cellFace in thisCell.faces.domain
           {
-            ref faceIdx  : int = thisCell.faces[cellFace];
-            ref faceSide : int = thisCell.sides[cellFace];
+            const faceIdx  : int = thisCell.faces[cellFace];
+            const faceSide : int = thisCell.sides[cellFace];
             ref thisFace = frMesh.faceList[faceIdx];
 
-            forall meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
+            for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
             {
               var cellFP : int;
 
