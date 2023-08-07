@@ -111,6 +111,24 @@ SRC_FILES="                          \
 ###   Configure Build Flags                    ###
 ##################################################
 
+# Configure locale mode
+FLAG_SL="--local"
+FLAG_ML="--no-local"
+
+if [[ $@ =~ --sl       ]]; then
+    FLAG_LOCALE=$FLAG_SL
+    BLD_LOCALE="sl";
+    VER_LOCALE="${UBlue}Single Locale${Color_Off}"
+elif [[ $@ =~ --ml       ]]; then
+    FLAG_LOCALE=$FLAG_ML
+    BLD_LOCALE="ml";
+    VER_LOCALE="${UBlue}Multi Locale${Color_Off}"
+else
+    FLAG_LOCALE=$FLAG_SL
+    BLD_LOCALE="sl";
+    VER_LOCALE="${UBlue}Single Locale${Color_Off}"
+fi
+
 # Set build flag for each build type
 FLAG_DBG="--warnings --warn-unstable --detailed-errors"
 FLAG_OPT="--fast"
@@ -145,8 +163,8 @@ if [[ $@ =~ --generic  ]]; then BUILD_GENERIC="true";  fi
 ###   Generate binary and links names          ###
 ##################################################
 
-BUILD_NAME="frei_${BLD_MODE}.${VERS_HASH}"
-LINK_NAME="frei_${BLD_MODE}"
+BUILD_NAME="frei_${BLD_LOCALE}_${BLD_MODE}.${VERS_HASH}"
+LINK_NAME="frei_${BLD_LOCALE}_${BLD_MODE}"
 if [[ "$GIT_BRANCH" != *"HEAD detached"* ]]; then
     LINK_NAME="${LINK_NAME}.${GIT_BRANCH}"
 fi
@@ -170,7 +188,7 @@ if [[ $BUILD_GENERIC == "true" ]]; then
     #PATH_TO_LAPACK_BINARIES="/usr/lib64/lapack"
 
     echo
-    echo -e "Building $VER_MODE $VER_LAPACK version of Frei..."
+    echo -e "Building $VER_LOCALE $VER_MODE $VER_LAPACK version of Frei..."
     echo
     chpl $BLD_FLAG                                          \
         -I$PATH_TO_BLAS_DIR                                 \
@@ -217,9 +235,9 @@ if [[ $BUILD_OPENBLAS == "true" ]]; then
     #PATH_TO_OPENBLAS_LIBS="/usr/lib64/openblas-serial"
 
     echo
-    echo -e "Building $VER_MODE $VER_LAPACK version of Frei..."
+    echo -e "Building $VER_LOCALE $VER_MODE $VER_LAPACK version of Frei..."
     echo
-    chpl $BLD_FLAG                                          \
+    chpl $FLAG_LOCALE $BLD_FLAG                             \
         -I$PATH_TO_OPENBLAS_DIR                             \
         -L$PATH_TO_OPENBLAS_LIBS -lopenblas                 \
         --main-module "FREI" $SRC_FILES                     \
@@ -264,9 +282,9 @@ if [[ $BUILD_BLIS == "true" ]]; then
     #PATH_TO_LAPACK_BINARIES="/usr/lib64/lapack"
 
     echo
-    echo -e "Building $VER_MODE $VER_LAPACK version of Frei..."
+    echo -e "Building $VER_LOCALE $VER_MODE $VER_LAPACK version of Frei..."
     echo
-    chpl $BLD_FLAG                                          \
+    chpl $FLAG_LOCALE $BLD_FLAG                             \
         -I$PATH_TO_BLIS_DIR                                 \
         -L$PATH_TO_BLIS_LIBS -lblis                         \
         -I$PATH_TO_LAPACK_INCLUDE_DIR                       \
@@ -310,9 +328,9 @@ if [[ $BUILD_INTEL == "true" ]]; then
     PATH_TO_MKL_LIBS="/opt/intel/oneapi/mkl/latest/lib/intel64"
 
     echo
-    echo -e "Building $VER_MODE $VER_LAPACK version of Frei..."
+    echo -e "Building $VER_LOCALE $VER_MODE $VER_LAPACK version of Frei..."
     echo
-    chpl $BLD_FLAG                                          \
+    chpl $FLAG_LOCALE $BLD_FLAG                             \
         --set blasImpl=mkl                                  \
         --set lapackImpl=mkl                                \
         -I$PATH_TO_MKL_INCLUDES                             \
@@ -362,9 +380,9 @@ if [[ $BUILD_AMD == "true" ]]; then
     #PATH_TO_LAPACK_BINARIES="/usr/lib64/lapack"
 
     echo
-    echo -e "Building $VER_MODE $VER_LAPACK version of Frei..."
+    echo -e "Building $VER_LOCALE $VER_MODE $VER_LAPACK version of Frei..."
     echo
-    chpl $BLD_FLAG                                          \
+    chpl $FLAG_LOCALE $BLD_FLAG                             \
         -I$PATH_TO_AMD_INCLUDES                             \
         -L$PATH_TO_AMD_LIBS -lblis -lamdlibm -lamdlibm      \
         -I$PATH_TO_LAPACK_INCLUDE_DIR                       \
