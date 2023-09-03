@@ -5,7 +5,7 @@ if [ "${-#*i}" == "$-" ]; then
     Color_Off='\033[0m'       # Text Reset
     BRed='\033[1;31m'         # Bold Red
     BGreen='\033[1;32m'       # Bold Green
-    UBlue='\033[4;34m'        # Bold Green
+    UBlue='\033[4;34m'        # Underline Blue
 fi
 
 # Default sucessful and failed build messages
