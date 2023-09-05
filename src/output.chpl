@@ -3,14 +3,15 @@ module Output
   use IO;
   import FRMesh.fr_mesh_c;
 
-  proc log_convergence(convergenceLogWriter : fileWriter, iteration : int,
-      l1SolDeltaAbs : [] real, l2SolDeltaAbs : [] real, lfSolDeltaAbs : [] real,
-      l1SolDeltaRel : [] real, l2SolDeltaRel : [] real, lfSolDeltaRel : [] real)
+  proc log_convergence(convergenceLogWriter : fileWriter, resToggle : bool = false,  iteration : int,
+      l1Abs : [] real, l2Abs : [] real, lfAbs : [] real, l1Rel : [] real, l2Rel : [] real, lfRel : [] real)
   {
     use IO;
 
-    const header : [1..6] string = ["L2(ΔSol[%1i])",   "Lf(ΔSol[%1i])",   "L1(ΔSol[%1i])",
-                                    "L2(%%ΔSol[%1i])", "Lf(%%ΔSol[%1i])", "L1(%%ΔSol[%1i])"];
+    const header : [1..6] string = if (resToggle) then
+      ["L2(Res[%1i])",  "Lf(Res[%1i])",  "L1(Res[%1i])",  "L2(%%Res[%1i])",  "Lf(%%Res[%1i])",  "L1(%%Res[%1i])"]
+    else
+      ["L2(ΔSol[%1i])", "Lf(ΔSol[%1i])", "L1(ΔSol[%1i])", "L2(%%ΔSol[%1i])", "Lf(%%ΔSol[%1i])", "L1(%%ΔSol[%1i])"];
 
     // Open file writer and write to log
     try {
@@ -19,24 +20,24 @@ module Output
       {
         convergenceLogWriter.writef("%10s", "Iteration");
         for metric in header do
-          for varIdx in l2SolDeltaAbs.domain do
+          for varIdx in l2Abs.domain do
             convergenceLogWriter.writef("%16s", metric.format(varIdx));
         convergenceLogWriter.writef("\n");
       }
 
       convergenceLogWriter.writef("%10i", iteration);
-      for varIdx in l2SolDeltaAbs.domain do
-        convergenceLogWriter.writef("%{ 16.8er}", l2SolDeltaAbs[varIdx]);
-      for varIdx in lfSolDeltaAbs.domain do
-        convergenceLogWriter.writef("%{ 16.8er}", lfSolDeltaAbs[varIdx]);
-      for varIdx in l1SolDeltaAbs.domain do
-        convergenceLogWriter.writef("%{ 16.8er}", l1SolDeltaAbs[varIdx]);
-      for varIdx in l2SolDeltaRel.domain do
-        convergenceLogWriter.writef("%{ 16.8er}", l2SolDeltaRel[varIdx]*100);
-      for varIdx in lfSolDeltaRel.domain do
-        convergenceLogWriter.writef("%{ 16.8er}", lfSolDeltaRel[varIdx]*100);
-      for varIdx in l1SolDeltaRel.domain do
-        convergenceLogWriter.writef("%{ 16.8er}", l1SolDeltaRel[varIdx]*100);
+      for varIdx in l2Abs.domain do
+        convergenceLogWriter.writef("%{ 16.8er}", l2Abs[varIdx]);
+      for varIdx in lfAbs.domain do
+        convergenceLogWriter.writef("%{ 16.8er}", lfAbs[varIdx]);
+      for varIdx in l1Abs.domain do
+        convergenceLogWriter.writef("%{ 16.8er}", l1Abs[varIdx]);
+      for varIdx in l2Rel.domain do
+        convergenceLogWriter.writef("%{ 16.8er}", l2Rel[varIdx]*100);
+      for varIdx in lfRel.domain do
+        convergenceLogWriter.writef("%{ 16.8er}", lfRel[varIdx]*100);
+      for varIdx in l1Rel.domain do
+        convergenceLogWriter.writef("%{ 16.8er}", l1Rel[varIdx]*100);
       convergenceLogWriter.writef("\n");
 
       convergenceLogWriter.flush();

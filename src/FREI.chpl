@@ -256,15 +256,18 @@ module FREI
     var lfResRel : [1..frMesh.nVars] real;
 
     var convergenceLogFile : file;
+    var     residueLogFile : file;
     var       errorLogFile : file;
     try! {
       convergenceLogFile = open("convergence.dat", ioMode.cw);
+          residueLogFile = open(    "residue.dat", ioMode.cw);
             errorLogFile = open(      "error.dat", ioMode.cw);
     } catch {
       try! stdout.writeln("Unknown Error opening convergence log file.");
       try! stderr.writeln("Unknown Error opening convergence log file.");
     }
     var convergenceLogWriter = try! convergenceLogFile.writer();
+    var     residueLogWriter = try!     residueLogFile.writer();
     var       errorLogWriter = try!       errorLogFile.writer();
 
     writeln();
@@ -603,6 +606,9 @@ module FREI
             l1ResRel = [varIdx in 1..frMesh.nVars]         + reduce abs((frMesh.resSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..]);
             l2ResRel = [varIdx in 1..frMesh.nVars] sqrt(   + reduce    ((frMesh.resSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..] )**2);
             lfResRel = [varIdx in 1..frMesh.nVars]       max reduce abs((frMesh.resSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..]);
+
+            // Output all residues to log file
+            log_convergence(residueLogWriter, resToggle=true, iteration, l1ResAbs, l2ResAbs, lfResAbs, l1ResRel, l2ResRel, lfResRel);
           }
 
           // Zero out residue
@@ -677,8 +683,9 @@ module FREI
               max reduce abs((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..]);
 
           // Output full state to log file
-          log_convergence(convergenceLogWriter, iteration, l1SolDeltaAbs, l2SolDeltaAbs, lfSolDeltaAbs,
-                                                           l1SolDeltaRel, l2SolDeltaRel, lfSolDeltaRel);
+          log_convergence(convergenceLogWriter, resToggle=false, iteration,
+                          l1SolDeltaAbs, l2SolDeltaAbs, lfSolDeltaAbs,
+                          l1SolDeltaRel, l2SolDeltaRel, lfSolDeltaRel);
 
           // Output summarized convergence metrics to stdOut
           writef("Iteration %9i | Time %{ 10.2dr}ms | Log10(L2(Res)) = %{ 7.4dr} | Log10(L2(ΔSol)) = %{ 7.4dr}",
