@@ -710,7 +710,7 @@ module FREI
                           l1SolDeltaRel, l2SolDeltaRel, lfSolDeltaRel);
 
           // Output summarized convergence metrics to stdOut
-          writef("Iteration %9i | Time %{ 10.2dr}ms | Log10(L2(Res)) = %{ 7.4dr} | Log10(L2(ΔSol)) = %{ 7.4dr}",
+          writef("Iteration %9i | Time %{ 10.2dr}ms | Log10(L2(Res)) = %{ 8.4dr} | Log10(L2(ΔSol)) = %{ 8.4dr}",
               iteration, iterWatch.elapsed()*1000, log10(norm(l2ResAbs)), log10(norm(l2SolDeltaAbs)));
 
           if (ioIter > 0 && iteration % ioIter == 0) then
