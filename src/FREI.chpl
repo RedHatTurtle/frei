@@ -600,12 +600,22 @@ module FREI
           // Get the residue norms at the first stage of the RK Iteration
           if stage == 1
           {
-            l1ResAbs = [varIdx in 1..frMesh.nVars]         + reduce abs( frMesh.resSP[varIdx, ..]);
-            l2ResAbs = [varIdx in 1..frMesh.nVars] sqrt(   + reduce    ( frMesh.resSP[varIdx, ..])**2);
-            lfResAbs = [varIdx in 1..frMesh.nVars]       max reduce abs( frMesh.resSP[varIdx, ..]);
-            l1ResRel = [varIdx in 1..frMesh.nVars]         + reduce abs((frMesh.resSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..]);
-            l2ResRel = [varIdx in 1..frMesh.nVars] sqrt(   + reduce    ((frMesh.resSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..] )**2);
-            lfResRel = [varIdx in 1..frMesh.nVars]       max reduce abs((frMesh.resSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..]);
+            l1ResAbs = [varIdx in 1..frMesh.nVars]
+              + reduce abs( frMesh.resSP[varIdx, ..])
+              /frMesh.resSP.domain.dim(1).size;
+            l1ResRel = [varIdx in 1..frMesh.nVars]
+              + reduce abs( frMesh.resSP[varIdx, ..] / frMesh.oldSolSP[varIdx, ..])
+              /frMesh.resSP.domain.dim(1).size;
+
+            l2ResAbs = [varIdx in 1..frMesh.nVars]
+              sqrt(   + reduce    ( frMesh.resSP[varIdx, ..]**2))
+              /frMesh.resSP.domain.dim(1).size;
+            l2ResRel = [varIdx in 1..frMesh.nVars]
+              sqrt(   + reduce    ((frMesh.resSP[varIdx, ..] / frMesh.oldSolSP[varIdx, ..])**2))
+              /frMesh.resSP.domain.dim(1).size;
+
+            lfResAbs = [varIdx in 1..frMesh.nVars] max reduce abs( frMesh.resSP[varIdx, ..]);
+            lfResRel = [varIdx in 1..frMesh.nVars] max reduce abs( frMesh.resSP[varIdx, ..] / frMesh.oldSolSP[varIdx, ..]);
 
             // Output all residues to log file
             log_convergence(residueLogWriter, resToggle=true, iteration, l1ResAbs, l2ResAbs, lfResAbs, l1ResRel, l2ResRel, lfResRel);
@@ -669,17 +679,29 @@ module FREI
         // Calculate and print convergence metrics
         {
           // Calculate solution delta from previous iteration
-          const l1SolDeltaAbs : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars]
-                + reduce abs(frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]);
-          const l2SolDeltaAbs : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars] sqrt(
-                + reduce    (frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..])**2);
-          const lfSolDeltaAbs : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars]
+          const l1SolDeltaAbs : [1..frMesh.nVars] real =
+            [varIdx in 1..frMesh.nVars]
+              + reduce abs(frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..])
+            /frMesh.solSP.domain.dim(1).size;
+          const l1SolDeltaRel : [1..frMesh.nVars] real =
+            [varIdx in 1..frMesh.nVars]
+              + reduce abs((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..])
+            /frMesh.solSP.domain.dim(1).size;
+
+          const l2SolDeltaAbs : [1..frMesh.nVars] real =
+            [varIdx in 1..frMesh.nVars] sqrt(
+              + reduce    (frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..])**2)
+            /frMesh.solSP.domain.dim(1).size;
+          const l2SolDeltaRel : [1..frMesh.nVars] real =
+            [varIdx in 1..frMesh.nVars] sqrt(
+              + reduce    ((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..] )**2)
+            /frMesh.solSP.domain.dim(1).size;
+
+          const lfSolDeltaAbs : [1..frMesh.nVars] real =
+            [varIdx in 1..frMesh.nVars]
               max reduce abs(frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]);
-          const l1SolDeltaRel : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars]
-                + reduce abs((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..]);
-          const l2SolDeltaRel : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars] sqrt(
-                + reduce    ((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..] )**2);
-          const lfSolDeltaRel : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars]
+          const lfSolDeltaRel : [1..frMesh.nVars] real =
+            [varIdx in 1..frMesh.nVars]
               max reduce abs((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..]);
 
           // Output full state to log file
