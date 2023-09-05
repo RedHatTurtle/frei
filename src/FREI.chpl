@@ -248,6 +248,13 @@ module FREI
     // 11. Save first restart file
 
     // 12. Initialize convergence monitoring variables
+    var l1ResAbs : [1..frMesh.nVars] real;
+    var l2ResAbs : [1..frMesh.nVars] real;
+    var lfResAbs : [1..frMesh.nVars] real;
+    var l1ResRel : [1..frMesh.nVars] real;
+    var l2ResRel : [1..frMesh.nVars] real;
+    var lfResRel : [1..frMesh.nVars] real;
+
     var convergenceLogFile : file;
     var       errorLogFile : file;
     try! {
@@ -587,6 +594,17 @@ module FREI
                                                                     stage, Input.timeScheme                     );
           }
 
+          // Get the residue norms at the first stage of the RK Iteration
+          if stage == 1
+          {
+            l1ResAbs = [varIdx in 1..frMesh.nVars]         + reduce abs( frMesh.resSP[varIdx, ..]);
+            l2ResAbs = [varIdx in 1..frMesh.nVars] sqrt(   + reduce    ( frMesh.resSP[varIdx, ..])**2);
+            lfResAbs = [varIdx in 1..frMesh.nVars]       max reduce abs( frMesh.resSP[varIdx, ..]);
+            l1ResRel = [varIdx in 1..frMesh.nVars]         + reduce abs((frMesh.resSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..]);
+            l2ResRel = [varIdx in 1..frMesh.nVars] sqrt(   + reduce    ((frMesh.resSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..] )**2);
+            lfResRel = [varIdx in 1..frMesh.nVars]       max reduce abs((frMesh.resSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..]);
+          }
+
           // Zero out residue
           frMesh.resSP = 0.0;
 
@@ -663,8 +681,8 @@ module FREI
                                                            l1SolDeltaRel, l2SolDeltaRel, lfSolDeltaRel);
 
           // Output summarized convergence metrics to stdOut
-          writef("Iteration %9i | Time %{ 10.2dr}ms | Log10(L2(ΔSol)) = %{ 7.4dr}",
-              iteration, iterWatch.elapsed()*1000, log10(norm(l2SolDeltaAbs)));
+          writef("Iteration %9i | Time %{ 10.2dr}ms | Log10(L2(Res)) = %{ 7.4dr} | Log10(L2(ΔSol)) = %{ 7.4dr}",
+              iteration, iterWatch.elapsed()*1000, log10(norm(l2ResAbs)), log10(norm(l2SolDeltaAbs)));
 
           if (ioIter > 0 && iteration % ioIter == 0) then
             writef(" | Solution file saved\n");
