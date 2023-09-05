@@ -248,7 +248,6 @@ module FREI
     // 11. Save first restart file
 
     // 12. Initialize convergence monitoring variables
-    var l2SolDeltaAbsIni : [1..frMesh.nVars] real;
     var convergenceLogFile : file;
     var       errorLogFile : file;
     try! {
@@ -659,17 +658,13 @@ module FREI
           const lfSolDeltaRel : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars]
               max reduce abs((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..]);
 
-          // Save deltas from first iterations as reference
-          if iteration == 1 then
-            l2SolDeltaAbsIni = l2SolDeltaAbs;
-
           // Output full state to log file
           log_convergence(convergenceLogWriter, iteration, l1SolDeltaAbs, l2SolDeltaAbs, lfSolDeltaAbs,
                                                            l1SolDeltaRel, l2SolDeltaRel, lfSolDeltaRel);
 
           // Output summarized convergence metrics to stdOut
-          writef("Iteration %9i | Time %{ 10.2dr}ms | Log10(L2(ΔSol)/L2(ΔSol0)) = %{ 7.4dr}",
-              iteration, iterWatch.elapsed()*1000, log10(norm(l2SolDeltaAbs)/norm(l2SolDeltaAbsIni)));
+          writef("Iteration %9i | Time %{ 10.2dr}ms | Log10(L2(ΔSol)) = %{ 7.4dr}",
+              iteration, iterWatch.elapsed()*1000, log10(norm(l2SolDeltaAbs)));
 
           if (ioIter > 0 && iteration % ioIter == 0) then
             writef(" | Solution file saved\n");
