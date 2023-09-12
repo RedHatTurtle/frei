@@ -718,7 +718,8 @@ module FREI
           else
             writef("\n");
 
-          if !isfinite(l2SolDeltaAbs[1]) then
+          // Stop iterating if solution infinite/NaN
+          if !( && reduce isfinite(frMesh.solSP) )
           {
             writef("\nSolver diverged, outputting last state\n");
 
