@@ -90,7 +90,7 @@ module FREI
 
     // 0. Initialize iteration count and stopwatch
     var iterWatch : stopwatch;
-    var iteration : int = 0;
+    var lastIter  : int = 0;
 
     // 1. Read input data
     indat(inputFile);
@@ -218,7 +218,7 @@ module FREI
     }
 
     // 9. Output initial solution
-    iterOutput(iteration, frMesh, flagNormals = true);
+    iterOutput(lastIter, frMesh, flagNormals = true);
 
     // 10. Stabilize initial solution
     if Input.limiterScheme != LIMITER_NONE
@@ -719,7 +719,20 @@ module FREI
             writef("\n");
 
           if !isfinite(l2SolDeltaAbs[1]) then
+          {
+            writef("\nSolver diverged, outputting last state\n");
+
+            // Recover last stable solution and let the finalization output print the pre-divergence solution
+            lastIter = iteration-1;
+
             break TIME_ITER;
+          } else if (iteration == Input.maxIter)
+          {
+            writef("\nSolver reached maxIter, outputting final state\n");
+
+            // If this is the last iteration then export the count to outside the loop
+            lastIter = iteration;
+          }
         }
 
         // Check if input file changed
@@ -737,7 +750,7 @@ module FREI
 
     // Output the final solution
     totalWatch.restart();
-    iterOutput(iteration, frMesh);
+    iterOutput(lastIter, frMesh);
     outputTime = totalWatch.elapsed();
 
     // Finalize program stopwatch and calculate agregate times for major program steps
