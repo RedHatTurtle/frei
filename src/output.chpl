@@ -271,7 +271,35 @@ module Output
         var elemCnt : int = frMesh.cellList.domain.dim(0).high*(frMesh.solOrder+2)**2;
         var realFormat : string = "  %{ 14.7er}";
 
-        // Calculate the average solution on the vertices and index them
+        // Interpolate solution from internal SPs to the face FPs
+        forall cellIdx in frMesh.cellList.domain
+        {
+          ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
+          ref cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
+          ref thisCell = frMesh.cellList[cellIdx];
+
+          forall cellFace in thisCell.faces.domain
+          {
+            ref faceIdx  : int = thisCell.faces[cellFace];
+            ref faceSide : int = thisCell.sides[cellFace];
+            ref thisFace = frMesh.faceList[faceIdx];
+
+            forall meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
+            {
+              var cellFP : int;
+
+              if faceSide == 1 then
+                cellFP = (cellFace-1)*(frMesh.solOrder+1) +  meshFP - frMesh.faceFPidx[faceIdx, 1] + 1;
+              else
+                cellFP = (cellFace-1)*(frMesh.solOrder+1) + (frMesh.faceFPidx[faceIdx, 2] - (meshFP - frMesh.faceFPidx[faceIdx, 1]));
+
+              frMesh.solFP[meshFP, faceSide, ..] = dot(frMesh.solSP[.., cellSPini.. #cellSPcnt]                              ,
+                                                       sp2fpInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellFP, ..]);
+            }
+          }
+        }
+
+        // Interpolate and average the solution on the vertices and index them
         var vertCnt : int = 0;
         var nodeCellCnt : [frMesh.nodeList.domain] int = 0;
         var nodeVertMap : [frMesh.nodeList.domain] int = 0;
