@@ -6,7 +6,7 @@ module Temporal
     way to store them.
   */
 
-  proc time_advance(oldSol : [] real, sol : [oldSol.domain] real, res : [oldSol.domain] real, dt : real,
+  proc time_advance(const oldSol : [] real, sol : [] real, res : [] real, dt : real,
       thisStage : int, timeScheme : int) : [sol.domain] real
   {
     // Advance the solution in time
@@ -89,7 +89,7 @@ module Temporal
     //   3. Backtrack ramping if residue or solution diverges
   }
 
-  proc sspRK_o2sN(oldSol : [] real, sol : [oldSol.domain] real, res : [oldSol.domain] real, dt : real, thisStage : int,
+  proc sspRK_o2sN(const oldSol : [] real, sol : [] real, res : [] real, dt : real, thisStage : int,
       nStages : int) : [sol.domain] real
   {
     var newSol : [sol.domain] real;
@@ -102,7 +102,7 @@ module Temporal
     return newSol;
   }
 
-  proc sspRK_o3s3(oldSol : [] real, sol : [oldSol.domain] real, res : [oldSol.domain] real, dt : real, thisStage : int)
+  proc sspRK_o3s3(const oldSol : [] real, sol : [] real, res : [] real, dt : real, thisStage : int)
       : [sol.domain] real
   {
     var newSol : [sol.domain] real;
