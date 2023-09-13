@@ -292,7 +292,7 @@ module FREI
       oldSolTime += solveWatch.elapsed();
 
       // Iterate RK stages
-      label RK_STAGE for stage in 1..timeStepStages
+      label RK_STAGE for rkStage in 1..timeStepStages
       {
         // Calculate residue for this iteration
         {
@@ -594,11 +594,11 @@ module FREI
                                                                     frMesh.solSP[   .., cellSPini.. #cellSPcnt],
                                                                     frMesh.resSP[   .., cellSPini.. #cellSPcnt],
                                                                     frMesh.cellTimeStep[cellIdx],
-                                                                    stage, Input.timeScheme                     );
+                                                                    rkStage, Input.timeScheme                   );
           }
 
           // Get the residue norms at the first stage of the RK Iteration
-          if stage == 1
+          if rkStage == 1
           {
             l1ResAbs = [varIdx in 1..frMesh.nVars]
               + reduce abs( frMesh.resSP[varIdx, ..])
