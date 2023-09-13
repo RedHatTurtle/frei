@@ -35,6 +35,8 @@
   maxIter =  600
   ioTime  = 0.00
   maxTime = 0.00
+  l2ResStop = 1.0e-15
+  l2SolStop = 0.0
   outError = 62
 
 [parRef]
