@@ -33,6 +33,7 @@
   maxIter = 333334
   ioTime  = 0.00
   maxTime = 0.00
+  outError = 0
 
 [parRef]
   lengRef  = 1.0
