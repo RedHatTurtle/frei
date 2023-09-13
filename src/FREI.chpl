@@ -718,14 +718,15 @@ module FREI
           else
             writef("\n");
 
-          // Stop iterating if solution infinite/NaN
-          if !( && reduce isfinite(frMesh.solSP) )
+          // Iteration stop criteria
+          if !( && reduce isfinite(frMesh.solSP) ) // Solution Diverged
           {
-            writef("\nSolver diverged, outputting last state\n");
+            writef("\nSolver diverged, restoring previous solution\n");
 
             // Recover last stable solution and let the finalization output print the pre-divergence solution
-            lastIter = iteration-1;
+            frMesh.solSP = frMesh.oldSolSP;
 
+            lastIter = iteration-1;
             break TIME_ITER;
           }
           else if (    norm(l2ResAbs     ) <= Input.l2ResStop
@@ -736,9 +737,10 @@ module FREI
             // Export iteration count to outside the loop
             lastIter = iteration;
             break TIME_ITER;
-          } else if (iteration == Input.maxIter)
+          }
+          else if (iteration == Input.maxIter) // Maximum iteration count reached
           {
-            writef("\nSolver reached maxIter, outputting final state\n");
+            writef("\nSolver reached maxIter\n");
 
             // If this is the last iteration then export the count to outside the loop
             lastIter = iteration;
