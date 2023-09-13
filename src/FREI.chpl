@@ -633,8 +633,8 @@ module FREI
         // Save restart file
 
         // Check if we should write the solution this iteration
-        if iteration % ioIter == 0 then
-          iterOutput(iteration, frMesh);
+        if (ioIter > 0 && iteration % ioIter == 0) then
+            iterOutput(iteration, frMesh);
 
         // Calculate solution error and write to error log
         if Input.outError > 0
@@ -671,7 +671,7 @@ module FREI
           writef("Iteration %9i | Time %{ 10.2dr}ms | Log10(L2(ΔSol)/L2(ΔSol0)) = %{ 7.4dr}",
               iteration, iterWatch.elapsed()*1000, log10(norm(l2SolDeltaAbs)/norm(l2SolDeltaAbsIni)));
 
-          if iteration % ioIter == 0 then
+          if (ioIter > 0 && iteration % ioIter == 0) then
             writef(" | Solution file saved\n");
           else
             writef("\n");
