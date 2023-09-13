@@ -568,7 +568,7 @@ module FREI
         {
           solveWatch.restart();
 
-          frMesh.calc_time_step();
+          if rkStage == 1 then frMesh.calc_time_step();
 
           // Loop through cells
           forall cellIdx in frMesh.cellList.domain
