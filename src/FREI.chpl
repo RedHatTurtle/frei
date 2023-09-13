@@ -727,6 +727,15 @@ module FREI
             lastIter = iteration-1;
 
             break TIME_ITER;
+          }
+          else if (    norm(l2ResAbs     ) <= Input.l2ResStop
+                    || norm(l2SolDeltaAbs) <= Input.l2SolStop ) // Solution converged
+          {
+            writef("\nSolver reached convergence criteria\n");
+
+            // Export iteration count to outside the loop
+            lastIter = iteration;
+            break TIME_ITER;
           } else if (iteration == Input.maxIter)
           {
             writef("\nSolver reached maxIter, outputting final state\n");

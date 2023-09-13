@@ -54,11 +54,13 @@ module Input
   var cfl : real = 1.0;
 
   //parOutput
-  var ioIter  : int =   100;         // Number of iterations between output dumps
-  var maxIter : int = 10000;         // Maximum number of iterations
-  var ioTime  : real =-0.01;         // Time interval between output dumps
-  var maxTime : real = 1.00;         // Maximum time to simulate
-  var outError: int =     0;         // Calculate and output solution error
+  var ioIter    : int  =     0;         // Number of iterations between output dumps
+  var maxIter   : int  =  1000;         // Maximum number of iterations
+  var ioTime    : real = -0.01;         // Time interval between output dumps
+  var maxTime   : real =  1.00;         // Maximum time to simulate
+  var l2ResStop : real =  0.00;
+  var l2SolStop : real =  0.00;
+  var outError  : int  =     0;         // Calculate and output solution error
 
   // parRef
   var lengRef : real = 1.0;          // Reference length for non-dimensionalization
@@ -184,11 +186,13 @@ module Input
       cfl        = tomlData!["parTime"]!["cfl"]!.re  : real;
 
       // parOutput
-      ioIter   = tomlData!["parOutput"]!["ioIter"]!.i : int;
-      maxIter  = tomlData!["parOutput"]!["maxIter"]!.i : int;
-      ioTime   = tomlData!["parOutput"]!["ioTime"]!.re : real;
-      maxTime  = tomlData!["parOutput"]!["maxTime"]!.re : real;
-      outError = tomlData!["parOutput"]!["outError"]!.i : int;
+      ioIter    = tomlData!["parOutput"]!["ioIter"]!.i : int;
+      maxIter   = tomlData!["parOutput"]!["maxIter"]!.i : int;
+      ioTime    = tomlData!["parOutput"]!["ioTime"]!.re : real;
+      maxTime   = tomlData!["parOutput"]!["maxTime"]!.re : real;
+      l2ResStop = tomlData!["parOutput"]!["l2ResStop"]!.re : real;
+      l2SolStop = tomlData!["parOutput"]!["l2SolStop"]!.re : real;
+      outError  = tomlData!["parOutput"]!["outError"]!.i : int;
 
       // parRef
       lengRef  = tomlData!["parRef"]!["lengRef"]!.re : real;
