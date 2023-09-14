@@ -90,7 +90,7 @@ module FREI
 
     // 0. Initialize iteration count and stopwatch
     var iterWatch : stopwatch;
-    var iteration : int = 0;
+    var lastIter  : int = 0;
 
     // 1. Read input data
     indat(inputFile);
@@ -218,7 +218,7 @@ module FREI
     }
 
     // 9. Output initial solution
-    iterOutput(iteration, frMesh, flagNormals = true);
+    iterOutput(lastIter, frMesh, flagNormals = true);
 
     // 10. Stabilize initial solution
     if Input.limiterScheme != LIMITER_NONE
@@ -248,17 +248,26 @@ module FREI
     // 11. Save first restart file
 
     // 12. Initialize convergence monitoring variables
-    var l2SolDeltaAbsIni : [1..frMesh.nVars] real;
+    var l1ResAbs : [1..frMesh.nVars] real;
+    var l2ResAbs : [1..frMesh.nVars] real;
+    var lfResAbs : [1..frMesh.nVars] real;
+    var l1ResRel : [1..frMesh.nVars] real;
+    var l2ResRel : [1..frMesh.nVars] real;
+    var lfResRel : [1..frMesh.nVars] real;
+
     var convergenceLogFile : file;
+    var     residueLogFile : file;
     var       errorLogFile : file;
     try! {
       convergenceLogFile = open("convergence.dat", ioMode.cw);
+          residueLogFile = open(    "residue.dat", ioMode.cw);
             errorLogFile = open(      "error.dat", ioMode.cw);
     } catch {
       try! stdout.writeln("Unknown Error opening convergence log file.");
       try! stderr.writeln("Unknown Error opening convergence log file.");
     }
     var convergenceLogWriter = try! convergenceLogFile.writer();
+    var     residueLogWriter = try!     residueLogFile.writer();
     var       errorLogWriter = try!       errorLogFile.writer();
 
     writeln();
@@ -283,7 +292,7 @@ module FREI
       oldSolTime += solveWatch.elapsed();
 
       // Iterate RK stages
-      label RK_STAGE for stage in 1..timeStepStages
+      label RK_STAGE for rkStage in 1..timeStepStages
       {
         // Calculate residue for this iteration
         {
@@ -585,7 +594,31 @@ module FREI
                                                                     frMesh.solSP[   .., cellSPini.. #cellSPcnt],
                                                                     frMesh.resSP[   .., cellSPini.. #cellSPcnt],
                                                                     frMesh.cellTimeStep[cellIdx],
-                                                                    stage, Input.timeScheme                     );
+                                                                    rkStage, Input.timeScheme                   );
+          }
+
+          // Get the residue norms at the first stage of the RK Iteration
+          if rkStage == 1
+          {
+            l1ResAbs = [varIdx in 1..frMesh.nVars]
+              + reduce abs( frMesh.resSP[varIdx, ..])
+              /frMesh.resSP.domain.dim(1).size;
+            l1ResRel = [varIdx in 1..frMesh.nVars]
+              + reduce abs( frMesh.resSP[varIdx, ..] / frMesh.oldSolSP[varIdx, ..])
+              /frMesh.resSP.domain.dim(1).size;
+
+            l2ResAbs = [varIdx in 1..frMesh.nVars]
+              sqrt(   + reduce    ( frMesh.resSP[varIdx, ..]**2))
+              /frMesh.resSP.domain.dim(1).size;
+            l2ResRel = [varIdx in 1..frMesh.nVars]
+              sqrt(   + reduce    ((frMesh.resSP[varIdx, ..] / frMesh.oldSolSP[varIdx, ..])**2))
+              /frMesh.resSP.domain.dim(1).size;
+
+            lfResAbs = [varIdx in 1..frMesh.nVars] max reduce abs( frMesh.resSP[varIdx, ..]);
+            lfResRel = [varIdx in 1..frMesh.nVars] max reduce abs( frMesh.resSP[varIdx, ..] / frMesh.oldSolSP[varIdx, ..]);
+
+            // Output all residues to log file
+            log_convergence(residueLogWriter, resToggle=true, iteration, l1ResAbs, l2ResAbs, lfResAbs, l1ResRel, l2ResRel, lfResRel);
           }
 
           // Zero out residue
@@ -646,38 +679,72 @@ module FREI
         // Calculate and print convergence metrics
         {
           // Calculate solution delta from previous iteration
-          const l1SolDeltaAbs : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars]
-                + reduce abs(frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]);
-          const l2SolDeltaAbs : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars] sqrt(
-                + reduce    (frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..])**2);
-          const lfSolDeltaAbs : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars]
+          const l1SolDeltaAbs : [1..frMesh.nVars] real =
+            [varIdx in 1..frMesh.nVars]
+              + reduce abs(frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..])
+            /frMesh.solSP.domain.dim(1).size;
+          const l1SolDeltaRel : [1..frMesh.nVars] real =
+            [varIdx in 1..frMesh.nVars]
+              + reduce abs((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..])
+            /frMesh.solSP.domain.dim(1).size;
+
+          const l2SolDeltaAbs : [1..frMesh.nVars] real =
+            [varIdx in 1..frMesh.nVars] sqrt(
+              + reduce    (frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..])**2)
+            /frMesh.solSP.domain.dim(1).size;
+          const l2SolDeltaRel : [1..frMesh.nVars] real =
+            [varIdx in 1..frMesh.nVars] sqrt(
+              + reduce    ((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..] )**2)
+            /frMesh.solSP.domain.dim(1).size;
+
+          const lfSolDeltaAbs : [1..frMesh.nVars] real =
+            [varIdx in 1..frMesh.nVars]
               max reduce abs(frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]);
-          const l1SolDeltaRel : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars]
-                + reduce abs((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..]);
-          const l2SolDeltaRel : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars] sqrt(
-                + reduce    ((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..] )**2);
-          const lfSolDeltaRel : [1..frMesh.nVars] real = [varIdx in 1..frMesh.nVars]
+          const lfSolDeltaRel : [1..frMesh.nVars] real =
+            [varIdx in 1..frMesh.nVars]
               max reduce abs((frMesh.solSP[varIdx, ..] - frMesh.oldSolSP[varIdx, ..]) / frMesh.oldSolSP[varIdx, ..]);
 
-          // Save deltas from first iterations as reference
-          if iteration == 1 then
-            l2SolDeltaAbsIni = l2SolDeltaAbs;
-
           // Output full state to log file
-          log_convergence(convergenceLogWriter, iteration, l1SolDeltaAbs, l2SolDeltaAbs, lfSolDeltaAbs,
-                                                           l1SolDeltaRel, l2SolDeltaRel, lfSolDeltaRel);
+          log_convergence(convergenceLogWriter, resToggle=false, iteration,
+                          l1SolDeltaAbs, l2SolDeltaAbs, lfSolDeltaAbs,
+                          l1SolDeltaRel, l2SolDeltaRel, lfSolDeltaRel);
 
           // Output summarized convergence metrics to stdOut
-          writef("Iteration %9i | Time %{ 10.2dr}ms | Log10(L2(ΔSol)/L2(ΔSol0)) = %{ 7.4dr}",
-              iteration, iterWatch.elapsed()*1000, log10(norm(l2SolDeltaAbs)/norm(l2SolDeltaAbsIni)));
+          writef("Iteration %9i | Time %{ 10.2dr}ms | Log10(L2(Res)) = %{ 8.4dr} | Log10(L2(ΔSol)) = %{ 8.4dr}",
+              iteration, iterWatch.elapsed()*1000, log10(norm(l2ResAbs)), log10(norm(l2SolDeltaAbs)));
 
           if (ioIter > 0 && iteration % ioIter == 0) then
             writef(" | Solution file saved\n");
           else
             writef("\n");
 
-          if !isfinite(l2SolDeltaAbs[1]) then
+          // Iteration stop criteria
+          if !( && reduce isfinite(frMesh.solSP) ) // Solution Diverged
+          {
+            writef("\nSolver diverged, restoring previous solution\n");
+
+            // Recover last stable solution and let the finalization output print the pre-divergence solution
+            frMesh.solSP = frMesh.oldSolSP;
+
+            lastIter = iteration-1;
             break TIME_ITER;
+          }
+          else if (    norm(l2ResAbs     ) <= Input.l2ResStop
+                    || norm(l2SolDeltaAbs) <= Input.l2SolStop ) // Solution converged
+          {
+            writef("\nSolver reached convergence criteria\n");
+
+            // Export iteration count to outside the loop
+            lastIter = iteration;
+            break TIME_ITER;
+          }
+          else if (iteration == Input.maxIter) // Maximum iteration count reached
+          {
+            writef("\nSolver reached maxIter\n");
+
+            // If this is the last iteration then export the count to outside the loop
+            lastIter = iteration;
+          }
         }
 
         // Check if input file changed
@@ -695,7 +762,7 @@ module FREI
 
     // Output the final solution
     totalWatch.restart();
-    iterOutput(iteration, frMesh);
+    iterOutput(lastIter, frMesh);
     outputTime = totalWatch.elapsed();
 
     // Finalize program stopwatch and calculate agregate times for major program steps
