@@ -271,7 +271,35 @@ module Output
         var elemCnt : int = frMesh.cellList.domain.dim(0).high*(frMesh.solOrder+2)**2;
         var realFormat : string = "  %{ 14.7er}";
 
-        // Calculate the average solution on the vertices and index them
+        // Interpolate solution from internal SPs to the face FPs
+        forall cellIdx in frMesh.cellList.domain
+        {
+          ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
+          ref cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
+          ref thisCell = frMesh.cellList[cellIdx];
+
+          forall cellFace in thisCell.faces.domain
+          {
+            ref faceIdx  : int = thisCell.faces[cellFace];
+            ref faceSide : int = thisCell.sides[cellFace];
+            ref thisFace = frMesh.faceList[faceIdx];
+
+            forall meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
+            {
+              var cellFP : int;
+
+              if faceSide == 1 then
+                cellFP = (cellFace-1)*(frMesh.solOrder+1) +  meshFP - frMesh.faceFPidx[faceIdx, 1] + 1;
+              else
+                cellFP = (cellFace-1)*(frMesh.solOrder+1) + (frMesh.faceFPidx[faceIdx, 2] - (meshFP - frMesh.faceFPidx[faceIdx, 1]));
+
+              frMesh.solFP[meshFP, faceSide, ..] = dot(frMesh.solSP[.., cellSPini.. #cellSPcnt]                              ,
+                                                       sp2fpInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellFP, ..]);
+            }
+          }
+        }
+
+        // Interpolate and average the solution on the vertices and index them
         var vertCnt : int = 0;
         var nodeCellCnt : [frMesh.nodeList.domain] int = 0;
         var nodeVertMap : [frMesh.nodeList.domain] int = 0;
@@ -343,10 +371,25 @@ module Output
             for varIdx in 1..frMesh.nVars do
               outputWriter.writef(realFormat, dimConsVars[varIdx]);
 
-            if flagPressure    then outputWriter.writef(realFormat,    pressure_cv(dimConsVars, fGamma));
-            if flagTemperature then outputWriter.writef(realFormat, temperature_cv(dimConsVars, fGamma, fR));
-            if flagMach        then outputWriter.writef(realFormat,        mach_cv(dimConsVars, fGamma));
-            if flagEntropy     then outputWriter.writef(realFormat,     entropy_cv(dimConsVars, fGamma));
+            if flagPressure then
+              if isfinite( pressure_cv(dimConsVars, fGamma))
+                then outputWriter.writef(realFormat, pressure_cv(dimConsVars, fGamma));
+                else outputWriter.writef(realFormat, -1.0);
+
+            if flagTemperature then
+              if isfinite( temperature_cv(dimConsVars, fGamma, fR))
+                then outputWriter.writef(realFormat, temperature_cv(dimConsVars, fGamma, fR));
+                else outputWriter.writef(realFormat, -1.0);
+
+            if flagMach then
+              if isfinite( mach_cv(dimConsVars, fGamma))
+                then outputWriter.writef(realFormat, mach_cv(dimConsVars, fGamma));
+                else outputWriter.writef(realFormat, -1.0);
+
+            if flagEntropy then
+              if isfinite( entropy_cv(dimConsVars, fGamma))
+                then outputWriter.writef(realFormat, entropy_cv(dimConsVars, fGamma));
+                else outputWriter.writef(realFormat, -1.0);
 
             outputWriter.writef("\n");
           }
@@ -371,10 +414,25 @@ module Output
             for varIdx in 1..frMesh.nVars do
               outputWriter.writef(realFormat, dimAvgConsVars[varIdx]);
 
-            if flagPressure    then outputWriter.writef(realFormat,    pressure_cv(dimAvgConsVars, fGamma));
-            if flagTemperature then outputWriter.writef(realFormat, temperature_cv(dimAvgConsVars, fGamma, fR));
-            if flagMach        then outputWriter.writef(realFormat,        mach_cv(dimAvgConsVars, fGamma));
-            if flagEntropy     then outputWriter.writef(realFormat,     entropy_cv(dimAvgConsVars, fGamma));
+            if flagPressure then
+              if isfinite( pressure_cv(dimAvgConsVars, fGamma))
+                then outputWriter.writef(realFormat, pressure_cv(dimAvgConsVars, fGamma));
+                else outputWriter.writef(realFormat, -1.0);
+
+            if flagTemperature then
+              if isfinite( temperature_cv(dimAvgConsVars, fGamma, fR))
+                then outputWriter.writef(realFormat, temperature_cv(dimAvgConsVars, fGamma, fR));
+                else outputWriter.writef(realFormat, -1.0);
+
+            if flagMach then
+              if isfinite( mach_cv(dimAvgConsVars, fGamma))
+                then outputWriter.writef(realFormat, mach_cv(dimAvgConsVars, fGamma));
+                else outputWriter.writef(realFormat, -1.0);
+
+            if flagEntropy then
+              if isfinite( entropy_cv(dimAvgConsVars, fGamma))
+                then outputWriter.writef(realFormat, entropy_cv(dimAvgConsVars, fGamma));
+                else outputWriter.writef(realFormat, -1.0);
 
             outputWriter.writef("\n");
           }
@@ -402,10 +460,25 @@ module Output
             for varIdx in 1..frMesh.nVars do
               outputWriter.writef(realFormat, dimAvgConsVars[varIdx]);
 
-            if flagPressure    then outputWriter.writef(realFormat,    pressure_cv(dimAvgConsVars, fGamma));
-            if flagTemperature then outputWriter.writef(realFormat, temperature_cv(dimAvgConsVars, fGamma, fR));
-            if flagMach        then outputWriter.writef(realFormat,        mach_cv(dimAvgConsVars, fGamma));
-            if flagEntropy     then outputWriter.writef(realFormat,     entropy_cv(dimAvgConsVars, fGamma));
+            if flagPressure then
+              if isfinite( pressure_cv(dimAvgConsVars, fGamma))
+                then outputWriter.writef(realFormat, pressure_cv(dimAvgConsVars, fGamma));
+                else outputWriter.writef(realFormat, -1.0);
+
+            if flagTemperature then
+              if isfinite( temperature_cv(dimAvgConsVars, fGamma, fR))
+                then outputWriter.writef(realFormat, temperature_cv(dimAvgConsVars, fGamma, fR));
+                else outputWriter.writef(realFormat, -1.0);
+
+            if flagMach then
+              if isfinite( mach_cv(dimAvgConsVars, fGamma))
+                then outputWriter.writef(realFormat, mach_cv(dimAvgConsVars, fGamma));
+                else outputWriter.writef(realFormat, -1.0);
+
+            if flagEntropy then
+              if isfinite( entropy_cv(dimAvgConsVars, fGamma))
+                then outputWriter.writef(realFormat, entropy_cv(dimAvgConsVars, fGamma));
+                else outputWriter.writef(realFormat, -1.0);
 
             outputWriter.writef("\n");
           }
@@ -705,17 +778,22 @@ module Output
           var pointIdxFormat : string = "  %" + ceil(log10(vertCnt+1)):int:string + "i\n";
 
           // Loop through spatial coordinates printing locations of all nodes
+          outputWriter.writef("\n# Node Indices\n");
           for nodeIdx in frMesh.nodeList.domain do
             if nodeVertMap[nodeIdx] != 0 then
               outputWriter.writef(pointIdxFormat, nodeVertMap[nodeIdx]);
 
           // Loop through spatial coordinates printing locations of all nodes
-          for dimIdx in 1..frMesh.nDims do
+          for dimIdx in 1..frMesh.nDims
+          {
+            outputWriter.writef("\n# Node Coordinate in Dim-%1i\n", dimIdx);
             for nodeIdx in frMesh.nodeList.domain do
               if nodeVertMap[nodeIdx] != 0 then
                 outputWriter.writef(realFormat, frMesh.nodeList[nodeIdx].xyz[dimIdx]);
+          }
 
           // Cell characteristic length
+          outputWriter.writef("\n# Characteristic Length\n");
           for cellIdx in 1..frMesh.nCells do
             outputWriter.writef(realFormat, frMesh.cellCharLeng[cellIdx]);
 
@@ -742,49 +820,52 @@ module Output
           // Loop through conserved variables
           for varIdx in 1..frMesh.nVars do
           {
+            outputWriter.writef("\n# Conserved Variable %i\n", varIdx);
             for cellIdx in 1..frMesh.nCells do
               outputWriter.writef(realFormat, dimSolAvg[cellIdx, varIdx]);
-
-            outputWriter.writef("\n");
           }
 
           if flagPressure
           {
+            outputWriter.writef("\n# Pressure\n");
             for cellIdx in 1..frMesh.nCells do
-              outputWriter.writef(realFormat, pressure_cv(dimSolAvg[cellIdx, ..], fGamma));
-
-            outputWriter.writef("\n");
+              if isfinite(pressure_cv(dimSolAvg[cellIdx, ..], fGamma))
+                then outputWriter.writef(realFormat, pressure_cv(dimSolAvg[cellIdx, ..], fGamma));
+                else outputWriter.writef(realFormat, -1.0);
           }
 
           if flagTemperature then
           {
+            outputWriter.writef("\n# Temperature\n");
             for cellIdx in 1..frMesh.nCells do
-              outputWriter.writef(realFormat, temperature_cv(dimSolAvg[cellIdx, ..], fGamma, fR));
-
-            outputWriter.writef("\n");
+              if isfinite(temperature_cv(dimSolAvg[cellIdx, ..], fGamma, fR))
+                then outputWriter.writef(realFormat, temperature_cv(dimSolAvg[cellIdx, ..], fGamma, fR));
+                else outputWriter.writef(realFormat, -1.0);
           }
 
           if flagMach then
           {
+            outputWriter.writef("\n# Mach\n");
             for cellIdx in 1..frMesh.nCells do
-              outputWriter.writef(realFormat, mach_cv(dimSolAvg[cellIdx, ..], fGamma));
-
-            outputWriter.writef("\n");
+              if isfinite(mach_cv(dimSolAvg[cellIdx, ..], fGamma))
+                then outputWriter.writef(realFormat, mach_cv(dimSolAvg[cellIdx, ..], fGamma));
+                else outputWriter.writef(realFormat, -1.0);
           }
 
           if flagEntropy then
           {
+            outputWriter.writef("\n# Entropy\n");
             for cellIdx in 1..frMesh.nCells do
-              outputWriter.writef(realFormat, entropy_cv(dimSolAvg[cellIdx, ..], fGamma));
-
-            outputWriter.writef("\n");
+              if isfinite(entropy_cv(dimSolAvg[cellIdx, ..], fGamma))
+                then outputWriter.writef(realFormat, entropy_cv(dimSolAvg[cellIdx, ..], fGamma));
+                else outputWriter.writef(realFormat, -1.0);
           }
 
-          outputWriter.writef("\n");
         }
 
         // Connectivity Data
         {
+          outputWriter.writef("\n# Cell Nodes\n");
           for thisCell in frMesh.cellList do
             select thisCell.elemTopo()
             {
