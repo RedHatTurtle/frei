@@ -8,7 +8,7 @@ module Limiter
     use Parameters.ParamMesh;
     use Projection;
     use Quadrature;
-    import Math.half_pi;
+    import Math.halfPi;
 
     /*
       Resolution Indicator
@@ -56,7 +56,7 @@ module Limiter
     else if (marker >= psi0+dpsi) then
       scaledMarker = 1.0;
     else
-      scaledMarker = 0.5*(1.0 + sin(half_pi*(marker-psi0)/dpsi));
+      scaledMarker = 0.5*(1.0 + sin(halfPi*(marker-psi0)/dpsi));
 
     return scaledMarker;
   }
@@ -66,7 +66,7 @@ module Limiter
     use Parameters.ParamMesh;
     use Projection;
     use Quadrature;
-    import Math.half_pi;
+    import Math.halfPi;
     import Math.log10;
     import Math.sin;
 
@@ -121,7 +121,7 @@ module Limiter
       else if (marker >= psi0+dpsi) then
         scaledMarker = 1.0;
       else
-        scaledMarker = 0.5*(1.0 + sin(half_pi*(marker-psi0)/dpsi));
+        scaledMarker = 0.5*(1.0 + sin(halfPi*(marker-psi0)/dpsi));
 
       // Check if the reference solution is stable and either stop and output the stable degree or keep projecting down
       if scaledMarker <= 1.0e-8
@@ -158,7 +158,7 @@ module Limiter
     use Polynomials;
     use Projection;
     use Quadrature;
-    import Math.half_pi;
+    import Math.halfPi;
     import Math.exp;
     import Math.log;
     import Math.sin;
@@ -199,7 +199,7 @@ module Limiter
       {
         var xi  : real = nodeDistLine[nodeIdx];
 
-        nodalSin[nodeIdx] = sin(xi*half_pi);
+        nodalSin[nodeIdx] = sin(xi*halfPi);
         nodalExp[nodeIdx] = exp(xi);
         nodalLog[nodeIdx] = log(1.0+xi);
 
@@ -255,7 +255,7 @@ module Limiter
         var xi  : real = nodeDistLine[(nodeIdx-1)/(polyDegree+1)+1];
         var eta : real = nodeDistLine[(nodeIdx-1)%(polyDegree+1)+1];
 
-        nodalSin[nodeIdx] = sin(xi*half_pi) * sin(eta*half_pi);
+        nodalSin[nodeIdx] = sin(xi*halfPi) * sin(eta*halfPi);
         nodalExp[nodeIdx] = exp(xi) * exp(eta);
         nodalLog[nodeIdx] = log(1.0+xi) * log(1.0+eta);
 

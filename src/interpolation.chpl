@@ -517,7 +517,7 @@ module Interpolation
     use Parameters.ParamTest;
     use Parameters.ParamMesh;
     use Polynomials;
-    import Math.half_pi;
+    import Math.halfPi;
     import Math.cos;
 
     var randStream = new RandomStream(real);
@@ -539,7 +539,7 @@ module Interpolation
     node = nodes_legendre_gauss(10);
     writeln("Interpolation nodes (Legendre-Gauss):         ", node);
     for i in 0..9 do
-      node[i] = -cos( half_pi * (2*i+1)/10 );
+      node[i] = -cos( halfPi * (2*i+1)/10 );
     writeln("Normalized interpolation nodes [-1.0 to 1.0]: ", node);
     writeln();
 
