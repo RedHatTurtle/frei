@@ -372,22 +372,22 @@ module Output
               outputWriter.writef(realFormat, dimConsVars[varIdx]);
 
             if flagPressure then
-              if isfinite( pressure_cv(dimConsVars, fGamma))
+              if isFinite( pressure_cv(dimConsVars, fGamma))
                 then outputWriter.writef(realFormat, pressure_cv(dimConsVars, fGamma));
                 else outputWriter.writef(realFormat, -1.0);
 
             if flagTemperature then
-              if isfinite( temperature_cv(dimConsVars, fGamma, fR))
+              if isFinite( temperature_cv(dimConsVars, fGamma, fR))
                 then outputWriter.writef(realFormat, temperature_cv(dimConsVars, fGamma, fR));
                 else outputWriter.writef(realFormat, -1.0);
 
             if flagMach then
-              if isfinite( mach_cv(dimConsVars, fGamma))
+              if isFinite( mach_cv(dimConsVars, fGamma))
                 then outputWriter.writef(realFormat, mach_cv(dimConsVars, fGamma));
                 else outputWriter.writef(realFormat, -1.0);
 
             if flagEntropy then
-              if isfinite( entropy_cv(dimConsVars, fGamma))
+              if isFinite( entropy_cv(dimConsVars, fGamma))
                 then outputWriter.writef(realFormat, entropy_cv(dimConsVars, fGamma));
                 else outputWriter.writef(realFormat, -1.0);
 
@@ -415,22 +415,22 @@ module Output
               outputWriter.writef(realFormat, dimAvgConsVars[varIdx]);
 
             if flagPressure then
-              if isfinite( pressure_cv(dimAvgConsVars, fGamma))
+              if isFinite( pressure_cv(dimAvgConsVars, fGamma))
                 then outputWriter.writef(realFormat, pressure_cv(dimAvgConsVars, fGamma));
                 else outputWriter.writef(realFormat, -1.0);
 
             if flagTemperature then
-              if isfinite( temperature_cv(dimAvgConsVars, fGamma, fR))
+              if isFinite( temperature_cv(dimAvgConsVars, fGamma, fR))
                 then outputWriter.writef(realFormat, temperature_cv(dimAvgConsVars, fGamma, fR));
                 else outputWriter.writef(realFormat, -1.0);
 
             if flagMach then
-              if isfinite( mach_cv(dimAvgConsVars, fGamma))
+              if isFinite( mach_cv(dimAvgConsVars, fGamma))
                 then outputWriter.writef(realFormat, mach_cv(dimAvgConsVars, fGamma));
                 else outputWriter.writef(realFormat, -1.0);
 
             if flagEntropy then
-              if isfinite( entropy_cv(dimAvgConsVars, fGamma))
+              if isFinite( entropy_cv(dimAvgConsVars, fGamma))
                 then outputWriter.writef(realFormat, entropy_cv(dimAvgConsVars, fGamma));
                 else outputWriter.writef(realFormat, -1.0);
 
@@ -461,22 +461,22 @@ module Output
               outputWriter.writef(realFormat, dimAvgConsVars[varIdx]);
 
             if flagPressure then
-              if isfinite( pressure_cv(dimAvgConsVars, fGamma))
+              if isFinite( pressure_cv(dimAvgConsVars, fGamma))
                 then outputWriter.writef(realFormat, pressure_cv(dimAvgConsVars, fGamma));
                 else outputWriter.writef(realFormat, -1.0);
 
             if flagTemperature then
-              if isfinite( temperature_cv(dimAvgConsVars, fGamma, fR))
+              if isFinite( temperature_cv(dimAvgConsVars, fGamma, fR))
                 then outputWriter.writef(realFormat, temperature_cv(dimAvgConsVars, fGamma, fR));
                 else outputWriter.writef(realFormat, -1.0);
 
             if flagMach then
-              if isfinite( mach_cv(dimAvgConsVars, fGamma))
+              if isFinite( mach_cv(dimAvgConsVars, fGamma))
                 then outputWriter.writef(realFormat, mach_cv(dimAvgConsVars, fGamma));
                 else outputWriter.writef(realFormat, -1.0);
 
             if flagEntropy then
-              if isfinite( entropy_cv(dimAvgConsVars, fGamma))
+              if isFinite( entropy_cv(dimAvgConsVars, fGamma))
                 then outputWriter.writef(realFormat, entropy_cv(dimAvgConsVars, fGamma));
                 else outputWriter.writef(realFormat, -1.0);
 
@@ -829,7 +829,7 @@ module Output
           {
             outputWriter.writef("\n# Pressure\n");
             for cellIdx in 1..frMesh.nCells do
-              if isfinite(pressure_cv(dimSolAvg[cellIdx, ..], fGamma))
+              if isFinite(pressure_cv(dimSolAvg[cellIdx, ..], fGamma))
                 then outputWriter.writef(realFormat, pressure_cv(dimSolAvg[cellIdx, ..], fGamma));
                 else outputWriter.writef(realFormat, -1.0);
           }
@@ -838,7 +838,7 @@ module Output
           {
             outputWriter.writef("\n# Temperature\n");
             for cellIdx in 1..frMesh.nCells do
-              if isfinite(temperature_cv(dimSolAvg[cellIdx, ..], fGamma, fR))
+              if isFinite(temperature_cv(dimSolAvg[cellIdx, ..], fGamma, fR))
                 then outputWriter.writef(realFormat, temperature_cv(dimSolAvg[cellIdx, ..], fGamma, fR));
                 else outputWriter.writef(realFormat, -1.0);
           }
@@ -847,7 +847,7 @@ module Output
           {
             outputWriter.writef("\n# Mach\n");
             for cellIdx in 1..frMesh.nCells do
-              if isfinite(mach_cv(dimSolAvg[cellIdx, ..], fGamma))
+              if isFinite(mach_cv(dimSolAvg[cellIdx, ..], fGamma))
                 then outputWriter.writef(realFormat, mach_cv(dimSolAvg[cellIdx, ..], fGamma));
                 else outputWriter.writef(realFormat, -1.0);
           }
@@ -856,7 +856,7 @@ module Output
           {
             outputWriter.writef("\n# Entropy\n");
             for cellIdx in 1..frMesh.nCells do
-              if isfinite(entropy_cv(dimSolAvg[cellIdx, ..], fGamma))
+              if isFinite(entropy_cv(dimSolAvg[cellIdx, ..], fGamma))
                 then outputWriter.writef(realFormat, entropy_cv(dimSolAvg[cellIdx, ..], fGamma));
                 else outputWriter.writef(realFormat, -1.0);
           }
