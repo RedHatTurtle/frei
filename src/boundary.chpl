@@ -361,9 +361,8 @@ module Boundary
 
     // Local area + Critical area -> Local Mach -> Primitive Variables
     // Local Pressure -> Local Mach -> Primitive Variables
-
-    var ghstConsVars : [hostConsVars.domain] real = reshape(flow_condition(IC_1D_NOZZLE_SMOOTH_TRANSONIC, [0.0], xyz),
-        hostConsVars.domain);
+    const nozzleConsVars = flow_condition(IC_1D_NOZZLE_SMOOTH_TRANSONIC, [0.0], xyz);
+    var ghstConsVars : [hostConsVars.domain] real = reshape(nozzleConsVars, hostConsVars.domain);
 
     return ghstConsVars;
   }

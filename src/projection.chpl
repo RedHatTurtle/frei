@@ -244,9 +244,11 @@ module Projection
     // If the basis is not normalized then normalize projection
     if !normalizedBasis
     {
+      var BtWtB = dot(BtW, basis);
+
       // Inverse of the internal product of the basis vectors with themselves. This should be a diagonal matrix with the
       // inverse of the norms of the basis vectors unless the basis is not orthogonal.
-      var invNorm : [basis.domain.dim(1), basis.domain.dim(1)] real = inv(dot(BtW, basis));
+      var invNorm : [basis.domain.dim(1), basis.domain.dim(1)] real = inv(BtWtB);
 
       // Apply the normalization
       BtW = dot(invNorm, BtW);
