@@ -3,7 +3,7 @@ module Output
   use IO;
   import FRMesh.fr_mesh_c;
 
-  proc log_convergence(convergenceLogWriter : fileWriter, resToggle : bool = false,  iteration : int,
+  proc log_convergence(convergenceLogWriter : fileWriter(?), resToggle : bool = false,  iteration : int,
       l1Abs : [] real, l2Abs : [] real, lfAbs : [] real, l1Rel : [] real, l2Rel : [] real, lfRel : [] real)
   {
     use IO;
@@ -47,7 +47,7 @@ module Output
     }
   }
 
-  proc print_log(logWriter : fileWriter, iteration : int, logVar : [] (string, real))
+  proc print_log(logWriter : fileWriter(?), iteration : int, logVar : [] (string, real))
   {
     use IO;
 
