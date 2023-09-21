@@ -353,6 +353,7 @@ module Output
           var pointIdxFormat : string = "  %" + ceil(log10(pointCnt+1)):int:string + "i";
 
           // Loop through SPs
+          outputWriter.writef("\n# Internal SPs\n");
           for spIdx in frMesh.xyzSP.domain.dim(0)
           {
             outputWriter.writef(pointIdxFormat, spIdx);
@@ -395,6 +396,7 @@ module Output
           }
 
           // Loop through FPs
+          outputWriter.writef("\n# Face FPs\n");
           for fpIdx in frMesh.xyzFP.domain.dim(0)
           {
             outputWriter.writef(pointIdxFormat, spCnt + fpIdx);
@@ -438,6 +440,7 @@ module Output
           }
 
           // Loop through Nodes
+          outputWriter.writef("\n# Cell Vertices\n");
           for nodeIdx in frMesh.nodeList.domain
           {
             // Skip nodes that aren't vertices
@@ -486,6 +489,7 @@ module Output
 
         // Connectivity Data
         {
+          outputWriter.writef("\n# Cell Nodes\n");
           for cellIdx in frMesh.cellList.domain do
             select frMesh.cellList[cellIdx].elemTopo()
             {
