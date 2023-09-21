@@ -762,7 +762,7 @@ module FREI
 
     // Output the final solution
     totalWatch.restart();
-    iterOutput(lastIter, frMesh);
+    if (lastIter > 0) then iterOutput(lastIter, frMesh);
     outputTime = totalWatch.elapsed();
 
     // Finalize program stopwatch and calculate agregate times for major program steps
