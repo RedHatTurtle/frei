@@ -155,11 +155,14 @@ module Mesh
 
       // Get family names and dimensions. These are used to sort the elements.
       this.famlList_d = {1..this.nFamls};
-      for faml in this.famlList_d
-      {
-        this.famlList[faml].name = gmesh.families[faml].name;
-        this.famlList[faml].nDim = gmesh.families[faml].nDim;
-      }
+      forall loc in Locales do
+        on loc do
+          for faml in this.famlList_d
+          {
+            this.famlList[faml].name = gmesh.families[faml].name;
+            this.famlList[faml].nDim = gmesh.families[faml].nDim;
+          }
+
       var cellDim : int = max reduce this.famlList[..].nDim;
       var bocoDim : int = cellDim - 1;
 
@@ -426,23 +429,28 @@ module Mesh
 
     proc set_families(inputFamlList)
     {
-      // Loop through the mesh families
-      for meshFaml in this.famlList
-      {
-        // Check the input file for the corresponding family
-        for inputFaml in inputFamlList
-        {
-          if meshFaml.name == inputFaml.name && meshFaml.nDim == inputFaml.nDim
+      // Since the families list is replicated on all locales we need to do this on all of them
+      forall loc in Locales do
+        on loc do
+          // Loop through the mesh's families
+          label MESH_LIST for meshFaml in this.famlList
           {
-            meshFaml.name           = inputFaml.name;
-            meshFaml.nDim           = inputFaml.nDim;
-            meshFaml.bocoType       = inputFaml.bocoType;
-            meshFaml.bocoSubType    = inputFaml.bocoSubType;
-            meshFaml.bocoProperties = inputFaml.bocoProperties;
-            continue;
+            // Look for this family in the input
+            label INPUT_LIST for inputFaml in inputFamlList
+            {
+              if meshFaml.name == inputFaml.name && meshFaml.nDim == inputFaml.nDim
+              {
+                // When we find a match copy the configuration
+                meshFaml.name           = inputFaml.name;
+                meshFaml.nDim           = inputFaml.nDim;
+                meshFaml.bocoType       = inputFaml.bocoType;
+                meshFaml.bocoSubType    = inputFaml.bocoSubType;
+                meshFaml.bocoProperties = inputFaml.bocoProperties;
+                continue MESH_LIST;
+              }
+            }
+            writeln("ERROR: Couldn't find family ", meshFaml.name, "in input config");
           }
-        }
-      }
     }
 
     proc cell_count()
