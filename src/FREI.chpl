@@ -161,29 +161,35 @@ module FREI
     init_polyProj(Input.minOrder, Input.maxOrder, frMesh.cellTopos);
     init_correction(Input.minOrder+1, Input.maxOrder+1, frMesh.cellTopos);
 
-    // 8. Initialize solution
+    // 8.a Initialize solution
     forall cellIdx in frMesh.cellList.domain
     {
-      ref familyIdx = frMesh.cellList[cellIdx].family;
+      const ref familyIdx = frMesh.cellList[cellIdx].family;
 
-      ref familyType = frMesh.famlList[familyIdx].bocoType;
-      ref familySubType = frMesh.famlList[familyIdx].bocoSubType;
-      ref familyParameters = frMesh.famlList[familyIdx].bocoProperties;
+      const ref familyType = frMesh.famlList[familyIdx].bocoType;
+      const ref familySubType = frMesh.famlList[familyIdx].bocoSubType;
+      const ref familyParameters = frMesh.famlList[familyIdx].bocoProperties;
 
-      ref cellSPini = frMesh.cellSPidx[cellIdx, 1];
-      ref cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
-      ref thisCell = frMesh.cellList[cellIdx];
+      const ref cellSPini = frMesh.cellSPidx[cellIdx, 1];
+      const ref cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
+      const ref thisCell = frMesh.cellList[cellIdx];
 
       frMesh.solSP[.., cellSPini.. #cellSPcnt] = flow_condition(familySubType                           ,
                                                                 familyParameters                        ,
                                                                 frMesh.xyzSP[cellSPini.. #cellSPcnt, ..]).T;
+    }
+    // 8.b Interpolate solution to FPs
+    forall cellIdx in frMesh.cellList.domain
+    {
+      const ref thisCell = frMesh.cellList[cellIdx];
+      const ref cellSPini = frMesh.cellSPidx[cellIdx, 1];
+      const ref cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
 
-      // Interpolate solution to FPs
       for cellFace in thisCell.faces.domain
       {
-        ref faceIdx  : int = thisCell.faces[cellFace];
-        ref faceSide : int = thisCell.sides[cellFace];
-        ref thisFace = frMesh.faceList[faceIdx];
+        const ref faceIdx  : int = thisCell.faces[cellFace];
+        const ref faceSide : int = thisCell.sides[cellFace];
+        const ref thisFace = frMesh.faceList[faceIdx];
 
         for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
         {
@@ -193,27 +199,33 @@ module FREI
           else
             cellFP = (cellFace-1)*(frMesh.solOrder+1) + (frMesh.faceFPidx[faceIdx, 2] - (meshFP - frMesh.faceFPidx[faceIdx, 1]));
 
-          frMesh.solFP[meshFP, faceSide, ..] = dot(frMesh.solSP[.., cellSPini.. #cellSPcnt]                              ,
-                                                   sp2fpInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellFP, ..]);
+          frMesh.solFP[meshFP, faceSide, ..] = 0;
+          for varIdx in 1..frMesh.nVars do
+            for cellSP in 1.. #cellSPcnt do
+              frMesh.solFP[meshFP, faceSide, varIdx] += frMesh.solSP[varIdx, cellSPini+cellSP-1]
+                                                       *sp2fpInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellFP, cellSP];
         }
+      }
+    }
+    // 8.c Calculate ghost solutions
+    forall faceIdx in frMesh.faceList.domain
+    {
+      // Check if the face's right neighbor is a Boundary Condition
+      if frMesh.faceList[faceIdx].cells[2] < 0
+      {
+        // Yep, it is, lets get some local iteration variables
+        ref faceFPini : int = frMesh.faceFPidx[faceIdx, 1];
+        ref faceFPcnt : int = frMesh.faceFPidx[faceIdx, 2];
 
-        // Check if the face's right neighbor is a Boundary Condition
-        if frMesh.faceList[faceIdx].cells[2] < 0
+        ref thisBoco = frMesh.bocoList[-frMesh.faceList[faceIdx].cells[2]];
+        ref thisFaml = frMesh.famlList[thisBoco.family];
+
+        // Iterate through the FPs on this face
+        for meshFP in faceFPini.. #faceFPcnt
         {
-          // Yep, it is, lets get some local iteration variables
-          ref faceFPini : int = frMesh.faceFPidx[faceIdx, 1];
-          ref faceFPcnt : int = frMesh.faceFPidx[faceIdx, 2];
-
-          ref thisBoco = frMesh.bocoList[-frMesh.faceList[faceIdx].cells[2]];
-          ref thisFaml = frMesh.famlList[thisBoco.family];
-
-          // Iterate through the FPs on this face
-          for meshFP in faceFPini.. #faceFPcnt
-          {
-            // Calculate the boundary condition using the solution at the left neighbor´s corresponding FP
-            frMesh.solFP[meshFP, 2, ..] = Boundary.boundary(frMesh.solFP[meshFP, 1, ..], thisFaml             ,
-                                                            frMesh.xyzFP[meshFP, ..], frMesh.nrmFP[meshFP, ..]);
-          }
+          // Calculate the boundary condition using the solution at the left neighbor´s corresponding FP
+          frMesh.solFP[meshFP, 2, ..] = Boundary.boundary(frMesh.solFP[meshFP, 1, ..], thisFaml             ,
+                                                          frMesh.xyzFP[meshFP, ..], frMesh.nrmFP[meshFP, ..]);
         }
       }
     }
@@ -327,10 +339,10 @@ module FREI
             forall cellIdx in frMesh.cellList.domain
             {
               // Get loop variables
-              ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
-              ref cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
-              ref thisCell = frMesh.cellList[cellIdx];
-              var cellTopo : int = thisCell.elemTopo();
+              const ref thisCell = frMesh.cellList[cellIdx];
+              const     cellTopo = thisCell.elemTopo();
+              const ref cellSPini = frMesh.cellSPidx[cellIdx, 1];
+              const ref cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
 
               // Allocate temporary flux array
               var flxSP : [1..frMesh.nDims, 1..frMesh.nVars, 1..cellSPcnt] real;
@@ -356,37 +368,28 @@ module FREI
               for cellFace in thisCell.faces.domain
               {
                 // Get loop variables
-                ref faceIdx  : int = thisCell.faces[cellFace];
-                ref faceSide : int = thisCell.sides[cellFace];
-                ref thisFace = frMesh.faceList[faceIdx];
+                const ref faceIdx  = thisCell.faces[cellFace];
+                const ref thisFace = frMesh.faceList[faceIdx];
+                const ref faceSide = thisCell.sides[cellFace];
 
                 // Iterate though all FPs on this face
                 for meshFP in frMesh.faceFPidx[faceIdx, 1].. #frMesh.faceFPidx[faceIdx, 2]
                 {
-                  // Allocate temporary flux array
-                  var flx : [1..2] real;
-
-                  var faceFP = meshFP+1-frMesh.faceFPidx[faceIdx, 1];
-                  var uniNrm = frMesh.nrmFP[meshFP, ..]/norm(frMesh.nrmFP[meshFP, ..]);
-
                   var cellFP : int;
                   if faceSide == 1 then
                     cellFP = (cellFace-1)*(frMesh.solOrder+1) +  meshFP - frMesh.faceFPidx[faceIdx, 1] + 1;
                   else
                     cellFP = (cellFace-1)*(frMesh.solOrder+1) + (frMesh.faceFPidx[faceIdx, 2] - (meshFP - frMesh.faceFPidx[faceIdx, 1]));
 
-                  for varIdx in 1..frMesh.nVars
-                  {
-                    flx[1] = dot( flxSP[ 1, varIdx, 1..cellSPcnt]                            ,
-                                  sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, ..]);
-                    flx[2] = dot( flxSP[ 2, varIdx, 1..cellSPcnt]                            ,
-                                  sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, ..]);
-                    // Doesn't work even though it seems like it should
-                    //flx = dot( flxSP[.., varIdx, 1..cellSPcnt]                            ,
-                    //           sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, ..]);
+                  const uniNrm = frMesh.nrmFP[meshFP, ..]/norm(frMesh.nrmFP[meshFP, ..]);
 
-                    frMesh.flxFP[meshFP, faceSide, varIdx] = dot(flx, uniNrm);
-                  }
+                  frMesh.flxFP[meshFP, faceSide, ..] = 0;
+                  for dimIdx in 1..frMesh.nDims do
+                    for varIdx in 1..frMesh.nVars do
+                      for cellSPidx in 1..cellSPcnt do
+                        frMesh.flxFP[meshFP, faceSide, varIdx] += flxSP[ dimIdx, varIdx, cellSPidx]
+                                                                 *sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, cellSPidx]
+                                                                 *uniNrm[dimIdx];
                 }
               }
               //dscFluxTime2 += dscFluxWatch.elapsed();
@@ -420,15 +423,15 @@ module FREI
 
               // Step 4: Calculate flux divergence
               //dscFluxWatch.restart();
-              for cellSP in 1..cellSPcnt
+              for cellSPidx in 1..cellSPcnt
               {
-                var meshSP = cellSPini + cellSP - 1;
+                const meshSPidx = cellSPini + cellSPidx - 1;
 
-                for dimIdx in 1..frMesh.nDims
-                {
-                  var flxsp = flxSP[dimIdx, .., 1..cellSPcnt];
-                  frMesh.resSP[.., meshSP] += dot(flxsp, sp2spDeriv[(cellTopo, frMesh.solOrder)]!.coefs[cellSP, dimIdx, ..]);
-                }
+                for varIdx in 1..frMesh.nVars do
+                  for dimIdx in 1..frMesh.nDims do
+                    for spIdx in 1.. #cellSPcnt do
+                      frMesh.resSP[varIdx, meshSPidx] += flxSP[dimIdx, varIdx, spIdx]
+                                                        *sp2spDeriv[(cellTopo, frMesh.solOrder)]!.coefs[cellSPidx, dimIdx, spIdx];
               }
               //dscFluxTime4 += dscFluxWatch.elapsed();
             }
@@ -444,27 +447,27 @@ module FREI
             cntFluxWatch.restart();
             forall cellIdx in frMesh.cellList.domain
             {
-              ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
-              ref cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
-              ref thisCell = frMesh.cellList[cellIdx];
+              const ref cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
+              const ref cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
+              const ref thisCell = frMesh.cellList[cellIdx];
 
               forall cellFace in thisCell.faces.domain
               {
-                ref faceIdx  : int = thisCell.faces[cellFace];
-                ref faceSide : int = thisCell.sides[cellFace];
-                ref thisFace = frMesh.faceList[faceIdx];
+                const ref faceIdx  : int = thisCell.faces[cellFace];
+                const ref faceSide : int = thisCell.sides[cellFace];
+                const ref thisFace = frMesh.faceList[faceIdx];
 
                 forall meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
                 {
-                  var cellFP : int;
+                  const cellFP : int = if faceSide == 1
+                    then (cellFace-1)*(frMesh.solOrder+1) +  meshFP - frMesh.faceFPidx[faceIdx, 1] + 1
+                    else (cellFace-1)*(frMesh.solOrder+1) + (frMesh.faceFPidx[faceIdx, 2] - (meshFP - frMesh.faceFPidx[faceIdx, 1]));
 
-                  if faceSide == 1 then
-                    cellFP = (cellFace-1)*(frMesh.solOrder+1) +  meshFP - frMesh.faceFPidx[faceIdx, 1] + 1;
-                  else
-                    cellFP = (cellFace-1)*(frMesh.solOrder+1) + (frMesh.faceFPidx[faceIdx, 2] - (meshFP - frMesh.faceFPidx[faceIdx, 1]));
-
-                  frMesh.solFP[meshFP, faceSide, ..] = dot(frMesh.solSP[.., cellSPini.. #cellSPcnt]                              ,
-                                                           sp2fpInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellFP, ..]);
+                  frMesh.solFP[meshFP, faceSide, ..] = 0;
+                  for varIdx in 1..frMesh.nVars do
+                    for spIdx in 1.. #cellSPcnt do
+                      frMesh.solFP[meshFP, faceSide, varIdx] += frMesh.solSP[varIdx, cellSPini + spIdx - 1]
+                                                               *sp2fpInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellFP, spIdx];
                 }
               }
             }

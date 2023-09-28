@@ -274,27 +274,29 @@ module Output
         // Interpolate solution from internal SPs to the face FPs
         forall cellIdx in frMesh.cellList.domain
         {
-          const cellSPini : int = frMesh.cellSPidx[cellIdx, 1];
-          const cellSPcnt : int = frMesh.cellSPidx[cellIdx, 2];
-          ref thisCell = frMesh.cellList[cellIdx];
+          const ref thisCell = frMesh.cellList[cellIdx];
+          const ref cellSPini = frMesh.cellSPidx[cellIdx, 1];
+          const ref cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
 
           for cellFace in thisCell.faces.domain
           {
-            const faceIdx  : int = thisCell.faces[cellFace];
-            const faceSide : int = thisCell.sides[cellFace];
-            ref thisFace = frMesh.faceList[faceIdx];
+            const ref faceIdx  : int = thisCell.faces[cellFace];
+            const ref faceSide : int = thisCell.sides[cellFace];
+            const ref thisFace = frMesh.faceList[faceIdx];
 
             for meshFP in frMesh.faceFPidx[faceIdx, 1] .. #frMesh.faceFPidx[faceIdx, 2]
             {
               var cellFP : int;
-
               if faceSide == 1 then
                 cellFP = (cellFace-1)*(frMesh.solOrder+1) +  meshFP - frMesh.faceFPidx[faceIdx, 1] + 1;
               else
                 cellFP = (cellFace-1)*(frMesh.solOrder+1) + (frMesh.faceFPidx[faceIdx, 2] - (meshFP - frMesh.faceFPidx[faceIdx, 1]));
 
-              frMesh.solFP[meshFP, faceSide, ..] = dot(frMesh.solSP[.., cellSPini.. #cellSPcnt]                              ,
-                                                       sp2fpInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellFP, ..]);
+              frMesh.solFP[meshFP, faceSide, ..] = 0;
+              for varIdx in 1..frMesh.nVars do
+                for cellSP in 1.. #cellSPcnt do
+                  frMesh.solFP[meshFP, faceSide, varIdx] += frMesh.solSP[varIdx, cellSPini+cellSP-1]
+                                                           *sp2fpInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellFP, cellSP];
             }
           }
         }
@@ -306,6 +308,8 @@ module Output
         var solNode : [frMesh.nodeList.domain.dim(0), 1..frMesh.nVars] real = 0.0;
         for cellIdx in frMesh.cellList.domain
         {
+          ref cellSPini = frMesh.cellSPidx[cellIdx, 1];
+          ref cellSPcnt = frMesh.cellSPidx[cellIdx, 2];
           ref thisCell = frMesh.cellList[cellIdx];
 
           for cellNodeIdx in 1..elem_vertices(thisCell.elemTopo())
@@ -321,8 +325,10 @@ module Output
               nodeVertMap[meshNodeIdx] = vertCnt;
             }
 
-            solNode[meshNodeIdx, ..] += dot(frMesh.solSP[.., frMesh.cellSPidx[cellIdx, 1].. #frMesh.cellSPidx[cellIdx, 2]],
-                                            sp2nodeInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellNodeIdx, ..]);
+            for varIdx in 1..frMesh.nVars do
+              for cellSP in 1.. #cellSPcnt do
+                solNode[meshNodeIdx, varIdx] += frMesh.solSP[varIdx, cellSPini+cellSP-1]
+                                                *sp2nodeInterp[(thisCell.elemTopo(), frMesh.solOrder)]!.coefs[cellNodeIdx, cellSP];
           }
         }
         var pointCnt : int = spCnt + fpCnt + vertCnt;
