@@ -1,6 +1,6 @@
 module Determinant
 {
-  proc determinant(matrix : [] real) : real
+  proc det(const ref matrix : [] real) : real
   {
     import LinearAlgebra.det;
 
