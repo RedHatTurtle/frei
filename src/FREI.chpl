@@ -258,10 +258,12 @@ module FREI
     var convergenceLogFile : file;
     var     residueLogFile : file;
     var       errorLogFile : file;
+    var     frMeshDumpFile : file;
     try! {
       convergenceLogFile = open("convergence.dat", ioMode.cw);
           residueLogFile = open(    "residue.dat", ioMode.cw);
             errorLogFile = open(      "error.dat", ioMode.cw);
+          frMeshDumpFile = open( "frMeshDump.dat", ioMode.cw);
     } catch {
       try! stdout.writeln("Unknown Error opening convergence log file.");
       try! stderr.writeln("Unknown Error opening convergence log file.");
@@ -269,6 +271,8 @@ module FREI
     var convergenceLogWriter = try! convergenceLogFile.writer();
     var     residueLogWriter = try!     residueLogFile.writer();
     var       errorLogWriter = try!       errorLogFile.writer();
+    var     frMeshDumpWriter = try!     frMeshDumpFile.writer();
+    try! frMeshDumpWriter.write(frMesh);
 
     writeln();
     initTime = totalWatch.elapsed();
