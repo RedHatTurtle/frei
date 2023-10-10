@@ -225,7 +225,6 @@ module Projection
   {
     use LinearAlgebra;
     import Inverse.inv;
-    import Determinant.determinant;
 
     // basis : [1..spCnt, 1..modeCnt] real
     //      Matrix of the basis vectors of the projection space in nodal form
@@ -267,23 +266,29 @@ module Projection
   //   Projection Function   //
   /////////////////////////////
 
-  proc project_poly(nodalPoly : [] real, cellTopo : int, polyDegree : int, projDegree : int)
+  proc project_poly(nodalPoly : [?nodalPoly_d] real, cellTopo : int, polyDegree : int, projDegree : int)
   {
     use Parameters.ParamMesh;
     use LinearAlgebra;
 
-    var projection : [nodalPoly.domain] real;
+    var projection : [nodalPoly_d] real = 0.0;
 
     select cellTopo
     {
       when TOPO_LINE
       {
-        projection = dot(polyProj[(cellTopo, polyDegree)]!.coefs[projDegree, .., ..], nodalPoly);
+        //projection = dot(polyProj[(cellTopo, polyDegree)]!.coefs[projDegree, .., ..], nodalPoly);
+        for projIdx in nodalPoly_d do
+          for polyIdx in nodalPoly_d do
+            projection[projIdx] += polyProj[(cellTopo, polyDegree)]!.coefs[projDegree, projIdx, polyIdx] * nodalPoly[polyIdx];
       }
       when TOPO_TRIA {}
       when TOPO_QUAD
       {
-        projection = dot(polyProj[(cellTopo, polyDegree)]!.coefs[projDegree, .., ..], nodalPoly);
+        //projection = dot(polyProj[(cellTopo, polyDegree)]!.coefs[projDegree, .., ..], nodalPoly);
+        for projIdx in nodalPoly_d do
+          for polyIdx in nodalPoly_d do
+            projection[projIdx] += polyProj[(cellTopo, polyDegree)]!.coefs[projDegree, projIdx, polyIdx] * nodalPoly[polyIdx];
       }
       when TOPO_TETR {}
       when TOPO_PYRA {}

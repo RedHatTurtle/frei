@@ -1,5 +1,6 @@
 module Gmesh
 {
+  use Map;
   use Random;
   use UnitTest;
 
@@ -127,9 +128,8 @@ module Gmesh
       var cells : [1..nCells, 1..2] int;
 
       // Get uniform nodes from xMin to xMax
-      var step : real = (xMax - xMin)/nCells;
       for node in this.nodes.domain.dim(0) do
-        x[node] = xMin + (node-1)*step;
+        x[node] = ((nCells+1-node)*xMin + (node-1)*xMax)/nCells;
 
       // Fill element list with non overlapping elements oriented from left to right
       for i in 1..nCells
@@ -161,7 +161,7 @@ module Gmesh
         this.elements[i].elemType = GMESH_LIN_2;
         this.elements[i].setNodes();
         this.elements[i].tags_d = {1..1};
-        this.elements[i].tags[1] = 1; // Family
+        this.elements[i].tags[1] = 1; // Family Idx
         this.elements[i].nodes[1] = cells[i-1,1];
         this.elements[i].nodes[2] = cells[i-1,2];
       }
@@ -170,14 +170,14 @@ module Gmesh
       this.elements[1].elemType = GMESH_PNT_1;
       this.elements[1].setNodes();
       this.elements[1].tags_d = {1..1};
-      this.elements[1].tags[1] = 2; // Family
+      this.elements[1].tags[1] = 2; // Family Idx
       this.elements[1].nodes[1] = 1;
 
       // Add right boundary point to elements list
       this.elements[nCells+2].elemType = GMESH_PNT_1;
       this.elements[nCells+2].setNodes();
       this.elements[nCells+2].tags_d = {1..1};
-      this.elements[nCells+2].tags[1] = 3; // Family
+      this.elements[nCells+2].tags[1] = 3; // Family Idx
       this.elements[nCells+2].nodes[1] = this.nodes.domain.dim(0).high;
     }
 
@@ -499,6 +499,66 @@ module Gmesh
     }
 
     proc faml_cnt() : int do return this.families.domain.dim(0).size;
+
+    proc face_topo_cnt() : map
+    {
+      use Map;
+
+      var faceCnt : map(keyType = int, valType=int);
+
+      for elem in this.elements
+      {
+        if elem.elemDim() == this.mesh_dimension()
+        {
+          // Loop though and count each face of this cell
+          for faceTopo in elem.elemFaceTopo()
+          {
+            if !faceCnt.contains(faceTopo) then
+              faceCnt.add(faceTopo, 0);
+
+            try! faceCnt[faceTopo] += 1 ;
+          }
+        }
+        else if elem.elemDim() == this.mesh_dimension()-1
+        {
+          // This is a boundary face, add it to the count
+          if !faceCnt.contains(elem.elemTopo()) then
+            faceCnt.add(elem.elemTopo(), 0);
+
+          try! faceCnt[elem.elemTopo()] += 1 ;
+        }
+      }
+
+      for faceTopo in faceCnt.keys() do
+        try! faceCnt[faceTopo] /= 2 ;
+
+      return faceCnt;
+    }
+
+    proc cell_topo_cnt() : map
+    {
+      use Map;
+
+      var cellCnt : map(keyType = int, valType=int);
+
+      // Get cell element dimension
+      const cellDim : int = this.mesh_dimension();
+
+      // Iterate through elements searching for cells
+      for elem in this.elements do
+        if elem.elemDim() == cellDim then
+        {
+          // Add topology to map if not already there
+          if !cellCnt.contains(elem.elemTopo()) then
+            cellCnt.add(elem.elemTopo(), 0);
+
+          // Count the cell
+          try! cellCnt[elem.elemTopo()] += 1 ;
+        }
+
+      return cellCnt;
+    }
+
   }
 
   class gmesh4_c
@@ -592,6 +652,7 @@ module Gmesh
     proc elemDim()   : int do return elem_dim(this.elemType);
     proc elemTopo()  : int do return elem_topo(this.elemType);
     proc elemFaces() : int do return elem_faces(this.elemTopo());
+    proc elemFaceTopo() : [] int do return elem_face_topo(this.elemTopo());
 
     proc ref setNodes()
     {
@@ -803,12 +864,39 @@ module Gmesh
     }
   }
 
+  proc elem_face_topo(const ref elemTopo : int) : [] int
+  { // Assuming this mesh element is a cell how many faces does it have
+    use Parameters.ParamGmesh;
+
+    select elemTopo {
+      when GMESH_LIN do return [GMESH_PNT, GMESH_PNT]; // Edge
+      when GMESH_TRI do return [GMESH_LIN, GMESH_LIN, GMESH_LIN]; // Triangle
+      when GMESH_QUA do return [GMESH_LIN, GMESH_LIN, GMESH_LIN, GMESH_LIN]; // Quadrilateral
+      when GMESH_TET do return [GMESH_TRI, GMESH_TRI, GMESH_TRI, GMESH_TRI, ]; // Tetrahedron
+      when GMESH_PYR do return [GMESH_TET, GMESH_TRI, GMESH_TRI, GMESH_TRI, GMESH_TRI, ]; // Pyramid
+      when GMESH_PRI do return [GMESH_TRI, GMESH_TRI, GMESH_QUA, GMESH_QUA, GMESH_QUA, ]; // Prism
+      when GMESH_HEX do return [GMESH_QUA, GMESH_QUA, GMESH_QUA, GMESH_QUA, GMESH_QUA, GMESH_QUA, ]; // Hexahedron
+      otherwise return [-1];
+    }
+  }
+
   proc main()
   {
     {
       writeln("Test 1: Random 1D mesh - Gmsh2:");
       var test_gmesh2 = new gmesh2_c();
       test_gmesh2.random1D(nCells=6, xMin=-1, xMax=2);
+      writeln("Test Gmesh query functions:");
+      writeln("  - Mesh Dim: ", test_gmesh2.mesh_dimension());
+      writeln("  - Node Cnt: ", test_gmesh2.node_cnt());
+      writeln("  - Face Cnt: ", test_gmesh2.face_cnt());
+      writeln("  - Cell Cnt: ", test_gmesh2.cell_cnt());
+      writeln("  - Boco Cnt: ", test_gmesh2.boco_cnt());
+      writeln("  - Faml Cnt: ", test_gmesh2.faml_cnt());
+      writeln("  - Face Topo Cnt: ", test_gmesh2.face_topo_cnt());
+      writeln("  - Cell Topo Cnt: ", test_gmesh2.cell_topo_cnt());
+      writeln();
+      writeln("Dump Gmesh instance:");
       writeln(test_gmesh2);
       writeln();
     }
@@ -817,6 +905,17 @@ module Gmesh
       writeln("Test 2: Uniform 1D mesh - Gmsh2:");
       var test_gmesh2 = new gmesh2_c();
       test_gmesh2.uniform1D(nCells=6, xMin=-1, xMax=2);
+      writeln("Test Gmesh query functions:");
+      writeln("  - Mesh Dim: ", test_gmesh2.mesh_dimension());
+      writeln("  - Node Cnt: ", test_gmesh2.node_cnt());
+      writeln("  - Face Cnt: ", test_gmesh2.face_cnt());
+      writeln("  - Cell Cnt: ", test_gmesh2.cell_cnt());
+      writeln("  - Boco Cnt: ", test_gmesh2.boco_cnt());
+      writeln("  - Faml Cnt: ", test_gmesh2.faml_cnt());
+      writeln("  - Face Topo Cnt: ", test_gmesh2.face_topo_cnt());
+      writeln("  - Cell Topo Cnt: ", test_gmesh2.cell_topo_cnt());
+      writeln();
+      writeln("Dump Gmesh instance:");
       writeln(test_gmesh2);
       writeln();
     }
@@ -825,6 +924,17 @@ module Gmesh
       writeln("Test 3: Read 2D mesh - Gmsh2:");
       var test_gmesh2 = new gmesh2_c();
       test_gmesh2.read_gmesh_file(testMesh);
+      writeln("Test Gmesh query functions:");
+      writeln("  - Mesh Dim: ", test_gmesh2.mesh_dimension());
+      writeln("  - Node Cnt: ", test_gmesh2.node_cnt());
+      writeln("  - Face Cnt: ", test_gmesh2.face_cnt());
+      writeln("  - Cell Cnt: ", test_gmesh2.cell_cnt());
+      writeln("  - Boco Cnt: ", test_gmesh2.boco_cnt());
+      writeln("  - Faml Cnt: ", test_gmesh2.faml_cnt());
+      writeln("  - Face Topo Cnt: ", test_gmesh2.face_topo_cnt());
+      writeln("  - Cell Topo Cnt: ", test_gmesh2.cell_topo_cnt());
+      writeln();
+      writeln("Dump Gmesh instance:");
       writeln(test_gmesh2);
       writeln();
     }

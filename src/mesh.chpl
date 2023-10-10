@@ -26,19 +26,19 @@ module Mesh
     const nFamls : int = 0;
 
     // Array sizing domains
-    const nodeSpace : domain(rank=1, idxType=int) = {1..0};
-    const cellSpace : domain(rank=1, idxType=int) = {1..0};
-    const faceSpace : domain(rank=1, idxType=int) = {1..0};
-    const bocoSpace : domain(rank=1, idxType=int) = {1..0};
-    const edgeSpace : domain(rank=1, idxType=int) = {1..0};
-    const famlSpace : domain(rank=1, idxType=int) = {1..0};
+    const nodeSpace : domain(rank=1, idxType=int);
+    const cellSpace : domain(rank=1, idxType=int);
+    const faceSpace : domain(rank=1, idxType=int);
+    const bocoSpace : domain(rank=1, idxType=int);
+    const edgeSpace : domain(rank=1, idxType=int);
+    const famlSpace : domain(rank=1, idxType=int);
 
     // Single Locale Domains
-    //var nodeList_d : domain(rank=1, idxType=int);// dmapped nodeList_dist;
-    //var cellList_d : domain(rank=1, idxType=int);// dmapped cellList_dist;
-    //var faceList_d : domain(rank=1, idxType=int);// dmapped faceList_dist;
-    //var bocoList_d : domain(rank=1, idxType=int);// dmapped bocoList_dist;
-    //var edgeList_d : domain(rank=1, idxType=int);// dmapped edgeList_dist;
+    //var nodeList_d : nodeSpace;
+    //var cellList_d : cellSpace;
+    //var faceList_d : faceSpace;
+    //var bocoList_d : bocoSpace;
+    //var edgeList_d : edgeSpace;
 
     // Block Dist Domains
     var nodeList_d = nodeSpace dmapped Block(boundingBox=nodeSpace);
@@ -1394,7 +1394,7 @@ module Mesh
   proc tetr_vol( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
                  vert4 : [1..3] real                                           ) : real
   {
-    import Determinant.determinant;
+    import Determinant.det;
 
     var matrix : [1..3, 1..3] real;
     var volume : real = 0.0;
@@ -1403,7 +1403,7 @@ module Mesh
     matrix[2, 1..3] = vert3[1..3] - vert1[1..3];
     matrix[3, 1..3] = vert4[1..3] - vert1[1..3];
 
-    volume = determinant(matrix)/6.0;
+    volume = det(matrix)/6.0;
 
     return volume;
   }
@@ -1411,7 +1411,7 @@ module Mesh
   proc pyra_vol( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
                  vert4 : [1..3] real, vert5 : [1..3]                           ) : real
   {
-    import Determinant.determinant;
+    import Determinant.det;
 
     var matrix : [1..3, 1..3] real;
     var volume : real = 0.0;
@@ -1422,14 +1422,14 @@ module Mesh
     matrix[1, 1..3] = vert2[1..3] - vert1[1..3];
     matrix[2, 1..3] = vert3[1..3] - vert1[1..3];
     matrix[3, 1..3] = vert5[1..3] - vert1[1..3];
-    //writeln("  Tetra1: ", determinant(matrix)/6.0);
-    volume = determinant(matrix);
+    //writeln("  Tetra1: ", det(matrix)/6.0);
+    volume = det(matrix);
 
     matrix[1, 1..3] = vert3[1..3] - vert1[1..3];
     matrix[2, 1..3] = vert4[1..3] - vert1[1..3];
     matrix[3, 1..3] = vert5[1..3] - vert1[1..3];
-    //writeln("  Tetra2: ", determinant(matrix)/6.0);
-    volume += determinant(matrix);
+    //writeln("  Tetra2: ", det(matrix)/6.0);
+    volume += det(matrix);
 
     return volume/6.0;
   }
@@ -1437,7 +1437,7 @@ module Mesh
   proc pris_vol( vert1 : [1..3] real, vert2 : [1..3] real, vert3 : [1..3] real,
                  vert4 : [1..3] real, vert5 : [1..3] real, vert6 : [1..3] real ) : real
   {
-    import Determinant.determinant;
+    import Determinant.det;
 
     var matrix : [1..3, 1..3] real;
     var volume : real = 0.0;
@@ -1448,20 +1448,20 @@ module Mesh
     matrix[1, 1..3] = vert2[1..3] - vert1[1..3];
     matrix[2, 1..3] = vert3[1..3] - vert1[1..3];
     matrix[3, 1..3] = vert4[1..3] - vert1[1..3];
-    //writeln("  Tetra1: ", determinant(matrix)/6.0);
-    volume = determinant(matrix);
+    //writeln("  Tetra1: ", det(matrix)/6.0);
+    volume = det(matrix);
 
     matrix[1, 1..3] = vert4[1..3] - vert6[1..3];
     matrix[2, 1..3] = vert3[1..3] - vert6[1..3];
     matrix[3, 1..3] = vert5[1..3] - vert6[1..3];
-    //writeln("  Tetra2: ", determinant(matrix)/6.0);
-    volume += determinant(matrix);
+    //writeln("  Tetra2: ", det(matrix)/6.0);
+    volume += det(matrix);
 
     matrix[1, 1..3] = vert4[1..3] - vert5[1..3];
     matrix[2, 1..3] = vert3[1..3] - vert5[1..3];
     matrix[3, 1..3] = vert2[1..3] - vert5[1..3];
-    //writeln("  Tetra3: ", determinant(matrix)/6.0);
-    volume += determinant(matrix);
+    //writeln("  Tetra3: ", det(matrix)/6.0);
+    volume += det(matrix);
 
     return volume/6.0;
   }
@@ -1470,7 +1470,7 @@ module Mesh
                  vert4 : [1..3] real, vert5 : [1..3] real, vert6 : [1..3] real,
                  vert7 : [1..3] real, vert8 : [1..3] real                      ) : real
   {
-    import Determinant.determinant;
+    import Determinant.det;
 
     var matrix : [1..3, 1..3] real;
     var volume : real = 0.0;
@@ -1482,36 +1482,36 @@ module Mesh
     matrix[1, 1..3] = vert2[1..3] - vert1[1..3];
     matrix[2, 1..3] = vert4[1..3] - vert1[1..3];
     matrix[3, 1..3] = vert5[1..3] - vert1[1..3];
-    //writeln("  Tetra1: ", determinant(matrix)/6.0);
-    volume = determinant(matrix);
+    //writeln("  Tetra1: ", det(matrix)/6.0);
+    volume = det(matrix);
 
     // Second z=0 base tetra
     matrix[1, 1..3] = vert2[1..3] - vert3[1..3];
     matrix[2, 1..3] = vert7[1..3] - vert3[1..3];
     matrix[3, 1..3] = vert4[1..3] - vert3[1..3];
-    //writeln("  Tetra2: ", determinant(matrix)/6.0);
-    volume += determinant(matrix);
+    //writeln("  Tetra2: ", det(matrix)/6.0);
+    volume += det(matrix);
 
     // First z=1 base tetra
     matrix[1, 1..3] = vert2[1..3] - vert6[1..3];
     matrix[2, 1..3] = vert5[1..3] - vert6[1..3];
     matrix[3, 1..3] = vert7[1..3] - vert6[1..3];
-    //writeln("  Tetra3: ", determinant(matrix)/6.0);
-    volume += determinant(matrix);
+    //writeln("  Tetra3: ", det(matrix)/6.0);
+    volume += det(matrix);
 
     // Second z=1 base tetra
     matrix[1, 1..3] = vert5[1..3] - vert8[1..3];
     matrix[2, 1..3] = vert4[1..3] - vert8[1..3];
     matrix[3, 1..3] = vert7[1..3] - vert8[1..3];
-    //writeln("  Tetra4: ", determinant(matrix)/6.0);
-    volume += determinant(matrix);
+    //writeln("  Tetra4: ", det(matrix)/6.0);
+    volume += det(matrix);
 
     // Internal volume left
     matrix[1, 1..3] = vert2[1..3] - vert5[1..3];
     matrix[2, 1..3] = vert4[1..3] - vert5[1..3];
     matrix[3, 1..3] = vert7[1..3] - vert5[1..3];
-    //writeln("  Tetra5: ", determinant(matrix)/6.0);
-    volume += determinant(matrix);
+    //writeln("  Tetra5: ", det(matrix)/6.0);
+    volume += det(matrix);
 
     return volume/6.0;
   }

@@ -9,28 +9,54 @@ module FRMesh {
   class fr_mesh_c : mesh_c
   {
     const nVars  : int;
-    var solOrder : int;
+    const solOrder : int;
 
-    // Array distributions
-    //const spDist = new dmap(new blockDist(boundingBox={1..1}));
-    //const fpDist = new dmap(new blockDist(boundingBox={1..1}));
+    const nSPs : int;
+    const nFPs : int;
 
-    // Domains
-    var cellSPidx_d : domain(rank=2, idxType=int); // {1..nCells, 1..2}
-    var faceFPidx_d : domain(rank=2, idxType=int); // {1..nFaces, 1..2}
+    // Array sizing domains
+    const cellSPidxSpace : domain(rank=2, idxType=int); // {1..nCells, 1..2}
+    const faceFPidxSpace : domain(rank=2, idxType=int); // {1..nFaces, 1..2}
+    const xyzSPSpace     : domain(rank=2, idxType=int); // {1..nSPs, 1..nDims}
+    const xyzFPSpace     : domain(rank=2, idxType=int); // {1..nFPs, 1..nDims}
+    const metSPSpace     : domain(rank=3, idxType=int); // {1..nSPs, 1..nDims, 1..nDims}       nDims+1 if moving mesh
+    const jacSPSpace     : domain(rank=1, idxType=int); // {1..nSPs}                           nDims+1 if moving mesh
+    const solSPSpace     : domain(rank=2, idxType=int); // {1..nVars, 1..nSPs}
+    const solFPSpace     : domain(rank=3, idxType=int); // {1..nFPs, 1..2, 1..nVars}
+    const flxFPSpace     : domain(rank=3, idxType=int); // {1..nFPs, 1..2, 1..nVars}
 
-    var  xyzSP_d : domain(rank=2, idxType=int);    // {1..nSPs, 1..nDims}
-    var  xyzFP_d : domain(rank=2, idxType=int);    // {1..nFPs, 1..nDims}
+    // Sincgle Locale Domains
+    //var cellSPidx_d : cellSPidxSpace ;
+    //var faceFPidx_d : faceFPidxSpace ;
+    //var xyzSP_d     : xyzSPSpace     ;
+    //var xyzFP_d     : xyzFPSpace     ;
+    //var metSP_d     : metSPSpace     ;
+    //var jacSP_d     : jacSPSpace     ;
+    //var solSP_d     : solSPSpace     ;
+    //var solFP_d     : solFPSpace     ;
+    //var flxFP_d     : flxFPSpace     ;
 
-    var  metSP_d : domain(rank=3, idxType=int);    // {1..nSPs, 1..nDims, 1..nDims}       nDims+1 if moving mesh
-    var  jacSP_d : domain(rank=1, idxType=int);    // {1..nSPs}                           nDims+1 if moving mesh
+    // BlockDist Domains
+    var cellSPidx_d = cellSPidxSpace dmapped Block(boundingBox=cellSPidxSpace);
+    var faceFPidx_d = faceFPidxSpace dmapped Block(boundingBox=faceFPidxSpace);
+    var xyzSP_d     = xyzSPSpace     dmapped Block(boundingBox=xyzSPSpace    );
+    var xyzFP_d     = xyzFPSpace     dmapped Block(boundingBox=xyzFPSpace    );
+    var metSP_d     = metSPSpace     dmapped Block(boundingBox=metSPSpace    );
+    var jacSP_d     = jacSPSpace     dmapped Block(boundingBox=jacSPSpace    );
+    var solSP_d     = solSPSpace     dmapped Block(boundingBox=solSPSpace    );
+    var solFP_d     = solFPSpace     dmapped Block(boundingBox=solFPSpace    );
+    var flxFP_d     = flxFPSpace     dmapped Block(boundingBox=flxFPSpace    );
 
-    var  solSP_d : domain(rank=2, idxType=int);    // {1..nVars, 1..nSPs}
-    var  solFP_d : domain(rank=3, idxType=int);    // {1..nFPs, 1..2, 1..nVars}
-    var  flxFP_d : domain(rank=3, idxType=int);    // {1..nFPs, 1..2, 1..nVars}
-    // For future viscous flow implementation
-    //var dSolSP_d : domain(rank=3, idxType=int);    // {1..nSPs, 1..nVars, 1..nVars}
-    //var dSolFP_d : domain(rank=4, idxType=int);    // {1..nFPs, 1..2, 1..nVars, 1..nVars}
+    // BlockDist Domains
+    //var cellSPidx_d = cellSPidxSpace dmapped Block1D(boundingBox=cellSPidxSpace);
+    //var faceFPidx_d = faceFPidxSpace dmapped Block1D(boundingBox=faceFPidxSpace);
+    //var xyzSP_d     = xyzSPSpace     dmapped Block1D(boundingBox=xyzSPSpace    );
+    //var xyzFP_d     = xyzFPSpace     dmapped Block1D(boundingBox=xyzFPSpace    );
+    //var metSP_d     = metSPSpace     dmapped Block1D(boundingBox=metSPSpace    );
+    //var jacSP_d     = jacSPSpace     dmapped Block1D(boundingBox=jacSPSpace    );
+    //var solSP_d     = solSPSpace     dmapped Block1D(boundingBox=solSPSpace    );
+    //var solFP_d     = solFPSpace     dmapped Block1D(boundingBox=solFPSpace    );
+    //var flxFP_d     = flxFPSpace     dmapped Block1D(boundingBox=flxFPSpace    );
 
     // FR solver variables
 
@@ -62,6 +88,41 @@ module FRMesh {
 
       this.nVars = nVars;
       this.solOrder = solOrder;
+
+      var spCnt : int;
+      const cellTopoCnt = mesh.cell_topo_cnt();
+      for cellTopo in cellTopoCnt.keys() do
+        spCnt = try! cellTopoCnt[cellTopo] * n_cell_sps(cellTopo, this.solOrder);
+      this.nSPs = spCnt;
+
+      var fpCnt : int;
+      const faceTopoCnt = mesh.face_topo_cnt();
+      for faceTopo in faceTopoCnt.keys() do
+        fpCnt = try! faceTopoCnt[faceTopo] * n_face_fps(faceTopo, this.solOrder);
+      this.nFPs = fpCnt;
+
+      //writeln("Mesh allocated with ", this.nSPs, " SPs");
+      //writeln("Mesh allocated with ", this.nFPs, " FPs");
+
+      this.cellSPidxSpace = {1..this.nCells, 1..2};
+      this.faceFPidxSpace = {1..this.nFaces, 1..2};
+      this.xyzSPSpace     = {1..this.nSPs, 1..nDims};
+      this.xyzFPSpace     = {1..this.nFPs, 1..nDims};
+      this.metSPSpace     = {1..this.nSPs, 1..nDims, 1..nDims};
+      this.jacSPSpace     = {1..this.nSPs};
+      this.solSPSpace     = {1..this.nVars, 1..nSPs};
+      this.solFPSpace     = {1..this.nFPs, 1..2, 1..nVars};
+      this.flxFPSpace     = {1..this.nFPs, 1..2, 1..nVars};
+
+      this.cellSPidx_d = this.cellSPidxSpace dmapped Block(boundingBox=this.cellSPidxSpace);
+      this.faceFPidx_d = this.faceFPidxSpace dmapped Block(boundingBox=this.faceFPidxSpace);
+      this.xyzSP_d     = this.xyzSPSpace     dmapped Block(boundingBox=this.xyzSPSpace    );
+      this.xyzFP_d     = this.xyzFPSpace     dmapped Block(boundingBox=this.xyzFPSpace    );
+      this.metSP_d     = this.metSPSpace     dmapped Block(boundingBox=this.metSPSpace    );
+      this.jacSP_d     = this.jacSPSpace     dmapped Block(boundingBox=this.jacSPSpace    );
+      this.solSP_d     = this.solSPSpace     dmapped Block(boundingBox=this.solSPSpace    );
+      this.solFP_d     = this.solFPSpace     dmapped Block(boundingBox=this.solFPSpace    );
+      this.flxFP_d     = this.flxFPSpace     dmapped Block(boundingBox=this.flxFPSpace    );
     }
 
     override proc import_gmesh2(gmesh : gmesh2_c)
@@ -126,100 +187,127 @@ module FRMesh {
       use Mapping;
       use Set;
       import Inverse.inv;
-      import Determinant.determinant;
+      import Determinant.det;
 
       init_mapping(minOrder=this.solOrder, maxOrder=this.solOrder, this.cellTypes|this.faceTypes);
       init_mapping_metrics(minOrder=this.solOrder, maxOrder=this.solOrder, this.cellTypes|this.faceTypes);
 
-      for cellIdx in this.cellList.domain
+      this.xyzSP = 0.0;
+      this.metSP = 0.0;
+      this.jacSP = 0.0;
+      this.xyzFP = 0.0;
+      this.nrmFP = 0.0;
+
+      forall cellIdx in this.cellList.domain
       {
         // Get loop variables
         const cellSPini = this.cellSPidx[cellIdx, 1];
         const cellSPcnt = this.cellSPidx[cellIdx, 2];
 
         // Get the list of nodes that define this cell
-        var elemNodes : [this.cellList[cellIdx].nodes_d] int = this.cellList[cellIdx].nodes;
+        const cellNodes : [this.cellList[cellIdx].nodes_d] int = this.cellList[cellIdx].nodes;
 
         // Get the coordinates of these nodes
         var xyzMshNodes : [1..this.nDims, 1..elem_nodes(this.cellList[cellIdx].elemType)] real;
-        for nodeIdx in elemNodes.domain do
-          xyzMshNodes[.., nodeIdx] = this.nodeList[elemNodes[nodeIdx]].xyz[1..this.nDims];
+        for nodeIdx in cellNodes.domain do
+          xyzMshNodes[.., nodeIdx] = this.nodeList[cellNodes[nodeIdx]].xyz[1..this.nDims];
 
-        var cellType : 2*int = (this.cellList[cellIdx].elemType, this.solOrder);
+        const cellType : 2*int = (this.cellList[cellIdx].elemType, this.solOrder);
 
-        for cellSP in 1..cellSPcnt
+        for cellSPidx in 1..cellSPcnt
         {
-          var meshSP = cellSPini + cellSP - 1;
+          const meshSPidx = cellSPini + cellSPidx - 1;
 
           // Calculate the physical coordinates of this cell's SPs
-          this.xyzSP[meshSP, ..] = dot( mapping[cellType]!.coefs[cellSP, ..],
-                                        xyzMshNodes[..,..].T               );
+          //this.xyzSP[meshSPidx, ..] = dot( mapping[cellType]!.coefs[cellSPidx, ..],
+          //                                 xyzMshNodes[.., ..].T                  );
+          for dimIdx in 1..this.nDims do
+            for cellNodeIdx in xyzMshNodes.domain.dim(1) do
+              this.xyzSP[meshSPidx, dimIdx] += mapping[cellType]!.coefs[cellSPidx, cellNodeIdx]
+                                              *xyzMshNodes[dimIdx, cellNodeIdx];
 
           // Calculate the derivatives of the physical coordinates by the computational coordinates
-          // {{x_xi, x_eta, x_zeta},
-          //  {y_xi, y_eta, y_zeta},
-          //  {z_xi, z_eta, z_zeta}}
-          for rstDim in 1..this.nDims do
-            this.metSP[meshSP, .., rstDim] = dot( mappingMetrics[cellType]!.coefs[rstDim, cellSP, ..],
-                                                  xyzMshNodes[..,..].T                              );
+          // [[x_xi, x_eta, x_zeta],
+          //  [y_xi, y_eta, y_zeta],
+          //  [z_xi, z_eta, z_zeta]]
+          //for rstDim in 1..this.nDims do
+          //  this.metSP[meshSPidx, .., rstDim] = dot( mappingMetrics[cellType]!.coefs[rstDim, cellSPidx, ..],
+          //                                           xyzMshNodes[..,..].T                                  );
+          for physDimIdx in 1..this.nDims do
+            for compDimIdx in 1..this.nDims do
+              for cellNodeIdx in xyzMshNodes.domain.dim(1) do
+                this.metSP[meshSPidx, physDimIdx, compDimIdx] = mappingMetrics[cellType]!.coefs[compDimIdx, cellSPidx, cellNodeIdx]
+                                                               *xyzMshNodes[physDimIdx, cellNodeIdx];
 
           // Calculate the Jacobian at SPs
-          this.jacSP[meshSP] = determinant(this.metSP[meshSP, .., ..]);
+          this.jacSP[meshSPidx] = det(this.metSP[meshSPidx, .., ..]);
 
           // Invert the metric matrix since we only use that
-          // {{  xi_x,   xi_y,   xi_z},
-          //  { eta_x,  eta_y,  eta_z},
-          //  {zeta_x, zeta_y, zeta_z}}
-          this.metSP[meshSP, .., ..] = inv(this.metSP[meshSP, .., ..]);
+          // [[  xi_x,   xi_y,   xi_z],
+          //  [ eta_x,  eta_y,  eta_z],
+          //  [zeta_x, zeta_y, zeta_z]]
+          //this.metSP[meshSPidx, .., ..] = inv(this.metSP[meshSPidx, .., ..]);
+          this.metSP[meshSPidx, .., ..] = inv(this.metSP[meshSPidx, .., ..]);
         }
       }
 
-      for faceIdx in this.faceList.domain
+      forall faceIdx in this.faceList.domain
       {
+        // Get loop variables
+        const faceFPini = this.faceFPidx[faceIdx, 1];
+        const faceFPcnt = this.faceFPidx[faceIdx, 2];
+
         // Get the list of nodes that define this face
-        var elemNodes : [this.faceList[faceIdx].nodes_d] int = this.faceList[faceIdx].nodes;
+        const faceNodes : [this.faceList[faceIdx].nodes_d] int = this.faceList[faceIdx].nodes;
 
         // Get the coordinates of these nodes
         var xyzMshNodes : [1..this.nDims, 1..elem_nodes(this.faceList[faceIdx].elemType)] real;
-        for nodeIdx in elemNodes.domain do
-          xyzMshNodes[.., nodeIdx] = this.nodeList[elemNodes[nodeIdx]].xyz[1..this.nDims];
+        for nodeIdx in faceNodes.domain do
+          xyzMshNodes[.., nodeIdx] = this.nodeList[faceNodes[nodeIdx]].xyz[1..this.nDims];
 
-        var faceType : 2*int = (this.faceList[faceIdx].elemType, this.solOrder);
+        const faceType : 2*int = (this.faceList[faceIdx].elemType, this.solOrder);
 
-        //////////////////////////
-        ///   FP coordinates   ///
-        //////////////////////////
+        // The face normal is calculated based on the left side cell (which is, by convention, never a boundary)
+        const leftCell : int = this.faceList[faceIdx].cells[1];
 
-        for faceFPIdx in 1..faceFPidx[faceIdx, 2] do
-          this.xyzFP[faceFPidx[faceIdx, 1]+faceFPIdx-1, ..] = dot( mapping[faceType]!.coefs[faceFPIdx, ..],
-                                                                   xyzMshNodes[..,..].T               );
+        // Depending on the position of this face in relation to the left cell the normal mingh need to be reversed
+        const leftFace : int = this.cellList[leftCell].faces[1];
+        const reverse  : real = if (this.nDims == 1) && (faceIdx == leftFace)
+          then -1.0
+          else +1.0;
 
-        //////////////////////
-        ///   FP normals   ///
-        //////////////////////
-
-        // For node faces in 1D meshes check if normal needs to be reversed
-        var leftCell : int = this.faceList[faceIdx].cells[1];
-
-        // Check in which position relative to the left cell this face is on
-        var reverse  : real = 1.0;
-        var leftFace : int = this.cellList[leftCell].faces[1];
-        if (this.nDims == 1) && (faceIdx == leftFace) then
-          reverse = -1.0;
-
-        for faceFPIdx in 1..faceFPidx[faceIdx, 2]
+        for faceFPidx in 1..faceFPcnt
         {
+          const meshFPidx = faceFPini + faceFPidx - 1;
+
+          // Calculate the physical coordinates of this face's FPs
+          //this.xyzFP[meshFPidx, ..] = dot( mapping[faceType]!.coefs[faceFPidx, ..],
+          //                                 xyzMshNodes[..,..].T                   );
+          for dimIdx in 1..this.nDims do
+            for faceNodeIdx in xyzMshNodes.domain.dim(1) do
+              this.xyzFP[meshFPidx, dimIdx] += mapping[faceType]!.coefs[faceFPidx, faceNodeIdx]
+                                              *xyzMshNodes[dimIdx, faceNodeIdx];
+
+          //////////////////////
+          ///   FP normals   ///
+          //////////////////////
+
           // Initialize metrics so that for 1D and 2D meshes the cross product results in a correct normal
           var metricsFP : [1..2, 1..3] real = reshape([0, 1, 0,
                                                        0, 0, 1], {1..2, 1..3});
 
-          for rstDim in 1..elem_dimension_type(this.faceList[faceIdx].elemType) do
-            metricsFP[rstDim, 1..this.nDims] = dot( mappingMetrics[faceType]!.coefs[rstDim, faceFPIdx, ..],
-                                                    xyzMshNodes[..,..].T                               );
+          //for compDim in 1..elem_dimension_type(this.faceList[faceIdx].elemType) do
+          //  metricsFP[compDim, 1..this.nDims] = dot( mappingMetrics[faceType]!.coefs[compDim, faceFPidx, ..],
+          //                                           xyzMshNodes[..,..].T                                   );
+          for physDimIdx in 1..this.nDims-1 do
+            for compDimIdx in 1..this.nDims-1 do
+              for cellNodeIdx in xyzMshNodes.domain.dim(1) do
+                metricsFP[compDimIdx, physDimIdx] = mappingMetrics[faceType]!.coefs[compDimIdx, faceFPidx, cellNodeIdx]
+                                                   *xyzMshNodes[physDimIdx, cellNodeIdx];
 
           // Get face normal through the cross product and slice it to the appropriate dimension vector
-          this.nrmFP[faceFPidx[faceIdx, 1]+faceFPIdx-1, ..] = reverse * cross( reshape(metricsFP[1, 1..3], {1..3}),
-                                                                               reshape(metricsFP[2, 1..3], {1..3}) )[1..this.nDims];
+          this.nrmFP[meshFPidx, ..] = reverse * cross( reshape(metricsFP[1, 1..3], {1..3}),
+                                                       reshape(metricsFP[2, 1..3], {1..3}) )[1..this.nDims];
         }
       }
     }

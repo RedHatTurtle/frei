@@ -126,8 +126,8 @@ module Riemann
     R[3,3] = enth + a*velNrm;
 
     // Compute the let and right fluxes
-    var fluxL : [consL.domain] real = dot(uniNrm, euler_flux_cv(consL, fGamma));
-    var fluxR : [consR.domain] real = dot(uniNrm, euler_flux_cv(consR, fGamma));
+    var fluxL : [consL.domain] real = inner(uniNrm, euler_flux_cv_1d(consL, fGamma));
+    var fluxR : [consR.domain] real = inner(uniNrm, euler_flux_cv_1d(consR, fGamma));
 
     // Calculate the dissipation term
     var diss : [consL.domain] real = ws[1]*dV[1]*R[.., 1] + ws[2]*dV[2]*R[.., 2] + ws[3]*dV[3]*R[.., 3];
@@ -156,7 +156,7 @@ module Riemann
     ref densL   : real = consL[idxDens];
     ref enerL   : real = consL[idxEner];
     var velL    : [idxMom-1] real = consL[idxMom]/densL;
-    var velNrmL : real = dot[velL, uniNrm];
+    var velNrmL : real = inner(velL, uniNrm);
     var presL   : real = pressure_cv(consL, fGamma);
     var aL      : real = sqrt(fGamma*presL/densL);
     var enthL   : real = ( enerL + presL ) / densL;
@@ -165,7 +165,7 @@ module Riemann
     ref densR   : real = consR[idxDens];
     ref enerR   : real = consR[idxEner];
     var velR    : [idxMom-1] real = consR[idxMom]/densR;
-    var velNrmR : real = dot[velR, uniNrm];
+    var velNrmR : real = inner(velR, uniNrm);
     var presR   : real = pressure_cv(consR, fGamma);
     var aR      : real = sqrt(fGamma*presR/densR);
     var enthR   : real = ( enerR + presR ) / densR;
@@ -174,9 +174,9 @@ module Riemann
     var RT     : real = sqrt( densR/densL );
     var dens   : real = RT*densL;
     var vel    : [idxMom-1] real = (velL + RT*velR)/(1.0 + RT);
-    var velNrm : real = dot(vel, uniNrm);
+    var velNrm : real = inner(vel, uniNrm);
     var enth   : real = (enthL + RT*enthR)/(1.0 + RT);
-    var a      : real = sqrt( (fGamma-1.0)*(enth-0.5*dot(vel, vel)) );
+    var a      : real = sqrt( (fGamma-1.0)*(enth-0.5*inner(vel, vel)) );
 
     //Differences in primitive variables
     var dDens   = densR   - densL;
@@ -215,7 +215,7 @@ module Riemann
     // Entropy wave
     R[idxDens, 2] = 1.0;
     R[idxMom , 2] = vel;
-    R[idxEner, 2] = dot(vel, vel)/2.0;
+    R[idxEner, 2] = inner(vel, vel)/2.0;
 
     // Positive acoustic wave
     R[idxDens, 3] = 1.0;
@@ -225,11 +225,11 @@ module Riemann
     // Shear wave
     R[idxDens, 4] = 0.0;
     R[idxMom , 4] = dVel - dVelNrm*uniNrm;
-    R[idxEner, 4] = dot(vel, dVel) - velNrm*dVelNrm;
+    R[idxEner, 4] = inner(vel, dVel) - velNrm*dVelNrm;
 
     // Compute the let and right fluxes
-    var fluxL : [consL.domain] real = dot(uniNrm, euler_flux_cv(consL, fGamma));
-    var fluxR : [consR.domain] real = dot(uniNrm, euler_flux_cv(consR, fGamma));
+    var fluxL : [consL.domain] real = inner(uniNrm, euler_flux_cv(consL, fGamma));
+    var fluxR : [consR.domain] real = inner(uniNrm, euler_flux_cv(consR, fGamma));
 
     // Calculate the dissipation term
     var diss : [consL.domain] real = ws[1]*dV[1]*R[.., 1] + ws[2]*dV[2]*R[.., 2]
@@ -259,7 +259,7 @@ module Riemann
     ref densL   : real = consL[idxDens];
     ref enerL   : real = consL[idxEner];
     var velL    : [idxMom-1] real = consL[idxMom]/densL;
-    var velNrmL : real = dot[velL, uniNrm];
+    var velNrmL : real = inner(velL, uniNrm);
     var presL   : real = pressure_cv(consL, fGamma);
     var aL      : real = sqrt(fGamma*presL/densL);
     var enthL   : real = ( enerL + presL ) / densL;
@@ -268,7 +268,7 @@ module Riemann
     ref densR   : real = consR[idxDens];
     ref enerR   : real = consR[idxEner];
     var velR    : [idxMom-1] real = consR[idxMom]/densR;
-    var velNrmR : real = dot[velR, uniNrm];
+    var velNrmR : real = inner(velR, uniNrm);
     var presR   : real = pressure_cv(consR, fGamma);
     var aR      : real = sqrt(fGamma*presR/densR);
     var enthR   : real = ( enerR + presR ) / densR;
@@ -277,9 +277,9 @@ module Riemann
     var RT     : real = sqrt( densR/densL );
     var dens   : real = RT*densL;
     var vel    : [idxMom-1] real = (velL + RT*velR)/(1.0 + RT);
-    var velNrm : real = dot(vel, uniNrm);
+    var velNrm : real = inner(vel, uniNrm);
     var enth   : real = (enthL + RT*enthR)/(1.0 + RT);
-    var a      : real = sqrt( (fGamma-1.0)*(enth-0.5*dot(vel, vel)) );
+    var a      : real = sqrt( (fGamma-1.0)*(enth-0.5*inner(vel, vel)) );
 
     //Differences in primitive variables
     var dDens   = densR   - densL;
@@ -317,7 +317,7 @@ module Riemann
     // Entropy wave
     R[idxDens, 2] = 1.0;
     R[idxMom , 2] = vel;
-    R[idxEner, 2] = dot(vel, vel)/2.0;
+    R[idxEner, 2] = inner(vel, vel)/2.0;
 
     // Positive acoustic wave
     R[idxDens, 3] = 1.0;
@@ -327,11 +327,11 @@ module Riemann
     // Combined shear waves
     R[idxDens, 4] = 0.0;
     R[idxMom , 4] = dVel - dVelNrm*uniNrm;
-    R[idxEner, 4] = dot(vel, dVel) - velNrm*dVelNrm;
+    R[idxEner, 4] = inner(vel, dVel) - velNrm*dVelNrm;
 
     // Compute the let and right fluxes
-    var fluxL : [consL.domain] real = dot(uniNrm, euler_flux_cv(consL, fGamma));
-    var fluxR : [consR.domain] real = dot(uniNrm, euler_flux_cv(consR, fGamma));
+    var fluxL : [consL.domain] real = inner(uniNrm, euler_flux_cv(consL, fGamma));
+    var fluxR : [consR.domain] real = inner(uniNrm, euler_flux_cv(consR, fGamma));
 
     // Calculate the dissipation term
     var diss : [consL.domain] real = ws[1]*dV[1]*R[.., 1] + ws[2]*dV[2]*R[.., 2]
@@ -361,7 +361,7 @@ module Riemann
     ref densL   : real = consL[idxDens];
     ref enerL   : real = consL[idxEner];
     var velVL   : [idxMom-1] real = consL[idxMom]/densL;
-    var velNrmL : real = dot[velVL, uniNrm];
+    var velNrmL : real = inner(velVL, uniNrm);
     var presL   : real = pressure_cv(consL, fGamma);
     var aL      : real = sqrt(fGamma*presL/densL);
     var enthL   : real = ( enerL + presL ) / densL;
@@ -370,7 +370,7 @@ module Riemann
     ref densR   : real = consR[idxDens];
     ref enerR   : real = consR[idxEner];
     var velVR   : [idxMom-1] real = consR[idxMom]/densR;
-    var velNrmR : real = dot[velVR, uniNrm];
+    var velNrmR : real = inner(velVR, uniNrm);
     var presR   : real = pressure_cv(consR, fGamma);
     var aR      : real = sqrt(fGamma*presR/densR);
     var enthR   : real = ( enerR + presR ) / densR;
@@ -380,7 +380,7 @@ module Riemann
     var dens   : real = RT*densL;
     var velV   : [idxMom-1] real = (velVL + RT*velVR)/(1.0 + RT);
     var enth   : real = (enthL + RT*enthR)/(1.0 + RT);
-    var a      : real = sqrt( (fGamma-1.0)*(enth-0.5*dot(velV, velV)) );
+    var a      : real = sqrt( (fGamma-1.0)*(enth-0.5*inner(velV, velV)) );
 
     //--------------------------------------------------------------------------------
     // Define nrmA and nrmB, and compute alpha1 and alpha2: (4.2) in the original paper.
@@ -405,7 +405,7 @@ module Riemann
     }
 
     // Calculate the angle between the face normal and nrmA
-    var alphaA = dot(uniNrm, uniNrmA);
+    var alphaA = inner(uniNrm, uniNrmA);
 
     // Make alphaA always positive.
     if sgn(alphaA) < 0 {
@@ -419,9 +419,9 @@ module Riemann
     //
     // Note: HLL is actually applied to n1, but this is all we need to incorporate HLL. See JCP2008 paper.
 
-    var velNrmA  = dot(velV, uniNrmA);
-    var SRp = max( 0.0, velNrmA + a, dot(velVR, uniNrmA) + aR ); // Maximum wave speed estimate
-    var SLm = min( 0.0, velNrmA - a, dot(velVL, uniNrmA) - aL ); // Minimum wave speed estimate
+    var velNrmA  = inner(velV, uniNrmA);
+    var SRp = max( 0.0, velNrmA + a, inner(velVR, uniNrmA) + aR ); // Maximum wave speed estimate
+    var SLm = min( 0.0, velNrmA - a, inner(velVL, uniNrmA) - aL ); // Minimum wave speed estimate
 
     // This is the only place where uniNrmA=(nx1,ny1,nz1), except from calculating uniNrmB right bellow.
     //----------------------------------------------------
@@ -438,7 +438,7 @@ module Riemann
     uniNrmB = uniNrmB/norm(uniNrmB, normType.norm2);
 
     // Calculate the angle between the face normal and nrmB
-    var alphaB = dot(uniNrm, uniNrmB);
+    var alphaB = inner(uniNrm, uniNrmB);
 
     // Make alphaB always positive.
     if sgn(alphaB) < 0 {
@@ -451,9 +451,9 @@ module Riemann
     //       Equation (3.6.31).
 
     // Recalculate normal velocities using uniNrmB
-    var velNrmBL = dot(velVL, uniNrmB);
-    var velNrmBR = dot(velVR, uniNrmB);
-    var velNrmB  = dot(velV , uniNrmB);
+    var velNrmBL = inner(velVL, uniNrmB);
+    var velNrmBR = inner(velVR, uniNrmB);
+    var velNrmB  = inner(velV , uniNrmB);
 
     // Differences in primitive variables
     var dDens    = densR    - densL;
@@ -495,7 +495,7 @@ module Riemann
     // Entropy wave
     R[idxDens, 2] = 1.0;
     R[idxMom , 2] = velV;
-    R[idxEner, 2] = dot(velV, velV)/2.0;
+    R[idxEner, 2] = inner(velV, velV)/2.0;
 
     // Positive acoustic wave
     R[idxDens, 3] = 1.0;
@@ -505,11 +505,11 @@ module Riemann
     // Combined shear waves
     R[idxDens, 4] = 0.0;
     R[idxMom , 4] = dVelV - dVelNrmB*uniNrmB;
-    R[idxEner, 4] = dot(velV, dVelV) - velNrmB*dVelNrmB;
+    R[idxEner, 4] = inner(velV, dVelV) - velNrmB*dVelNrmB;
 
     // Compute the let and right fluxes
-    var fluxL : [consL.domain] real = dot(uniNrm, euler_flux_cv(consL, fGamma));
-    var fluxR : [consR.domain] real = dot(uniNrm, euler_flux_cv(consR, fGamma));
+    var fluxL : [consL.domain] real = inner(uniNrm, euler_flux_cv(consL, fGamma));
+    var fluxR : [consR.domain] real = inner(uniNrm, euler_flux_cv(consR, fGamma));
 
     // Calculate the dissipation term
     var roeDiss : [consL.domain] real = ws[1]*dV[1]*R[.., 1] + ws[2]*dV[2]*R[.., 2]
@@ -539,7 +539,7 @@ module Riemann
     ref densL   : real = consL[idxDens];
     ref enerL   : real = consL[idxEner];
     var velVL   : [idxMom-1] real = consL[idxMom]/densL;
-    var velNrmL : real = dot[velVL, uniNrm];
+    var velNrmL : real = inner(velVL, uniNrm);
     var presL   : real = pressure_cv(consL, fGamma);
     var aL      : real = sqrt(fGamma*presL/densL);
     var enthL   : real = ( enerL + presL ) / densL;
@@ -548,7 +548,7 @@ module Riemann
     ref densR   : real = consR[idxDens];
     ref enerR   : real = consR[idxEner];
     var velVR   : [idxMom-1] real = consR[idxMom]/densR;
-    var velNrmR : real = dot[velVR, uniNrm];
+    var velNrmR : real = inner(velVR, uniNrm);
     var presR   : real = pressure_cv(consR, fGamma);
     var aR      : real = sqrt(fGamma*presR/densR);
     var enthR   : real = ( enerR + presR ) / densR;
@@ -558,7 +558,7 @@ module Riemann
     var dens   : real = RT*densL;
     var velV   : [idxMom-1] real = (velVL + RT*velVR)/(1.0 + RT);
     var enth   : real = (enthL + RT*enthR)/(1.0 + RT);
-    var a      : real = sqrt( (fGamma-1.0)*(enth-0.5*dot(velV, velV)) );
+    var a      : real = sqrt( (fGamma-1.0)*(enth-0.5*inner(velV, velV)) );
 
     //--------------------------------------------------------------------------------
     // Define nrmA and nrmB, and compute alpha1 and alpha2: (4.2) in the original paper.
@@ -602,7 +602,7 @@ module Riemann
     }
 
     // Calculate the angle between the face normal and nrmA
-    var alphaA = dot(uniNrm, uniNrmA);
+    var alphaA = inner(uniNrm, uniNrmA);
 
     // Make alphaA always positive.
     if sgn(alphaA) < 0 {
@@ -616,9 +616,9 @@ module Riemann
     //
     // Note: HLL is actually applied to n1, but this is all we need to incorporate HLL. See JCP2008 paper.
 
-    var velNrmA  = dot(velV, uniNrmA);
-    var SLm = min( 0.0, velNrmA - a, dot(velVL, uniNrmA) - aL ); // Minimum wave speed estimate
-    var SRp = max( 0.0, velNrmA + a, dot(velVR, uniNrmA) + aR ); // Maximum wave speed estimate
+    var velNrmA  = inner(velV, uniNrmA);
+    var SLm = min( 0.0, velNrmA - a, inner(velVL, uniNrmA) - aL ); // Minimum wave speed estimate
+    var SRp = max( 0.0, velNrmA + a, inner(velVR, uniNrmA) + aR ); // Maximum wave speed estimate
 
     // This is the only place where uniNrmA=(nx1,ny1,nz1), except from calculating uniNrmB right bellow.
     //----------------------------------------------------
@@ -633,7 +633,7 @@ module Riemann
     uniNrmB = uniNrmB/norm(uniNrmB, normType.norm2);
 
     // Calculate the angle between the face normal and nrmB
-    var alphaB = dot(uniNrm, uniNrmB);
+    var alphaB = inner(uniNrm, uniNrmB);
 
     // Make alphaB always positive.
     if sgn(alphaB) < 0 {
@@ -646,9 +646,9 @@ module Riemann
     //       Equation (3.6.31).
 
     // Recalculate normal velocities using uniNrmB
-    var velNrmBL = dot(velVL, uniNrmB);
-    var velNrmBR = dot(velVR, uniNrmB);
-    var velNrmB  = dot(velV , uniNrmB);
+    var velNrmBL = inner(velVL, uniNrmB);
+    var velNrmBR = inner(velVR, uniNrmB);
+    var velNrmB  = inner(velV , uniNrmB);
 
     // Differences in primitive variables
     var dDens    = densR    - densL;
@@ -690,7 +690,7 @@ module Riemann
     // Entropy wave
     R[idxDens, 2] = 1.0;
     R[idxMom , 2] = velV;
-    R[idxEner, 2] = dot(velV, velV)/2.0;
+    R[idxEner, 2] = inner(velV, velV)/2.0;
 
     // Positive acoustic wave
     R[idxDens, 3] = 1.0;
@@ -700,11 +700,11 @@ module Riemann
     // Combined shear waves
     R[idxDens, 4] = 0.0;
     R[idxMom , 4] = dVelV - dVelNrmB*uniNrmB;
-    R[idxEner, 4] = dot(velV, dVelV) - velNrmB*dVelNrmB;
+    R[idxEner, 4] = inner(velV, dVelV) - velNrmB*dVelNrmB;
 
     // Compute the let and right fluxes
-    var fluxL : [consL.domain] real = dot(uniNrm, euler_flux_cv(consL, fGamma));
-    var fluxR : [consR.domain] real = dot(uniNrm, euler_flux_cv(consR, fGamma));
+    var fluxL : [consL.domain] real = inner(uniNrm, euler_flux_cv(consL, fGamma));
+    var fluxR : [consR.domain] real = inner(uniNrm, euler_flux_cv(consR, fGamma));
 
     // Calculate the dissipation term
     var roeDiss : [consL.domain] real = ws[1]*dV[1]*R[.., 1] + ws[2]*dV[2]*R[.., 2]
@@ -740,7 +740,7 @@ module Riemann
     var velL    : [idxMom-1] real = consL[idxMom]/densL;
     ref enerL   : real = consL[idxEner];
 
-    var velNrmL : real = dot[velL, uniNrm];
+    var velNrmL : real = inner(velL, uniNrm);
     var presL   : real = pressure_cv(consL, fGamma);
     var aL      : real = sqrt(fGamma*presL/densL);
     var enthL   : real = ( enerL + presL ) / densL; // Mass specific Stagnation/Total Enthalpy
@@ -750,7 +750,7 @@ module Riemann
     var velR    : [idxMom-1] real = consR[idxMom]/densR;
     ref enerR   : real = consR[idxEner];
 
-    var velNrmR : real = dot[velR, uniNrm];
+    var velNrmR : real = inner(velR, uniNrm);
     var presR   : real = pressure_cv(consR, fGamma);
     var aR      : real = sqrt(fGamma*presR/densR);
     var enthR   : real = ( enerR + presR ) / densR; // Mass specific Stagnation/Total Enthalpy
@@ -759,9 +759,9 @@ module Riemann
     var RT     : real = sqrt( densR/densL );
     var dens   : real = RT*densL;
     var vel    : [idxMom-1] real = (velL + RT*velR)/(1.0 + RT);
-    var velNrm : real = dot(vel, uniNrm);
+    var velNrm : real = inner(vel, uniNrm);
     var enth   : real = (enthL + RT*enthR)/(1.0 + RT);
-    var a      : real = sqrt( (fGamma-1.0)*(enth-0.5*dot(vel, vel)) );
+    var a      : real = sqrt( (fGamma-1.0)*(enth-0.5*inner(vel, vel)) );
 
     // Differences in primitive variables
     var dDens   = densR   - densL;
@@ -799,7 +799,7 @@ module Riemann
     // Entropy wave
     R[idxDens, 2] = 1.0;
     R[idxMom , 2] = vel;
-    R[idxEner, 2] = dot(vel, vel)/2.0;
+    R[idxEner, 2] = inner(vel, vel)/2.0;
 
     // Positive acoustic wave
     R[idxDens, 3] = 1.0;
@@ -809,11 +809,19 @@ module Riemann
     // Combined shear waves
     R[idxDens, 4] = 0.0;
     R[idxMom , 4] = dVel - dVelNrm*uniNrm;
-    R[idxEner, 4] = dot(vel, dVel) - velNrm*dVelNrm;
+    R[idxEner, 4] = inner(vel, dVel) - velNrm*dVelNrm;
 
     // Compute the let and right fluxes
-    var fluxL : [consL.domain] real = dot(uniNrm, euler_flux_cv(consL, fGamma));
-    var fluxR : [consR.domain] real = dot(uniNrm, euler_flux_cv(consR, fGamma));
+    var fluxL : [consL.domain] real = 0.0;
+    var fluxR : [consL.domain] real = 0.0;
+
+    for varIdx in consL.domain do
+      for dimIdx in nrm.domain do
+        fluxL[varIdx] += uniNrm[dimIdx] * euler_flux_cv(consL, fGamma)[dimIdx, varIdx];
+
+    for varIdx in consL.domain do
+      for dimIdx in nrm.domain do
+        fluxR[varIdx] += uniNrm[dimIdx] * euler_flux_cv(consR, fGamma)[dimIdx, varIdx];
 
     // Calculate the dissipation term
     var diss : [consL.domain] real = ws[1]*dV[1]*R[.., 1] + ws[2]*dV[2]*R[.., 2] + ws[3]*dV[3]*R[.., 3];
@@ -893,10 +901,10 @@ module Riemann
       writef("      Left  %t: %+.8ht\n", consL1.domain, consL1);
       writef("      Right %t: %+.8ht\n", consR1.domain, consR1);
       writef("\n");
-      writef("    Left  Euler Flux %t: %+.8ht\n", dot( uniNrm1[1..1], euler_flux_cv(consL1, fGamma)).domain,
-                                                  dot( uniNrm1[1..1], euler_flux_cv(consL1, fGamma))       );
-      writef("    Right Euler Flux %t: %+.8ht\n", dot( uniNrm1[1..1], euler_flux_cv(consR1, fGamma)).domain,
-                                                  dot( uniNrm1[1..1], euler_flux_cv(consR1, fGamma))       );
+      writef("    Left  Euler Flux %t: %+.8ht\n", inner( uniNrm1[1..1], euler_flux_cv(consL1, fGamma)).domain,
+                                                  inner( uniNrm1[1..1], euler_flux_cv(consL1, fGamma))       );
+      writef("    Right Euler Flux %t: %+.8ht\n", inner( uniNrm1[1..1], euler_flux_cv(consR1, fGamma)).domain,
+                                                  inner( uniNrm1[1..1], euler_flux_cv(consR1, fGamma))       );
       writef("    1D  Roe     Flux %t: %+.8ht\n", roe_1d(consR1, consL1, nrm1[1..1]).domain,
                                                   roe_1d(consR1, consL1, nrm1[1..1])       );
       writef("    Gen Roe 1D  Flux %t: %+.8ht\n", roe(   consR1, consL1, nrm1[1..1]).domain,
@@ -912,10 +920,10 @@ module Riemann
       writef("      Left  %t: %+.8ht\n", consL2.domain, consL2);
       writef("      Right %t: %+.8ht\n", consR2.domain, consR2);
       writef("\n");
-      writef("    Left  Euler Flux %t: %+.8ht\n", dot( uniNrm2[1..1], euler_flux_cv(consL2, fGamma)).domain,
-                                                  dot( uniNrm2[1..1], euler_flux_cv(consL2, fGamma))       );
-      writef("    Right Euler Flux %t: %+.8ht\n", dot( uniNrm2[1..1], euler_flux_cv(consR2, fGamma)).domain,
-                                                  dot( uniNrm2[1..1], euler_flux_cv(consR2, fGamma))       );
+      writef("    Left  Euler Flux %t: %+.8ht\n", inner( uniNrm2[1..1], euler_flux_cv(consL2, fGamma)).domain,
+                                                  inner( uniNrm2[1..1], euler_flux_cv(consL2, fGamma))       );
+      writef("    Right Euler Flux %t: %+.8ht\n", inner( uniNrm2[1..1], euler_flux_cv(consR2, fGamma)).domain,
+                                                  inner( uniNrm2[1..1], euler_flux_cv(consR2, fGamma))       );
       writef("    1D  Roe     Flux %t: %+.8ht\n", roe_1d(consR2, consL2, nrm2[1..1]).domain,
                                                   roe_1d(consR2, consL2, nrm2[1..1])       );
       writef("    Gen Roe 1D  Flux %t: %+.8ht\n", roe(   consR2, consL2, nrm2[1..1]).domain,
@@ -948,10 +956,10 @@ module Riemann
       writef("      Left  1 %t: %+.8ht\n", consL1.domain, consL1);
       writef("      Right 1 %t: %+.8ht\n", consR1.domain, consR1);
       writef("\n");
-      writef("    Left  Euler Flux %t: %+.8ht\n", dot( uniNrm1[1..2], euler_flux_cv(consL1, fGamma)).domain,
-                                                  dot( uniNrm1[1..2], euler_flux_cv(consL1, fGamma))       );
-      writef("    Right Euler Flux %t: %+.8ht\n", dot( uniNrm1[1..2], euler_flux_cv(consR1, fGamma)).domain,
-                                                  dot( uniNrm1[1..2], euler_flux_cv(consR1, fGamma))       );
+      writef("    Left  Euler Flux %t: %+.8ht\n", inner( uniNrm1[1..2], euler_flux_cv(consL1, fGamma)).domain,
+                                                  inner( uniNrm1[1..2], euler_flux_cv(consL1, fGamma))       );
+      writef("    Right Euler Flux %t: %+.8ht\n", inner( uniNrm1[1..2], euler_flux_cv(consR1, fGamma)).domain,
+                                                  inner( uniNrm1[1..2], euler_flux_cv(consR1, fGamma))       );
       writef("    2D  Roe     Flux %t: %+.8ht\n", roe_2d(         consL1, consR1, nrm1[1..2]).domain,
                                                   roe_2d(         consL1, consR1, nrm1[1..2])       );
       writef("    Gen Roe 2D  Flux %t: %+.8ht\n", roe(            consL1, consR1, nrm1[1..2]).domain,
@@ -969,10 +977,10 @@ module Riemann
       writef("      Left  2 %t: %+.8ht\n", consL2.domain, consL2);
       writef("      Right 2 %t: %+.8ht\n", consR2.domain, consR2);
       writef("\n");
-      writef("    Left  Euler Flux %t: %+.8ht\n", dot( uniNrm2[1..2], euler_flux_cv(consL2, fGamma)).domain,
-                                                  dot( uniNrm2[1..2], euler_flux_cv(consL2, fGamma))       );
-      writef("    Right Euler Flux %t: %+.8ht\n", dot( uniNrm2[1..2], euler_flux_cv(consR2, fGamma)).domain,
-                                                  dot( uniNrm2[1..2], euler_flux_cv(consR2, fGamma))       );
+      writef("    Left  Euler Flux %t: %+.8ht\n", inner( uniNrm2[1..2], euler_flux_cv(consL2, fGamma)).domain,
+                                                  inner( uniNrm2[1..2], euler_flux_cv(consL2, fGamma))       );
+      writef("    Right Euler Flux %t: %+.8ht\n", inner( uniNrm2[1..2], euler_flux_cv(consR2, fGamma)).domain,
+                                                  inner( uniNrm2[1..2], euler_flux_cv(consR2, fGamma))       );
       writef("    2D  Roe     Flux %t: %+.8ht\n", roe_2d(         consL2, consR2, nrm2[1..2]).domain,
                                                   roe_2d(         consL2, consR2, nrm2[1..2])       );
       writef("    Gen Roe 2D  Flux %t: %+.8ht\n", roe(            consL2, consR2, nrm2[1..2]).domain,
@@ -990,10 +998,10 @@ module Riemann
       writef("      Left  3 %t: %+.8ht\n", consL3.domain, consL3);
       writef("      Right 3 %t: %+.8ht\n", consR3.domain, consR3);
       writef("\n");
-      writef("    Left  Euler Flux %t: %+.8ht\n", dot( uniNrm3[1..2], euler_flux_cv(consL3, fGamma)).domain,
-                                                  dot( uniNrm3[1..2], euler_flux_cv(consL3, fGamma))       );
-      writef("    Right Euler Flux %t: %+.8ht\n", dot( uniNrm3[1..2], euler_flux_cv(consR3, fGamma)).domain,
-                                                  dot( uniNrm3[1..2], euler_flux_cv(consR3, fGamma))       );
+      writef("    Left  Euler Flux %t: %+.8ht\n", inner( uniNrm3[1..2], euler_flux_cv(consL3, fGamma)).domain,
+                                                  inner( uniNrm3[1..2], euler_flux_cv(consL3, fGamma))       );
+      writef("    Right Euler Flux %t: %+.8ht\n", inner( uniNrm3[1..2], euler_flux_cv(consR3, fGamma)).domain,
+                                                  inner( uniNrm3[1..2], euler_flux_cv(consR3, fGamma))       );
       writef("    2D  Roe     Flux %t: %+.8ht\n", roe_2d(         consL3, consR3, nrm3[1..2]).domain,
                                                   roe_2d(         consL3, consR3, nrm3[1..2])       );
       writef("    Gen Roe 2D  Flux %t: %+.8ht\n", roe(            consL3, consR3, nrm3[1..2]).domain,
@@ -1028,10 +1036,10 @@ module Riemann
       writef("      Left  1 %t: %+.8ht\n", consL1.domain, consL1);
       writef("      Right 1 %t: %+.8ht\n", consR1.domain, consR1);
       writef("\n");
-      writef("    Left  Euler Flux %t: %+.8ht\n", dot( uniNrm1[1..3], euler_flux_cv(consL1, fGamma)).domain,
-                                                  dot( uniNrm1[1..3], euler_flux_cv(consL1, fGamma))       );
-      writef("    Right Euler Flux %t: %+.8ht\n", dot( uniNrm1[1..3], euler_flux_cv(consR1, fGamma)).domain,
-                                                  dot( uniNrm1[1..3], euler_flux_cv(consR1, fGamma))       );
+      writef("    Left  Euler Flux %t: %+.8ht\n", inner( uniNrm1[1..3], euler_flux_cv(consL1, fGamma)).domain,
+                                                  inner( uniNrm1[1..3], euler_flux_cv(consL1, fGamma))       );
+      writef("    Right Euler Flux %t: %+.8ht\n", inner( uniNrm1[1..3], euler_flux_cv(consR1, fGamma)).domain,
+                                                  inner( uniNrm1[1..3], euler_flux_cv(consR1, fGamma))       );
       writef("    3D  Roe     Flux %t: %+.8ht\n", roe_3d(         consL1, consR1, nrm1[1..3]).domain,
                                                   roe_3d(         consL1, consR1, nrm1[1..3])       );
       writef("    Gen Roe 3D  Flux %t: %+.8ht\n", roe(            consL1, consR1, nrm1[1..3]).domain,
@@ -1049,10 +1057,10 @@ module Riemann
       writef("      Left  2 %t: %+.8ht\n", consL2.domain, consL1);
       writef("      Right 2 %t: %+.8ht\n", consR2.domain, consR1);
       writef("\n");
-      writef("    Left  Euler Flux %t: %+.8ht\n", dot( uniNrm2[1..3], euler_flux_cv(consL1, fGamma)).domain,
-                                                  dot( uniNrm2[1..3], euler_flux_cv(consL1, fGamma))       );
-      writef("    Right Euler Flux %t: %+.8ht\n", dot( uniNrm2[1..3], euler_flux_cv(consR1, fGamma)).domain,
-                                                  dot( uniNrm2[1..3], euler_flux_cv(consR1, fGamma))       );
+      writef("    Left  Euler Flux %t: %+.8ht\n", inner( uniNrm2[1..3], euler_flux_cv(consL1, fGamma)).domain,
+                                                  inner( uniNrm2[1..3], euler_flux_cv(consL1, fGamma))       );
+      writef("    Right Euler Flux %t: %+.8ht\n", inner( uniNrm2[1..3], euler_flux_cv(consR1, fGamma)).domain,
+                                                  inner( uniNrm2[1..3], euler_flux_cv(consR1, fGamma))       );
       writef("    3D  Roe     Flux %t: %+.8ht\n", roe_3d(         consL2, consR2, nrm2[1..3]).domain,
                                                   roe_3d(         consL2, consR2, nrm2[1..3])       );
       writef("    Gen Roe 3D  Flux %t: %+.8ht\n", roe(            consL2, consR2, nrm2[1..3]).domain,
@@ -1070,10 +1078,10 @@ module Riemann
       writef("      Left  3 %t: %+.8ht\n", consL3.domain, consL1);
       writef("      Right 3 %t: %+.8ht\n", consR3.domain, consR1);
       writef("\n");
-      writef("    Left  Euler Flux %t: %+.8ht\n", dot( uniNrm3[1..3], euler_flux_cv(consL1, fGamma)).domain,
-                                                  dot( uniNrm3[1..3], euler_flux_cv(consL1, fGamma))       );
-      writef("    Right Euler Flux %t: %+.8ht\n", dot( uniNrm3[1..3], euler_flux_cv(consR1, fGamma)).domain,
-                                                  dot( uniNrm3[1..3], euler_flux_cv(consR1, fGamma))       );
+      writef("    Left  Euler Flux %t: %+.8ht\n", inner( uniNrm3[1..3], euler_flux_cv(consL1, fGamma)).domain,
+                                                  inner( uniNrm3[1..3], euler_flux_cv(consL1, fGamma))       );
+      writef("    Right Euler Flux %t: %+.8ht\n", inner( uniNrm3[1..3], euler_flux_cv(consR1, fGamma)).domain,
+                                                  inner( uniNrm3[1..3], euler_flux_cv(consR1, fGamma))       );
       writef("    3D  Roe     Flux %t: %+.8ht\n", roe_3d(         consL3, consR3, nrm3[1..3]).domain,
                                                   roe_3d(         consL3, consR3, nrm3[1..3])       );
       writef("    Gen Roe 3D  Flux %t: %+.8ht\n", roe(            consL3, consR3, nrm3[1..3]).domain,

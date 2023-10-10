@@ -660,7 +660,7 @@ module Mapping
     use Parameters.ParamTest;
     use Parameters.ParamMesh;
     use Polynomials;
-    import Determinant.determinant;
+    import Determinant.det;
 
     // Create a set with the element types contained in a hypothetical test mesh
     var cellTypes : set(int);
@@ -722,22 +722,22 @@ module Mapping
         /////////////////////////////////////
         ///   Calculate mapping metrics   ///
         /////////////////////////////////////
-        for rstDim in 1..2 do
+        for compDimIdx in 1..2 do
           for spIdx in 1..spCnt do
-            metSP[rstDim, .., spIdx] = dot( mappingMetrics[cellType]!.coefs[rstDim, spIdx, ..], xyzMshNodes[..,..].T );
+            metSP[compDimIdx, .., spIdx] = dot( mappingMetrics[cellType]!.coefs[compDimIdx, spIdx, ..], xyzMshNodes[..,..].T );
 
         writeln();
         writeln("SP Metric Terms:");
         for xyzDim in 1..2 do
-          for rstDim in 1..2 do
-            writef("%.4t\n", metSP[rstDim, xyzDim, ..]);
+          for compDimIdx in 1..2 do
+            writef("%.4t\n", metSP[compDimIdx, xyzDim, ..]);
 
         //////////////////////////////
         ///   Calculate Jacobian   ///
         //////////////////////////////
         // Calculate the Jacobian at SPs
         for spIdx in 1..spCnt do
-          jacSP[spIdx] = determinant(metSP[.., .., spIdx]);
+          jacSP[spIdx] = det(metSP[.., .., spIdx]);
 
         writeln();
         writef("Jacobians: %.4t", jacSP);
@@ -780,22 +780,22 @@ module Mapping
         /////////////////////////////////////
         ///   Calculate mapping metrics   ///
         /////////////////////////////////////
-        for rstDim in 1..2 do
+        for compDimIdx in 1..2 do
           for spIdx in 1..spCnt do
-            metSP[rstDim, .., spIdx] = dot( mappingMetrics[cellType]!.coefs[rstDim, spIdx, ..], xyzMshNodes[..,..].T );
+            metSP[compDimIdx, .., spIdx] = dot( mappingMetrics[cellType]!.coefs[compDimIdx, spIdx, ..], xyzMshNodes[..,..].T );
 
         writeln();
         writeln("SP Metric Terms:");
         for xyzDim in 1..2 do
-          for rstDim in 1..2 do
-            writef("%.4t\n", metSP[rstDim, xyzDim, ..]);
+          for compDimIdx in 1..2 do
+            writef("%.4t\n", metSP[compDimIdx, xyzDim, ..]);
 
         //////////////////////////////
         ///   Calculate Jacobian   ///
         //////////////////////////////
         // Calculate the Jacobian at SPs
         for spIdx in 1..spCnt do
-          jacSP[spIdx] = determinant(metSP[.., .., spIdx]);
+          jacSP[spIdx] = det(metSP[.., .., spIdx]);
 
         writeln();
         writef("Jacobians: %.4t", jacSP);
@@ -838,22 +838,22 @@ module Mapping
         /////////////////////////////////////
         ///   Calculate mapping metrics   ///
         /////////////////////////////////////
-        for rstDim in 1..2 do
+        for compDimIdx in 1..2 do
           for spIdx in 1..spCnt do
-            metSP[rstDim, .., spIdx] = dot( mappingMetrics[cellType]!.coefs[rstDim, spIdx, ..], xyzMshNodes[..,..].T );
+            metSP[compDimIdx, .., spIdx] = dot( mappingMetrics[cellType]!.coefs[compDimIdx, spIdx, ..], xyzMshNodes[..,..].T );
 
         writeln();
         writeln("SP Metric Terms:");
         for xyzDim in 1..2 do
-          for rstDim in 1..2 do
-            writef("%.4t\n", metSP[rstDim, xyzDim, ..]);
+          for compDimIdx in 1..2 do
+            writef("%.4t\n", metSP[compDimIdx, xyzDim, ..]);
 
         //////////////////////////////
         ///   Calculate Jacobian   ///
         //////////////////////////////
         // Calculate the Jacobian at SPs
         for spIdx in 1..spCnt do
-          jacSP[spIdx] = determinant(metSP[.., .., spIdx]);
+          jacSP[spIdx] = det(metSP[.., .., spIdx]);
 
         writeln();
         writef("Jacobians: %.4t", jacSP);
