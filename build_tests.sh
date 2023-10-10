@@ -270,6 +270,7 @@ echo -e "Building Flux Tests:"
 chpl -o tests/flux_tests                                          \
      --warnings                                                   \
      --warn-unstable                                              \
+     --detailed-errors                                            \
      --main-module Flux src/flux.chpl                             \
                         src/parameters.chpl                       \
                         src/testing.chpl                          \
