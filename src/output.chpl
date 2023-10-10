@@ -144,7 +144,7 @@ module Output
       outputWriter.writef("       DOF");
       for dimIdx in xyz.domain.dim(1) do
         outputWriter.writef("    Coordinate-%i", dimIdx);
-      for varIdx in vars.domain.dim(1) do
+      for varIdx in vars.domain.dim(0) do
         outputWriter.writef("      Variable-%i", varIdx);
       if flagPressure then
         outputWriter.writef("        Pressure");
