@@ -236,8 +236,8 @@ module FRMesh {
           for physDimIdx in 1..this.nDims do
             for compDimIdx in 1..this.nDims do
               for cellNodeIdx in xyzMshNodes.domain.dim(1) do
-                this.metSP[meshSPidx, physDimIdx, compDimIdx] = mappingMetrics[cellType]!.coefs[compDimIdx, cellSPidx, cellNodeIdx]
-                                                               *xyzMshNodes[physDimIdx, cellNodeIdx];
+                this.metSP[meshSPidx, physDimIdx, compDimIdx] += mappingMetrics[cellType]!.coefs[compDimIdx, cellSPidx, cellNodeIdx]
+                                                                *xyzMshNodes[physDimIdx, cellNodeIdx];
 
           // Calculate the Jacobian at SPs
           this.jacSP[meshSPidx] = det(this.metSP[meshSPidx, .., ..]);
@@ -302,8 +302,8 @@ module FRMesh {
           for physDimIdx in 1..this.nDims-1 do
             for compDimIdx in 1..this.nDims-1 do
               for cellNodeIdx in xyzMshNodes.domain.dim(1) do
-                metricsFP[compDimIdx, physDimIdx] = mappingMetrics[faceType]!.coefs[compDimIdx, faceFPidx, cellNodeIdx]
-                                                   *xyzMshNodes[physDimIdx, cellNodeIdx];
+                metricsFP[compDimIdx, physDimIdx] += mappingMetrics[faceType]!.coefs[compDimIdx, faceFPidx, cellNodeIdx]
+                                                    *xyzMshNodes[physDimIdx, cellNodeIdx];
 
           // Get face normal through the cross product and slice it to the appropriate dimension vector
           this.nrmFP[meshFPidx, ..] = reverse * cross( reshape(metricsFP[1, 1..3], {1..3}),
