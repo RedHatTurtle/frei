@@ -30,8 +30,8 @@ Mason.lock
 *.nb
 
 # Test executables
-test_frei.sh
-*_tests
+tests/*_tests
+tests/*_tests_real
 
 # Output files and images
 *.log
