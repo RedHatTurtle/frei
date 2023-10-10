@@ -30,7 +30,7 @@ chpl -o frei --main-module "Control" frei.chpl
 ## Git Standards
 
 ### Commit Messages
-Inspired by (conventional commits)[https://www.conventionalcommits.org/en/v1.0.0/]
+Inspired by [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
 
 Default commit title naming:
 ```
