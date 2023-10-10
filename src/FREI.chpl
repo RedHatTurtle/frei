@@ -381,6 +381,14 @@ module FREI
                   else
                     cellFP = (cellFace-1)*(frMesh.solOrder+1) + (frMesh.faceFPidx[faceIdx, 2] - (meshFP - frMesh.faceFPidx[faceIdx, 1]));
 
+                  //for varIdx in 1..frMesh.nVars
+                  //{
+                  //  flx[1] = dot( flxSP[ 1, varIdx, 1..cellSPcnt]                            ,
+                  //                sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, ..]);
+                  //  flx[2] = dot( flxSP[ 2, varIdx, 1..cellSPcnt]                            ,
+                  //                sp2fpInterp[(cellTopo, frMesh.solOrder)]!.coefs[cellFP, ..]);
+                  //  frMesh.flxFP[meshFP, faceSide, varIdx] = dot(flx, uniNrm);
+                  //}
                   const uniNrm = frMesh.nrmFP[meshFP, ..]/norm(frMesh.nrmFP[meshFP, ..]);
 
                   frMesh.flxFP[meshFP, faceSide, ..] = 0;
@@ -427,6 +435,11 @@ module FREI
               {
                 const meshSPidx = cellSPini + cellSPidx - 1;
 
+                //for dimIdx in 1..frMesh.nDims
+                //{
+                //  var flxsp = flxSP[dimIdx, .., 1..cellSPcnt];
+                //  frMesh.resSP[.., meshSPidx] += dot(flxsp, sp2spDeriv[(cellTopo, frMesh.solOrder)]!.coefs[cellSP, dimIdx, ..]);
+                //}
                 for varIdx in 1..frMesh.nVars do
                   for dimIdx in 1..frMesh.nDims do
                     for spIdx in 1.. #cellSPcnt do
