@@ -292,14 +292,20 @@ module FRMesh {
           ///   FP normals   ///
           //////////////////////
 
+          var metricsFP : [1..2, 1..3] real;
+
           // Initialize metrics so that for 1D and 2D meshes the cross product results in a correct normal
-          var metricsFP : [1..2, 1..3] real = reshape([0, 1, 0,
-                                                       0, 0, 1], {1..2, 1..3});
+          if this.nDims == 1 then
+            metricsFP = reshape([0, 1, 0,
+                                 0, 0, 1], {1..2, 1..3});
+          else if this.nDims == 2 then
+            metricsFP = reshape([0, 0, 0,
+                                 0, 0, 1], {1..2, 1..3});
 
           //for compDim in 1..elem_dimension_type(this.faceList[faceIdx].elemType) do
           //  metricsFP[compDim, 1..this.nDims] = dot( mappingMetrics[faceType]!.coefs[compDim, faceFPidx, ..],
           //                                           xyzMshNodes[..,..].T                                   );
-          for physDimIdx in 1..this.nDims-1 do
+          for physDimIdx in 1..this.nDims do
             for compDimIdx in 1..this.nDims-1 do
               for cellNodeIdx in xyzMshNodes.domain.dim(1) do
                 metricsFP[compDimIdx, physDimIdx] += mappingMetrics[faceType]!.coefs[compDimIdx, faceFPidx, cellNodeIdx]
