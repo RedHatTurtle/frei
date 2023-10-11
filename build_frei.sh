@@ -131,6 +131,7 @@ fi
 
 # Set build flag for each build type
 FLAG_DBG="--warnings --warn-unstable --detailed-errors"
+FLAG_DBG="--warnings --detailed-errors"
 FLAG_OPT="--fast"
 
 if [[ $@ =~ --dbg      ]]; then
