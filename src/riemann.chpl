@@ -1,6 +1,6 @@
 module Riemann
 {
-  proc upwind_1d(consL : [1..3] real, consR : [1..3] real, nrm : [1..1] real) : [1..3] real
+  proc upwind_1d(const ref consL : [1..3] real, const ref consR : [1..3] real, const ref nrm : [1..1] real) : [1..3] real
   {
     use Flux;
     import Input.convectionSpeed;
@@ -15,7 +15,7 @@ module Riemann
     return upwind;
   }
 
-  proc rusanov_1d(consL : [1..3] real, consR : [1..3] real, nrm : [1..1] real) : [1..3] real
+  proc rusanov_1d(const ref consL : [1..3] real, const ref consR : [1..3] real, const ref nrm : [1..1] real) : [1..3] real
   {
     import Input.fGamma;
     import Flux.pressure_cv;
@@ -51,7 +51,7 @@ module Riemann
     return rusanov;
   }
 
-  proc roe_1d(consL : [1..3] real, consR : [1..3] real, nrm : [1..1] real) : [1..3] real
+  proc roe_1d(const ref consL : [1..3] real, const ref consR : [1..3] real, const ref nrm : [1..1] real) : [1..3] real
   {
     use LinearAlgebra;
     import Input.fGamma;
@@ -138,7 +138,7 @@ module Riemann
     return roe;
   }
 
-  proc roe_2d(consL : [1..4] real, consR : [1..4] real, nrm : [1..2] real) : [1..4] real
+  proc roe_2d(const ref consL : [1..4] real, const ref consR : [1..4] real, const ref nrm : [1..2] real) : [1..4] real
   {
     use LinearAlgebra;
     import Input.fGamma;
@@ -241,7 +241,7 @@ module Riemann
     return roe;
   }
 
-  proc roe_3d(consL : [1..5] real, consR : [1..5] real, nrm : [1..3] real) : [1..5] real
+  proc roe_3d(const ref consL : [1..5] real, const ref consR : [1..5] real, const ref nrm : [1..3] real) : [1..5] real
   {
     use LinearAlgebra;
     import Input.fGamma;
@@ -343,7 +343,7 @@ module Riemann
     return roe;
   }
 
-  proc rotated_rhll_2d(consL : [1..4] real, consR : [1..4] real, nrm : [1..2] real) : [1..4] real
+  proc rotated_rhll_2d(const ref consL : [1..4] real, const ref consR : [1..4] real, const ref nrm : [1..2] real) : [1..4] real
   {
     use LinearAlgebra;
     import Input.fGamma;
@@ -521,7 +521,7 @@ module Riemann
     return rotRHLL;
   }
 
-  proc rotated_rhll_3d(consL : [1..5] real, consR : [1..5] real, nrm : [1..3] real) : [1..5] real
+  proc rotated_rhll_3d(const ref consL : [1..5] real, const ref consR : [1..5] real, const ref nrm : [1..3] real) : [1..5] real
   {
     use LinearAlgebra;
     import Input.fGamma;
@@ -716,12 +716,12 @@ module Riemann
     return rotRHLL;
   }
 
-  proc rusanov(consL : [] real, consR : [] real, nrm : [] real) : [] real
+  proc rusanov(const ref consL : [] real, const ref consR : [] real, const ref nrm : [] real) : [] real
   {
     // Generic 1D/2D/3D Rusanov solver
   }
 
-  proc roe(consL : [] real, consR : [] real, nrm : [] real) : [] real
+  proc roe(const ref consL : [] real, const ref consR : [] real, const ref nrm : [] real) : [] real
   {
     use LinearAlgebra;
     import Input.fGamma;
@@ -825,12 +825,12 @@ module Riemann
     return roe;
   }
 
-  proc hll(consL : [] real, consR : [] real, nrm : [] real) : [] real
+  proc hll(const ref consL : [] real, const ref consR : [] real, const ref nrm : [] real) : [] real
   {
     // The HLL (Harten-Lax-van Leer)
   }
 
-  proc hllc(consL : [] real, consR : [] real, nrm : [] real) : [] real
+  proc hllc(const ref consL : [] real, const ref consR : [] real, const ref nrm : [] real) : [] real
   {
     // The HLLC (Harten-Lax-van Leer-Contact) solver was introduced by Toro. It restores the missing Rarefaction wave by
     // some estimates, like linearisations, these can be simple but also more advanced exists like using the Roe average
@@ -843,7 +843,7 @@ module Riemann
     // Int. J. Numer. Methods Fluids, 18 (6): 555–574, doi:10.1002/fld.1650180603
   }
 
-  proc rotated_rhll(consL : [] real, consR : [] real, nrm : [] real) : [] real
+  proc rotated_rhll(const ref consL : [] real, const ref consR : [] real, const ref nrm : [] real) : [] real
   {
     // These solvers were introduced by Nishikawa and Kitamura, in order to overcome the carbuncle problems of the Roe
     // solver and the excessive diffusion of the HLLE solver at the same time. They developed robust and accurate Riemann
@@ -857,7 +857,7 @@ module Riemann
     // J. Comput. Phys., 227 (4): 2560–2581, doi:10.1016/j.jcp.2007.11.003
   }
 
-  proc godunov(consL : [] real, consR : [] real, nrm : [] real) : [] real
+  proc godunov(const ref consL : [] real, const ref consR : [] real, const ref nrm : [] real) : [] real
   {
   }
 

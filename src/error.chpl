@@ -47,6 +47,7 @@ module ErrorCalc
 
     // Loop through cells
     forall cellIdx in frMesh.cellList.domain
+      with (ref l1ErrorAbs, ref l2ErrorAbs, ref lfErrorAbs, ref l1ErrorRel, ref l2ErrorRel, ref lfErrorRel)
     {
       // Get the reference values for the points in this cell
       var solRef : [1..frMesh.nVars, 1..frMesh.cellSPidx[cellIdx, 2]] real;

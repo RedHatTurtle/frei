@@ -65,7 +65,7 @@ module Ringleb
 
     xy[1] = (1.0/q**2 - 2.0/k**2)/(2.0*rho) + j/2.0;
     xy[2] = sqrt(1.0-(q/k)**2)/(k*rho*q);
-    if isnan(xy[2]) then xy[2] = 0.0;
+    if isNan(xy[2]) then xy[2] = 0.0;
 
     return xy;
   }
@@ -133,7 +133,7 @@ module Ringleb
     import Input.fGamma;
 
     var c : real = sqrt(1.0-(fGamma-1.0)*(q**2)/2.0);
-    if isnan(c) then c = 0.0;
+    if isNan(c) then c = 0.0;
 
     return c;
   }

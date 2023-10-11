@@ -570,7 +570,7 @@ module Mapping
     // Reorder distribution to node order
     nodeOrder[1] = 1;
     nodeOrder[2] = nodeCnt;
-    forall idx in 3..nodeCnt do
+    forall idx in 3..nodeCnt with (ref nodeOrder) do
       nodeOrder[idx] = idx-1;
 
     return nodeOrder;

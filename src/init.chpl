@@ -13,7 +13,7 @@ module Init
   param exitArea   : real = 0.4;
   param throatArea : real = 0.2;
 
-  proc flow_condition(familySubType : int, familyParameters : [] real, xyz : [] real) : [] real
+  proc flow_condition(familySubType : int, const ref familyParameters : [] real, const ref xyz : [] real) : [] real
   {
     use Ringleb;
     import Math.pi;

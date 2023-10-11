@@ -554,7 +554,7 @@ module Gmesh
       return elem_dimension(this.elemType);
     }
 
-    proc setNodes()
+    proc ref setNodes()
     {
       use Parameters.ParamGmesh;
 

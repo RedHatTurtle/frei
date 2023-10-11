@@ -719,7 +719,7 @@ module FREI
             writef("\n");
 
           // Iteration stop criteria
-          if !( && reduce isfinite(frMesh.solSP) ) // Solution Diverged
+          if !( && reduce isFinite(frMesh.solSP) ) // Solution Diverged
           {
             writef("\nSolver diverged, restoring previous solution\n");
 
