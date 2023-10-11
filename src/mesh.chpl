@@ -19,56 +19,56 @@ module Mesh
 
     // Mesh mutable parameters
     const nNodes : int = 0;
-    const nCells : int = 0;
-    const nFaces : int = 0;
-    const nBocos : int = 0;
     const nEdges : int = 0;
+    const nFaces : int = 0;
+    const nCells : int = 0;
+    const nBocos : int = 0;
     const nFamls : int = 0;
-
-    // Array sizing domains
-    const nodeSpace : domain(rank=1, idxType=int);
-    const cellSpace : domain(rank=1, idxType=int);
-    const faceSpace : domain(rank=1, idxType=int);
-    const bocoSpace : domain(rank=1, idxType=int);
-    const edgeSpace : domain(rank=1, idxType=int);
-    const famlSpace : domain(rank=1, idxType=int);
-
-    // Single Locale Domains
-    //var nodeList_d : nodeSpace;
-    //var cellList_d : cellSpace;
-    //var faceList_d : faceSpace;
-    //var bocoList_d : bocoSpace;
-    //var edgeList_d : edgeSpace;
-
-    // Block Dist Domains
-    var nodeList_d = nodeSpace dmapped Block(boundingBox=nodeSpace);
-    var cellList_d = cellSpace dmapped Block(boundingBox=cellSpace);
-    var faceList_d = faceSpace dmapped Block(boundingBox=faceSpace);
-    var bocoList_d = bocoSpace dmapped Block(boundingBox=bocoSpace);
-    var edgeList_d = edgeSpace dmapped Block(boundingBox=edgeSpace);
-
-    // Block1D Dist Domains
-    //var nodeList_d = nodeSpace dmapped Block1D(boundingBox=nodeSpace);
-    //var cellList_d = cellSpace dmapped Block1D(boundingBox=cellSpace);
-    //var faceList_d = faceSpace dmapped Block1D(boundingBox=faceSpace);
-    //var bocoList_d = bocoSpace dmapped Block1D(boundingBox=bocoSpace);
-    //var edgeList_d = edgeSpace dmapped Block1D(boundingBox=edgeSpace);
-
-    var famlList_d : domain(rank=1, idxType=int) dmapped Replicated();
-
-    // Arrays
-    var nodeList : [nodeList_d] node_r;
-    var cellList : [cellList_d] cell_r;
-    var faceList : [faceList_d] face_r;
-    var bocoList : [bocoList_d] boco_r;
-    var edgeList : [edgeList_d] edge_r;
-    var famlList : [famlList_d] faml_r;
 
     // Lists of types of elements in this mesh
     var faceTopos : set(int); // Gmesh element topology/shape. Ex: point, line, triangle, hexahedron
     var faceTypes : set(int); // CGNS element type, element topology + high-order spec. Ex: tetrahedron with 4 or 10 nodes
     var cellTopos : set(int); // Gmesh element topology/shape. Ex: point, line, triangle, hexahedron
     var cellTypes : set(int); // CGNS element type, element topology + high-order spec. Ex: tetrahedron with 4 or 10 nodes
+
+    // Array sizing domains
+    const nodeSpace : domain(rank=1, idxType=int);
+    const edgeSpace : domain(rank=1, idxType=int);
+    const faceSpace : domain(rank=1, idxType=int);
+    const cellSpace : domain(rank=1, idxType=int);
+    const bocoSpace : domain(rank=1, idxType=int);
+    const famlSpace : domain(rank=1, idxType=int);
+
+    // Single Locale Domains
+    //var nodeList_d : nodeSpace;
+    //var edgeList_d : edgeSpace;
+    //var faceList_d : faceSpace;
+    //var cellList_d : cellSpace;
+    //var bocoList_d : bocoSpace;
+
+    // Block Dist Domains
+    var nodeList_d = nodeSpace dmapped Block(boundingBox=nodeSpace);
+    var edgeList_d = edgeSpace dmapped Block(boundingBox=edgeSpace);
+    var faceList_d = faceSpace dmapped Block(boundingBox=faceSpace);
+    var cellList_d = cellSpace dmapped Block(boundingBox=cellSpace);
+    var bocoList_d = bocoSpace dmapped Block(boundingBox=bocoSpace);
+
+    // Block1D Dist Domains
+    //var nodeList_d = nodeSpace dmapped Block1D(boundingBox=nodeSpace);
+    //var edgeList_d = edgeSpace dmapped Block1D(boundingBox=edgeSpace);
+    //var faceList_d = faceSpace dmapped Block1D(boundingBox=faceSpace);
+    //var cellList_d = cellSpace dmapped Block1D(boundingBox=cellSpace);
+    //var bocoList_d = bocoSpace dmapped Block1D(boundingBox=bocoSpace);
+
+    var famlList_d : domain(rank=1, idxType=int) dmapped Replicated();
+
+    // Arrays
+    var nodeList : [nodeList_d] node_r;
+    var edgeList : [edgeList_d] edge_r;
+    var faceList : [faceList_d] face_r;
+    var cellList : [cellList_d] cell_r;
+    var bocoList : [bocoList_d] boco_r;
+    var famlList : [famlList_d] faml_r;
 
     // Variable time step variables
     var cellTimeStep : [cellList_d] real; // Current calculated time-step
@@ -81,32 +81,33 @@ module Mesh
       this.nDims = nDims;
 
       this.nNodes = nNodes;
-      this.nCells = nCells;
-      this.nFaces = nFaces;
-      this.nBocos = nBocos;
       this.nEdges = nEdges;
+      this.nFaces = nFaces;
+      this.nCells = nCells;
+      this.nBocos = nBocos;
       this.nFamls = nFamls;
 
       this.nodeSpace = {1..#this.nNodes};
-      this.cellSpace = {1..#this.nCells};
-      this.faceSpace = {1..#this.nFaces};
-      this.bocoSpace = {1..#this.nBocos};
       this.edgeSpace = {1..#this.nEdges};
+      this.faceSpace = {1..#this.nFaces};
+      this.cellSpace = {1..#this.nCells};
+      this.bocoSpace = {1..#this.nBocos};
       this.famlSpace = {1..#this.nFamls};
 
       this.nodeList_d = this.nodeSpace dmapped Block(boundingBox=this.nodeSpace);
-      this.cellList_d = this.cellSpace dmapped Block(boundingBox=this.cellSpace);
-      this.faceList_d = this.faceSpace dmapped Block(boundingBox=this.faceSpace);
-      this.bocoList_d = this.bocoSpace dmapped Block(boundingBox=this.bocoSpace);
       //this.nodeList_d = this.nodeSpace dmapped Block1D(boundingBox=this.nodeSpace);
-      //this.cellList_d = this.cellSpace dmapped Block1D(boundingBox=this.cellSpace);
-      //this.faceList_d = this.faceSpace dmapped Block1D(boundingBox=this.faceSpace);
-      //this.bocoList_d = this.bocoSpace dmapped Block1D(boundingBox=this.bocoSpace);
 
       this.edgeList_d = if (nEdges == 0) then {1..#this.nEdges} dmapped Block(boundingBox={1..1})
                                          else {1..#this.nEdges} dmapped Block(boundingBox={1..#this.nEdges});
       //this.edgeList_d = if (nEdges == 0) then {1..#this.nEdges} dmapped Block1D(boundingBox={1..1})
       //                                   else {1..#this.nEdges} dmapped Block1D(boundingBox={1..#this.nEdges});
+
+      this.faceList_d = this.faceSpace dmapped Block(boundingBox=this.faceSpace);
+      this.cellList_d = this.cellSpace dmapped Block(boundingBox=this.cellSpace);
+      this.bocoList_d = this.bocoSpace dmapped Block(boundingBox=this.bocoSpace);
+      //this.faceList_d = this.faceSpace dmapped Block1D(boundingBox=this.faceSpace);
+      //this.cellList_d = this.cellSpace dmapped Block1D(boundingBox=this.cellSpace);
+      //this.bocoList_d = this.bocoSpace dmapped Block1D(boundingBox=this.bocoSpace);
 
       this.famlList_d = {1..#this.nFamls} dmapped Replicated();
     }
@@ -120,27 +121,27 @@ module Mesh
 
       // Initialize mesh element counts
       this.nNodes = mesh.nodes.domain.dim(0).size;
-      this.nCells = mesh.cell_cnt();
-      this.nFaces = mesh.face_cnt();
-      this.nBocos = mesh.boco_cnt();
       this.nEdges = 0;
+      this.nFaces = mesh.face_cnt();
+      this.nCells = mesh.cell_cnt();
+      this.nBocos = mesh.boco_cnt();
       this.nFamls = mesh.faml_cnt();
 
       // Initialize non-distributed domains
       this.nodeSpace = {1..#this.nNodes};
-      this.cellSpace = {1..#this.nCells};
-      this.faceSpace = {1..#this.nFaces};
-      this.bocoSpace = {1..#this.nBocos};
       this.edgeSpace = {1..#this.nEdges};
+      this.faceSpace = {1..#this.nFaces};
+      this.cellSpace = {1..#this.nCells};
+      this.bocoSpace = {1..#this.nBocos};
       this.famlSpace = {1..#this.nFamls};
 
       // Initialize distributed domains
       this.nodeList_d = this.nodeSpace dmapped Block(boundingBox=this.nodeSpace);
-      this.cellList_d = this.cellSpace dmapped Block(boundingBox=this.cellSpace);
-      this.faceList_d = this.faceSpace dmapped Block(boundingBox=this.faceSpace);
-      this.bocoList_d = this.bocoSpace dmapped Block(boundingBox=this.bocoSpace);
       this.edgeList_d = if (nEdges == 0) then this.edgeSpace dmapped Block(boundingBox={1..1})
                                          else this.edgeSpace dmapped Block(boundingBox=this.edgeSpace);
+      this.faceList_d = this.faceSpace dmapped Block(boundingBox=this.faceSpace);
+      this.cellList_d = this.cellSpace dmapped Block(boundingBox=this.cellSpace);
+      this.bocoList_d = this.bocoSpace dmapped Block(boundingBox=this.bocoSpace);
       this.famlList_d = {1..#this.nFamls} dmapped Replicated();
     }
 

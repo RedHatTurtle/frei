@@ -60,6 +60,10 @@ module FRMesh {
 
     // FR solver variables
 
+    // Point indexing arrays
+    var cellSPidx : [cellSPidx_d] int;  // Index of the first SP and number of SPs of a cell
+    var faceFPidx : [faceFPidx_d] int;  // Index of the first FP and number of FPs of a face
+
     // Physical coordinates
     var xyzSP : [xyzSP_d] real;
     var xyzFP : [xyzFP_d] real;
@@ -79,9 +83,6 @@ module FRMesh {
     //var   dSolFP : [dSolFP_d] real;     // Gradient, at the FPs, of the discontinuous flux reconstruction
     var    resSP : [ solSP_d] real;     // Conserved variables residual
 
-    var cellSPidx : [cellSPidx_d] int;  // Index of the first SP and number of SPs of a cell
-    var faceFPidx : [faceFPidx_d] int;  // Index of the first FP and number of FPs of a face
-
     proc init(mesh : gmesh2_c, nVars : int, solOrder : int)
     {
       super.init(mesh);
@@ -94,18 +95,18 @@ module FRMesh {
       for cellTopo in cellTopoCnt.keys() do
         spCnt = try! cellTopoCnt[cellTopo] * n_cell_sps(cellTopo, this.solOrder);
       this.nSPs = spCnt;
+      //writeln("Mesh allocated with ", this.nSPs, " SPs");
 
       var fpCnt : int;
       const faceTopoCnt = mesh.face_topo_cnt();
       for faceTopo in faceTopoCnt.keys() do
         fpCnt = try! faceTopoCnt[faceTopo] * n_face_fps(faceTopo, this.solOrder);
       this.nFPs = fpCnt;
-
-      //writeln("Mesh allocated with ", this.nSPs, " SPs");
       //writeln("Mesh allocated with ", this.nFPs, " FPs");
 
       this.cellSPidxSpace = {1..this.nCells, 1..2};
       this.faceFPidxSpace = {1..this.nFaces, 1..2};
+
       this.xyzSPSpace     = {1..this.nSPs, 1..nDims};
       this.xyzFPSpace     = {1..this.nFPs, 1..nDims};
       this.metSPSpace     = {1..this.nSPs, 1..nDims, 1..nDims};
@@ -116,6 +117,7 @@ module FRMesh {
 
       this.cellSPidx_d = this.cellSPidxSpace dmapped Block(boundingBox=this.cellSPidxSpace);
       this.faceFPidx_d = this.faceFPidxSpace dmapped Block(boundingBox=this.faceFPidxSpace);
+
       this.xyzSP_d     = this.xyzSPSpace     dmapped Block(boundingBox=this.xyzSPSpace    );
       this.xyzFP_d     = this.xyzFPSpace     dmapped Block(boundingBox=this.xyzFPSpace    );
       this.metSP_d     = this.metSPSpace     dmapped Block(boundingBox=this.metSPSpace    );
