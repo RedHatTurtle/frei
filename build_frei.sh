@@ -102,6 +102,7 @@ SRC_FILES="                          \
     src/ringleb.chpl                 \
     src/config.chpl                  \
     src/input.chpl                   \
+    src/functions/inverse.chpl       \
     src/functions/determinant.chpl   \
     src/functions/sorttuple.chpl     \
     src/parameters.chpl              \

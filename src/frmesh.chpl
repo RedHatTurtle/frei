@@ -361,6 +361,7 @@ module FRMesh {
       use LinearAlgebra;
       use Mapping;
       use Set;
+      import Inverse.inv;
       import Determinant.determinant;
 
       init_mapping(minOrder=this.solOrder, maxOrder=this.solOrder, this.cellTypes|this.faceTypes);

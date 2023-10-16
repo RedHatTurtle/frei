@@ -5,20 +5,16 @@ build/
 bench/*.log
 bench/interpBench.chapel
 bench/interpBench.fortran
+bench/inverse/*.chapel
 
 # Ignore most common executable names
+*_real
 frei
 FREI
-frei_real
-FREI_real
 frei_dbg
 FREI_dbg
-frei_dbg_real
-FREI_dbg_real
 frei_opt
 FREI_opt
-frei_opt_real
-FREI_opt_real
 
 # Ignore built Fortran modules
 *.mod
