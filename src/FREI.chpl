@@ -392,11 +392,28 @@ module FREI
 
               // Step 3: Convert fluxes from physical to computational domain
               //dscFluxWatch.restart();
-              for meshSP in cellSPini.. #cellSPcnt
+              for cellSPidx in 1..cellSPcnt
               {
+                const meshSPidx = cellSPini + cellSPidx - 1;
+
                 // Multiply the flux vector by the inverse Jacobian matrix and by the Jacobian determinant
-                var flxsp = flxSP[.., .., meshSP-cellSPini+1];
-                flxSP[.., .., meshSP-cellSPini+1] = dot( frMesh.metSP[meshSP, .., ..], flxsp)*frMesh.jacSP[meshSP];
+                //var flxsp = flxSP[.., .., meshSP-cellSPini+1];
+                //flxSP[.., .., cellSPidx] = dot( frMesh.metSP[meshSPidx, .., ..], flxsp)*frMesh.jacSP[meshSPidx];
+
+                for varIdx in 1..frMesh.nVars
+                {
+                  var compFlxSP : [1..frMesh.nDims] real = 0;
+
+                  for compDimIdx in 1..frMesh.nDims
+                  {
+                    // Multiply the flux vector by the inverse Jacobian matrix and by the Jacobian determinant
+                    for physDimIdx in 1..frMesh.nDims do
+                      compFlxSP[compDimIdx] += flxSP[physDimIdx, varIdx, cellSPidx]
+                                              *frMesh.metSP[meshSPidx, compDimIdx, physDimIdx];
+                  }
+
+                  flxSP[.., varIdx, cellSPidx] = compFlxSP * frMesh.jacSP[meshSPidx];
+                }
               }
               //dscFluxTime3 += dscFluxWatch.elapsed();
 

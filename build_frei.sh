@@ -102,6 +102,7 @@ SRC_FILES="                          \
     src/ringleb.chpl                 \
     src/config.chpl                  \
     src/input.chpl                   \
+    src/functions/inverse.chpl       \
     src/functions/determinant.chpl   \
     src/functions/sorttuple.chpl     \
     src/parameters.chpl              \
@@ -154,18 +155,19 @@ BUILD_AMD="false"
 BUILD_INTEL="false"
 BUILD_OPENBLAS="false"
 
-if [[ $@ =~ --amd      ]]; then BUILD_AMD="true";      BUILD_GENERIC="false"; fi
-if [[ $@ =~ --intel    ]]; then BUILD_INTEL="true";    BUILD_GENERIC="false"; fi
-if [[ $@ =~ --openblas ]]; then BUILD_OPENBLAS="true"; BUILD_GENERIC="false"; fi
-if [[ $@ =~ --blis     ]]; then BUILD_BLIS="true";     BUILD_GENERIC="false"; fi
-if [[ $@ =~ --generic  ]]; then BUILD_GENERIC="true";  fi
+if [[ $@ =~ --noblas   ]]; then BLD_BLAS="noblas"; BUILD_NOBLAS="true";   BUILD_GENERIC="false"; fi
+if [[ $@ =~ --amd      ]]; then BLD_BLAS="amd";    BUILD_AMD="true";      BUILD_GENERIC="false"; fi
+if [[ $@ =~ --intel    ]]; then BLD_BLAS="mkl";    BUILD_INTEL="true";    BUILD_GENERIC="false"; fi
+if [[ $@ =~ --openblas ]]; then BLD_BLAS="open";   BUILD_OPENBLAS="true"; BUILD_GENERIC="false"; fi
+if [[ $@ =~ --blis     ]]; then BLD_BLAS="blis";   BUILD_BLIS="true";     BUILD_GENERIC="false"; fi
+if [[ $@ =~ --generic  ]]; then BLD_BLAS="blas";   BUILD_GENERIC="true";  fi
 
 ##################################################
 ###   Generate binary and links names          ###
 ##################################################
 
-BUILD_NAME="frei_${BLD_LOCALE}_${BLD_MODE}.${VERS_HASH}"
-LINK_NAME="frei_${BLD_LOCALE}_${BLD_MODE}"
+BUILD_NAME="frei_${BLD_LOCALE}_${BLD_MODE}_${BLD_BLAS}.${VERS_HASH}"
+LINK_NAME="frei_${BLD_LOCALE}_${BLD_MODE}_${BLD_BLAS}"
 if [[ "$GIT_BRANCH" != *"HEAD detached"* ]]; then
     LINK_NAME="${LINK_NAME}.${GIT_BRANCH}"
 fi
@@ -174,6 +176,47 @@ echo
 echo BUILD DIR  = $BUILD_DIR
 echo BUILD NAME = $BUILD_NAME
 echo LINK  NAME = $LINK_NAME
+
+##################################################
+###   Build without BLAS/Lapack                ###
+##################################################
+
+if [[ $BUILD_NOBLAS == "true" ]]; then
+    # No BLAS/LAPACK
+    VER_LAPACK="${UBlue}No LAPACK${Color_Off}"
+
+    echo
+    echo -e "Building $VER_LOCALE $VER_MODE $VER_LAPACK version of Frei..."
+    echo
+    chpl $BLD_FLAG                                          \
+        --set blasImpl=off                                  \
+        --set lapackImpl=off                                \
+        --main-module "FREI" $SRC_FILES                     \
+        -o $BUILD_DIR/$BUILD_NAME                           \
+        2>&1 | tee $BUILD_LOG_DIR/$BUILD_NAME.log
+    if [ ${PIPESTATUS[0]} -eq 0 ]; then
+        # Short link with build version specs only
+        ln -srf $BUILD_DIR/$BUILD_NAME $BUILD_DIR/${LINK_NAME%%\.*}
+
+        # Longer link with branch name if not a detached HEAD
+        if [[ "$GIT_BRANCH" != *"HEAD detached"* ]]; then
+            if [ $SOURCE_CHANGES -eq 0 ] && [ $BUILD_SCRIPT_CHANGES -eq 0 ] ; then
+                # Link with branch name if code and build scripts unchanged
+                ln -srf $BUILD_DIR/$BUILD_NAME $BUILD_DIR/$LINK_NAME
+            else
+                # Link with branch name and "-alpha" for edited code or build script
+                ln -srf $BUILD_DIR/$BUILD_NAME $BUILD_DIR/$LINK_NAME-alpha
+            fi
+        fi
+
+        echo
+        echo -e $MSG_DONE
+    else
+        echo
+        echo -e $MSG_FAIL
+    fi
+    echo -e "------------------------------------------------------------"
+fi
 
 ##################################################
 ###   System native BLAS/Lapack based build    ###

@@ -224,6 +224,8 @@ module Projection
   proc proj_matrix(basis : [] real, weights : [] real, normalizedBasis : bool = false)
   {
     use LinearAlgebra;
+    import Inverse.inv;
+    import Determinant.determinant;
 
     // basis : [1..spCnt, 1..modeCnt] real
     //      Matrix of the basis vectors of the projection space in nodal form
