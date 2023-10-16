@@ -154,19 +154,19 @@ BUILD_AMD="false"
 BUILD_INTEL="false"
 BUILD_OPENBLAS="false"
 
-if [[ $@ =~ --noblas   ]]; then BUILD_NOBLAS="true";   BUILD_GENERIC="false"; fi
-if [[ $@ =~ --amd      ]]; then BUILD_AMD="true";      BUILD_GENERIC="false"; fi
-if [[ $@ =~ --intel    ]]; then BUILD_INTEL="true";    BUILD_GENERIC="false"; fi
-if [[ $@ =~ --openblas ]]; then BUILD_OPENBLAS="true"; BUILD_GENERIC="false"; fi
-if [[ $@ =~ --blis     ]]; then BUILD_BLIS="true";     BUILD_GENERIC="false"; fi
-if [[ $@ =~ --generic  ]]; then BUILD_GENERIC="true";  fi
+if [[ $@ =~ --noblas   ]]; then BLD_BLAS="noblas"; BUILD_NOBLAS="true";   BUILD_GENERIC="false"; fi
+if [[ $@ =~ --amd      ]]; then BLD_BLAS="amd";    BUILD_AMD="true";      BUILD_GENERIC="false"; fi
+if [[ $@ =~ --intel    ]]; then BLD_BLAS="mkl";    BUILD_INTEL="true";    BUILD_GENERIC="false"; fi
+if [[ $@ =~ --openblas ]]; then BLD_BLAS="open";   BUILD_OPENBLAS="true"; BUILD_GENERIC="false"; fi
+if [[ $@ =~ --blis     ]]; then BLD_BLAS="blis";   BUILD_BLIS="true";     BUILD_GENERIC="false"; fi
+if [[ $@ =~ --generic  ]]; then BLD_BLAS="blas";   BUILD_GENERIC="true";  fi
 
 ##################################################
 ###   Generate binary and links names          ###
 ##################################################
 
-BUILD_NAME="frei_${BLD_LOCALE}_${BLD_MODE}.${VERS_HASH}"
-LINK_NAME="frei_${BLD_LOCALE}_${BLD_MODE}"
+BUILD_NAME="frei_${BLD_LOCALE}_${BLD_MODE}_${BLD_BLAS}.${VERS_HASH}"
+LINK_NAME="frei_${BLD_LOCALE}_${BLD_MODE}_${BLD_BLAS}"
 if [[ "$GIT_BRANCH" != *"HEAD detached"* ]]; then
     LINK_NAME="${LINK_NAME}.${GIT_BRANCH}"
 fi
