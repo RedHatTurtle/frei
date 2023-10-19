@@ -867,9 +867,9 @@ module FREI
     writef("      - Step 1: %11.2dr ms - %4.1dr%% of Cnt Flux\n",   cntFluxTime1*1000,  cntFluxTime1/cntFluxTime  *100);
     writef("      - Step 2: %11.2dr ms - %4.1dr%% of Cnt Flux\n",   cntFluxTime2*1000,  cntFluxTime2/cntFluxTime  *100);
     writef("      - Step 3: %11.2dr ms - %4.1dr%% of Cnt Flux\n",   cntFluxTime3*1000,  cntFluxTime3/cntFluxTime  *100);
-  //writef("        - Op 1: %11.2dr ms - %4.1dr%% of St3 Flux\n",       riemTime*1000,      riemTime/cntFluxTime3 *100);
-  //writef("        - Op 2: %11.2dr ms - %4.1dr%% of St3 Flux\n",       jumpTime*1000,      jumpTime/cntFluxTime3 *100);
-  //writef("        - Op 3: %11.2dr ms - %4.1dr%% of St3 Flux\n",       corrTime*1000,      corrTime/cntFluxTime3 *100);
+    writef("        - Op 1: %11.2dr ms - %4.1dr%% of St3 Flux\n",       riemTime*1000,      riemTime/cntFluxTime3 *100);
+    writef("        - Op 2: %11.2dr ms - %4.1dr%% of St3 Flux\n",       jumpTime*1000,      jumpTime/cntFluxTime3 *100);
+    writef("        - Op 3: %11.2dr ms - %4.1dr%% of St3 Flux\n",       corrTime*1000,      corrTime/cntFluxTime3 *100);
     writef("  - Time-Step : %11.2dr ms - %4.1dr%% of Iteration\n",  timeStepTime*1000,  timeStepTime/solveTime    *100);
     writef("  - Stabilize : %11.2dr ms - %4.1dr%% of Iteration\n", stabilizeTime*1000, stabilizeTime/solveTime    *100);
     writef("  - Iter IO   : %11.2dr ms - %4.1dr%% of Iteration\n",    ioIterTime*1000,    ioIterTime/solveTime    *100);
@@ -879,7 +879,7 @@ module FREI
 
     var  dscFluxSumTime : real = dscFluxTime1 + dscFluxTime2 + dscFluxTime3 + dscFluxTime4;
     var  cntFluxSumTime : real = cntFluxTime1 + cntFluxTime2 + cntFluxTime3 ;
-  //var cntStep3SumTime : real = riemTime + jumpTime + corrTime;
+    var cntStep3SumTime : real = riemTime + jumpTime + corrTime;
     var  residueSumTime : real = srcTermTime + dscFluxTime + cntFluxTime;
     var     iterSumTime : real = residueTime + stabilizeTime + timeStepTime + ioIterTime;
     var  programSumTime : real = initTime + solveTime + outputTime;
@@ -888,7 +888,7 @@ module FREI
     writef("Split verifications:\n");
     writef("  Dsc Flux  Sum: %11.2dr ms - %4.1dr%% of Dsc Flux\n",   dscFluxSumTime*1000,  dscFluxSumTime/dscFluxTime *100);
     writef("  Cnt Flux  Sum: %11.2dr ms - %4.1dr%% of Cnt Flux\n",   cntFluxSumTime*1000,  cntFluxSumTime/cntFluxTime *100);
-  //writef("  Cnt Step3 Sum: %11.2dr ms - %4.1dr%% of Cnt Step3\n", cntStep3SumTime*1000, cntStep3SumTime/cntFluxTime3*100);
+    writef("  Cnt Step3 Sum: %11.2dr ms - %4.1dr%% of Cnt Step3\n", cntStep3SumTime*1000, cntStep3SumTime/cntFluxTime3*100);
     writef("  Residue   Sum: %11.2dr ms - %4.1dr%% of Residue\n",    residueSumTime*1000,  residueSumTime/residueTime *100);
     writef("  Iter      Sum: %11.2dr ms - %4.1dr%% of Solve\n",         iterSumTime*1000,     iterSumTime/solveTime   *100);
     writef("  Program   Sum: %11.2dr ms - %4.1dr%% of Program\n",    programSumTime*1000,  programSumTime/programTime *100);
