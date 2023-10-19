@@ -859,10 +859,10 @@ module FREI
     writef("  - Residue   : %11.2dr ms - %4.1dr%% of Iteration\n",   residueTime*1000,   residueTime/solveTime    *100);
     writef("    - Src Term: %11.2dr ms - %4.1dr%% of Residue\n",     srcTermTime*1000,   srcTermTime/residueTime  *100);
     writef("    - Dsc Flux: %11.2dr ms - %4.1dr%% of Residue\n",     dscFluxTime*1000,   dscFluxTime/residueTime  *100);
-  //writef("      - Step 1: %11.2dr ms - %4.1dr%% of Dsc Flux\n",   dscFluxTime1*1000,  dscFluxTime1/dscFluxTime  *100);
-  //writef("      - Step 2: %11.2dr ms - %4.1dr%% of Dsc Flux\n",   dscFluxTime2*1000,  dscFluxTime2/dscFluxTime  *100);
-  //writef("      - Step 3: %11.2dr ms - %4.1dr%% of Dsc Flux\n",   dscFluxTime3*1000,  dscFluxTime3/dscFluxTime  *100);
-  //writef("      - Step 4: %11.2dr ms - %4.1dr%% of Dsc Flux\n",   dscFluxTime4*1000,  dscFluxTime4/dscFluxTime  *100);
+    writef("      - Step 1: %11.2dr ms - %4.1dr%% of Dsc Flux\n",   dscFluxTime1*1000,  dscFluxTime1/dscFluxTime  *100);
+    writef("      - Step 2: %11.2dr ms - %4.1dr%% of Dsc Flux\n",   dscFluxTime2*1000,  dscFluxTime2/dscFluxTime  *100);
+    writef("      - Step 3: %11.2dr ms - %4.1dr%% of Dsc Flux\n",   dscFluxTime3*1000,  dscFluxTime3/dscFluxTime  *100);
+    writef("      - Step 4: %11.2dr ms - %4.1dr%% of Dsc Flux\n",   dscFluxTime4*1000,  dscFluxTime4/dscFluxTime  *100);
     writef("    - Cnt Flux: %11.2dr ms - %4.1dr%% of Residue\n",     cntFluxTime*1000,   cntFluxTime/residueTime  *100);
     writef("      - Step 1: %11.2dr ms - %4.1dr%% of Cnt Flux\n",   cntFluxTime1*1000,  cntFluxTime1/cntFluxTime  *100);
     writef("      - Step 2: %11.2dr ms - %4.1dr%% of Cnt Flux\n",   cntFluxTime2*1000,  cntFluxTime2/cntFluxTime  *100);
@@ -877,7 +877,7 @@ module FREI
     writef("---------------------------------------------------------\n");
     writef("  Run-time    : %11.2dr ms\n", programTime*1000);
 
-  //var  dscFluxSumTime : real = dscFluxTime1 + dscFluxTime2 + dscFluxTime3 + dscFluxTime4;
+    var  dscFluxSumTime : real = dscFluxTime1 + dscFluxTime2 + dscFluxTime3 + dscFluxTime4;
     var  cntFluxSumTime : real = cntFluxTime1 + cntFluxTime2 + cntFluxTime3 ;
   //var cntStep3SumTime : real = riemTime + jumpTime + corrTime;
     var  residueSumTime : real = srcTermTime + dscFluxTime + cntFluxTime;
@@ -886,7 +886,7 @@ module FREI
 
     writeln();
     writef("Split verifications:\n");
-  //writef("  Dsc Flux  Sum: %11.2dr ms - %4.1dr%% of Dsc Flux\n",   dscFluxSumTime*1000,  dscFluxSumTime/dscFluxTime *100);
+    writef("  Dsc Flux  Sum: %11.2dr ms - %4.1dr%% of Dsc Flux\n",   dscFluxSumTime*1000,  dscFluxSumTime/dscFluxTime *100);
     writef("  Cnt Flux  Sum: %11.2dr ms - %4.1dr%% of Cnt Flux\n",   cntFluxSumTime*1000,  cntFluxSumTime/cntFluxTime *100);
   //writef("  Cnt Step3 Sum: %11.2dr ms - %4.1dr%% of Cnt Step3\n", cntStep3SumTime*1000, cntStep3SumTime/cntFluxTime3*100);
     writef("  Residue   Sum: %11.2dr ms - %4.1dr%% of Residue\n",    residueSumTime*1000,  residueSumTime/residueTime *100);
