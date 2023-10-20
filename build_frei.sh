@@ -81,67 +81,6 @@ fi
 MSG_DONE="${BGreen}Done${Color_Off}"
 MSG_FAIL="${BRed}Fail${Color_Off}"
 
-BUILD_DIR="./build"
-BUILD_LOG_DIR="./build/buildLogs"
-if [ ! -d "build" ]; then
-    echo
-    echo -e "Creating build directory:      $BUILD_DIR"
-    mkdir -p $BUILD_DIR
-fi
-if [ ! -d "build/buildLogs" ]; then
-    echo -e "Creating build logs directory: $BUILD_LOG_DIR"
-    mkdir -p $BUILD_LOG_DIR
-fi
-echo -e "------------------------------------------------------------"
-
-FREI_DIR=$(pwd)
-GIT_HASH=$(git rev-parse HEAD)
-GIT_HASH_SHORT=$(git rev-parse --short HEAD)
-COMPILE_TIME=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
-GIT_BRANCH=$(git branch | grep "^\*" | sed "s/^..//")
-SOURCES_HASH=$(sha1sum ./src/*.chpl | sha1sum | head -c 40)
-BUILD_SCRIPT_HASH=$(sha1sum ./build_frei.sh | head -c 40)
-CHANGES=""
-
-# Check if:
-# - We're compiling an unmodified commit
-# - The source code changed from the base commit
-# - The build script changed from the base commit
-git diff --quiet HEAD ./src; SOURCE_CHANGES=$?
-git diff --quiet HEAD ./build_frei.sh; BUILD_SCRIPT_CHANGES=$?
-if [ $SOURCE_CHANGES -eq 0 ] && [ $BUILD_SCRIPT_CHANGES -eq 0 ] ; then
-    echo
-    echo -e "Compiling unmodified FREI from"
-    echo -e "   - Commit:" $GIT_HASH
-    echo -e "   - Branch:" $GIT_BRANCH
-    echo -e "   - Time  :" $COMPILE_TIME
-elif [ $SOURCE_CHANGES -eq 0 ] && [ $BUILD_SCRIPT_CHANGES -ne 0 ] ; then
-    CHANGES=$CHANGES".bld-${BUILD_SCRIPT_HASH::6}"
-    echo
-    echo -e "Compiling FREI with modified build script"
-    echo -e "   - Commit:" $GIT_HASH
-    echo -e "   - Branch:" $GIT_BRANCH
-    echo -e "   - Time  :" $COMPILE_TIME
-    echo -e "Build script hash:" $BUILD_SCRIPT_HASH
-else
-    CHANGES=$CHANGES".src-${SOURCES_HASH::6}"
-    if [ $BUILD_SCRIPT_CHANGES -ne 0 ] ; then
-        CHANGES=$CHANGES".bld-${BUILD_SCRIPT_HASH::6}"
-    fi
-    echo
-    echo -e "Compiling FREI with modified sources based on"
-    echo -e "   - Commit:" $GIT_HASH
-    echo -e "   - Branch:" $GIT_BRANCH
-    echo -e "   - Time  :" $COMPILE_TIME
-    echo -e "Build script hash:" $BUILD_SCRIPT_HASH
-    echo -e "Source files hash:" $SOURCES_HASH
-fi
-echo -e "------------------------------------------------------------"
-
-# Replace "/" with "_" on branch names so they can be user on file names
-GIT_BRANCH=${GIT_BRANCH//\//_}
-VERS_HASH="$GIT_HASH_SHORT$CHANGES"
-
 ##################################################
 ###   List of FREI Source Files                ###
 ##################################################
@@ -176,6 +115,77 @@ SRC_FILES="                          \
     src/functions/sorttuple.chpl     \
     src/parameters.chpl              \
     src/testing.chpl                 "
+
+##################################################
+###   Get hashed for binary name               ###
+##################################################
+
+BUILD_DIR="./build"
+BUILD_LOG_DIR="./build/buildLogs"
+if [ ! -d "build" ]; then
+    echo
+    echo -e "Creating build directory:      $BUILD_DIR"
+    mkdir -p $BUILD_DIR
+fi
+if [ ! -d "build/buildLogs" ]; then
+    echo -e "Creating build logs directory: $BUILD_LOG_DIR"
+    mkdir -p $BUILD_LOG_DIR
+fi
+echo -e "------------------------------------------------------------"
+
+FREI_DIR=$(pwd)
+GIT_HASH=$(git rev-parse HEAD)
+GIT_HASH_SHORT=$(git rev-parse --short HEAD)
+COMPILE_TIME=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+SOURCES_HASH=$(sha1sum $SRC_FILES | sha1sum | head -c 40)
+BUILD_SCRIPT_HASH=$(sha1sum ./build_frei.sh | head -c 40)
+CHANGES=""
+
+# Check if:
+# - We're compiling an unmodified commit
+# - The source code changed from the base commit
+# - The build script changed from the base commit
+git diff --quiet HEAD $SRC_FILES; SOURCE_CHANGES=$?
+git diff --quiet HEAD ./build_frei.sh; BUILD_SCRIPT_CHANGES=$?
+if [ $SOURCE_CHANGES -eq 0 ] && [ $BUILD_SCRIPT_CHANGES -eq 0 ] ; then
+    echo
+    echo -e "Compiling unmodified FREI from"
+    echo -e "   - Base Commit:" $GIT_HASH
+    echo -e "   - From Branch:" $GIT_BRANCH
+    echo -e "   - Build Time :" $COMPILE_TIME
+elif [ $SOURCE_CHANGES -eq 0 ] && [ $BUILD_SCRIPT_CHANGES -ne 0 ] ; then
+    CHANGES=$CHANGES".bld-${BUILD_SCRIPT_HASH::6}"
+    echo
+    echo -e "Compiling FREI with ${BYellow}modified build script${Color_Off}"
+    echo -e "   - Base Commit:" $GIT_HASH
+    echo -e "   - From Branch:" $GIT_BRANCH
+    echo -e "   - Build Time :" $COMPILE_TIME
+    echo -e "Build script hash:" $BUILD_SCRIPT_HASH
+elif [ $SOURCE_CHANGES -ne 0 ] && [ $BUILD_SCRIPT_CHANGES -eq 0 ] ; then
+    CHANGES=$CHANGES".src-${SOURCES_HASH::6}"
+    echo
+    echo -e "Compiling FREI with ${BYellow}modified sources${Color_Off} based on"
+    echo -e "   - Base Commit:" $GIT_HASH
+    echo -e "   - From Branch:" $GIT_BRANCH
+    echo -e "   - Build Time :" $COMPILE_TIME
+    echo -e "Source files hash:" $SOURCES_HASH
+else
+    CHANGES=$CHANGES".src-${SOURCES_HASH::6}"
+    CHANGES=$CHANGES".bld-${BUILD_SCRIPT_HASH::6}"
+    echo
+    echo -e "Compiling FREI with ${BYellow}modified sources and build script${Color_Off}"
+    echo -e "   - Base Commit:" $GIT_HASH
+    echo -e "   - From Branch:" $GIT_BRANCH
+    echo -e "   - Build Time :" $COMPILE_TIME
+    echo -e "Build script hash:" $BUILD_SCRIPT_HASH
+    echo -e "Source files hash:" $SOURCES_HASH
+fi
+echo -e "------------------------------------------------------------"
+
+# Replace "/" with "_" on branch names so they can be user on file names
+GIT_BRANCH=${GIT_BRANCH//\//_}
+VERS_HASH="$GIT_HASH_SHORT$CHANGES"
 
 ##################################################
 ###   Configure Build Flags                    ###
