@@ -7,6 +7,9 @@ bench/interpBench.chapel
 bench/interpBench.fortran
 bench/inverse/*.chapel
 
+# Ignore ChapelVis logs
+ChplVis_Frei-*
+
 # Ignore most common executable names
 *_real
 frei
