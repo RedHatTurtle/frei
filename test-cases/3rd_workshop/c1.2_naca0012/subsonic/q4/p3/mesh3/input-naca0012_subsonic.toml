@@ -40,10 +40,10 @@
   outError = 0
 
 [parRef]
-  lengRef  = 1.0
-  tempRef  = 288.150
-  presRef  = 141855.0
-  viscRef  = 1.787920e-5
+  lengRef = 1.0
+  velMRef = 170.1438138522190
+  tempRef = 288.150
+  presRef = 141855.0
 
 [parFamilies]
   nFamilies = 4
